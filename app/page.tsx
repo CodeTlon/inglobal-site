@@ -1,13 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  ArrowRight,
   CheckCircle,
   Zap,
   Users,
-  Shield,
   Truck,
-  ArrowUpRight,
+  ArrowUpToLine,
+  HardHat,
+  Move,
 } from 'lucide-react'
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
@@ -21,39 +21,64 @@ const stats = [
 const services = [
   {
     id: 'gruas-telescopicas',
-    icon: ArrowUpRight,
+    icon: ArrowUpToLine, // Reemplaza ArrowUpRight: Representa elevar algo hacia un tope/altura.
     title: 'Grúas Telescópicas',
     desc: 'Equipos de alta performance para elevación y movimiento de cargas pesadas en obras industriales.',
-    specs: '3 a 200 Tn · Hasta 100m',
+    specs: 'Izajes de alta complejidad',
   },
   {
     id: 'hidrogruas',
-    icon: Truck,
+    icon: HardHat, // Reemplaza Truck: Representa operarios trabajando en altura con la barquilla.
     title: 'Hidrogrúas',
     desc: 'Hidrogrúas montadas con barquilla para trabajos en altura y montajes especiales.',
     specs: 'Con barquilla incluida',
   },
   {
     id: 'movimientos-pesados',
-    icon: Zap,
+    icon: Move, // Reemplaza Zap: Representa movimiento, posicionamiento y precisión en todos los ejes.
     title: 'Movimientos Pesados',
     desc: 'Trabajos especiales de movimiento y posicionamiento de estructuras de gran envergadura.',
     specs: 'Trabajos a medida',
   },
   {
     id: 'traslados',
-    icon: Shield,
+    icon: Truck, // Reemplaza Shield: Es el ícono perfecto y literal para los traslados en carretones.
     title: 'Traslados con Carretones',
     desc: 'Transporte de maquinarias y estructuras pesadas con carretones especializados a todo el país.',
     specs: 'Cobertura nacional',
   },
 ]
-
 const galleryItems = [
-  { src: '/images/igb-1.webp', alt: 'Grúa telescópica en operación', span: 'lg:col-span-2 lg:row-span-2', label: 'Izaje Industrial' },
-  { src: '/images/igb-5.webp', alt: 'Grúas en planta industrial', label: 'Planta Industrial' },
-  { src: '/images/igb-7.webp', alt: 'Montaje industrial con plataforma', label: 'Montaje Especial' },
-  { src: '/images/igb-9.webp', alt: 'Izaje de tanque industrial al atardecer', label: 'Petroquímica' },
+  { 
+    src: '/images/igb-1.webp', 
+    alt: 'Grúa telescópica en operación', 
+    span: 'md:col-span-2 md:row-span-2', // La imagen "Hero" que ocupa 4 celdas
+    label: 'Izaje Industrial' 
+  },
+  { 
+    src: '/images/igb-5.webp', 
+    alt: 'Grúas en planta industrial', 
+    span: 'md:col-span-1 md:row-span-1', // Ocupa 1 celda normal
+    label: 'Planta Industrial' 
+  },
+  { 
+    src: '/images/igb-7.webp', 
+    alt: 'Montaje industrial con plataforma', 
+    span: 'md:col-span-1 md:row-span-1',
+    label: 'Montaje Especial' 
+  },
+  { 
+    src: '/images/igb-9.webp', 
+    alt: 'Izaje de tanque industrial al atardecer', 
+    span: 'md:col-span-1 md:row-span-1',
+    label: 'Petroquímica' 
+  },
+  { 
+    src: '/images/igb-10.webp',
+    alt: 'Operaciones logísticas de maquinaria pesada', 
+    span: 'md:col-span-1 md:row-span-1',
+    label: 'Logística Pesada' 
+  }
 ]
 
 const clients = [
@@ -81,8 +106,8 @@ export default function HomePage() {
   return (
     <>
       {/* ===== HERO ===== */}
-      <section className="relative min-h-screen flex items-center overflow-hidden" id="inicio">
-        {/* Background image */}
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-igb-surface" id="inicio">
+        {/* Background image & Overlays */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/igb-3.webp"
@@ -91,43 +116,48 @@ export default function HomePage() {
             priority
             sizes="100vw"
             quality={85}
-            className="object-cover object-center"
+            className="object-cover object-[70%_center] md:object-center" 
           />
-          {/* Gradient overlay: left-heavy per Figma design */}
-          <div className="absolute inset-0 bg-gradient-to-r from-igb-surface via-igb-surface/80 to-igb-surface/20" />
+          
+          {/* Overlay dinámico: Más oscuro en mobile para legibilidad total, gradiente elegante en desktop */}
+          <div className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
         </div>
 
-        <div className="relative z-10 container-igb w-full pt-24 pb-16">
+        <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
           <div className="max-w-2xl">
-            <span className="label-tag">Córdoba · Argentina</span>
-            <h1 className="heading-hero mb-6">
+            <h1 className="heading-hero mb-6 text-zinc-900">
               Elevando tus proyectos con{' '}
               <span className="text-igb-yellow-dark">seguridad</span>{' '}
               y precisión.
             </h1>
-            <p className="text-body-lg mb-10 max-w-lg">
+            
+            <p className="text-igb-secondary text-lg md:text-xl mb-10 max-w-lg leading-relaxed font-medium">
               Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/contacto" className="btn-primary">
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/contacto" className="btn-primary text-center">
                 Solicitar Presupuesto
-                <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/servicios" className="btn-outline">
+              <Link href="/servicios" className="btn-outline text-center bg-white/50 backdrop-blur-sm sm:bg-transparent">
                 Ver Servicios
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="flex flex-wrap gap-8 mt-14 pt-10 border-t border-igb-outline/30">
-              {stats.map((s) => (
-                <div key={s.label}>
-                  <p className="text-3xl font-headline font-extrabold text-igb-on-surface tracking-tight">
-                    {s.number}
-                  </p>
-                  <p className="text-sm text-igb-secondary mt-1">{s.label}</p>
-                </div>
-              ))}
+            {/* Stats - Corregido para Mobile */}
+            <div className="mt-14 pt-10 border-t border-igb-outline/30 max-w-sm md:max-w-none">
+              <div className="grid grid-cols-2 md:flex md:flex-wrap gap-x-4 gap-y-8 md:gap-8">
+                {stats.map((s) => (
+                  <div key={s.label} className="group">
+                    <p className="text-3xl md:text-4xl font-headline font-extrabold text-zinc-900 tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none">
+                      {s.number}
+                    </p>
+                    <p className="text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
+                      {s.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -148,10 +178,6 @@ export default function HomePage() {
                 quality={85}
               />
               {/* Floating badge */}
-              <div className="absolute -bottom-6 -right-6 bg-igb-yellow text-igb-on-yellow rounded-xl p-5 shadow-igb-lg hidden md:block">
-                <p className="text-3xl font-headline font-extrabold leading-none">40+</p>
-                <p className="text-xs font-bold mt-1 uppercase tracking-wide">Años de trayectoria</p>
-              </div>
             </div>
 
             <div>
@@ -193,18 +219,28 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map(({ id, icon: Icon, title, desc, specs }) => (
-              <div key={id} className="card-igb group">
+              {services.map(({ id, icon: Icon, title, desc, specs }) => (
+              <div 
+                key={id} 
+                className="card-igb group flex flex-col h-full"
+              >
                 <div className="w-12 h-12 bg-igb-yellow/20 rounded-lg flex items-center justify-center mb-6">
                   <Icon className="w-6 h-6 text-igb-yellow-dark" />
                 </div>
+                
                 <h3 className="text-lg font-headline font-bold mb-3 text-igb-on-surface">
                   {title}
                 </h3>
-                <p className="text-igb-secondary text-sm leading-relaxed mb-4">{desc}</p>
-                <span className="text-xs font-bold text-igb-yellow-dark tracking-wide uppercase">
-                  {specs}
-                </span>
+
+                <p className="text-igb-secondary text-sm leading-relaxed mb-6 flex-grow">
+                  {desc}
+                </p>
+
+                <div className="mt-auto pt-4 border-t border-slate-200/10"> 
+                  <span className="text-xs font-bold text-igb-yellow-dark tracking-wide uppercase block">
+                    {specs}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -212,38 +248,38 @@ export default function HomePage() {
           <div className="mt-12 text-center">
             <Link href="/servicios" className="btn-outline">
               Ver todos los servicios
-              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* ===== CTA BANNER ===== */}
-      <section className="relative py-24 overflow-hidden bg-slate-900">
+      <section className="relative py-24 md:py-32 overflow-hidden bg-slate-950">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/igb-10.webp"
-            alt="Montaje de silos en planta petroquímica"
+            alt="Montaje de maquinaria pesada en industria"
             fill
             sizes="100vw"
             quality={75}
-            className="object-cover object-center opacity-20"
+            // Subimos la opacidad a 30% para que se vea más la foto
+            className="object-cover object-center opacity-30"
           />
+          {/* Suavizamos un poco el gradiente en el centro (via-slate-900/70) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent"></div>
         </div>
+
         <div className="relative z-10 container-igb">
           <div className="max-w-2xl">
-            <span className="text-igb-yellow text-xs font-bold tracking-widest uppercase mb-4 block">
-              Más de 40 años de experiencia
-            </span>
             <h2 className="text-4xl md:text-5xl font-headline font-extrabold text-white tracking-tight leading-tight mb-6">
-              Montajes Industriales<br />a Medida
+              Ingeniería aplicada a<br className="hidden sm:block" /> montajes complejos
             </h2>
-            <p className="text-slate-300 text-lg leading-relaxed mb-10">
-              Nos gusta lo difícil, nos atrae lo complicado y logramos lo imposible.
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed mb-10">
+              Soluciones logísticas y de izaje para los desafíos más exigentes de la industria.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/contacto" className="btn-primary">
-                Contactanos
+                Solicitar Cotización
               </Link>
               <Link href="/montajes" className="btn-outline-white">
                 Ver Montajes
@@ -269,7 +305,6 @@ export default function HomePage() {
               className="flex items-center gap-2 text-igb-yellow-dark font-bold font-headline text-sm hover:gap-3 transition-all flex-shrink-0"
             >
               Ver galería completa
-              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -315,11 +350,12 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 items-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
             {clients.map((client) => (
               <div
                 key={client.name}
-                className="flex items-center justify-center p-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                // Agregamos bg-white, bordes redondeados y un aspecto cuadrado/rectangular consistente
+                className="bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-sm grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:shadow-md transition-all duration-300 group"
               >
                 <Image
                   src={client.logo}
@@ -327,16 +363,16 @@ export default function HomePage() {
                   width={140}
                   height={60}
                   sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 15vw"
-                  className="object-contain h-12 w-auto"
+                  // group-hover:scale-105 le da un toquecito de vida cuando pasas el mouse
+                  className="object-contain h-full w-full max-h-12 transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ))}
           </div>
 
-          <div className="mt-10 text-center">
+          <div className="mt-12 text-center">
             <Link href="/clientes" className="btn-outline">
-              Ver todos los clientes
-              <ArrowRight className="w-4 h-4" />
+              Ver todos nuestros clientes
             </Link>
           </div>
         </div>
@@ -355,7 +391,7 @@ export default function HomePage() {
 
           <div className="rounded-xl overflow-hidden shadow-igb">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5120.735420778664!2d-64.1812979!3d-31.3339384!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9432997e4baee84d%3A0xd4a924978118ee6f!2sGr%C3%BAas%20Inglobal%20SRL!5e1!3m2!1ses!2sar!4v1773003277957!5m2!1ses!2sar"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3407.907109390354!2d-64.18387818753284!3d-31.333938374192776!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9432997e4baee84d%3A0xd4a924978118ee6f!2sGr%C3%BAas%20Inglobal%20SRL!5e0!3m2!1ses-419!2sar!4v1775834094244!5m2!1ses-419!2sar"
               width="100%"
               height="450"
               style={{ border: 0 }}
@@ -365,21 +401,6 @@ export default function HomePage() {
               title="Ubicación Grúas InGlobal S.R.L."
             />
           </div>
-        </div>
-      </section>
-
-      {/* ===== CONTACT CTA ===== */}
-      <section className="section-pad bg-igb-surface-low">
-        <div className="container-igb text-center">
-          <span className="label-tag flex justify-center">¿Tenés un proyecto?</span>
-          <h2 className="heading-display mb-4">Consultanos sin compromiso</h2>
-          <p className="text-body-lg max-w-lg mx-auto mb-8">
-            Estamos para resolver tu necesidad de movimiento y elevación. Respondemos rápido.
-          </p>
-          <Link href="/contacto" className="btn-primary mx-auto">
-            Enviar consulta
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </section>
     </>

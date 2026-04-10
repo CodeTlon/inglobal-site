@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Clientes',
@@ -38,26 +37,30 @@ const clients = [
 
 export default function ClientesPage() {
   return (
-    <>
-      {/* Header */}
-      <section className="pt-32 pb-16 bg-igb-surface-low">
+    <main className="bg-white">
+      {/* Page Header - Minimalista (Zinc 50) */}
+      <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
         <div className="container-igb">
-          <span className="label-tag">Confían en nosotros</span>
-          <h1 className="heading-display mb-4">Nuestros Clientes</h1>
-          <p className="text-body-lg max-w-2xl">
-            Empresas líderes de Argentina que nos eligen por nuestro compromiso, responsabilidad y resultados. Su confianza es nuestro mayor aval.
+          <span className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+            Nuestras Alianzas
+          </span>
+          <h1 className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight">
+            Nuestros Clientes
+          </h1>
+          <p className="text-xl text-zinc-500 max-w-2xl leading-relaxed">
+            Empresas líderes de Argentina que nos eligen por nuestro compromiso y resultados. Su confianza es nuestro mayor aval.
           </p>
         </div>
       </section>
 
-      {/* Logo grid */}
-      <section className="section-pad bg-igb-surface">
+      {/* Logo grid - Intacto como pediste */}
+      <section className="section-pad bg-white">
         <div className="container-igb">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {clients.map((client) => (
               <div
                 key={client.name}
-                className="bg-white rounded-xl p-6 flex items-center justify-center shadow-igb grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:-translate-y-1 transition-all duration-300 aspect-[3/2]"
+                className="bg-white rounded-xl p-6 flex items-center justify-center shadow-sm border border-zinc-100 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:-translate-y-1 transition-all duration-300 aspect-[3/2]"
               >
                 <Image
                   src={client.logo}
@@ -72,31 +75,30 @@ export default function ClientesPage() {
           </div>
 
           <div className="mt-16 text-center">
-            <p className="text-igb-secondary text-sm font-medium mb-6">
+            <p className="text-zinc-400 text-sm font-medium">
               {clients.length} empresas que ya eligieron Grúas InGlobal
             </p>
           </div>
         </div>
       </section>
 
-      {/* Testimonial-like section */}
-      <section className="section-pad bg-slate-900">
+      {/* Final CTA - Minimalista y Centrado (Zinc 100) */}
+      <section className="py-24 bg-zinc-100">
         <div className="container-igb text-center">
-          <p className="text-igb-yellow text-xs font-bold tracking-widest uppercase mb-6">
-            Por qué nos eligen
-          </p>
-          <h2 className="text-3xl md:text-4xl font-headline font-extrabold text-white tracking-tight mb-6">
-            &ldquo;La cordialidad y las buenas costumbres<br className="hidden md:block" /> son los pilares de nuestra cultura&rdquo;
+          <h2 className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-6">
+            ¿Querés trabajar con nosotros?
           </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10">
+          <p className="text-zinc-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
             Somos una PyME con una gran fortaleza humana donde construimos relaciones comerciales excelentes y duraderas.
           </p>
-          <Link href="/contacto" className="btn-primary mx-auto">
-            Trabajar con nosotros
-            <ArrowRight className="w-4 h-4" />
+          <Link 
+            href="/contacto" 
+            className="btn-primary inline-block px-12 py-4 text-lg shadow-lg shadow-igb-yellow/20 transition-all hover:-translate-y-1"
+          >
+            Contactar ahora
           </Link>
         </div>
       </section>
-    </>
+    </main>
   )
 }
