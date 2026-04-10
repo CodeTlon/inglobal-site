@@ -3,25 +3,48 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-headline: var(--font-manrope);
+  --font-body: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-igb-surface text-igb-on-surface font-body antialiased;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .section-pad {
+    @apply py-24 lg:py-32;
+  }
+  .container-igb {
+    @apply max-w-7xl mx-auto px-6;
+  }
+  .label-tag {
+    @apply text-igb-yellow-dark font-bold tracking-widest text-xs uppercase mb-4 block;
+  }
+  .heading-display {
+    @apply text-4xl md:text-5xl font-headline font-extrabold text-igb-on-surface tracking-tight leading-tight;
+  }
+  .heading-hero {
+    @apply text-5xl md:text-6xl lg:text-7xl font-headline font-extrabold text-igb-on-surface tracking-tighter leading-[1.05];
+  }
+  .text-body-lg {
+    @apply text-lg text-igb-secondary font-light leading-relaxed;
+  }
+  .btn-primary {
+    @apply bg-igb-yellow text-igb-on-yellow px-8 py-4 rounded-md font-headline font-bold text-base hover:brightness-95 hover:shadow-igb transition-all active:scale-95 inline-flex items-center gap-2;
+  }
+  .btn-outline {
+    @apply border-2 border-igb-secondary text-igb-secondary px-8 py-4 rounded-md font-headline font-bold text-base hover:bg-igb-secondary/5 transition-all active:scale-95 inline-flex items-center gap-2;
+  }
+  .btn-outline-white {
+    @apply border-2 border-white/60 text-white px-8 py-4 rounded-md font-headline font-bold text-base hover:bg-white/10 transition-all active:scale-95 inline-flex items-center gap-2;
+  }
+  .card-igb {
+    @apply bg-white p-8 rounded-xl shadow-igb hover:-translate-y-1 transition-transform duration-300;
   }
 }
