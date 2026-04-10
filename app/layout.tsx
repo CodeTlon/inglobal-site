@@ -3,7 +3,6 @@ import { Manrope, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import WhatsAppButton from '@/components/WhatsAppButton'
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
     description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.',
   },
   icons: {
-    icon: '/favicon.png',
+    icon: './favicon.ico',
   },
 }
 
@@ -81,7 +80,6 @@ export default function RootLayout({
         <Navbar />
         <main>{children}</main>
         <Footer />
-        <WhatsAppButton />
       </body>
     </html>
   )
