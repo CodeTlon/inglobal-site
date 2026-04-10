@@ -1,0 +1,47 @@
+PROYECTO: Grúas InGlobal S.R.L.
+FECHA: 2026-04-10
+GENERADO POR: CodeTlon FOS v2.2
+NIVEL: L7 — Refactor PHP → Next.js 14
+VERSION: v1.0.0-inglobal-site
+
+════════════════════════════════════════════
+
+PARA DEPLOYAR:
+  1. Leer: docs/deployment-guide.md
+  2. Supabase: correr supabase/migrations/001_contact_leads.sql en SQL Editor
+  3. Vercel: importar repo desde vercel.com/new
+  4. Configurar variables de entorno (ver .env.example)
+  5. Apuntar dominio gruasinglobal.com a Vercel
+
+VARIABLES DE ENTORNO NECESARIAS:
+  NEXT_PUBLIC_SUPABASE_URL       (de Supabase → Settings → API)
+  NEXT_PUBLIC_SUPABASE_ANON_KEY  (de Supabase → Settings → API)
+  SUPABASE_SERVICE_ROLE_KEY      (de Supabase → Settings → API)
+  RESEND_API_KEY                 (de resend.com → API Keys)
+  RESEND_FROM_NAME               = Grúas InGlobal
+  RESEND_FROM_EMAIL              = noreply@gruasinglobal.com
+  COMPANY_EMAIL                  = info@gruasinglobal.com
+
+════════════════════════════════════════════
+
+PÁGINAS DEL SITIO:
+  /               Home
+  /servicios      Flota de servicios
+  /montajes       Casos de estudio
+  /galeria        Galería de imágenes
+  /clientes       Logos de 25 clientes
+  /contacto       Formulario + mapa
+  /aviso-legal    Textos legales
+
+REPOSITORIO:
+  https://github.com/CodeTlon/inglobal-site
+
+RAMA PRINCIPAL: main (v1.0.0-inglobal-site)
+RAMA DE DESARROLLO: dev
+
+════════════════════════════════════════════
+
+TESTS: 25 tests E2E (Playwright) — todos pasando
+VIEWPORTS: 375px / 768px / 1280px
+
+════════════════════════════════════════════
