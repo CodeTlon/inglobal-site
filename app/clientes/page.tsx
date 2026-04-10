@@ -75,7 +75,7 @@ export default function ClientesPage() {
           </div>
 
           <div className="mt-16 text-center">
-            <p className="text-zinc-400 text-sm font-medium">
+            <p className="text-zinc-500 text-sm font-medium">
               {clients.length} empresas que ya eligieron Grúas InGlobal
             </p>
           </div>

@@ -28,12 +28,12 @@ export default function Footer() {
             <div>
               <Link href="/" className="inline-block border-none outline-none">
                 <Image
-                  src="/images/logo.png"
+                  src="/images/logo.webp"
                   alt="Grúas InGlobal S.R.L."
-                  className="h-10 w-auto object-contain" 
+                  className="h-10 w-auto object-contain"
                   sizes="160px"
-                  width={160}  
-                  height={40}  
+                  width={160}
+                  height={40}
                 />
               </Link>
             </div>

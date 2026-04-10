@@ -44,12 +44,13 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
         <Image
-          src="/images/logo.png"
+          src="/images/logo.webp"
           alt="Grúas InGlobal S.R.L."
           className="h-10 w-auto"
           sizes="160px"
-          width={160}  /* <-- Agrega esto */
-          height={40}  /* <-- Agrega esto */
+          width={160}
+          height={40}
+          priority
         />
         </Link>
 
