@@ -3,6 +3,7 @@ import { Manrope, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import ScrollReveal from '@/components/ScrollReveal'
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -77,6 +78,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <ScrollReveal />
         <Navbar />
         <main>{children}</main>
         <Footer />

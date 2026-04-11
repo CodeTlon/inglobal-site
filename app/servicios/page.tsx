@@ -41,15 +41,27 @@ const services = [
 export default function ServiciosPage() {
   return (
     <main className="bg-white">
+      {/* Page Header */}
       <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
         <div className="container-igb">
-          <span className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span
+            className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+            data-animate="fade-up"
+          >
             Nuestras Soluciones
           </span>
-          <h1 className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6">
+          <h1
+            className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6"
+            data-animate="fade-up"
+            data-delay="100"
+          >
             Nuestros Servicios
           </h1>
-          <p className="text-xl text-zinc-500 max-w-2xl leading-relaxed">
+          <p
+            className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
+            data-animate="fade-up"
+            data-delay="200"
+          >
             Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.
           </p>
         </div>
@@ -66,8 +78,11 @@ export default function ServiciosPage() {
                 id={service.id}
                 className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center"
               >
-                {/* Columna de Imagen (7/12) */}
-                <div className={`lg:col-span-7 ${isEven ? 'lg:order-2' : ''}`}>
+                {/* Image column */}
+                <div
+                  className={`lg:col-span-7 ${isEven ? 'lg:order-2' : ''}`}
+                  data-animate={isEven ? 'from-left' : 'from-right'}
+                >
                   <div className="relative overflow-hidden rounded-2xl bg-slate-100 shadow-2xl shadow-slate-200/50">
                     <Image
                       src={service.img}
@@ -80,17 +95,27 @@ export default function ServiciosPage() {
                   </div>
                 </div>
 
-                {/* Columna de Texto (5/12) */}
+                {/* Text column */}
                 <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : ''}`}>
-                  <h2 className="text-4xl font-headline font-bold text-slate-900 mb-6 tracking-tight">
+                  <h2
+                    className="text-4xl font-headline font-bold text-slate-900 mb-6 tracking-tight"
+                    data-animate="fade-up"
+                  >
                     {service.title}
                   </h2>
-                  <p className="text-slate-600 text-lg leading-relaxed mb-10">
+                  <p
+                    className="text-slate-600 text-lg leading-relaxed mb-10"
+                    data-animate="fade-up"
+                    data-delay="100"
+                  >
                     {service.desc}
                   </p>
-                  
-                  {/* Specs minimalistas con línea de acento */}
-                  <ul className="space-y-4 mb-10 border-l-2 border-igb-yellow pl-6">
+
+                  <ul
+                    className="space-y-4 mb-10 border-l-2 border-igb-yellow pl-6"
+                    data-animate="fade-up"
+                    data-delay="200"
+                  >
                     {service.specs.map((spec) => (
                       <li key={spec} className="text-slate-800 font-medium">
                         {spec}
@@ -98,10 +123,9 @@ export default function ServiciosPage() {
                     ))}
                   </ul>
 
-                  {/* Botón sólido sin flecha */}
-                  <div className="mt-8">
-                    <Link 
-                      href={`/contacto?servicio=${service.id}`} 
+                  <div className="mt-8" data-animate="fade-up" data-delay="300">
+                    <Link
+                      href={`/contacto?servicio=${service.id}`}
                       className="btn-primary px-8 py-4 inline-block text-center"
                     >
                       Consultar disponibilidad
@@ -114,11 +138,11 @@ export default function ServiciosPage() {
         </div>
       </section>
 
-      {/* Final CTA - Minimalista sin separadores */}
+      {/* Final CTA */}
       <section className="py-24 bg-zinc-100">
         <div className="container-igb flex flex-col md:flex-row justify-between items-center gap-10">
-          
-          <div className="max-w-xl text-center md:text-left">
+
+          <div className="max-w-xl text-center md:text-left" data-animate="fade-up">
             <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4 text-zinc-900 tracking-tight">
               ¿Listo para comenzar su proyecto?
             </h2>
@@ -126,10 +150,12 @@ export default function ServiciosPage() {
               Asesoramiento técnico personalizado para cada necesidad de izaje.
             </p>
           </div>
-          
-          <Link 
-            href="/contacto" 
+
+          <Link
+            href="/contacto"
             className="btn-primary whitespace-nowrap px-10 py-4 text-lg shadow-lg shadow-igb-yellow/20 transition-all hover:-translate-y-1"
+            data-animate="scale"
+            data-delay="150"
           >
             Solicitar Presupuesto
           </Link>

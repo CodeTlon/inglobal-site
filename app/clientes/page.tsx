@@ -35,32 +35,54 @@ const clients = [
   { name: 'Tecsma', logo: '/images/logos/TECSMA-logo.png' },
 ]
 
+// Stagger delays for logo grid — cap at 500ms, step by 50ms
+const LOGO_DELAYS = [
+  '0','50','100','150','200',
+  '250','300','350','400','450',
+  '500','500','500','500','500',
+  '500','500','500','500','500',
+  '500','500','500','500','500',
+] as const
+
 export default function ClientesPage() {
   return (
     <main className="bg-white">
-      {/* Page Header - Minimalista (Zinc 50) */}
+      {/* Page Header */}
       <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
         <div className="container-igb">
-          <span className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span
+            className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+            data-animate="fade-up"
+          >
             Nuestras Alianzas
           </span>
-          <h1 className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight">
+          <h1
+            className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
+            data-animate="fade-up"
+            data-delay="100"
+          >
             Nuestros Clientes
           </h1>
-          <p className="text-xl text-zinc-500 max-w-2xl leading-relaxed">
+          <p
+            className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
+            data-animate="fade-up"
+            data-delay="200"
+          >
             Empresas líderes de Argentina que nos eligen por nuestro compromiso y resultados. Su confianza es nuestro mayor aval.
           </p>
         </div>
       </section>
 
-      {/* Logo grid - Intacto como pediste */}
+      {/* Logo grid */}
       <section className="section-pad bg-white">
         <div className="container-igb">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {clients.map((client) => (
+            {clients.map((client, i) => (
               <div
                 key={client.name}
                 className="bg-white rounded-xl p-6 flex items-center justify-center shadow-sm border border-zinc-100 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:-translate-y-1 transition-all duration-300 aspect-[3/2]"
+                data-animate="scale"
+                data-delay={LOGO_DELAYS[i]}
               >
                 <Image
                   src={client.logo}
@@ -74,7 +96,7 @@ export default function ClientesPage() {
             ))}
           </div>
 
-          <div className="mt-16 text-center">
+          <div className="mt-16 text-center" data-animate="fade-up" data-delay="200">
             <p className="text-zinc-500 text-sm font-medium">
               {clients.length} empresas que ya eligieron Grúas InGlobal
             </p>
@@ -82,18 +104,27 @@ export default function ClientesPage() {
         </div>
       </section>
 
-      {/* Final CTA - Minimalista y Centrado (Zinc 100) */}
+      {/* Final CTA */}
       <section className="py-24 bg-zinc-100">
         <div className="container-igb text-center">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-6">
+          <h2
+            className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-6"
+            data-animate="fade-up"
+          >
             ¿Querés trabajar con nosotros?
           </h2>
-          <p className="text-zinc-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p
+            className="text-zinc-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
+            data-animate="fade-up"
+            data-delay="150"
+          >
             Somos una PyME con una gran fortaleza humana donde construimos relaciones comerciales excelentes y duraderas.
           </p>
-          <Link 
-            href="/contacto" 
+          <Link
+            href="/contacto"
             className="btn-primary inline-block px-12 py-4 text-lg shadow-lg shadow-igb-yellow/20 transition-all hover:-translate-y-1"
+            data-animate="scale"
+            data-delay="250"
           >
             Contactar ahora
           </Link>
