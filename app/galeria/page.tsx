@@ -7,9 +7,6 @@ export const metadata: Metadata = {
   description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas InGlobal S.R.L.',
 }
 
-// Array con exactamente 12 fotos (algunas repetidas como placeholders, con captions actualizadas)
-// He balanceado los spans para que la grilla sea perfecta matemáticamente sin huecos.
-// Este diseño usa un grid de 4 columnas en md, logrando un mosaico limpio.
 const galleryItems = [
   // Fila 1 - igb-1 featured (2x2 span)
   { src: '/images/igb-1.webp', alt: 'Grúa telescópica principal en operación', span: 'md:col-span-2 md:row-span-2' },
@@ -28,51 +25,63 @@ const galleryItems = [
   // Fila 4 - Mixed spans
   { src: '/images/igb-9.webp', alt: 'Izaje nocturno en planta' },
   { src: '/images/igb-10.webp', alt: 'Grúa telescópica en parque eólico' },
-  { src: '/images/igb-1.webp', alt: 'Grúa telescópica principal (Placeholder)' }, // Duplicate for 12
-  { src: '/images/igb-7.webp', alt: 'Grúa en muelle (Placeholder)' }, // Duplicate for 12
+  { src: '/images/igb-1.webp', alt: 'Grúa telescópica principal (Placeholder)' },
+  { src: '/images/igb-7.webp', alt: 'Grúa en muelle (Placeholder)' },
 ]
+
+// Stagger delays capped at 500ms, stepped by 50ms
+const DELAYS = ['0', '50', '100', '150', '200', '250', '300', '350', '400', '450', '500', '500'] as const
 
 export default function GaleriaPage() {
   return (
     <main className="bg-white">
-      {/* Page Header - Minimalista e Industrial (Zinc 50) */}
+      {/* Page Header */}
       <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
         <div className="container-igb">
-          <span className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span
+            className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+            data-animate="fade-up"
+          >
             Nuestros Proyectos en Imágenes
           </span>
-          <h1 className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight">
+          <h1
+            className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
+            data-animate="fade-up"
+            data-delay="100"
+          >
             Portafolio Operativo
           </h1>
-          <p className="text-xl text-zinc-500 max-w-2xl leading-relaxed">
+          <p
+            className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
+            data-animate="fade-up"
+            data-delay="200"
+          >
             Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.
           </p>
         </div>
       </section>
 
-      {/* Grid de Galería Mosaico Perfecto - 12 Fotos, 0 Huecos (Usa 4 cols en md) */}
+      {/* Gallery Grid — items staggered */}
       <section className="py-24">
         <div className="container-igb">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 auto-rows-[250px]">
             {galleryItems.map((item, i) => (
               <div
-                key={i} // Usamos índice como key ya que hay src repetidos
-                className={`relative overflow-hidden rounded-2xl bg-zinc-100 group shadow-sm ${
-                  item.span || ''
-                }`}
+                key={i}
+                className={`relative overflow-hidden rounded-2xl bg-zinc-100 group shadow-sm ${item.span || ''}`}
+                data-animate="scale"
+                data-delay={DELAYS[i]}
               >
                 <Image
                   src={item.src}
                   alt={item.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  // Grayscale transition and zoom effect
                   className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-                  // Priority for top images (igb-1 span and standard igb-2)
                   priority={i < 4}
                 />
-                
-                {/* Overlay sutil con el texto (solo aparece en hover, Caption) */}
+
+                {/* Overlay caption */}
                 <div className="absolute inset-0 bg-zinc-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
                   <p className="text-white text-sm font-medium tracking-wide">
                     {item.alt}
@@ -84,11 +93,11 @@ export default function GaleriaPage() {
         </div>
       </section>
 
-      {/* Final CTA - Galería (Estilo Unificado) */}
+      {/* Final CTA */}
       <section className="py-24 bg-zinc-100">
         <div className="container-igb flex flex-col md:flex-row justify-between items-center gap-10">
-          
-          <div className="max-w-xl text-center md:text-left">
+
+          <div className="max-w-xl text-center md:text-left" data-animate="fade-up">
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-4">
               ¿Su proyecto requiere esta precisión?
             </h2>
@@ -96,10 +105,12 @@ export default function GaleriaPage() {
               Llevamos nuestra experiencia técnica y seguridad certificada a su próximo desafío industrial.
             </p>
           </div>
-          
-          <Link 
-            href="/contacto" 
+
+          <Link
+            href="/contacto"
             className="btn-primary whitespace-nowrap px-10 py-4 text-lg shadow-lg shadow-igb-yellow/20 transition-all hover:-translate-y-1"
+            data-animate="scale"
+            data-delay="150"
           >
             Solicitar Presupuesto
           </Link>

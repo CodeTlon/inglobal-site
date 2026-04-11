@@ -87,13 +87,14 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-igb-surface-high">
+        <div className="nav-mobile-menu lg:hidden bg-white/95 backdrop-blur-md border-t border-igb-surface-high">
           <div className="container-igb py-6 flex flex-col gap-4">
-            {navLinks.map((link) => (
+            {navLinks.map((link, i) => (
               <Link
                 key={link.id}
                 href={link.href}
-                className={`font-headline font-bold text-base py-1 transition-colors ${
+                style={{ animationDelay: `${i * 40}ms` }}
+                className={`nav-mobile-menu font-headline font-bold text-base py-1 transition-colors ${
                   isActive(link.href)
                     ? 'text-igb-yellow-dark'
                     : 'text-igb-on-surface/70'
