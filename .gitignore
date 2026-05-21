@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code local settings (per-user)
+.claude/settings.local.json
+
+# local artifacts (lighthouse reports, page snapshots)
+lighthouse-report.json
+www.gruasinglobal.com-*.html
