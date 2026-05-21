@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import Picture from '@/components/Picture'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
 import {
   CheckCircle,
@@ -111,13 +112,12 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center overflow-hidden bg-igb-surface" id="inicio">
         {/* Background image with slow zoom-in effect */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <Image
-            src="/images/igb-3.webp"
+          <Picture
+            src="igb-3"
             alt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
             fill
             priority
             sizes="100vw"
-            quality={85}
             className="object-cover object-[70%_center] md:object-center hero-bg-zoom"
           />
           <div className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
@@ -145,15 +145,15 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="mt-14 pt-10 border-t border-igb-outline/30 max-w-sm md:max-w-none hero-anim hero-anim-d4">
-              <div className="grid grid-cols-2 md:flex md:flex-wrap gap-x-4 gap-y-8 md:gap-8">
+            {/* Stats — 3 items, 3 cols on mobile, flex-wrap on md+ */}
+            <div className="mt-14 pt-10 border-t border-igb-outline/30 hero-anim hero-anim-d4">
+              <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:gap-8">
                 {stats.map((s) => (
                   <div key={s.label} className="group">
-                    <p className="text-3xl md:text-4xl font-headline font-extrabold text-zinc-900 tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none">
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold text-zinc-900 tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none">
                       {s.number}
                     </p>
-                    <p className="text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
+                    <p className="text-[10px] sm:text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
                       {s.label}
                     </p>
                   </div>
@@ -173,14 +173,13 @@ export default function HomePage() {
               className="relative"
               data-animate="from-right"
             >
-              <Image
-                src="/images/igb-2.webp"
+              <Picture
+                src="igb-2"
                 alt="Equipo de Grúas InGlobal trabajando en altura"
                 width={620}
                 height={480}
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="rounded-xl object-cover w-full aspect-[4/3]"
-                quality={85}
               />
             </div>
 
@@ -232,12 +231,11 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map(({ id, icon: Icon, title, desc, specs }, i) => (
+            {services.map(({ id, icon: Icon, title, desc, specs }) => (
               <div
                 key={id}
                 className="card-igb group flex flex-col h-full"
                 data-animate="fade-up"
-                data-delay={(['0', '100', '200', '300'] as const)[i]}
               >
                 <div className="w-12 h-12 bg-igb-yellow/20 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110">
                   <Icon className="w-6 h-6 text-igb-yellow-dark" />
@@ -260,7 +258,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-12 text-center" data-animate="fade-up" data-delay="200">
+          <div className="mt-12 text-center" data-animate="fade-up" data-delay="150">
             <Link href="/servicios" className="btn-outline">
               Ver todos los servicios
             </Link>
@@ -271,12 +269,11 @@ export default function HomePage() {
       {/* ===== CTA BANNER ===== */}
       <section className="relative py-24 md:py-32 overflow-hidden bg-slate-950">
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/igb-10.webp"
+          <Picture
+            src="igb-10"
             alt="Montaje de maquinaria pesada en industria"
             fill
             sizes="100vw"
-            quality={75}
             className="object-cover object-center opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent" />
@@ -313,7 +310,7 @@ export default function HomePage() {
       {/* ===== GALLERY BENTO ===== */}
       <section className="section-pad bg-igb-surface" id="galeria-preview">
         <div className="container-igb">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6" data-animate="fade-up">
+          <div className="flex flex-col items-start gap-6 mb-14 lg:flex-row lg:justify-between lg:items-end" data-animate="fade-up">
             <div>
               <span className="label-tag">Nuestro Trabajo</span>
               <h2 className="heading-display">Proyectos que nos definen</h2>
@@ -329,7 +326,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Bento grid — items staggered */}
+          {/* Bento grid — all items reveal together with their section */}
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[600px]">
             {galleryItems.map((item, i) => (
               <div
@@ -337,9 +334,8 @@ export default function HomePage() {
                 className={`relative overflow-hidden rounded-xl ${item.span || ''}`}
                 style={{ minHeight: i === 0 ? undefined : '200px' }}
                 data-animate="scale"
-                data-delay={(['0', '100', '200', '300', '350'] as const)[i]}
               >
-                <Image
+                <Picture
                   src={item.src}
                   alt={item.alt}
                   fill
@@ -348,7 +344,6 @@ export default function HomePage() {
                       ? '(max-width: 768px) 100vw, 50vw'
                       : '(max-width: 768px) 100vw, 25vw'
                   }
-                  quality={80}
                   className="object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
                 <div className="absolute bottom-0 left-0 p-5 bg-gradient-to-t from-black/70 to-transparent w-full text-white">
@@ -373,13 +368,13 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center">
-            {clients.map((client, i) => (
+          {/* 10 logos → grid divides cleanly: 2 cols mobile, 5 cols md+ */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center">
+            {clients.map((client) => (
               <div
                 key={client.name}
                 className="bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-sm grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:shadow-md transition-all duration-300 group"
                 data-animate="scale"
-                data-delay={(['0', '50', '100', '150', '200', '250', '300', '350', '400', '450'] as const)[i]}
               >
                 <Image
                   src={client.logo}
@@ -387,13 +382,15 @@ export default function HomePage() {
                   width={140}
                   height={60}
                   sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 15vw"
+                  quality={70}
+                  loading="lazy"
                   className="object-contain h-full w-full max-h-12 transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ))}
           </div>
 
-          <div className="mt-12 text-center" data-animate="fade-up" data-delay="200">
+          <div className="mt-12 text-center" data-animate="fade-up" data-delay="150">
             <Link href="/clientes" className="btn-outline">
               Ver todos nuestros clientes
             </Link>

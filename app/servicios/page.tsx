@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import Picture from '@/components/Picture'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -84,11 +84,12 @@ export default function ServiciosPage() {
                   data-animate={isEven ? 'from-left' : 'from-right'}
                 >
                   <div className="relative overflow-hidden rounded-2xl bg-slate-100 shadow-2xl shadow-slate-200/50">
-                    <Image
+                    <Picture
                       src={service.img}
                       alt={service.title}
                       width={1000}
                       height={600}
+                      sizes="(max-width: 1024px) 100vw, 60vw"
                       priority={i === 0}
                       className="object-cover w-full aspect-[16/10] hover:scale-105 transition-transform duration-1000"
                     />
@@ -140,9 +141,9 @@ export default function ServiciosPage() {
 
       {/* Final CTA */}
       <section className="py-24 bg-zinc-100">
-        <div className="container-igb flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="container-igb flex flex-col items-center text-center gap-10 lg:flex-row lg:justify-between lg:text-left">
 
-          <div className="max-w-xl text-center md:text-left" data-animate="fade-up">
+          <div className="max-w-xl" data-animate="fade-up">
             <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4 text-zinc-900 tracking-tight">
               ¿Listo para comenzar su proyecto?
             </h2>
