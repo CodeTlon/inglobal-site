@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import Picture from '@/components/Picture'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -28,9 +28,6 @@ const galleryItems = [
   { src: '/images/igb-1.webp', alt: 'Grúa telescópica principal (Placeholder)' },
   { src: '/images/igb-7.webp', alt: 'Grúa en muelle (Placeholder)' },
 ]
-
-// Stagger delays capped at 500ms, stepped by 50ms
-const DELAYS = ['0', '50', '100', '150', '200', '250', '300', '350', '400', '450', '500', '500'] as const
 
 export default function GaleriaPage() {
   return (
@@ -70,15 +67,14 @@ export default function GaleriaPage() {
                 key={i}
                 className={`relative overflow-hidden rounded-2xl bg-zinc-100 group shadow-sm ${item.span || ''}`}
                 data-animate="scale"
-                data-delay={DELAYS[i]}
               >
-                <Image
+                <Picture
                   src={item.src}
                   alt={item.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-                  priority={i < 4}
+                  priority={i === 0}
                 />
 
                 {/* Overlay caption */}
@@ -95,9 +91,9 @@ export default function GaleriaPage() {
 
       {/* Final CTA */}
       <section className="py-24 bg-zinc-100">
-        <div className="container-igb flex flex-col md:flex-row justify-between items-center gap-10">
+        <div className="container-igb flex flex-col items-center text-center gap-10 lg:flex-row lg:justify-between lg:text-left">
 
-          <div className="max-w-xl text-center md:text-left" data-animate="fade-up">
+          <div className="max-w-xl" data-animate="fade-up">
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-4">
               ¿Su proyecto requiere esta precisión?
             </h2>

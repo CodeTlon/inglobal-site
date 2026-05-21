@@ -35,15 +35,6 @@ const clients = [
   { name: 'Tecsma', logo: '/images/logos/TECSMA-logo.png' },
 ]
 
-// Stagger delays for logo grid — cap at 500ms, step by 50ms
-const LOGO_DELAYS = [
-  '0','50','100','150','200',
-  '250','300','350','400','450',
-  '500','500','500','500','500',
-  '500','500','500','500','500',
-  '500','500','500','500','500',
-] as const
-
 export default function ClientesPage() {
   return (
     <main className="bg-white">
@@ -73,16 +64,15 @@ export default function ClientesPage() {
         </div>
       </section>
 
-      {/* Logo grid */}
+      {/* Logo grid — 25 items. Flex-wrap + justify-center auto-centers any orphan row. */}
       <section className="section-pad bg-white">
         <div className="container-igb">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {clients.map((client, i) => (
+          <div className="flex flex-wrap justify-center gap-6">
+            {clients.map((client) => (
               <div
                 key={client.name}
-                className="bg-white rounded-xl p-6 flex items-center justify-center shadow-sm border border-zinc-100 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:-translate-y-1 transition-all duration-300 aspect-[3/2]"
+                className="w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-1rem)] md:w-[calc(25%-1.125rem)] lg:w-[calc(20%-1.2rem)] bg-white rounded-xl p-6 flex items-center justify-center shadow-sm border border-zinc-100 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:-translate-y-1 transition-all duration-300 aspect-[3/2]"
                 data-animate="scale"
-                data-delay={LOGO_DELAYS[i]}
               >
                 <Image
                   src={client.logo}
@@ -90,6 +80,8 @@ export default function ClientesPage() {
                   width={140}
                   height={70}
                   sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 18vw"
+                  quality={70}
+                  loading="lazy"
                   className="object-contain max-h-12 w-auto"
                 />
               </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import Picture from '@/components/Picture'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -46,8 +46,6 @@ const montajes = [
   },
 ]
 
-const CARD_DELAYS = ['0', '100', '0', '100', '0', '100'] as const
-
 export default function MontajesPage() {
   return (
     <main className="bg-white">
@@ -81,16 +79,15 @@ export default function MontajesPage() {
       <section className="py-24">
         <div className="container-igb">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-20">
-            {montajes.map((montaje, i) => (
+            {montajes.map((montaje) => (
               <article
                 key={montaje.title}
                 className="group flex flex-col h-full"
                 data-animate="fade-up"
-                data-delay={CARD_DELAYS[i]}
               >
                 {/* Image */}
                 <div className="relative overflow-hidden rounded-2xl bg-zinc-100 aspect-[16/10] mb-8">
-                  <Image
+                  <Picture
                     src={montaje.img}
                     alt={montaje.title}
                     fill
