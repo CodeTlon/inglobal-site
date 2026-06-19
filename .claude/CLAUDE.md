@@ -276,3 +276,18 @@ npx playwright test       # E2E
 4. Sistema scroll-reveal + micro-animations (`93f4a6f`)
 5. **Refactor anim sistema → trigger por sección, no por item** + footer sin barra negra de CodeTlon + logo PNG en footer (sesión actual, 2026-05-21)
 6. **Pipeline propio de imágenes** (sharp → AVIF + WebP estáticos) + componente `<Picture>` — reemplaza Vercel Image Optimizer para fotos de contenido (sesión actual, 2026-05-21)
+---
+
+## Módulos de la fábrica — consultar en `/cambio` según lo que toques
+
+Estos módulos viven en `codetlon-cloud/.claude/modules/` (desde este repo: `../../codetlon-cloud/.claude/modules/`). NO están copiados acá: leé el que aplique al iniciar una sesión de mantenimiento que toque cada tema.
+
+| Si el `/cambio` toca… | Módulo a leer |
+|---|---|
+| deps / vulnerabilidades (`npm audit`, actualizar libs, upgrade de major) | `security-maintenance.md` |
+| auth / DB / RLS / route handler / form / env / secrets (seguridad de **código**) | `security-owasp.md` |
+| UI / componentes / forms / páginas (accesibilidad WCAG, Lighthouse a11y > 90) | `accessibility.md` |
+| pipeline / `.github/workflows` / Dockerfile / env vars (CI = gate de calidad) | `ci-cd.md` |
+| dejar el proyecto live / incidente en producción (monitoreo) | `observability.md` |
+
+Regla: leer SOLO el módulo que la tarea pide (disciplina de tokens), no todos por las dudas.
