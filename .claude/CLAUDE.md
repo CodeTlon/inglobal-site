@@ -1,6 +1,6 @@
 # Grúas InGlobal — Project Brief for Claude
 
-> Sitio institucional de Grúas InGlobal S.R.L. (Córdoba, AR). Reescritura de un sitio PHP legacy a Next.js 14, deployado en **Vercel**.
+> Sitio institucional de Grúas InGlobal S.R.L. (Córdoba, AR). Reescritura de un sitio PHP legacy a Next.js 15, deployado en **Vercel**.
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Capa              | Tecnología                                                       |
 | ----------------- | ---------------------------------------------------------------- |
-| Framework         | **Next.js 14.2** (App Router, RSC, SSG)                          |
+| Framework         | **Next.js 15.5** (App Router, RSC, SSG)                          |
 | Lenguaje          | TypeScript 5                                                     |
 | UI                | Tailwind CSS 3.4 + design tokens custom (ver §Design System)     |
 | Fonts             | Manrope (headlines) + Inter (body), vía `next/font/google`       |
@@ -276,6 +276,7 @@ npx playwright test       # E2E
 4. Sistema scroll-reveal + micro-animations (`93f4a6f`)
 5. **Refactor anim sistema → trigger por sección, no por item** + footer sin barra negra de CodeTlon + logo PNG en footer (sesión actual, 2026-05-21)
 6. **Pipeline propio de imágenes** (sharp → AVIF + WebP estáticos) + componente `<Picture>` — reemplaza Vercel Image Optimizer para fotos de contenido (sesión actual, 2026-05-21)
+7. **Seguridad: Next 14.2.35 → 15.5.19** (estándar de fábrica) — cierra los 4 HIGH de Next 14 (DoS/SSRF/smuggling/cache-poisoning) + `npm audit fix` de transitivas (ws/uuid/brace). `npm audit`: 11 vulns → 0 HIGH (1 moderate = postcss bundleado en Next, no accionable). Migración limpia (sin rutas dinámicas ni `cookies()`; `useSearchParams` ya estaba en `<Suspense>`). Se montó `WhatsAppButton` en el layout (estaba huérfano y el e2e lo exigía). Build verde + **25/25 E2E**. (2026-06-19)
 ---
 
 ## Módulos de la fábrica — consultar en `/cambio` según lo que toques
