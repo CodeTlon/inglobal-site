@@ -10,9 +10,13 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Evita scroll horizontal por el estado inicial de los reveals (translateX).
+       clip (no hidden) para no romper position: sticky. */
+    overflow-x: clip;
   }
   body {
     @apply bg-igb-surface text-igb-on-surface font-body antialiased;
+    overflow-x: clip;
   }
 }
 
