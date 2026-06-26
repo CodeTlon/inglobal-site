@@ -41,3 +41,7 @@ next-env.d.ts
 # local artifacts (lighthouse reports, page snapshots)
 lighthouse-report.json
 www.gruasinglobal.com-*.html
+
+# Playwright artifacts
+playwright-report/
+test-results/
