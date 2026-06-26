@@ -1,6 +1,5 @@
 'use server'
 import { Resend } from 'resend'
-import { createSupabaseServiceClient } from '@/lib/supabase'
 import { contactSchema } from '@/lib/validations/contact'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -33,18 +32,7 @@ export async function sendContact(prevState: unknown, formData: FormData) {
   const servicioLabel = servicio ? (serviciosMap[servicio] ?? servicio) : null
 
   try {
-    // 1. Guardar lead en Supabase (si el email falla, el lead no se pierde)
-    const supabase = createSupabaseServiceClient()
-    await supabase.from('contact_leads').insert({
-      name,
-      empresa: empresa ?? null,
-      email,
-      phone: phone ?? null,
-      servicio: servicio ?? null,
-      message,
-    })
-
-    // 2. Enviar email al cliente
+    // El lead queda registrado en la casilla de info@gruasinglobal.com (sin DB)
     await resend.emails.send({
       from: `${process.env.RESEND_FROM_NAME ?? 'InGlobal'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
       to: process.env.COMPANY_EMAIL ?? 'info@gruasinglobal.com',
