@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import WhatsAppButton from '@/components/WhatsAppButton'
+import { SITE_URL } from '@/lib/site'
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -25,7 +26,11 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+const OG_DESCRIPTION =
+  'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
     template: '%s | Grúas InGlobal S.R.L.',
@@ -33,16 +38,26 @@ export const metadata: Metadata = {
   description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
   keywords: ['grúas Córdoba', 'alquiler grúas', 'hidrogrúas', 'movimientos pesados', 'montajes industriales', 'grúas telescópicas', 'InGlobal'],
   authors: [{ name: 'CodeTlon' }],
+  alternates: { canonical: '/' },
   robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
     locale: 'es_AR',
+    url: SITE_URL,
     siteName: 'Grúas InGlobal S.R.L.',
     title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
-    description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.',
+    description: OG_DESCRIPTION,
+    // ponytail: reusa el hero ya optimizado. Si querés preview social a medida, un 1200x630 dedicado lo reemplaza.
+    images: [{ url: '/images/opt/igb-3-lg.webp', width: 1920, height: 1440, alt: 'Grúas InGlobal en operación' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
+    description: OG_DESCRIPTION,
+    images: ['/images/opt/igb-3-lg.webp'],
   },
   icons: {
-    icon: './favicon.ico',
+    icon: '/favicon.ico',
   },
 }
 
@@ -62,7 +77,8 @@ export default function RootLayout({
               '@type': 'LocalBusiness',
               name: 'Grúas InGlobal S.R.L.',
               description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
-              image: '/images/logo.png',
+              url: SITE_URL,
+              image: `${SITE_URL}/images/logo.png`,
               address: {
                 '@type': 'PostalAddress',
                 streetAddress: 'Ana Riglos de Irigoyen S/N',
