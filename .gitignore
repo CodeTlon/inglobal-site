@@ -45,3 +45,6 @@ www.gruasinglobal.com-*.html
 # Playwright artifacts
 playwright-report/
 test-results/
+
+# Capturas de comparativa (pesadas, regenerables)
+docs/comparativa/*.png
