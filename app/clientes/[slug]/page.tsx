@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getCliente, getClientes } from '@/lib/content'
+import { getCliente, getClientes, getTrabajos } from '@/lib/content'
+import ClienteTrabajos from './ClienteTrabajos'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -37,9 +38,8 @@ export default async function ClienteDetailPage({ params }: Props) {
 
   if (!cliente) notFound()
 
-  const paragraphs = (cliente.content || cliente.bio || '')
-    .split('\n\n')
-    .filter(Boolean)
+  const trabajos = await getTrabajos(cliente.id)
+  const historia = (cliente.content || '').split('\n\n').filter(Boolean)
 
   return (
     <main className="bg-white">
@@ -88,17 +88,30 @@ export default async function ClienteDetailPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Content */}
-      {paragraphs.length > 0 && (
+      {/* Historia con el cliente */}
+      {historia.length > 0 && (
         <section className="py-24">
           <div className="container-igb max-w-3xl">
+            <span className="label-tag">Nuestra historia</span>
             <div className="space-y-6">
-              {paragraphs.map((p, i) => (
+              {historia.map((p, i) => (
                 <p key={i} className="text-zinc-600 text-lg leading-relaxed">
                   {p}
                 </p>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Trabajos */}
+      {trabajos.length > 0 && (
+        <section className="py-24">
+          <div className="container-igb max-w-5xl">
+            <span className="label-tag">Trabajos realizados</span>
+            <h2 className="heading-display mb-10">Proyectos con {cliente.name}</h2>
+
+            <ClienteTrabajos clienteSlug={cliente.slug} trabajos={trabajos} />
 
             <div className="mt-16 pt-10 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <Link

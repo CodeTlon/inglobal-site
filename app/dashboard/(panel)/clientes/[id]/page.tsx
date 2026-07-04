@@ -5,7 +5,7 @@ import { updateCliente, deleteCliente } from '@/app/actions/clientes'
 import PageHeader from '@/components/dashboard/PageHeader'
 import ClienteForm from '../ClienteForm'
 import DeleteButton from '@/components/dashboard/DeleteButton'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Newspaper } from 'lucide-react'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -52,9 +52,20 @@ export default async function ClienteEditPage({ params }: Props) {
         }
       />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm mb-6">
         <ClienteForm cliente={cliente} entityId={cliente.id} action={updateCliente} />
       </div>
+
+      <Link
+        href={`/dashboard/clientes/${cliente.slug}/trabajos`}
+        className="flex items-center gap-3 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all"
+      >
+        <Newspaper size={18} className="text-igb-yellow-dark flex-shrink-0" />
+        <div>
+          <p className="font-headline font-bold text-zinc-900 text-sm">Gestionar trabajos</p>
+          <p className="text-zinc-400 text-xs">Trabajos y proyectos realizados con este cliente.</p>
+        </div>
+      </Link>
     </div>
   )
 }

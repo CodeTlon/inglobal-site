@@ -396,6 +396,35 @@ export function StringList({
   )
 }
 
+// ─── Checkbox ────────────────────────────────────────────────────────────────
+
+export function Checkbox({
+  label,
+  name,
+  defaultChecked,
+  hint,
+}: {
+  label: string
+  name: string
+  defaultChecked?: boolean
+  hint?: string
+}) {
+  return (
+    <div>
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          name={name}
+          defaultChecked={defaultChecked}
+          className="w-4 h-4 rounded accent-igb-yellow"
+        />
+        <span className="text-sm font-bold text-zinc-700">{label}</span>
+      </label>
+      {hint && <p className="text-zinc-400 text-xs mt-1.5 ml-6">{hint}</p>}
+    </div>
+  )
+}
+
 // ─── StatsList ───────────────────────────────────────────────────────────────
 // Lista de stats del hero [{number, label}]. Serializa como JSON.
 
