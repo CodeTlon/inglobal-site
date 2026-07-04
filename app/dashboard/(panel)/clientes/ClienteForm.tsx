@@ -1,0 +1,84 @@
+'use client'
+
+import { useFormState } from 'react-dom'
+import {
+  TextField,
+  TextArea,
+  NumberField,
+  ImageUpload,
+} from '@/components/dashboard/Field'
+import SaveButton from '@/components/dashboard/SaveButton'
+import { CheckCircle, AlertCircle } from 'lucide-react'
+import type { Cliente } from '@/lib/content'
+
+interface Props {
+  cliente?: Cliente
+  action: (prevState: unknown, formData: FormData) => Promise<{ success?: boolean; error?: string } | null>
+  successMessage?: string
+}
+
+export default function ClienteForm({ cliente, action, successMessage = 'Guardado correctamente.' }: Props) {
+  const [state, formAction] = useFormState(action, null)
+
+  return (
+    <form action={formAction} className="space-y-6">
+      {state?.success && (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-4">
+          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+          <p className="text-green-700 text-sm font-medium">{successMessage}</p>
+        </div>
+      )}
+      {state?.error && (
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-red-700 text-sm">{state.error}</p>
+        </div>
+      )}
+
+      <TextField label="Nombre" name="name" defaultValue={cliente?.name} required />
+      <TextField
+        label="Slug (URL)"
+        name="slug"
+        defaultValue={cliente?.slug}
+        hint={cliente ? 'Modificar el slug cambia la URL pública del cliente.' : 'Identificador único. Solo letras, números y guiones.'}
+        required
+      />
+
+      <TextArea
+        label="Bio (descripción corta)"
+        name="bio"
+        defaultValue={cliente?.bio}
+        rows={3}
+        hint="Se muestra en el header de la página de detalle y como descripción."
+      />
+
+      <TextArea
+        label="Contenido (texto completo)"
+        name="content"
+        defaultValue={cliente?.content}
+        rows={6}
+        hint="Texto de la página de detalle. Separar párrafos con una línea en blanco."
+      />
+
+      <ImageUpload
+        label="Logo"
+        name="logo"
+        defaultValue={cliente?.logo}
+        folder="clientes"
+        hint="Logo de la empresa. PNG con fondo transparente recomendado. Máximo 12px de alto en uso."
+      />
+
+      <NumberField
+        label="Ranking de trabajo (work_rank)"
+        name="work_rank"
+        defaultValue={cliente?.work_rank}
+        min={0}
+        hint="Número mayor = aparece primero en el home y en /clientes."
+      />
+
+      <div className="flex justify-end pt-2">
+        <SaveButton />
+      </div>
+    </form>
+  )
+}
