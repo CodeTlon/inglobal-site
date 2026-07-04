@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.servicios (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug          TEXT UNIQUE NOT NULL,
   title         TEXT NOT NULL,
-  desc          TEXT NOT NULL DEFAULT '',
+  "desc"        TEXT NOT NULL DEFAULT '',
   specs         TEXT[] NOT NULL DEFAULT '{}',
   img           TEXT NOT NULL DEFAULT '',
   icon          TEXT NOT NULL DEFAULT '',
@@ -36,7 +36,7 @@ CREATE POLICY "Authenticated can write servicios"
 --    (slugs = IDs usados hoy en app/page.tsx y app/servicios/page.tsx)
 --    icon = nombre de lucide-react; el frontend lo mapea a componente
 -- =============================================================
-INSERT INTO public.servicios (slug, title, desc, specs, img, icon, display_order) VALUES
+INSERT INTO public.servicios (slug, title, "desc", specs, img, icon, display_order) VALUES
 
   (
     'gruas-telescopicas',
