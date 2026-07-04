@@ -1,41 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grúas InGlobal
 
-## Getting Started
+Sitio institucional de **Grúas InGlobal S.R.L.** (alquiler de grúas y montajes industriales, Córdoba, AR). Reescritura de un sitio PHP legacy a Next.js, con **dashboard CMS** para editar casi todo el contenido sin tocar código.
 
-First, run the development server:
+## Stack
+
+- **Next.js 15.5** (App Router) + TypeScript + **Tailwind CSS**
+- **Supabase** (PostgreSQL + RLS + Auth + Storage bucket `media`)
+- **Resend** (formulario de contacto) · Zod + Server Actions
+- **Playwright** (E2E, puerto dedicado 3310) · Deploy en **Vercel**
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # completar credenciales Supabase + Resend
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev              # Dev server
+npm run build             # Build de producción (corre optimize:images en prebuild)
+npm run start              # Serve del build
+npm run lint               # ESLint
+npm run optimize:images    # Regenera public/images/opt/ (AVIF+WebP, idempotente)
+npx playwright test        # Tests E2E (puerto 3310)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variables de entorno
 
-## Learn More
+Ver `.env.example`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM_NAME`, `RESEND_FROM_EMAIL`, `COMPANY_EMAIL`.
 
-To learn more about Next.js, take a look at the following resources:
+## Estructura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `app/` — sitio público (home, quiénes-somos, servicios, montajes + `[slug]`, clientes + `[slug]`, contacto, galería)
+- `app/dashboard/` — login + CMS admin (`site_settings`, montajes, clientes, servicios)
+- `lib/content.ts` — fetchers con fallbacks tipados (fuente de datos de las páginas públicas)
+- `app/actions/` — Server Actions (mutaciones del dashboard + contacto)
+- `middleware.ts` — auth gate de `/dashboard/**`
+- `supabase/migrations/` — migraciones SQL (001–006)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ver [`ARCHITECTURE.md`](./ARCHITECTURE.md) para el mapa de dónde tocar cada cosa.
 
-## Deploy on Vercel
+## Mantenimiento
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Modelo de sesión de CodeTlon:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/cambio "<tema>"` — abre una rama de trabajo desde `main`. Cada cambio commitea ahí.
+- `/cerrar` — build + actualiza este Changelog + mergea a `main` + tag SemVer.
+
+Contexto de proyecto en `.claude/CLAUDE.md` + `ARCHITECTURE.md`. Checklist manual de testing en `MANUAL-PRUEBAS.md`. Bitácora de bugs no obvios en `.claude/ERRORES.md`.
 
 ## Licencia
 
 © 2026 CodeTlon. Todos los derechos reservados. Software propietario del cliente/CodeTlon.
 Prohibida su copia, redistribución o reuso sin autorización escrita. Ver [LICENSE](./LICENSE).
+
+## Changelog
+
+| Versión | Fecha | Cambio |
+|---------|-------|--------|
+| v1.1.0 | 2026-07-04 | **Fase 1 — Reestructura + Dashboard CMS**: home reordenado (Hero con video → Qué Hacemos → resto), "Quiénes Somos" a página propia, Montajes y Clientes Destacados con detalle tipo blog por slug (Clientes ordenado por `work_rank`), dashboard admin completo (contenido/montajes/clientes/servicios, Supabase Auth). Fix: unificación de claves `site_settings` entre seed/fallback/frontend. Fix: puerto dedicado en Playwright (3310) — corrige 12 falsos positivos por colisión con otro proyecto en :3000. Documentación de mantenimiento completada (`ARCHITECTURE.md`, `MANUAL-PRUEBAS.md`, `.claude/ERRORES.md`, `/cambio`+`/cerrar`). |
+| v1.0.0 | 2026-06-19 | Entrega inicial: migración PHP → Next.js 15.5.19, pipeline de imágenes AVIF/WebP, formulario de contacto (Resend), 25/25 E2E, 0 HIGH vulns. |
