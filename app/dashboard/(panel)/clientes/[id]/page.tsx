@@ -17,8 +17,10 @@ export default async function ClienteEditPage({ params }: Props) {
 
   if (!cliente) notFound()
 
-  const updateAction = updateCliente.bind(null, cliente.slug)
-  const deleteAction = deleteCliente.bind(null, cliente.slug)
+  async function handleDelete(formData: FormData) {
+    'use server'
+    await deleteCliente(undefined, formData)
+  }
 
   return (
     <div className="max-w-2xl">
@@ -43,14 +45,15 @@ export default async function ClienteEditPage({ params }: Props) {
         title={`Editar: ${cliente.name}`}
         description={`/clientes/${cliente.slug}`}
         actions={
-          <form action={deleteAction}>
+          <form action={handleDelete}>
+            <input type="hidden" name="id" value={cliente.id} />
             <DeleteButton confirmMessage={`¿Eliminar "${cliente.name}"? Esta acción no se puede deshacer.`} />
           </form>
         }
       />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <ClienteForm cliente={cliente} action={updateAction} />
+        <ClienteForm cliente={cliente} entityId={cliente.id} action={updateCliente} />
       </div>
     </div>
   )

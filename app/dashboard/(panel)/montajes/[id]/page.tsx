@@ -17,8 +17,10 @@ export default async function MontajeEditPage({ params }: Props) {
 
   if (!montaje) notFound()
 
-  const updateAction = updateMontaje.bind(null, montaje.slug)
-  const deleteAction = deleteMontaje.bind(null, montaje.slug)
+  async function handleDelete(formData: FormData) {
+    'use server'
+    await deleteMontaje(undefined, formData)
+  }
 
   return (
     <div className="max-w-2xl">
@@ -43,14 +45,15 @@ export default async function MontajeEditPage({ params }: Props) {
         title={`Editar: ${montaje.title}`}
         description={`/montajes/${montaje.slug}`}
         actions={
-          <form action={deleteAction}>
+          <form action={handleDelete}>
+            <input type="hidden" name="id" value={montaje.id} />
             <DeleteButton confirmMessage={`¿Eliminar "${montaje.title}"? Esta acción no se puede deshacer.`} />
           </form>
         }
       />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <MontajeForm montaje={montaje} action={updateAction} />
+        <MontajeForm montaje={montaje} entityId={montaje.id} action={updateMontaje} />
       </div>
     </div>
   )

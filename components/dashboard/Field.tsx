@@ -56,12 +56,14 @@ export function TextArea({
   defaultValue,
   rows = 4,
   hint,
+  placeholder,
 }: {
   label: string
   name: string
   defaultValue?: string
   rows?: number
   hint?: string
+  placeholder?: string
 }) {
   return (
     <div>
@@ -73,6 +75,7 @@ export function TextArea({
         name={name}
         rows={rows}
         defaultValue={defaultValue ?? ''}
+        placeholder={placeholder}
         className={`${fieldInput} resize-y`}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
