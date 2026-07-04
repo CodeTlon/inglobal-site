@@ -1,10 +1,11 @@
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
+import { getSiteSettings } from '@/lib/content'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
+  { href: '/quienes-somos', label: 'Quiénes Somos' },
   { href: '/servicios', label: 'Servicios' },
   { href: '/montajes', label: 'Montajes' },
   { href: '/galeria', label: 'Galería' },
@@ -12,11 +13,24 @@ const navLinks = [
   { href: '/contacto', label: 'Contacto' },
 ]
 
-const legalLinks = [
-  { href: '/aviso-legal', label: 'Aviso Legal' },
-]
+const legalLinks = [{ href: '/aviso-legal', label: 'Aviso Legal' }]
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getSiteSettings('footer')
+
+  const description =
+    (settings.description as string) ||
+    'Soluciones de elevación y logística pesada para los desafíos más exigentes del mercado industrial. Más de 40 años de trayectoria en Argentina.'
+  const phone = (settings.phone as string) || '0351 345-4244'
+  const address = (settings.address as string) || 'Ana Riglos de Irigoyen S/N\nCórdoba, Argentina'
+  const email = (settings.email as string) || 'info@gruasinglobal.com'
+  const hours = (settings.hours as string) || 'Lun-Vie 8-18h / Sáb 8-13h'
+
+  // phone number for tel: link — strip spaces/dashes
+  const phoneHref = `tel:${phone.replace(/[\s-]/g, '')}`
+  // address for display — support \n in DB value
+  const addressLines = address.split('\n')
+
   return (
     <footer className="bg-slate-900 text-slate-300">
       <div className="container-igb pt-16 pb-8">
@@ -34,10 +48,7 @@ export default function Footer() {
                 height={70}
               />
             </Link>
-
-            <p className="text-sm leading-relaxed text-slate-400">
-              Soluciones de elevación y logística pesada para los desafíos más exigentes del mercado industrial. Más de 40 años de trayectoria en Argentina.
-            </p>
+            <p className="text-sm leading-relaxed text-slate-400">{description}</p>
           </div>
 
           {/* Nav */}
@@ -63,32 +74,39 @@ export default function Footer() {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="tel:03513454244"
+                  href={phoneHref}
                   className="flex items-center gap-3 text-sm text-slate-400 hover:text-igb-yellow transition-colors group"
                 >
                   <Phone className="w-4 h-4 flex-shrink-0 text-igb-yellow" />
-                  0351 345-4244
+                  {phone}
                 </a>
               </li>
 
               <li className="flex items-start gap-3 text-sm text-slate-400">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-igb-yellow" />
-                <span>Ana Riglos de Irigoyen S/N<br />Córdoba, Argentina</span>
+                <span>
+                  {addressLines.map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < addressLines.length - 1 && <br />}
+                    </span>
+                  ))}
+                </span>
               </li>
 
               <li>
                 <a
-                  href="mailto:info@gruasinglobal.com"
+                  href={`mailto:${email}`}
                   className="flex items-center gap-3 text-sm text-slate-400 hover:text-igb-yellow transition-colors"
                 >
                   <Mail className="w-4 h-4 flex-shrink-0 text-igb-yellow" />
-                  info@gruasinglobal.com
+                  {email}
                 </a>
               </li>
 
               <li className="flex items-start gap-3 text-sm text-slate-400">
                 <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-igb-yellow" />
-                <span>Lun-Vie 8-18h / Sáb 8-13h</span>
+                <span>{hours}</span>
               </li>
             </ul>
           </div>
