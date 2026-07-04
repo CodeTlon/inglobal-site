@@ -26,8 +26,9 @@
 | Fonts             | Manrope (headlines) + Inter (body), vía `next/font/google`       |
 | Iconos            | `lucide-react`                                                   |
 | Form validation   | Zod + react-hook-form + `@hookform/resolvers`                    |
-| Server Actions    | Contacto (Resend) + CRUD dashboard (`site_settings`/`montajes`/`clientes`/`servicios`) |
-| DB                | Supabase (Postgres + RLS) — `contact_leads`, `site_settings`, `montajes`, `clientes`, `servicios` |
+| Server Actions    | Contacto (Resend) + CRUD dashboard (`site_settings`/`montajes`/`clientes`/`servicios`/`trabajos`) |
+| DB                | Supabase (Postgres + RLS), doble proyecto dev/prod — `contact_leads`, `site_settings`, `montajes`, `clientes`, `servicios`, `trabajos` |
+| Rich text (trabajos) | TipTap (`@tiptap/react` + extensions) — mismo patrón que gc2/blog: imágenes vía `uploadMediaAction`, embeds de YouTube, `sanitizeHtml` antes de `dangerouslySetInnerHTML` |
 | Auth              | Supabase Auth (email+password) — protege `/dashboard/**`         |
 | Storage           | Supabase Storage, bucket `media` (fotos de montajes/clientes/servicios + video del hero) |
 | Email             | Resend (`info@gruasinglobal.com`)                                |
@@ -49,7 +50,9 @@ app/
   montajes/page.tsx             Listado (blog) de montajes
   montajes/[slug]/page.tsx      Detalle de montaje (tipo blog post)
   clientes/page.tsx             "Clientes Destacados", ordenado por work_rank desc
-  clientes/[slug]/page.tsx      Detalle de cliente (bio/historia de trabajo conjunto)
+  clientes/[slug]/page.tsx      Detalle de cliente: hero (logo/bio) → historia (cliente.content) → trabajos (blog paginado, si tiene)
+  clientes/[slug]/ClienteTrabajos.tsx   Client · grid + paginación (PER_PAGE=6) de trabajos del cliente
+  clientes/[slug]/[trabajo]/page.tsx    Detalle de un trabajo: hero opcional (cover), excerpt, YouTube embed, contenido rico (.prose-igb)
   galeria/page.tsx              Portafolio operativo (bento)
   contacto/page.tsx             Form + datos + mapa
   aviso-legal/page.tsx          Legal
@@ -59,13 +62,15 @@ app/
     montajes.ts                 CRUD montajes
     clientes.ts                 CRUD clientes
     servicios.ts                CRUD servicios
+    trabajos.ts                 CRUD trabajos (uniqueSlug scoped por cliente_id, sin redirect — mismo patrón state-return que el resto)
     auth.ts                     login/logout del dashboard
   dashboard/(auth)/login/       Login del CMS (Supabase Auth, sin signup público)
   dashboard/(panel)/            CMS protegido (ver middleware.ts)
     contenido/{hero,quienes-somos,que-hacemos,stats,cta-banner,clientes-destacados,ubicacion,footer,contacto}/
                                  Un form por key de site_settings
     montajes/, clientes/, servicios/   CRUD completo (listado, nuevo, [id]/editar)
-  globals.css                   Tailwind layers + keyframes + sistema scroll-reveal
+    clientes/[id]/trabajos/     CRUD de trabajos del cliente (`[id]` = slug del cliente, igual que el resto). TrabajoForm.tsx usa ContentEditor (TipTap)
+  globals.css                   Tailwind layers + keyframes + sistema scroll-reveal + `.prose-igb` (contenido rico de trabajos)
 
 middleware.ts                   Auth gate de /dashboard/** (Next 15 — sigue siendo middleware.ts)
 
@@ -79,17 +84,22 @@ components/
   LazyGoogleMap.tsx             Click-to-load iframe
   WhatsAppButton.tsx            Server · floating CTA
   dashboard/
-    Field.tsx                   Inputs del panel + ImageUpload/VideoUpload
+    Field.tsx                   Inputs del panel + ImageUpload/VideoUpload/Checkbox
+    ContentEditor.tsx           TipTap rico (bold/italic/H2/quote/listas/link/imagen/YouTube) — reusable, folder 'trabajos/content'
     PageHeader.tsx, SaveButton.tsx, DeleteButton.tsx
 
 lib/
   supabase.ts                   createClient (browser/RSC) + service client
   supabase-server.ts            createSupabaseServerClient (cookies SSR, @supabase/ssr)
   content.ts                    Getters con fallback: getSiteSettings, getMontajes/getMontaje,
-                                 getClientes (orden work_rank desc)/getCliente, getServicios
+                                 getClientes (orden work_rank desc)/getCliente, getServicios,
+                                 getTrabajos(clienteId)/getTrabajo(clienteId,slug) (published-only, sin fallback estático),
+                                 getTrabajoById(id) (NO filtra published — uso exclusivo del dashboard)
   constants.ts                  FALLBACK_SITE_SETTINGS / FALLBACK_MONTAJES / FALLBACK_CLIENTES —
                                  nombres de campo DEBEN coincidir con los que leen las páginas/forms
-  validations/{cliente,contact,montaje,servicio}.ts   Zod schemas
+  validations/{cliente,contact,montaje,servicio,trabajo}.ts   Zod schemas
+  sanitize.ts                   sanitizeHtml — regex-based (script/style/on*/javascript:), portado de gc2, previo a dangerouslySetInnerHTML
+  youtube.ts                    parseYoutubeId / youtubeEmbedUrl — portado de gc2
 
 scripts/
   optimize-images.mjs           Sharp pipeline: sources → AVIF + WebP en /public/images/opt/ (build)
@@ -101,6 +111,7 @@ supabase/migrations/
   004_clientes.sql
   005_servicios.sql
   006_storage_media.sql         Bucket `media` (lectura pública, escritura authenticated)
+  007_trabajos.sql              Tabla trabajos (FK cliente_id → clientes, UNIQUE (cliente_id, slug))
 
 public/images/
   igb-1..10.webp                 Fotos de operaciones — SOURCES (no se sirven directo)
@@ -120,24 +131,32 @@ Ver [`ARCHITECTURE.md`](../ARCHITECTURE.md) para el mapa de "qué abrir según q
 
 ## Base de Datos (Supabase)
 
-**Estado actual (2026-07-04): un solo proyecto Supabase** (`pfjqulqbsjmuodadvhzx.supabase.co`), sin split dev/prod todavía. El usuario está creando ahora `inglobal-dev` / `inglobal-prod` siguiendo el patrón estándar de la fábrica (Golden Rule "Doble Supabase") — cuando estén listos, actualizar esta sección con los refs reales y promover las migraciones 002-006 a prod.
+**Doble Supabase (dev/prod)**, patrón estándar de la fábrica:
 
-RLS: lectura pública (`anon` + `authenticated`), escritura solo `authenticated` (mismo patrón en las 4 tablas de contenido).
+| Entorno | Ref | Rama | Env file |
+|---|---|---|---|
+| `inglobal-dev` | `sdlwcxkbgfqnmawijvmn` | `dev` (Vercel Preview) | `.env.development.local` |
+| `inglobal-prod` | `jiextxxopwzyjqiianrs` | `main` (Vercel Production) | `.env.production.local` |
+
+Migraciones en `supabase/migrations/*.sql`, aplicadas a dev vía `node scripts/db-sync-dev.mjs --yes` (wipe + replay limpio, lee `.env.supabase.local` gitignored). **Prod se promueve a mano** al mergear a `main` — este script nunca toca prod.
+
+RLS: lectura pública (`anon` + `authenticated`), escritura solo `authenticated` (mismo patrón en todas las tablas de contenido).
 
 | Tabla | Campos clave | Notas |
 |-------|-------------|-------|
 | `contact_leads` | name, empresa, email, phone, servicio, message | Insert desde el form público (`actions/contact.ts`), sin RLS de lectura pública |
 | `site_settings` | `key` (PK text), `value` (jsonb), `updated_at` | Keys: `hero`, `quienes_somos`, `que_hacemos`, `stats`, `cta_banner`, `clientes_destacados`, `ubicacion`, `footer`, `contacto`. Campos dentro de cada `value` deben coincidir EXACTO con `lib/constants.ts` y los forms — ver `.claude/ERRORES.md` |
 | `montajes` | slug (unique), title, excerpt, content, cover_image, tags[], display_order, published | Blog de casos de éxito, `/montajes/[slug]` |
-| `clientes` | slug (unique), name, logo, bio, content, featured, **work_rank** (int, mayor = más arriba), published | "Clientes Destacados", orden por `work_rank desc` |
+| `clientes` | slug (unique), name, logo, bio, content, featured, **work_rank** (int, mayor = más arriba), published | "Clientes Destacados", orden por `work_rank desc`. `content` = intro/historia del cliente (párrafos separados por línea en blanco), se muestra antes de sus `trabajos` |
 | `servicios` | slug (unique), title, desc, specs[], img, icon, display_order, published | Detalle en `/servicios` |
-| Storage `media` | — | Bucket único: fotos de montajes/clientes/servicios (sharp resize+WebP) + video del hero (sin transformar) |
+| `trabajos` | `cliente_id` (FK → clientes, ON DELETE CASCADE), slug (UNIQUE junto a cliente_id), title, excerpt, content (HTML rico TipTap), cover_image, youtube_url, display_order, published | Cada cliente se comporta como mini-blog: `/clientes/[slug]` lista sus trabajos paginados, cada uno con detalle propio en `/clientes/[slug]/[trabajo-slug]`. Slug auto-generado (`slugify` + sufijo `-2`/`-3` si colisiona), no es campo editable en el form |
+| Storage `media` | — | Bucket único: fotos de montajes/clientes/servicios/trabajos (sharp resize+WebP) + imágenes embebidas en el contenido rico de trabajos + video del hero (sin transformar) |
 
 ---
 
 ## Variables de Entorno
 
-Hoy un solo set (proyecto Supabase único). Cuando exista el split dev/prod, pasar a `.env.development.local` / `.env.production.local` por convención de fábrica.
+Dos sets — dev y prod — cada uno en su propio `.env.*.local` (gitignored). Ver también `.env.example` en la raíz.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL
@@ -148,6 +167,10 @@ RESEND_FROM_NAME               (opt, default "InGlobal")
 RESEND_FROM_EMAIL              (opt, default "onboarding@resend.dev")
 COMPANY_EMAIL                  (opt, default "info@gruasinglobal.com")
 ```
+
+`.env.supabase.local` (gitignored, solo para `scripts/db-sync-dev.mjs`): `SUPABASE_ACCESS_TOKEN` + `SUPABASE_DEV_PROJECT_REF` + `SUPABASE_DEV_DB_PASSWORD`.
+
+**Pendiente:** `RESEND_API_KEY` / `RESEND_FROM_EMAIL` de prod todavía sin completar (esperando que Mateo pase la key real).
 
 ---
 
@@ -201,9 +224,11 @@ Hero: `hero-anim hero-anim-d1..d5` (CSS directo, no ScrollReveal) + `hero-bg-zoo
 - **Contrato de nombres `site_settings` ↔ `lib/constants.ts` ↔ forms**: si agregás un campo nuevo a una key, actualizalo en los 3 lugares (migración/seed, fallback, form del dashboard) o el público queda desincronizado sin error visible. Ya pasó una vez esta sesión — ver `.claude/ERRORES.md`.
 - **`playwright.config.ts` usa el puerto 3310**, no 3000 — esta máquina corre otros proyectos Next en paralelo y Playwright no detecta el puerto equivocado (ver Bug 37 de la fábrica).
 - **`public/videos/hero-test.mp4`** es un placeholder de test (stock de Pexels, aprobado solo para verificar el mecanismo de video del hero) — no es el asset final del cliente, reemplazar cuando lo mande.
-- Un solo proyecto Supabase hoy — el split dev/prod está en curso, no asumir que ya existen `inglobal-dev`/`inglobal-prod` sin confirmar.
 - `logo.png` venía a 2.4 MB (3199×940) — recomprimido a 800×235 (~68 KB). Si se reemplaza, mantener tamaño manageable.
 - Google Maps: NUNCA `<iframe>` directo al montar — usar `LazyGoogleMap` (click-to-load).
+- **`getTrabajoById` no filtra `published`** (a diferencia de `getMontaje`/`getCliente`, que sí) — es deliberado: el dashboard de edición necesita encontrar el trabajo por su `id` sin importar si está publicado. No replicar ese filtro ahí ni asumir que el resto de los getters lo omiten.
+- **Checkbox de `published` en los forms**: `montajes`/`clientes`/`servicios` NO tienen un campo de checkbox real para `published` en sus forms — el form nunca lo envía, así que `formData.get('published')` da `null` y el Zod coerce lo vuelve `false` siempre (el `.default(true)` del schema no aplica porque el valor no es `undefined`). Es una limitación preexistente de esos 3 forms, fuera de alcance arreglarla acá. `TrabajoForm` sí tiene un `Checkbox` real (nuevo, en `Field.tsx`) — no repitas el bug ahí.
+- `lucide-react` en este proyecto está en la versión `1.8.0` (no la típica `0.x`) y **no exporta `Youtube`** — usar `Video` como ícono para acciones de YouTube (ver `ContentEditor.tsx`).
 
 ---
 
@@ -229,6 +254,8 @@ npx playwright test       # E2E (puerto 3310)
 | 2026-05-21 | Pipeline propio de imágenes (sharp → AVIF+WebP) + `<Picture>` |
 | 2026-06-19 | Seguridad: Next 14.2.35 → 15.5.19 (0 HIGH vulns), `WhatsAppButton` montado en layout, 25/25 E2E |
 | 2026-07-04 | **Fase 1 — Reestructura + Dashboard CMS**: home reordenado (Hero video → Qué Hacemos → resto), Quiénes Somos a página propia, Montajes y Clientes a formato blog con detalle por slug, Clientes → "Clientes Destacados" ordenado por `work_rank`, dashboard admin completo (`site_settings`/`montajes`/`clientes`/`servicios` CRUD, Supabase Auth). Fix: unificación de claves `site_settings` (bug de causa no obvia). Fix: puerto dedicado Playwright (3310). Creados `ARCHITECTURE.md`, `MANUAL-PRUEBAS.md`, `.claude/ERRORES.md`, `commands/cambio.md`+`cerrar.md` (archivos estándar de fábrica que faltaban). Mergeado a `dev` y pusheado a origin; `main` sin tocar. |
+| 2026-07-04 | **Doble Supabase dev/prod**: creados `inglobal-dev`/`inglobal-prod`, migraciones 001-006 aplicadas a ambos, `.env.development.local`/`.env.production.local`/`.env.supabase.local` + `scripts/db-sync-dev.mjs` (copiado de gc2). Fix: columna reservada `desc` sin comillas en `005_servicios.sql`. Pendiente: `RESEND_API_KEY` de prod. |
+| 2026-07-04 | **Feature: Trabajos por cliente (mini-blog)**: nueva tabla `trabajos` (FK `cliente_id`, migración `007_trabajos.sql`) — cada cliente puede tener N trabajos con contenido rico (TipTap, portado de gc2: imágenes, links, YouTube), listado paginado en `/clientes/[slug]` (intro/historia del cliente vía `content` + grid de trabajos) y detalle propio en `/clientes/[slug]/[trabajo-slug]`. Dashboard CRUD en `clientes/[id]/trabajos/`. Nuevas deps: `@tiptap/*`, `slugify`. Nuevo `.prose-igb` en `globals.css` (sin plugin de Tailwind typography, igual que gc2). Build + tsc + lint OK, migración aplicada a dev. |
 
 ---
 

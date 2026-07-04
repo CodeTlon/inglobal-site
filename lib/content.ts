@@ -59,6 +59,22 @@ export interface Servicio {
   updated_at:    string
 }
 
+/** Un "trabajo" (proyecto/artículo) hecho para un cliente puntual. */
+export interface Trabajo {
+  id:            string
+  cliente_id:    string
+  slug:          string
+  title:         string
+  excerpt:       string | null
+  content:       string
+  cover_image:   string | null
+  youtube_url:   string | null
+  display_order: number
+  published:     boolean
+  created_at:    string
+  updated_at:    string
+}
+
 // ─────────────────────────────────────────────────────────────
 // Helper: detectar si Supabase está configurado
 // ─────────────────────────────────────────────────────────────
@@ -244,5 +260,79 @@ export async function getServicios(): Promise<Servicio[]> {
   } catch (e) {
     console.error('servicios unexpected error:', e)
     return FALLBACK_SERVICIOS
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// trabajos (artículos internos de un cliente — "cada cliente es su mini-blog")
+// ─────────────────────────────────────────────────────────────
+// Sin fallback estático: es contenido puramente CMS, no hay datos previos que preservar.
+
+/** Todos los trabajos publicados de un cliente, ordenados por display_order ASC. */
+export async function getTrabajos(clienteId: string): Promise<Trabajo[]> {
+  if (isPlaceholder()) return []
+
+  try {
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase
+      .from('trabajos')
+      .select('*')
+      .eq('cliente_id', clienteId)
+      .eq('published', true)
+      .order('display_order', { ascending: true })
+
+    if (error || !data) {
+      if (error) console.error('trabajos fetch error:', error.message)
+      return []
+    }
+    return data as Trabajo[]
+  } catch (e) {
+    console.error('trabajos unexpected error:', e)
+    return []
+  }
+}
+
+/** Un trabajo publicado por cliente + slug. Null si no existe. */
+export async function getTrabajo(clienteId: string, slug: string): Promise<Trabajo | null> {
+  if (isPlaceholder()) return null
+
+  try {
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase
+      .from('trabajos')
+      .select('*')
+      .eq('cliente_id', clienteId)
+      .eq('slug', slug)
+      .eq('published', true)
+      .single()
+
+    if (error || !data) {
+      if (error) console.error(`trabajo[${slug}] fetch error:`, error.message)
+      return null
+    }
+    return data as Trabajo
+  } catch (e) {
+    console.error(`trabajo[${slug}] unexpected error:`, e)
+    return null
+  }
+}
+
+/** Un trabajo por ID (sin filtrar published — uso interno del dashboard). */
+export async function getTrabajoById(id: string): Promise<Trabajo | null> {
+  if (isPlaceholder()) return null
+
+  try {
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase
+      .from('trabajos')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error || !data) return null
+    return data as Trabajo
+  } catch (e) {
+    console.error(`trabajo[${id}] unexpected error:`, e)
+    return null
   }
 }

@@ -153,6 +153,57 @@
 .js-ready [data-animate][data-delay="450"] { transition-delay: 450ms; }
 .js-ready [data-animate][data-delay="500"] { transition-delay: 500ms; }
 
+/* ─── PROSE (contenido rico de trabajos, TipTap) ─────────────────────── */
+
+.prose-igb {
+  @apply text-igb-secondary text-lg leading-relaxed;
+}
+.prose-igb > * + * {
+  margin-top: 1.25em;
+}
+.prose-igb h2 {
+  @apply font-headline font-extrabold text-2xl md:text-3xl text-igb-on-surface tracking-tight;
+  margin-top: 1.75em;
+}
+.prose-igb h3 {
+  @apply font-headline font-bold text-xl text-igb-on-surface;
+  margin-top: 1.5em;
+}
+.prose-igb a {
+  @apply text-igb-yellow-dark font-semibold underline underline-offset-2;
+}
+.prose-igb ul {
+  @apply list-disc pl-6 space-y-1;
+}
+.prose-igb ol {
+  @apply list-decimal pl-6 space-y-1;
+}
+.prose-igb blockquote {
+  @apply border-l-4 border-igb-yellow pl-5 italic text-igb-on-surface;
+}
+.prose-igb strong {
+  @apply font-bold text-igb-on-surface;
+}
+.prose-igb hr {
+  @apply border-zinc-200 my-10;
+}
+.prose-igb img {
+  @apply rounded-xl w-full;
+}
+.prose-igb [data-youtube-video] {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+.prose-igb [data-youtube-video] iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /* ─── REDUCED MOTION ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   /* Scroll reveals: show immediately */
