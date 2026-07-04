@@ -48,3 +48,140 @@
     @apply bg-white p-8 rounded-xl shadow-igb hover:-translate-y-1 transition-transform duration-300;
   }
 }
+
+/* ─── KEYFRAMES ─────────────────────────────────────────────────────── */
+
+@keyframes igb-fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes igb-fade-left {
+  from { opacity: 0; transform: translateX(-36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes igb-fade-right {
+  from { opacity: 0; transform: translateX(36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes igb-scale-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes igb-slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero background slow zoom */
+@keyframes igb-hero-zoom {
+  from { transform: scale(1.06); }
+  to   { transform: scale(1); }
+}
+
+/* WhatsApp floating pulse ring */
+@keyframes igb-pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.65; }
+  75%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ─── HERO ENTRY ANIMATIONS ─────────────────────────────────────────── */
+/* Direct keyframe animations for above-the-fold hero content.          */
+/* Uses `both` fill-mode so elements are invisible before delay fires.  */
+
+.hero-anim {
+  animation: igb-fade-up 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hero-anim-d1 { animation-delay: 0.05s; }
+.hero-anim-d2 { animation-delay: 0.18s; }
+.hero-anim-d3 { animation-delay: 0.30s; }
+.hero-anim-d4 { animation-delay: 0.44s; }
+.hero-anim-d5 { animation-delay: 0.56s; }
+
+.hero-bg-zoom {
+  animation: igb-hero-zoom 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ─── MOBILE NAV SLIDE-DOWN ─────────────────────────────────────────── */
+
+.nav-mobile-menu {
+  animation: igb-slide-down 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── WHATSAPP PULSE RING ────────────────────────────────────────────── */
+
+.whatsapp-pulse-ring {
+  animation: igb-pulse-ring 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* ─── SCROLL REVEAL SYSTEM ──────────────────────────────────────────── */
+/* Elements are hidden ONLY after JS marks <html> with js-ready.        */
+/* This prevents flash-of-invisible-content if JS is disabled or slow.  */
+
+.js-ready [data-animate] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity  0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.js-ready [data-animate="from-left"]  { transform: translateX(-36px); }
+.js-ready [data-animate="from-right"] { transform: translateX(36px); }
+.js-ready [data-animate="scale"]      { transform: scale(0.91); opacity: 0; }
+.js-ready [data-animate="fade-up"]    { transform: translateY(26px); }
+
+/* Revealed state */
+.js-ready [data-animate][data-visible] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger delays — scoped so they only affect animate elements */
+.js-ready [data-animate][data-delay="50"]  { transition-delay: 50ms; }
+.js-ready [data-animate][data-delay="100"] { transition-delay: 100ms; }
+.js-ready [data-animate][data-delay="150"] { transition-delay: 150ms; }
+.js-ready [data-animate][data-delay="200"] { transition-delay: 200ms; }
+.js-ready [data-animate][data-delay="250"] { transition-delay: 250ms; }
+.js-ready [data-animate][data-delay="300"] { transition-delay: 300ms; }
+.js-ready [data-animate][data-delay="350"] { transition-delay: 350ms; }
+.js-ready [data-animate][data-delay="400"] { transition-delay: 400ms; }
+.js-ready [data-animate][data-delay="450"] { transition-delay: 450ms; }
+.js-ready [data-animate][data-delay="500"] { transition-delay: 500ms; }
+
+/* ─── REDUCED MOTION ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Scroll reveals: show immediately */
+  .js-ready [data-animate],
+  .js-ready [data-animate][data-visible] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .js-ready [data-animate][data-delay] {
+    transition-delay: 0ms !important;
+  }
+
+  /* Hero / keyframe animations: disable */
+  .hero-anim,
+  .hero-bg-zoom {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* WhatsApp pulse: disable */
+  .whatsapp-pulse-ring {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  /* Nav slide: disable */
+  .nav-mobile-menu {
+    animation: none !important;
+  }
+}

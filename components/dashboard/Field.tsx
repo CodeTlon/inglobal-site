@@ -1,0 +1,473 @@
+'use client'
+
+import { useState } from 'react'
+import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon } from 'lucide-react'
+import { uploadMediaAction } from '@/app/actions/settings'
+
+// Shared class strings — keep dashboard styling in one place
+export const fieldLabel =
+  'block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5'
+export const fieldInput =
+  'w-full bg-white border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors'
+
+// ─── TextField ──────────────────────────────────────────────────────────────
+
+export function TextField({
+  label,
+  name,
+  defaultValue,
+  type = 'text',
+  hint,
+  required,
+  placeholder,
+}: {
+  label: string
+  name: string
+  defaultValue?: string
+  type?: string
+  hint?: string
+  required?: boolean
+  placeholder?: string
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className={fieldLabel}>
+        {label}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        defaultValue={defaultValue ?? ''}
+        required={required}
+        placeholder={placeholder}
+        className={fieldInput}
+      />
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── TextArea ───────────────────────────────────────────────────────────────
+
+export function TextArea({
+  label,
+  name,
+  defaultValue,
+  rows = 4,
+  hint,
+  placeholder,
+}: {
+  label: string
+  name: string
+  defaultValue?: string
+  rows?: number
+  hint?: string
+  placeholder?: string
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className={fieldLabel}>
+        {label}
+      </label>
+      <textarea
+        id={name}
+        name={name}
+        rows={rows}
+        defaultValue={defaultValue ?? ''}
+        placeholder={placeholder}
+        className={`${fieldInput} resize-y`}
+      />
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── NumberField ─────────────────────────────────────────────────────────────
+
+export function NumberField({
+  label,
+  name,
+  defaultValue,
+  hint,
+  min,
+  max,
+}: {
+  label: string
+  name: string
+  defaultValue?: number
+  hint?: string
+  min?: number
+  max?: number
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className={fieldLabel}>
+        {label}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type="number"
+        defaultValue={defaultValue ?? ''}
+        min={min}
+        max={max}
+        className={fieldInput}
+      />
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── ImageUpload ─────────────────────────────────────────────────────────────
+// Calca el patrón de gc2/src/components/dashboard/Field.tsx:
+// - hidden input with `name` carries the URL to the parent form
+// - file input auto-uploads on pick via uploadMediaAction (shows busy state)
+// - sends oldUrl to let the backend delete the previous file
+// - text input allows manual URL entry
+
+export function ImageUpload({
+  label,
+  name,
+  defaultValue,
+  folder = 'uploads',
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: string | null
+  folder?: string
+  hint?: string
+}) {
+  const [url, setUrl] = useState<string>(defaultValue ?? '')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBusy(true)
+    setErr(null)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('folder', folder)
+    if (url) fd.append('oldUrl', url)
+    const res = await uploadMediaAction(fd)
+    setBusy(false)
+    if (res.error) {
+      setErr(res.error)
+      return
+    }
+    if (res.url) setUrl(res.url)
+    e.target.value = ''
+  }
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      {/* Hidden input carries URL to parent form on submit */}
+      <input type="hidden" name={name} value={url} />
+
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+        {/* Preview thumbnail */}
+        <div className="flex-shrink-0 w-full sm:w-32 h-24 rounded-lg border border-zinc-200 overflow-hidden flex items-center justify-center bg-zinc-50">
+          {url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <ImageIcon size={20} className="text-zinc-300" />
+          )}
+        </div>
+
+        {/* Controls */}
+        <div className="flex-1 flex flex-col gap-2">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="URL de la imagen, o subí un archivo"
+            className={fieldInput}
+          />
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition-colors bg-igb-yellow/10 text-igb-yellow-dark border border-igb-yellow/30 hover:bg-igb-yellow/20">
+              {busy ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Upload size={14} />
+              )}
+              {busy ? 'Subiendo…' : 'Subir archivo'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={onPick}
+                disabled={busy}
+                className="hidden"
+              />
+            </label>
+            {url && (
+              <button
+                type="button"
+                onClick={() => setUrl('')}
+                className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
+              >
+                Quitar
+              </button>
+            )}
+          </div>
+          {err && <p className="text-xs text-red-500">{err}</p>}
+        </div>
+      </div>
+
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── VideoUpload ─────────────────────────────────────────────────────────────
+// Mismo patrón que ImageUpload pero acepta video/mp4 y usa <video> de preview.
+// Sin resize en backend (el backend recibe el archivo tal como llega).
+
+export function VideoUpload({
+  label,
+  name,
+  defaultValue,
+  folder = 'videos',
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: string | null
+  folder?: string
+  hint?: string
+}) {
+  const [url, setUrl] = useState<string>(defaultValue ?? '')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBusy(true)
+    setErr(null)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('folder', folder)
+    if (url) fd.append('oldUrl', url)
+    const res = await uploadMediaAction(fd)
+    setBusy(false)
+    if (res.error) {
+      setErr(res.error)
+      return
+    }
+    if (res.url) setUrl(res.url)
+    e.target.value = ''
+  }
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      <input type="hidden" name={name} value={url} />
+
+      <div className="flex flex-col gap-3">
+        {/* Video preview or placeholder */}
+        {url ? (
+          <div className="rounded-lg overflow-hidden border border-zinc-200 bg-zinc-900 aspect-video">
+            <video
+              src={url}
+              className="w-full h-full object-cover"
+              muted
+              playsInline
+              preload="metadata"
+            />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 h-32 flex flex-col items-center justify-center gap-2">
+            <VideoIcon size={24} className="text-zinc-300" />
+            <span className="text-xs text-zinc-400">Sin video</span>
+          </div>
+        )}
+
+        {/* Controls */}
+        <div className="flex flex-col gap-2">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="URL del video, o subí un archivo MP4"
+            className={fieldInput}
+          />
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition-colors bg-igb-yellow/10 text-igb-yellow-dark border border-igb-yellow/30 hover:bg-igb-yellow/20">
+              {busy ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Upload size={14} />
+              )}
+              {busy ? 'Subiendo…' : 'Subir MP4'}
+              <input
+                type="file"
+                accept="video/mp4"
+                onChange={onPick}
+                disabled={busy}
+                className="hidden"
+              />
+            </label>
+            {url && (
+              <button
+                type="button"
+                onClick={() => setUrl('')}
+                className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
+              >
+                Quitar
+              </button>
+            )}
+          </div>
+          {err && <p className="text-xs text-red-500">{err}</p>}
+        </div>
+      </div>
+
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── StringList ──────────────────────────────────────────────────────────────
+// Editable list of strings. Serializes as JSON in hidden input.
+
+export function StringList({
+  label,
+  name,
+  defaultValue,
+  placeholder,
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: string[]
+  placeholder?: string
+  hint?: string
+}) {
+  const [items, setItems] = useState<string[]>(
+    defaultValue?.length ? defaultValue : ['']
+  )
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      <input
+        type="hidden"
+        name={name}
+        value={JSON.stringify(items.filter((s) => s.trim()))}
+      />
+      <div className="space-y-2">
+        {items.map((it, i) => (
+          <div key={i} className="flex gap-2">
+            <input
+              type="text"
+              value={it}
+              onChange={(e) => {
+                const copy = [...items]
+                copy[i] = e.target.value
+                setItems(copy)
+              }}
+              placeholder={placeholder}
+              className={fieldInput}
+            />
+            <button
+              type="button"
+              onClick={() => setItems(items.filter((_, idx) => idx !== i))}
+              className="px-3 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
+              aria-label="Quitar"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => setItems([...items, ''])}
+        className="mt-2 inline-flex items-center gap-2 text-xs text-igb-yellow-dark hover:text-igb-on-surface transition-colors font-bold"
+      >
+        <Plus size={14} /> Agregar
+      </button>
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── StatsList ───────────────────────────────────────────────────────────────
+// Lista de stats del hero [{number, label}]. Serializa como JSON.
+
+type StatItem = { number: string; label: string }
+
+export function StatsList({
+  label,
+  name,
+  defaultValue,
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: StatItem[]
+  hint?: string
+}) {
+  const [items, setItems] = useState<StatItem[]>(
+    defaultValue?.length
+      ? defaultValue
+      : [{ number: '', label: '' }]
+  )
+
+  function update(i: number, key: keyof StatItem, val: string) {
+    setItems(items.map((it, idx) => (idx === i ? { ...it, [key]: val } : it)))
+  }
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      <input
+        type="hidden"
+        name={name}
+        value={JSON.stringify(items.filter((s) => s.number.trim() || s.label.trim()))}
+      />
+      <div className="space-y-3">
+        {items.map((it, i) => (
+          <div key={i} className="flex gap-2 items-start">
+            <div className="flex-1 grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={it.number}
+                onChange={(e) => update(i, 'number', e.target.value)}
+                placeholder="Número (ej: 40+)"
+                className={fieldInput}
+              />
+              <input
+                type="text"
+                value={it.label}
+                onChange={(e) => update(i, 'label', e.target.value)}
+                placeholder="Etiqueta (ej: Años de experiencia)"
+                className={fieldInput}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setItems(items.filter((_, idx) => idx !== i))}
+              className="mt-0.5 px-3 py-2.5 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
+              aria-label="Quitar"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => setItems([...items, { number: '', label: '' }])}
+        className="mt-2 inline-flex items-center gap-2 text-xs text-igb-yellow-dark hover:text-igb-on-surface transition-colors font-bold"
+      >
+        <Plus size={14} /> Agregar stat
+      </button>
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}

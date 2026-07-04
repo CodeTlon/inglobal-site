@@ -1,84 +1,168 @@
-
 import type { Metadata } from 'next'
-import { Phone, Mail} from 'lucide-react'
+import { Phone, Mail } from 'lucide-react'
 import ContactFormWrapper from '@/components/ContactFormWrapper'
+import LazyGoogleMap from '@/components/LazyGoogleMap'
+import { getSiteSettings } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Contacto',
   description: 'Contactá a Grúas InGlobal S.R.L. en Córdoba. Ingeniería aplicada a desafíos de elevación.',
 }
 
-export default function ContactoPage() {
+export default async function ContactoPage() {
+  const settings = await getSiteSettings('contacto')
+
+  const address =
+    (settings.address as string) || 'Ana Riglos de Irigoyen S/N\nCórdoba, Argentina'
+  const hoursWeekday =
+    (settings.hours_weekday as string) || 'Lun-Vie 8:00 — 18:00h'
+  const hoursSaturday =
+    (settings.hours_saturday as string) || 'Sáb 8:00 — 13:00h'
+  const phone = (settings.phone as string) || '0351 345-4244'
+  const email = (settings.email as string) || 'info@gruasinglobal.com'
+
+  const addressLines = address.split('\n')
+  const phoneHref = `tel:${phone.replace(/[\s-]/g, '')}`
+
   return (
     <main className="bg-white">
-      {/* Page Header - Minimalista (Zinc 50) */}
+      {/* Page Header */}
       <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
         <div className="container-igb">
-          <span className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span
+            className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+            data-animate="fade-up"
+          >
             Contacto Directo
           </span>
-          <h1 className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight">
+          <h1
+            className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
+            data-animate="fade-up"
+            data-delay="100"
+          >
             Hablemos de su <br /> próximo proyecto.
           </h1>
-          <p className="text-xl text-zinc-500 max-w-2xl leading-relaxed">
+          <p
+            className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
+            data-animate="fade-up"
+            data-delay="200"
+          >
             Asesoramiento técnico especializado para operaciones de alta complejidad.
           </p>
         </div>
       </section>
 
-      {/* Sección Principal de Contacto */}
+      {/* Main Contact Section */}
       <section className="py-24">
         <div className="container-igb">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-            
-            {/* 1. Columna de Formulario (Primero en mobile) */}
-            {/* Agregué padding interno forzado a los hijos (inputs y textarea) con [&_input] y [&_textarea] */}
-            <div className="order-1 lg:order-2 lg:col-span-7 bg-zinc-50 rounded-3xl p-8 md:p-12 border border-zinc-100 shadow-sm 
-                            [&_input]:px-5 [&_input]:py-3 [&_textarea]:p-5">
+
+            {/* Form column */}
+            <div
+              className="order-1 lg:order-2 lg:col-span-7 bg-zinc-50 rounded-3xl p-8 md:p-12 border border-zinc-100 shadow-sm
+                          [&_input]:px-5 [&_input]:py-3 [&_textarea]:p-5"
+              data-animate="from-left"
+            >
               <div className="max-w-md">
-                <h2 className="text-3xl font-headline font-bold text-zinc-900 mb-2">Envianos tu consulta</h2>
-                <p className="text-zinc-500 mb-10 text-sm">Complete el formulario y un asesor técnico le responderá a la brevedad.</p>
+                <h2 className="text-3xl font-headline font-bold text-zinc-900 mb-2">
+                  Envianos tu consulta
+                </h2>
+                <p className="text-zinc-500 mb-10 text-sm">
+                  Complete el formulario y un asesor técnico le responderá a la brevedad.
+                </p>
               </div>
               <ContactFormWrapper />
             </div>
 
-            {/* 2. Columna de Información (Segundo en mobile) */}
-            <div className="order-2 lg:order-1 lg:col-span-5 space-y-12">
+            {/* Info column */}
+            <div
+              className="order-2 lg:order-1 lg:col-span-5 space-y-12"
+              data-animate="from-right"
+            >
               <div className="space-y-10">
                 <div className="group">
-                  <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-2">Nuestra Ubicación</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-600 mb-2">
+                    Nuestra Ubicación
+                  </p>
                   <p className="text-xl font-medium text-zinc-900 leading-relaxed">
-                    Ana Riglos de Irigoyen S/N<br />Córdoba, Argentina
+                    {addressLines.map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < addressLines.length - 1 && <br />}
+                      </span>
+                    ))}
                   </p>
                 </div>
 
                 <div className="group">
-                  <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-2">Horarios de Atención</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-600 mb-2">
+                    Horarios de Atención
+                  </p>
                   <p className="text-xl font-medium text-zinc-900">
-                    Lun-Vie 8:00 — 18:00h<br />Sáb 8:00 — 13:00h
+                    {hoursWeekday}
+                    <br />
+                    {hoursSaturday}
                   </p>
                 </div>
               </div>
 
-              {/* Canales de comunicación */}
+              {/* Communication channels */}
               <div className="pt-10 border-t border-zinc-100">
-                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-8">Canales de comunicación</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-600 mb-8">
+                  Canales de comunicación
+                </p>
                 <div className="flex items-center gap-10">
-                  <a href="https://wa.me/5493513454244" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-igb-yellow-dark transition-colors">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  </a>
-                  <a href="https://www.instagram.com/gruasinglobal" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-igb-yellow-dark transition-colors">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                  <a
+                    href="https://wa.me/5493513454244"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Contactar por WhatsApp"
+                    className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-7 h-7"
+                      aria-hidden="true"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                     </svg>
                   </a>
-                  <a href="mailto:info@gruasinglobal.com" className="text-zinc-400 hover:text-igb-yellow-dark transition-colors">
-                    <Mail className="w-7 h-7" />
+                  <a
+                    href="https://www.instagram.com/gruasinglobal"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ver Instagram de Grúas InGlobal"
+                    className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-7 h-7"
+                      aria-hidden="true"
+                    >
+                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                    </svg>
                   </a>
-                  <a href="tel:03513454244" className="text-zinc-400 hover:text-igb-yellow-dark transition-colors">
-                    <Phone className="w-7 h-7" />
+                  <a
+                    href={`mailto:${email}`}
+                    aria-label="Enviar email a Grúas InGlobal"
+                    className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
+                  >
+                    <Mail className="w-7 h-7" aria-hidden="true" />
+                  </a>
+                  <a
+                    href={phoneHref}
+                    aria-label="Llamar a Grúas InGlobal"
+                    className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
+                  >
+                    <Phone className="w-7 h-7" aria-hidden="true" />
                   </a>
                 </div>
               </div>
@@ -88,11 +172,10 @@ export default function ContactoPage() {
         </div>
       </section>
 
-      {/* Sección del Mapa (Igualada a estilo Contacto) */}
-      {/* ===== LOCATION ===== */}
+      {/* Map Section */}
       <section className="section-pad bg-igb-surface" id="ubicacion">
         <div className="container-igb">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" data-animate="fade-up">
             <span className="label-tag flex justify-center">Dónde Encontrarnos</span>
             <h2 className="heading-display">Nuestra Ubicación</h2>
             <p className="text-body-lg mt-3 max-w-xl mx-auto">
@@ -100,17 +183,8 @@ export default function ContactoPage() {
             </p>
           </div>
 
-          <div className="rounded-xl overflow-hidden shadow-igb">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3407.907109390354!2d-64.18387818753284!3d-31.333938374192776!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9432997e4baee84d%3A0xd4a924978118ee6f!2sGr%C3%BAas%20Inglobal%20SRL!5e0!3m2!1ses-419!2sar!4v1775834094244!5m2!1ses-419!2sar"
-              width="100%"
-              height="450"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Ubicación Grúas InGlobal S.R.L."
-            />
+          <div className="rounded-xl overflow-hidden shadow-igb" data-animate="fade-up" data-delay="150">
+            <LazyGoogleMap />
           </div>
         </div>
       </section>

@@ -1,0 +1,42 @@
+{
+  "igb-1": {
+    "width": 1920,
+    "height": 1440
+  },
+  "igb-10": {
+    "width": 960,
+    "height": 960
+  },
+  "igb-2": {
+    "width": 1920,
+    "height": 2560
+  },
+  "igb-3": {
+    "width": 1920,
+    "height": 2560
+  },
+  "igb-4": {
+    "width": 1032,
+    "height": 774
+  },
+  "igb-5": {
+    "width": 1920,
+    "height": 1079
+  },
+  "igb-6": {
+    "width": 768,
+    "height": 1024
+  },
+  "igb-7": {
+    "width": 1024,
+    "height": 768
+  },
+  "igb-8": {
+    "width": 1920,
+    "height": 2560
+  },
+  "igb-9": {
+    "width": 960,
+    "height": 1280
+  }
+}

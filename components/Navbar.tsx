@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react'
 
 const navLinks = [
   { href: '/', label: 'Inicio', id: 'index' },
+  { href: '/quienes-somos', label: 'Quiénes Somos', id: 'quienes-somos' },
   { href: '/servicios', label: 'Servicios', id: 'servicios' },
   { href: '/montajes', label: 'Montajes', id: 'montajes' },
   { href: '/galeria', label: 'Galería', id: 'galeria' },
@@ -44,12 +45,13 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
         <Image
-          src="/images/logo.png"
+          src="/images/logo.webp"
           alt="Grúas InGlobal S.R.L."
           className="h-10 w-auto"
           sizes="160px"
-          width={160}  /* <-- Agrega esto */
-          height={40}  /* <-- Agrega esto */
+          width={160}
+          height={40}
+          priority
         />
         </Link>
 
@@ -86,13 +88,14 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-igb-surface-high">
+        <div className="nav-mobile-menu lg:hidden bg-white/95 backdrop-blur-md border-t border-igb-surface-high">
           <div className="container-igb py-6 flex flex-col gap-4">
-            {navLinks.map((link) => (
+            {navLinks.map((link, i) => (
               <Link
                 key={link.id}
                 href={link.href}
-                className={`font-headline font-bold text-base py-1 transition-colors ${
+                style={{ animationDelay: `${i * 40}ms` }}
+                className={`nav-mobile-menu font-headline font-bold text-base py-1 transition-colors ${
                   isActive(link.href)
                     ? 'text-igb-yellow-dark'
                     : 'text-igb-on-surface/70'
