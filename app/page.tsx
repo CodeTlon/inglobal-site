@@ -64,10 +64,11 @@ const defaultStats = [
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const [heroSettings, statsSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, servicios, clientes] =
+  const [heroSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, servicios, clientes] =
     await Promise.all([
       getSiteSettings('hero'),
       getSiteSettings('stats'),
+      getSiteSettings('que_hacemos'),
       getSiteSettings('cta_banner'),
       getSiteSettings('clientes_destacados'),
       getSiteSettings('ubicacion'),
@@ -91,6 +92,13 @@ export default async function HomePage() {
   const statsItems: { number: string; label: string }[] = Array.isArray(statsSettings.items)
     ? (statsSettings.items as { number: string; label: string }[])
     : defaultStats
+
+  // Qué Hacemos
+  const qhLabel = (queHacemosSettings.label as string) || 'Excelencia Operativa'
+  const qhHeading = (queHacemosSettings.heading as string) || 'Ingeniería en Movimiento'
+  const qhSubheading =
+    (queHacemosSettings.subheading as string) ||
+    'Ofrecemos el alquiler de diferentes equipos para dar solución a las necesidades de nuestros clientes.'
 
   // CTA banner
   const ctaHeading =
@@ -187,10 +195,10 @@ export default async function HomePage() {
       <section className="section-pad bg-igb-surface-low" id="servicios-preview">
         <div className="container-igb">
           <div className="mb-16" data-animate="fade-up">
-            <span className="label-tag">Excelencia Operativa</span>
-            <h2 className="heading-display">Ingeniería en Movimiento</h2>
+            <span className="label-tag">{qhLabel}</span>
+            <h2 className="heading-display">{qhHeading}</h2>
             <p className="text-body-lg mt-4 max-w-xl">
-              Ofrecemos el alquiler de diferentes equipos para dar solución a las necesidades de nuestros clientes.
+              {qhSubheading}
             </p>
           </div>
 
