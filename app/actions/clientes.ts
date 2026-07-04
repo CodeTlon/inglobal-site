@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { clienteSchema } from '@/lib/validations/cliente'
 
-export type ClienteState = { ok?: boolean; error?: string } | undefined
+export type ClienteState = { success?: boolean; error?: string } | undefined
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
@@ -50,7 +50,7 @@ export async function createCliente(
     if (error) return { error: error.message }
 
     revalidateClientes()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
@@ -89,7 +89,7 @@ export async function updateCliente(
     if (error) return { error: error.message }
 
     revalidateClientes()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
@@ -110,7 +110,7 @@ export async function deleteCliente(
     if (error) return { error: error.message }
 
     revalidateClientes()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }

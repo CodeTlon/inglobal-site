@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 
-export type SaveState = { ok?: boolean; error?: string } | undefined
+export type SaveState = { success?: boolean; error?: string } | undefined
 
 // Rutas a revalidar por cada clave de site_settings
 const SETTING_PATHS: Record<string, string[]> = {
@@ -28,15 +28,17 @@ async function requireUser() {
 
 /**
  * Upsert de una clave en site_settings.
- * formData debe contener: key (string) + value (JSON string).
+ * Primer arg = key (string, prefijado via .bind(null, key) desde el cliente).
+ * Segundo arg = prevState (inyectado por useFormState).
+ * Tercer arg = formData con el valor JSON del campo `value`.
  */
 export async function updateSiteSettings(
+  key: string,
   prevState: unknown,
   formData: FormData,
 ): Promise<SaveState> {
   try {
     const supabase = await requireUser()
-    const key = String(formData.get('key') ?? '').trim()
     const rawValue = String(formData.get('value') ?? '').trim()
 
     if (!key) return { error: 'Clave de configuración requerida.' }
@@ -57,7 +59,7 @@ export async function updateSiteSettings(
     const paths = SETTING_PATHS[key] ?? ['/']
     for (const p of paths) revalidatePath(p)
 
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }

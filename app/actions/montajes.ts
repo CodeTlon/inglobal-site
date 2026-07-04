@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { montajeSchema } from '@/lib/validations/montaje'
 
-export type MontajeState = { ok?: boolean; error?: string } | undefined
+export type MontajeState = { success?: boolean; error?: string } | undefined
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
@@ -60,7 +60,7 @@ export async function createMontaje(
     if (error) return { error: error.message }
 
     revalidateMontajes()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
@@ -101,7 +101,7 @@ export async function updateMontaje(
     if (error) return { error: error.message }
 
     revalidateMontajes()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
@@ -122,7 +122,7 @@ export async function deleteMontaje(
     if (error) return { error: error.message }
 
     revalidateMontajes()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }

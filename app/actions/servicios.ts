@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { servicioSchema } from '@/lib/validations/servicio'
 
-export type ServicioState = { ok?: boolean; error?: string } | undefined
+export type ServicioState = { success?: boolean; error?: string } | undefined
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
@@ -66,7 +66,7 @@ export async function updateServicio(
     if (error) return { error: error.message }
 
     revalidateServicios()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
@@ -107,7 +107,7 @@ export async function reorderServicios(
     if (failed?.error) return { error: failed.error.message }
 
     revalidateServicios()
-    return { ok: true }
+    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
