@@ -15,7 +15,7 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     subheadline:    'Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.',
     cta_primary:    'Solicitar Presupuesto',
     cta_secondary:  'Ver Servicios',
-    video_url:      null,
+    video_url:      '/videos/hero-test.mp4', // TEMPORAL: test placeholder, reemplazar cuando el cliente mande el video real
     fallback_image: 'igb-3',
   },
   stats: [
