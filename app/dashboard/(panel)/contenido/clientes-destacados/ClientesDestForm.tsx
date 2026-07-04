@@ -8,7 +8,7 @@ import { CheckCircle, AlertCircle } from 'lucide-react'
 
 const action = updateSiteSettings.bind(null, 'clientes_destacados')
 
-export default function ClientesDestForm({ settings }: { settings: Record<string, any> }) {
+export default function ClientesDestForm({ settings }: { settings: Record<string, unknown> }) {
   const [state, formAction] = useFormState(action, null)
 
   return (

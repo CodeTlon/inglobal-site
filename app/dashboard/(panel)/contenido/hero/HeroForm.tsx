@@ -8,7 +8,7 @@ import { CheckCircle, AlertCircle } from 'lucide-react'
 
 const action = updateSiteSettings.bind(null, 'hero')
 
-export default function HeroForm({ settings }: { settings: Record<string, any> }) {
+export default function HeroForm({ settings }: { settings: Record<string, unknown> }) {
   const [state, formAction] = useFormState(action, null)
 
   return (

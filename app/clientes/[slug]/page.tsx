@@ -37,7 +37,6 @@ export default async function ClienteDetailPage({ params }: Props) {
 
   if (!cliente) notFound()
 
-  const isRemoteLogo = cliente.logo?.startsWith('http') || cliente.logo?.startsWith('/')
   const paragraphs = (cliente.content || cliente.bio || '')
     .split('\n\n')
     .filter(Boolean)

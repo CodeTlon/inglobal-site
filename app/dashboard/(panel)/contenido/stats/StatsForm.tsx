@@ -14,9 +14,11 @@ const defaultStats = [
   { number: '100m', label: 'Altura máxima' },
 ]
 
-export default function StatsForm({ settings }: { settings: Record<string, any> }) {
+export default function StatsForm({ settings }: { settings: Record<string, unknown> }) {
   const [state, formAction] = useFormState(action, null)
-  const items = Array.isArray(settings.items) ? settings.items : defaultStats
+  const items = Array.isArray(settings.items)
+    ? (settings.items as { number: string; label: string }[])
+    : defaultStats
 
   return (
     <form action={formAction} className="space-y-6">
