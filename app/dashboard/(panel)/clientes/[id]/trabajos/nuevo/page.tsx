@@ -12,7 +12,7 @@ interface Props {
 
 export default async function NuevoTrabajoPage({ params }: Props) {
   const { id } = await params
-  const cliente = await getCliente(id)
+  const cliente = await getCliente(id, { includeUnpublished: true })
   if (!cliente) notFound()
 
   return (

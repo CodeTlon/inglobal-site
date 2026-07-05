@@ -4,9 +4,9 @@ import { Building2, Users, Wrench, ArrowRight } from 'lucide-react'
 
 export default async function DashboardHomePage() {
   const [montajes, clientes, servicios] = await Promise.all([
-    getMontajes(),
-    getClientes(),
-    getServicios(),
+    getMontajes({ includeUnpublished: true }),
+    getClientes({ includeUnpublished: true }),
+    getServicios({ includeUnpublished: true }),
   ])
 
   const stats = [

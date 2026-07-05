@@ -5,7 +5,7 @@ import PageHeader from '@/components/dashboard/PageHeader'
 import { ChevronRight, Plus } from 'lucide-react'
 
 export default async function MontajesDashboardPage() {
-  const montajes = await getMontajes()
+  const montajes = await getMontajes({ includeUnpublished: true })
 
   return (
     <div className="max-w-3xl">

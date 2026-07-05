@@ -10,10 +10,10 @@ interface Props {
 
 export default async function ClienteTrabajosDashboardPage({ params }: Props) {
   const { id } = await params
-  const cliente = await getCliente(id)
+  const cliente = await getCliente(id, { includeUnpublished: true })
   if (!cliente) notFound()
 
-  const trabajos = await getTrabajos(cliente.id)
+  const trabajos = await getTrabajos(cliente.id, { includeUnpublished: true })
 
   return (
     <div className="max-w-3xl">
@@ -28,7 +28,7 @@ export default async function ClienteTrabajosDashboardPage({ params }: Props) {
 
       <PageHeader
         title={`Trabajos — ${cliente.name}`}
-        description={`${trabajos.length} trabajo(s) publicado(s).`}
+        description={`${trabajos.length} trabajo(s) cargado(s).`}
         actions={
           <Link
             href={`/dashboard/clientes/${cliente.slug}/trabajos/nuevo`}

@@ -7,7 +7,7 @@ import { ChevronRight, ArrowUpToLine, HardHat, Move, Truck, type LucideIcon } fr
 const ICON_MAP: Record<string, LucideIcon> = { ArrowUpToLine, HardHat, Move, Truck }
 
 export default async function ServiciosDashboardPage() {
-  const servicios = await getServicios()
+  const servicios = await getServicios({ includeUnpublished: true })
 
   return (
     <div className="max-w-3xl">

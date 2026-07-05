@@ -5,7 +5,7 @@ import PageHeader from '@/components/dashboard/PageHeader'
 import { ChevronRight, Plus } from 'lucide-react'
 
 export default async function ClientesDashboardPage() {
-  const clientes = await getClientes()
+  const clientes = await getClientes({ includeUnpublished: true })
 
   return (
     <div className="max-w-3xl">

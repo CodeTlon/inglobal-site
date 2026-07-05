@@ -13,7 +13,7 @@ interface Props {
 
 export default async function MontajeEditPage({ params }: Props) {
   const { id } = await params
-  const montaje = await getMontaje(id)
+  const montaje = await getMontaje(id, { includeUnpublished: true })
 
   if (!montaje) notFound()
 

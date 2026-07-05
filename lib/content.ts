@@ -138,17 +138,15 @@ export async function getSiteSettings(key: SiteSettingsKey): Promise<any> {
 // montajes
 // ─────────────────────────────────────────────────────────────
 
-/** Todos los montajes publicados, ordenados por display_order ASC. */
-export async function getMontajes(): Promise<Montaje[]> {
+/** Todos los montajes, ordenados por display_order ASC. `includeUnpublished`: uso exclusivo del dashboard. */
+export async function getMontajes({ includeUnpublished = false } = {}): Promise<Montaje[]> {
   if (isPlaceholder()) return FALLBACK_MONTAJES
 
   try {
     const supabase = createSupabaseClient()
-    const { data, error } = await supabase
-      .from('montajes')
-      .select('*')
-      .eq('published', true)
-      .order('display_order', { ascending: true })
+    let query = supabase.from('montajes').select('*')
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.order('display_order', { ascending: true })
 
     if (error || !data || data.length === 0) {
       if (error) console.error('montajes fetch error:', error.message)
@@ -161,18 +159,15 @@ export async function getMontajes(): Promise<Montaje[]> {
   }
 }
 
-/** Un montaje por slug. Null si no existe. */
-export async function getMontaje(slug: string): Promise<Montaje | null> {
+/** Un montaje por slug. Null si no existe. `includeUnpublished`: uso exclusivo del dashboard. */
+export async function getMontaje(slug: string, { includeUnpublished = false } = {}): Promise<Montaje | null> {
   if (isPlaceholder()) return FALLBACK_MONTAJES.find((m) => m.slug === slug) ?? null
 
   try {
     const supabase = createSupabaseClient()
-    const { data, error } = await supabase
-      .from('montajes')
-      .select('*')
-      .eq('slug', slug)
-      .eq('published', true)
-      .single()
+    let query = supabase.from('montajes').select('*').eq('slug', slug)
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.single()
 
     if (error || !data) {
       if (error) console.error(`montaje[${slug}] fetch error:`, error.message)
@@ -189,17 +184,15 @@ export async function getMontaje(slug: string): Promise<Montaje | null> {
 // clientes
 // ─────────────────────────────────────────────────────────────
 
-/** Todos los clientes publicados, ordenados por work_rank DESC. */
-export async function getClientes(): Promise<Cliente[]> {
+/** Todos los clientes, ordenados por work_rank DESC. `includeUnpublished`: uso exclusivo del dashboard. */
+export async function getClientes({ includeUnpublished = false } = {}): Promise<Cliente[]> {
   if (isPlaceholder()) return FALLBACK_CLIENTES
 
   try {
     const supabase = createSupabaseClient()
-    const { data, error } = await supabase
-      .from('clientes')
-      .select('*')
-      .eq('published', true)
-      .order('work_rank', { ascending: false })
+    let query = supabase.from('clientes').select('*')
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.order('work_rank', { ascending: false })
 
     if (error || !data || data.length === 0) {
       if (error) console.error('clientes fetch error:', error.message)
@@ -212,18 +205,15 @@ export async function getClientes(): Promise<Cliente[]> {
   }
 }
 
-/** Un cliente por slug. Null si no existe. */
-export async function getCliente(slug: string): Promise<Cliente | null> {
+/** Un cliente por slug. Null si no existe. `includeUnpublished`: uso exclusivo del dashboard. */
+export async function getCliente(slug: string, { includeUnpublished = false } = {}): Promise<Cliente | null> {
   if (isPlaceholder()) return FALLBACK_CLIENTES.find((c) => c.slug === slug) ?? null
 
   try {
     const supabase = createSupabaseClient()
-    const { data, error } = await supabase
-      .from('clientes')
-      .select('*')
-      .eq('slug', slug)
-      .eq('published', true)
-      .single()
+    let query = supabase.from('clientes').select('*').eq('slug', slug)
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.single()
 
     if (error || !data) {
       if (error) console.error(`cliente[${slug}] fetch error:`, error.message)
@@ -240,17 +230,15 @@ export async function getCliente(slug: string): Promise<Cliente | null> {
 // servicios
 // ─────────────────────────────────────────────────────────────
 
-/** Todos los servicios publicados, ordenados por display_order ASC. */
-export async function getServicios(): Promise<Servicio[]> {
+/** Todos los servicios, ordenados por display_order ASC. `includeUnpublished`: uso exclusivo del dashboard. */
+export async function getServicios({ includeUnpublished = false } = {}): Promise<Servicio[]> {
   if (isPlaceholder()) return FALLBACK_SERVICIOS
 
   try {
     const supabase = createSupabaseClient()
-    const { data, error } = await supabase
-      .from('servicios')
-      .select('*')
-      .eq('published', true)
-      .order('display_order', { ascending: true })
+    let query = supabase.from('servicios').select('*')
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.order('display_order', { ascending: true })
 
     if (error || !data || data.length === 0) {
       if (error) console.error('servicios fetch error:', error.message)
@@ -269,17 +257,14 @@ export async function getServicios(): Promise<Servicio[]> {
 // Sin fallback estático: es contenido puramente CMS, no hay datos previos que preservar.
 
 /** Todos los trabajos publicados de un cliente, ordenados por display_order ASC. */
-export async function getTrabajos(clienteId: string): Promise<Trabajo[]> {
+export async function getTrabajos(clienteId: string, { includeUnpublished = false } = {}): Promise<Trabajo[]> {
   if (isPlaceholder()) return []
 
   try {
     const supabase = createSupabaseClient()
-    const { data, error } = await supabase
-      .from('trabajos')
-      .select('*')
-      .eq('cliente_id', clienteId)
-      .eq('published', true)
-      .order('display_order', { ascending: true })
+    let query = supabase.from('trabajos').select('*').eq('cliente_id', clienteId)
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.order('display_order', { ascending: true })
 
     if (error || !data) {
       if (error) console.error('trabajos fetch error:', error.message)

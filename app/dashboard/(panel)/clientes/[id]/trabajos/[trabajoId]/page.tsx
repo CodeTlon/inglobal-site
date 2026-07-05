@@ -13,7 +13,7 @@ interface Props {
 
 export default async function TrabajoEditPage({ params }: Props) {
   const { id, trabajoId } = await params
-  const cliente = await getCliente(id)
+  const cliente = await getCliente(id, { includeUnpublished: true })
   if (!cliente) notFound()
 
   const trabajo = await getTrabajoById(trabajoId)

@@ -11,7 +11,7 @@ interface Props {
 
 export default async function ServicioEditPage({ params }: Props) {
   const { id } = await params
-  const servicios = await getServicios()
+  const servicios = await getServicios({ includeUnpublished: true })
   const servicio = servicios.find((s) => s.slug === id)
 
   if (!servicio) notFound()
