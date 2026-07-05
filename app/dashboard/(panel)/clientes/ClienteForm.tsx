@@ -6,6 +6,7 @@ import {
   TextArea,
   NumberField,
   ImageUpload,
+  Checkbox,
 } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { CheckCircle, AlertCircle } from 'lucide-react'
@@ -79,6 +80,8 @@ export default function ClienteForm({ cliente, entityId, action, successMessage 
         min={0}
         hint="Número mayor = aparece primero en el home y en /clientes."
       />
+
+      <Checkbox label="Publicado" name="published" defaultChecked={cliente?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
 
       <div className="flex justify-end pt-2">
         <SaveButton />

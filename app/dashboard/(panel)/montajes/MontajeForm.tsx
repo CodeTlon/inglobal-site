@@ -6,6 +6,7 @@ import {
   TextArea,
   ImageUpload,
   StringList,
+  Checkbox,
 } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { CheckCircle, AlertCircle } from 'lucide-react'
@@ -79,6 +80,8 @@ export default function MontajeForm({ montaje, entityId, action, successMessage 
         placeholder="Ej: Industrial"
         hint="Etiquetas que se muestran debajo del título en el listado y en la página de detalle."
       />
+
+      <Checkbox label="Publicado" name="published" defaultChecked={montaje?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
 
       <div className="flex justify-end pt-2">
         <SaveButton />

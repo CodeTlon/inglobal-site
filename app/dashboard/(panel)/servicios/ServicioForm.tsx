@@ -8,6 +8,7 @@ import {
   NumberField,
   ImageUpload,
   StringList,
+  Checkbox,
 } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { CheckCircle, AlertCircle } from 'lucide-react'
@@ -87,6 +88,8 @@ export default function ServicioForm({ servicio }: Props) {
         min={1}
         hint="Número menor = aparece primero."
       />
+
+      <Checkbox label="Publicado" name="published" defaultChecked={servicio.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
 
       <div className="flex justify-end pt-2">
         <SaveButton />
