@@ -45,3 +45,8 @@ www.gruasinglobal.com-*.html
 # playwright
 /playwright-report/
 /test-results/
+
+# videos crudos sin optimizar (pesan cualquier cosa) — solo se commitea
+# el output de `npm run optimize:video` en public/videos/opt/
+/public/videos/*
+!/public/videos/opt/

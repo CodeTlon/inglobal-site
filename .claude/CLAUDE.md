@@ -209,6 +209,17 @@ El sitio **no usa el Vercel Image Optimizer** para las fotos del template origin
 2. Correr `npm run optimize:images` (o `npm run build`, el prebuild lo hace).
 3. Usar en JSX: `<Picture src="<nombre>" alt="..." width={W} height={H} />`.
 
+## Video del hero — pipeline pre-build (`scripts/optimize-video.mjs`)
+
+Mismo criterio que las imágenes: el video que mande el cliente puede pesar cualquier cosa (el placeholder actual venía en 4K a 24 Mbps, 36 MB por 12s). El pipeline re-encodea a H.264 CRF 20 (visualmente sin pérdida), sin audio (el hero siempre va `muted loop`), tope 1920px de ancho y `+faststart`. El resultado (`public/videos/opt/`) es lo único que se commitea — el source crudo está en `.gitignore` (`/public/videos/*` salvo `opt/`).
+
+**Importante:** `ffmpeg` es un binario de sistema, no una dependencia de npm — Vercel no lo tiene en su imagen de build. El script chequea si existe y si no, se salta sin fallar (`prebuild` no se rompe en Vercel). Por eso el flujo es siempre local:
+
+1. Dropear el video del cliente en `public/videos/<nombre>.<ext>` (mp4/mov/mkv/webm).
+2. Correr `npm run optimize:video` (requiere `ffmpeg` instalado local — `apt/brew install ffmpeg`).
+3. Subir el resultado (`public/videos/opt/<nombre>.mp4`) desde el dashboard (Contenido → Hero) o apuntar `hero.video_url` a `/videos/opt/<nombre>.mp4` si se sirve como asset estático del repo.
+4. Commitear solo lo que quedó en `public/videos/opt/`.
+
 ---
 
 ## Animaciones
@@ -223,7 +234,7 @@ Hero: `hero-anim hero-anim-d1..d5` (CSS directo, no ScrollReveal) + `hero-bg-zoo
 
 - **Contrato de nombres `site_settings` ↔ `lib/constants.ts` ↔ forms**: si agregás un campo nuevo a una key, actualizalo en los 3 lugares (migración/seed, fallback, form del dashboard) o el público queda desincronizado sin error visible. Ya pasó una vez esta sesión — ver `.claude/ERRORES.md`.
 - **`playwright.config.ts` usa el puerto 3310**, no 3000 — esta máquina corre otros proyectos Next en paralelo y Playwright no detecta el puerto equivocado (ver Bug 37 de la fábrica).
-- **`public/videos/hero-test.mp4`** es un placeholder de test (stock de Pexels, aprobado solo para verificar el mecanismo de video del hero) — no es el asset final del cliente, reemplazar cuando lo mande.
+- **`public/videos/opt/hero-test.mp4`** es un placeholder de test (stock de Pexels, ya pasado por `optimize-video.mjs`: 1080p/CRF20/sin audio, 10.4 MB) — no es el asset final del cliente, reemplazar con el pipeline (ver §Video del hero) cuando lo mande.
 - `logo.png` venía a 2.4 MB (3199×940) — recomprimido a 800×235 (~68 KB). Si se reemplaza, mantener tamaño manageable.
 - Google Maps: NUNCA `<iframe>` directo al montar — usar `LazyGoogleMap` (click-to-load).
 - **`getTrabajoById` no filtra `published`** (a diferencia de `getMontaje`/`getCliente`, que sí) — es deliberado: el dashboard de edición necesita encontrar el trabajo por su `id` sin importar si está publicado. No replicar ese filtro ahí ni asumir que el resto de los getters lo omiten.
