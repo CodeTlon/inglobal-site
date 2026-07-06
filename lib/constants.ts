@@ -3,7 +3,7 @@
  * content.ts los usa cuando Supabase no está configurado o falla.
  */
 
-import type { Montaje, Cliente, Servicio } from '@/lib/content'
+import type { Montaje, Cliente, Servicio, Galeria } from '@/lib/content'
 
 // ─────────────────────────────────────────────────────────────
 // site_settings fallbacks
@@ -240,4 +240,17 @@ export const FALLBACK_SERVICIOS: Servicio[] = [
     created_at:    '',
     updated_at:    '',
   },
+]
+
+export const FALLBACK_GALERIA: Galeria[] = [
+  { id: 'fallback-gal-1',  imagen: 'igb-1',  alt: 'Grúa telescópica principal en operación',      col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 2, row_span_desktop: 2, display_order: 0, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-2',  imagen: 'igb-2',  alt: 'Hidrogrúa con barquilla en planta industrial', col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 1, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-3',  imagen: 'igb-3',  alt: 'Traslado de maquinaria con carretón pesado',   col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 2, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-4',  imagen: 'igb-4',  alt: 'Montaje de silos en petroquímica',              col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 3, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-5',  imagen: 'igb-5',  alt: 'Par de grúas operando en tándem',                col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 4, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-6',  imagen: 'igb-6',  alt: 'Izaje de estructura metálica en altura',         col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 5, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-7',  imagen: 'igb-7',  alt: 'Grúa en muelle industrial',                      col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 2, row_span_desktop: 1, display_order: 6, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-8',  imagen: 'igb-8',  alt: 'Mantenimiento preventivo en obra',                col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 7, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-9',  imagen: 'igb-9',  alt: 'Izaje nocturno en planta',                        col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 8, published: true, created_at: '', updated_at: '' },
+  { id: 'fallback-gal-10', imagen: 'igb-10', alt: 'Grúa telescópica en parque eólico',               col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 9, published: true, created_at: '', updated_at: '' },
 ]

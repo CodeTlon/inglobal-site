@@ -119,6 +119,38 @@ export function NumberField({
   )
 }
 
+// ─── SelectField ─────────────────────────────────────────────────────────
+
+export function SelectField({
+  label,
+  name,
+  defaultValue,
+  options,
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: number | string
+  options: { value: number | string; label: string }[]
+  hint?: string
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className={fieldLabel}>
+        {label}
+      </label>
+      <select id={name} name={name} defaultValue={defaultValue} className={fieldInput}>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
 // ─── ImageUpload ─────────────────────────────────────────────────────────────
 // Calca el patrón de gc2/src/components/dashboard/Field.tsx:
 // - hidden input with `name` carries the URL to the parent form

@@ -10,6 +10,7 @@ import {
   Wrench,
   Building2,
   Users,
+  Image as ImageIcon,
   LogOut,
   ChevronRight,
 } from 'lucide-react'
@@ -41,6 +42,7 @@ const navSections = [
       { href: '/dashboard/servicios', label: 'Servicios', icon: Wrench },
       { href: '/dashboard/montajes', label: 'Montajes', icon: Building2 },
       { href: '/dashboard/clientes', label: 'Clientes', icon: Users },
+      { href: '/dashboard/galeria', label: 'Galería', icon: ImageIcon },
     ],
   },
 ]

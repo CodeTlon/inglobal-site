@@ -11,6 +11,7 @@ import {
   FALLBACK_MONTAJES,
   FALLBACK_CLIENTES,
   FALLBACK_SERVICIOS,
+  FALLBACK_GALERIA,
 } from '@/lib/constants'
 
 // ─────────────────────────────────────────────────────────────
@@ -57,6 +58,20 @@ export interface Servicio {
   published:     boolean
   created_at:    string
   updated_at:    string
+}
+
+export interface Galeria {
+  id:               string
+  imagen:           string
+  alt:              string
+  col_span_mobile:  number
+  row_span_mobile:  number
+  col_span_desktop: number
+  row_span_desktop: number
+  display_order:    number
+  published:        boolean
+  created_at:       string
+  updated_at:       string
 }
 
 /** Un "trabajo" (proyecto/artículo) hecho para un cliente puntual. */
@@ -318,6 +333,47 @@ export async function getTrabajoById(id: string): Promise<Trabajo | null> {
     return data as Trabajo
   } catch (e) {
     console.error(`trabajo[${id}] unexpected error:`, e)
+    return null
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// galeria
+// ─────────────────────────────────────────────────────────────
+
+/** Todas las imágenes de galería, ordenadas por display_order ASC. `includeUnpublished`: uso exclusivo del dashboard. */
+export async function getGaleria({ includeUnpublished = false } = {}): Promise<Galeria[]> {
+  if (isPlaceholder()) return FALLBACK_GALERIA
+
+  try {
+    const supabase = createSupabaseClient()
+    let query = supabase.from('galeria').select('*')
+    if (!includeUnpublished) query = query.eq('published', true)
+    const { data, error } = await query.order('display_order', { ascending: true })
+
+    if (error || !data || data.length === 0) {
+      if (error) console.error('galeria fetch error:', error.message)
+      return FALLBACK_GALERIA
+    }
+    return data as Galeria[]
+  } catch (e) {
+    console.error('galeria unexpected error:', e)
+    return FALLBACK_GALERIA
+  }
+}
+
+/** Una imagen de galería por ID (sin filtrar published — uso interno del dashboard). */
+export async function getGaleriaItem(id: string): Promise<Galeria | null> {
+  if (isPlaceholder()) return FALLBACK_GALERIA.find((g) => g.id === id) ?? null
+
+  try {
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase.from('galeria').select('*').eq('id', id).single()
+
+    if (error || !data) return null
+    return data as Galeria
+  } catch (e) {
+    console.error(`galeria[${id}] unexpected error:`, e)
     return null
   }
 }
