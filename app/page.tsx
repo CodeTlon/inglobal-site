@@ -139,9 +139,9 @@ export default async function HomePage() {
             mobileVideoUrl={heroVideoUrlMobile}
             fallbackImageSrc={heroFallbackImage}
             fallbackImageAlt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
-            className="object-cover object-[70%_center] md:object-center hero-bg-zoom"
+            className="object-cover object-[70%_center] md:object-center"
           />
-          <div className="absolute inset-0 bg-igb-surface/70 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
+          <div className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
         </div>
 
         <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
