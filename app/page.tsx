@@ -86,6 +86,7 @@ export default async function HomePage() {
   const heroCtaPrimary = (heroSettings.cta_primary as string) || 'Solicitar Presupuesto'
   const heroCtaSecondary = (heroSettings.cta_secondary as string) || 'Ver Servicios'
   const heroVideoUrl = (heroSettings.video_url as string | null | undefined) || null
+  const heroVideoUrlMobile = (heroSettings.video_url_mobile as string | null | undefined) || null
   const heroFallbackImage = (heroSettings.fallback_image as string) || 'igb-3'
 
   // Stats
@@ -135,12 +136,12 @@ export default async function HomePage() {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <HeroVideo
             videoUrl={heroVideoUrl}
-            mobileOnly
+            mobileVideoUrl={heroVideoUrlMobile}
             fallbackImageSrc={heroFallbackImage}
             fallbackImageAlt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
             className="object-cover object-[70%_center] md:object-center hero-bg-zoom"
           />
-          <div className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
+          <div className="absolute inset-0 bg-igb-surface/55 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
         </div>
 
         <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
