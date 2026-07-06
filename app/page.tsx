@@ -141,7 +141,7 @@ export default async function HomePage() {
             fallbackImageAlt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
             className="object-cover object-[70%_center] md:object-center hero-bg-zoom"
           />
-          <div className="absolute inset-0 bg-igb-surface/55 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
+          <div className="absolute inset-0 bg-igb-surface/70 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
         </div>
 
         <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
@@ -168,14 +168,14 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/servicios"
-                className="btn-outline text-center bg-white/50 backdrop-blur-sm sm:bg-transparent"
+                className="btn-outline text-center bg-white/50 backdrop-blur-sm sm:bg-transparent hidden md:inline-flex md:items-center md:justify-center"
               >
                 {heroCtaSecondary}
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="mt-14 pt-10 border-t border-igb-outline/30 hero-anim hero-anim-d4">
+            {/* Stats — ocultos en mobile, el hero ya tiene bastante info ahí (headline + subheadline + CTA) */}
+            <div className="mt-14 pt-10 border-t border-igb-outline/30 hero-anim hero-anim-d4 hidden md:block">
               <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:gap-8">
                 {statsItems.map((s) => (
                   <div key={s.label} className="group">
