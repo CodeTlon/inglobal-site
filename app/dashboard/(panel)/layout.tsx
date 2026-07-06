@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronRight,
   UserCog,
+  CalendarClock,
 } from 'lucide-react'
 
 const navSections = [
@@ -44,6 +45,12 @@ const navSections = [
       { href: '/dashboard/montajes', label: 'Montajes', icon: Building2 },
       { href: '/dashboard/clientes', label: 'Clientes', icon: Users },
       { href: '/dashboard/galeria', label: 'Galería', icon: ImageIcon },
+    ],
+  },
+  {
+    label: 'Operaciones',
+    links: [
+      { href: '/dashboard/agenda', label: 'Agenda de Grúas', icon: CalendarClock },
     ],
   },
   {

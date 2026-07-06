@@ -28,10 +28,11 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname
   const isDashboard = path.startsWith('/dashboard')
+  const isAgendaTv = path.startsWith('/agenda-tv')
   const isLogin = path === '/dashboard/login'
 
-  // Sin sesión en rutas protegidas → redirigir al login
-  if (isDashboard && !isLogin && !user) {
+  // Sin sesión en rutas protegidas (dashboard + TV de agenda) → redirigir al login
+  if ((isDashboard || isAgendaTv) && !isLogin && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard/login'
     url.searchParams.set('next', path)
@@ -50,5 +51,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/agenda-tv/:path*'],
 }

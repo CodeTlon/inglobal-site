@@ -428,6 +428,56 @@ export function StringList({
   )
 }
 
+// ─── CheckboxGroup ───────────────────────────────────────────────────────────
+// Multi-select de IDs (ej: operarios asignados a un evento). Serializa como JSON.
+
+export function CheckboxGroup({
+  label,
+  name,
+  options,
+  defaultValue,
+  hint,
+}: {
+  label: string
+  name: string
+  options: { value: string; label: string }[]
+  defaultValue?: string[]
+  hint?: string
+}) {
+  const [selected, setSelected] = useState<string[]>(defaultValue ?? [])
+
+  function toggle(value: string) {
+    setSelected((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
+  }
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      <input type="hidden" name={name} value={JSON.stringify(selected)} />
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => toggle(opt.value)}
+            className={`px-3 py-1.5 rounded-md text-xs font-bold border transition-colors ${
+              selected.includes(opt.value)
+                ? 'bg-igb-yellow text-igb-on-yellow border-igb-yellow'
+                : 'bg-white text-zinc-500 border-zinc-200 hover:border-igb-yellow-dark/40'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+        {options.length === 0 && (
+          <p className="text-xs text-zinc-400">No hay operarios activos cargados en el catálogo.</p>
+        )}
+      </div>
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
 // ─── Checkbox ────────────────────────────────────────────────────────────────
 
 export function Checkbox({
