@@ -99,7 +99,11 @@ test('responsive mobile (375px) — formulario de contacto visible', async ({ pa
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/contacto')
   const form = page.locator('form').first()
-  await form.scrollIntoViewIfNeeded()
+  // El form real reemplaza al fallback de Suspense (useSearchParams) apenas hidrata:
+  // reintentar la resolución del locator evita una carrera contra ese swap inicial.
+  await expect(async () => {
+    await form.scrollIntoViewIfNeeded()
+  }).toPass()
   await expect(form).toBeVisible()
 })
 
