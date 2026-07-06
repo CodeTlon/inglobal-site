@@ -62,7 +62,7 @@ export default async function MontajeDetailPage({ params }: Props) {
 
           <h1
             className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-white tracking-tight mb-6 max-w-3xl"
-            data-animate="fade-up"
+            data-animate="blur-up"
             data-delay="100"
           >
             {montaje.title}
@@ -87,7 +87,7 @@ export default async function MontajeDetailPage({ params }: Props) {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover"
+                className="object-cover hero-bg-zoom"
               />
             ) : (
               <Picture
@@ -96,7 +96,7 @@ export default async function MontajeDetailPage({ params }: Props) {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover"
+                className="object-cover hero-bg-zoom"
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

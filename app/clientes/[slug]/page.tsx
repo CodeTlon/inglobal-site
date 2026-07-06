@@ -56,7 +56,7 @@ export default async function ClienteDetailPage({ params }: Props) {
             {cliente.logo && (
               <div
                 className="w-32 h-20 flex items-center flex-shrink-0"
-                data-animate="fade-up"
+                data-animate="scale"
               >
                 <Image
                   src={cliente.logo}
@@ -70,7 +70,7 @@ export default async function ClienteDetailPage({ params }: Props) {
             )}
             <h1
               className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight"
-              data-animate="fade-up"
+              data-animate="blur-up"
               data-delay="100"
             >
               {cliente.name}

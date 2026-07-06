@@ -61,14 +61,28 @@ export default async function TrabajoDetailPage({ params }: Props) {
       {/* Hero */}
       {trabajo.cover_image ? (
         <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }}>
-          <Image src={trabajo.cover_image} alt={trabajo.title} fill priority sizes="100vw" className="object-cover" />
+          <Image
+            src={trabajo.cover_image}
+            alt={trabajo.title}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover hero-bg-zoom"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/80" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">
             <div className="container-igb">
-              <span className="text-igb-yellow text-xs font-bold tracking-[0.2em] uppercase mb-3 block">
+              <span
+                className="text-igb-yellow text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+                data-animate="fade-up"
+              >
                 {cliente.name}
               </span>
-              <h1 className="text-3xl md:text-5xl font-headline font-extrabold text-white max-w-3xl tracking-tight">
+              <h1
+                className="text-3xl md:text-5xl font-headline font-extrabold text-white max-w-3xl tracking-tight"
+                data-animate="blur-up"
+                data-delay="100"
+              >
                 {trabajo.title}
               </h1>
             </div>
@@ -77,10 +91,17 @@ export default async function TrabajoDetailPage({ params }: Props) {
       ) : (
         <section className="pt-40 pb-12 bg-zinc-50 border-b border-zinc-100">
           <div className="container-igb">
-            <span className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-3 block">
+            <span
+              className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+              data-animate="fade-up"
+            >
               {cliente.name}
             </span>
-            <h1 className="text-3xl md:text-5xl font-headline font-extrabold text-zinc-900 max-w-3xl tracking-tight">
+            <h1
+              className="text-3xl md:text-5xl font-headline font-extrabold text-zinc-900 max-w-3xl tracking-tight"
+              data-animate="blur-up"
+              data-delay="100"
+            >
               {trabajo.title}
             </h1>
           </div>

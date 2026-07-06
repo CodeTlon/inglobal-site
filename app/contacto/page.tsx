@@ -37,7 +37,7 @@ export default async function ContactoPage() {
           </span>
           <h1
             className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
-            data-animate="fade-up"
+            data-animate="blur-up"
             data-delay="100"
           >
             Hablemos de su <br /> próximo proyecto.

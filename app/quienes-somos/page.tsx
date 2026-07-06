@@ -49,7 +49,7 @@ export default async function QuienesSomosPage() {
           </span>
           <h1
             className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6"
-            data-animate="fade-up"
+            data-animate="blur-up"
             data-delay="100"
           >
             {heading}

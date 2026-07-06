@@ -125,20 +125,25 @@
 .js-ready [data-animate] {
   opacity: 0;
   transform: translateY(26px);
+  filter: blur(0);
   transition:
     opacity  0.65s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    filter    0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .js-ready [data-animate="from-left"]  { transform: translateX(-36px); }
 .js-ready [data-animate="from-right"] { transform: translateX(36px); }
 .js-ready [data-animate="scale"]      { transform: scale(0.91); opacity: 0; }
 .js-ready [data-animate="fade-up"]    { transform: translateY(26px); }
+/* Headline treatment — fade + blur-to-sharp, a touch more premium than plain fade-up */
+.js-ready [data-animate="blur-up"]    { transform: translateY(22px); filter: blur(10px); }
 
 /* Revealed state */
 .js-ready [data-animate][data-visible] {
   opacity: 1;
   transform: none;
+  filter: blur(0);
 }
 
 /* Stagger delays — scoped so they only affect animate elements */
@@ -211,6 +216,7 @@
   .js-ready [data-animate][data-visible] {
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
     transition: none !important;
   }
   .js-ready [data-animate][data-delay] {
