@@ -15,7 +15,7 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     subheadline:    'Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.',
     cta_primary:    'Solicitar Presupuesto',
     cta_secondary:  'Ver Servicios',
-    video_url:      '/videos/opt/hero-test.mp4', // TEMPORAL: test placeholder optimizado, reemplazar cuando el cliente mande el video real (dropear en public/videos/, correr `npm run optimize:video`)
+    video_url:      '/videos/opt/hero-crane.mp4', // vertical, solo se muestra en mobile (HeroVideo mobileOnly) — grúa/torre en obra
     fallback_image: 'igb-3',
   },
   stats: [

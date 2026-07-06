@@ -18,6 +18,8 @@ interface HeroVideoProps {
   /** CSS className que se aplica tanto al video como a la imagen fallback. */
   className?: string
   sizes?: string
+  /** Si es true, el video solo se monta/reproduce por debajo de md (767px) — arriba de eso se ve la imagen de fallback. Para videos verticales pensados para mobile. */
+  mobileOnly?: boolean
 }
 
 /**
@@ -33,6 +35,7 @@ export default function HeroVideo({
   fallbackImageAlt,
   className = 'object-cover object-[70%_center] md:object-center',
   sizes = '100vw',
+  mobileOnly = false,
 }: HeroVideoProps) {
   const [showVideo, setShowVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -40,10 +43,12 @@ export default function HeroVideo({
   useEffect(() => {
     if (!videoUrl) return
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!prefersReduced) {
+    const isMobile = !mobileOnly || window.matchMedia('(max-width: 767px)').matches
+    if (!prefersReduced && isMobile) {
       setShowVideo(true)
     }
-  }, [videoUrl])
+    // ponytail: chequeo una sola vez al montar, no reacciona a un resize/rotate en vivo — asumible para un hero que no cambia de breakpoint mientras se está viendo.
+  }, [videoUrl, mobileOnly])
 
   const isRemote = fallbackImageSrc.startsWith('http')
 

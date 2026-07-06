@@ -135,6 +135,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <HeroVideo
             videoUrl={heroVideoUrl}
+            mobileOnly
             fallbackImageSrc={heroFallbackImage}
             fallbackImageAlt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
             className="object-cover object-[70%_center] md:object-center hero-bg-zoom"
