@@ -5,6 +5,8 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import WhatsAppButton from '@/components/WhatsAppButton'
+import RegisterSW from '@/components/RegisterSW'
+import OfflineBanner from '@/components/OfflineBanner'
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -23,6 +25,7 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#f5d100',
 }
 
 export const metadata: Metadata = {
@@ -43,6 +46,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: './favicon.ico',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Agenda IGB',
   },
 }
 
@@ -79,6 +88,8 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <OfflineBanner />
+        <RegisterSW />
         <ScrollReveal />
         <Navbar />
         <main>{children}</main>

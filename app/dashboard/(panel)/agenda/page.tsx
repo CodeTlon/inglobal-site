@@ -73,7 +73,7 @@ export default async function AgendaDashboardPage() {
               </div>
             </div>
 
-            <span className={`hidden sm:inline text-xs font-bold px-2 py-1 rounded flex-shrink-0 ${ESTADO_STYLES[ev.estado] ?? ESTADO_STYLES.programado}`}>
+            <span className={`text-xs font-bold px-2 py-1 rounded flex-shrink-0 ${ESTADO_STYLES[ev.estado] ?? ESTADO_STYLES.programado}`}>
               {ev.estado}
             </span>
 

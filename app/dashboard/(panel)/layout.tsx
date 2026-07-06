@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -15,6 +16,8 @@ import {
   ChevronRight,
   UserCog,
   CalendarClock,
+  Menu,
+  X,
 } from 'lucide-react'
 
 const navSections = [
@@ -96,14 +99,29 @@ export default function DashboardPanelLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [navOpen, setNavOpen] = useState(false)
+
   return (
     /* Cubre la Navbar/Footer del layout raíz — z-[100] > z-50 del Navbar */
     <div className="fixed inset-0 z-[100] flex bg-zinc-100 overflow-hidden">
 
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-slate-900 flex flex-col overflow-hidden">
+      {/* Backdrop (mobile, solo con drawer abierto) */}
+      {navOpen && (
+        <div
+          className="fixed inset-0 z-10 bg-black/50 lg:hidden"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — drawer off-canvas en mobile, fija en lg+ */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-20 w-72 max-w-[85vw] flex-shrink-0 bg-slate-900 flex flex-col overflow-hidden transition-transform duration-200 lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0 ${
+          navOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
         {/* Logo */}
-        <div className="px-4 py-5 border-b border-slate-800">
+        <div className="px-4 py-5 border-b border-slate-800 flex items-start justify-between gap-2">
           <Link href="/dashboard" className="flex items-center gap-3">
             <Image
               src="/images/logo.png"
@@ -114,13 +132,24 @@ export default function DashboardPanelLayout({
               sizes="100px"
             />
           </Link>
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">
-            Panel de administración
-          </p>
+          <button
+            type="button"
+            onClick={() => setNavOpen(false)}
+            className="lg:hidden text-slate-400 hover:text-slate-100 p-1 -mr-1 -mt-1"
+            aria-label="Cerrar menú"
+          >
+            <X size={20} />
+          </button>
         </div>
+        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-4 pt-2">
+          Panel de administración
+        </p>
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        {/* Nav — cierra el drawer al navegar (mobile) */}
+        <nav
+          className="flex-1 overflow-y-auto px-3 py-4 space-y-6"
+          onClick={() => setNavOpen(false)}
+        >
           {navSections.map((section) => (
             <div key={section.label}>
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 px-3 mb-2">
@@ -136,7 +165,7 @@ export default function DashboardPanelLayout({
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-slate-800">
+        <div className="px-3 py-4 border-t border-slate-800" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
           <form action={signOut}>
             <button
               type="submit"
@@ -150,9 +179,20 @@ export default function DashboardPanelLayout({
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Topbar */}
-        <header className="h-14 flex-shrink-0 bg-white border-b border-zinc-200 flex items-center px-6 gap-4">
+        <header
+          className="h-14 flex-shrink-0 bg-white border-b border-zinc-200 flex items-center px-4 sm:px-6 gap-3"
+          style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(3.5rem + env(safe-area-inset-top))' }}
+        >
+          <button
+            type="button"
+            onClick={() => setNavOpen(true)}
+            className="lg:hidden text-zinc-500 hover:text-zinc-900 p-1 -ml-1"
+            aria-label="Abrir menú"
+          >
+            <Menu size={22} />
+          </button>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-zinc-900 font-headline truncate">
               Grúas InGlobal S.R.L. — CMS
@@ -169,7 +209,7 @@ export default function DashboardPanelLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

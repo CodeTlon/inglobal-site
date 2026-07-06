@@ -72,7 +72,11 @@ app/
     clientes/[id]/trabajos/     CRUD de trabajos del cliente (`[id]` = slug del cliente, igual que el resto). TrabajoForm.tsx usa ContentEditor (TipTap)
   globals.css                   Tailwind layers + keyframes + sistema scroll-reveal + `.prose-igb` (contenido rico de trabajos)
 
-middleware.ts                   Auth gate de /dashboard/** (Next 15 — sigue siendo middleware.ts)
+  manifest.ts                    PWA (Metadata API) — start_url /dashboard/agenda, scope /dashboard/
+  agenda-tv/page.tsx             Vista TV kiosco de solo lectura (protegida por middleware)
+  dashboard/(panel)/agenda/      CRUD agenda (page/nuevo/[id]/catalogos) + EventoForm + AgendaTvQrLink
+
+middleware.ts                   Auth gate de /dashboard/** + /agenda-tv/** (Next 15 — sigue siendo middleware.ts)
 
 components/
   Navbar.tsx                    Client · glass · scroll-state · mobile burger · incluye link "Quiénes Somos"
@@ -83,6 +87,8 @@ components/
   ContactForm.tsx / ContactFormWrapper.tsx   useFormState + preselección de servicio por query param
   LazyGoogleMap.tsx             Click-to-load iframe
   WhatsAppButton.tsx            Server · floating CTA
+  RegisterSW.tsx                Client · registra public/sw.js SOLO en producción
+  OfflineBanner.tsx              Client · banner fijo cuando navigator.onLine === false
   dashboard/
     Field.tsx                   Inputs del panel + ImageUpload/VideoUpload/Checkbox
     ContentEditor.tsx           TipTap rico (bold/italic/H2/quote/listas/link/imagen/YouTube) — reusable, folder 'trabajos/content'
@@ -103,6 +109,11 @@ lib/
 
 scripts/
   optimize-images.mjs           Sharp pipeline: sources → AVIF + WebP en /public/images/opt/ (build)
+  generate-pwa-icons.mjs        Sharp: recorta isotipo de logo.png → public/icons/ (manual, cuando cambia el logo)
+
+public/
+  sw.js                          Service worker PWA — network-first con fallback a cache (sin librería)
+  icons/                          icon-192/512/512-maskable.png + apple-touch-icon.png
 
 supabase/migrations/
   001_contact_leads.sql
@@ -240,6 +251,9 @@ Hero: `hero-anim hero-anim-d1..d5` (CSS directo, no ScrollReveal) + `hero-bg-zoo
 - **`getTrabajoById` no filtra `published`** (a diferencia de `getMontaje`/`getCliente`, que sí) — es deliberado: el dashboard de edición necesita encontrar el trabajo por su `id` sin importar si está publicado. No replicar ese filtro ahí ni asumir que el resto de los getters lo omiten.
 - **Checkbox de `published` en los forms**: `montajes`/`clientes`/`servicios` NO tienen un campo de checkbox real para `published` en sus forms — el form nunca lo envía, así que `formData.get('published')` da `null` y el Zod coerce lo vuelve `false` siempre (el `.default(true)` del schema no aplica porque el valor no es `undefined`). Es una limitación preexistente de esos 3 forms, fuera de alcance arreglarla acá. `TrabajoForm` sí tiene un `Checkbox` real (nuevo, en `Field.tsx`) — no repitas el bug ahí.
 - `lucide-react` en este proyecto está en la versión `1.8.0` (no la típica `0.x`) y **no exporta `Youtube`** — usar `Video` como ícono para acciones de YouTube (ver `ContentEditor.tsx`).
+- **PWA — service worker es network-first-con-fallback-a-cache, no un motor de sync offline**: si falla el fetch (sin señal) sirve la última respuesta cacheada de esa misma URL, no hay reconciliación de escrituras pendientes ni cola de reintentos. Solo se registra en producción (`NODE_ENV === 'production'`, ver `RegisterSW.tsx`) — nunca en `next dev`, rompería el HMR. Para invalidar todo el cache del cliente tras un cambio grande, bump del nombre `CACHE` en `public/sw.js`.
+- **Instalar la PWA en iPhone**: abrir `/dashboard/agenda` (logueado) en Safari → Compartir → "Agregar a inicio". Si se instala desde otra página, algunas versiones de Safari toman esa página como punto de entrada en vez del `start_url` del manifest.
+- **Íconos de la PWA** (`public/icons/`) son el isotipo circular recortado de `logo.png` sobre fondo `#f5d100` — el wordmark completo es ilegible a tamaño de ícono de celular. Regenerar con `node scripts/generate-pwa-icons.mjs` si el logo cambia.
 
 ---
 
@@ -267,6 +281,8 @@ npx playwright test       # E2E (puerto 3310)
 | 2026-07-04 | **Fase 1 — Reestructura + Dashboard CMS**: home reordenado (Hero video → Qué Hacemos → resto), Quiénes Somos a página propia, Montajes y Clientes a formato blog con detalle por slug, Clientes → "Clientes Destacados" ordenado por `work_rank`, dashboard admin completo (`site_settings`/`montajes`/`clientes`/`servicios` CRUD, Supabase Auth). Fix: unificación de claves `site_settings` (bug de causa no obvia). Fix: puerto dedicado Playwright (3310). Creados `ARCHITECTURE.md`, `MANUAL-PRUEBAS.md`, `.claude/ERRORES.md`, `commands/cambio.md`+`cerrar.md` (archivos estándar de fábrica que faltaban). Mergeado a `dev` y pusheado a origin; `main` sin tocar. |
 | 2026-07-04 | **Doble Supabase dev/prod**: creados `inglobal-dev`/`inglobal-prod`, migraciones 001-006 aplicadas a ambos, `.env.development.local`/`.env.production.local`/`.env.supabase.local` + `scripts/db-sync-dev.mjs` (copiado de gc2). Fix: columna reservada `desc` sin comillas en `005_servicios.sql`. Pendiente: `RESEND_API_KEY` de prod. |
 | 2026-07-04 | **Feature: Trabajos por cliente (mini-blog)**: nueva tabla `trabajos` (FK `cliente_id`, migración `007_trabajos.sql`) — cada cliente puede tener N trabajos con contenido rico (TipTap, portado de gc2: imágenes, links, YouTube), listado paginado en `/clientes/[slug]` (intro/historia del cliente vía `content` + grid de trabajos) y detalle propio en `/clientes/[slug]/[trabajo-slug]`. Dashboard CRUD en `clientes/[id]/trabajos/`. Nuevas deps: `@tiptap/*`, `slugify`. Nuevo `.prose-igb` en `globals.css` (sin plugin de Tailwind typography, igual que gc2). Build + tsc + lint OK, migración aplicada a dev. |
+| 2026-07-06 | **Feature: Agenda de Grúas** (dashboard CRUD `/dashboard/agenda` + catálogos + TV kiosco `/agenda-tv`). Migración `009_agenda.sql` (`gruas`/`empresas_agenda`/`operarios`/`eventos_agenda`/`eventos_operarios`, RLS solo `authenticated`). `CheckboxGroup` nuevo en `Field.tsx` para asignar operarios. |
+| 2026-07-06 | **PWA instalable (reemplaza el plan de app nativa Expo, ver `inglobal-app`)**: personal de campo usa iPhones sin presupuesto para Apple Developer/App Store. `app/manifest.ts` (Metadata API, `start_url: /dashboard/agenda`, `scope: /dashboard/`) + `appleWebApp`/`apple-touch-icon` en `app/layout.tsx` + íconos generados con `scripts/generate-pwa-icons.mjs` (recorta el isotipo circular del logo sobre fondo `#f5d100`). Service worker propio (`public/sw.js`, sin librería) network-first-con-fallback-a-cache para que abra y muestre la última agenda conocida con señal mala; `OfflineBanner` avisa cuando está sirviendo datos cacheados. Sidebar del panel (`(panel)/layout.tsx`) ahora es un drawer off-canvas en `<lg` (antes rompía en mobile, ancho fijo sin colapsar). |
 
 ---
 
@@ -281,6 +297,7 @@ Estos módulos viven en `codetlon-cloud/.claude/modules/` (desde este repo: `../
 | UI / componentes / forms / páginas (accesibilidad WCAG, Lighthouse a11y > 90) | `accessibility.md` |
 | pipeline / `.github/workflows` / Dockerfile / env vars (CI = gate de calidad) | `ci-cd.md` |
 | dejar el proyecto live / incidente en producción (monitoreo) | `observability.md` |
-| agenda de grúas / flota / TV-kiosco / app móvil (Fase 2, repo `inglobal-app`) | Fuera de alcance de este `.claude/CLAUDE.md` — iniciativa aparte, TASKS.md propio |
+| agenda de grúas / flota / TV-kiosco (`/dashboard/agenda`, `/agenda-tv`) | Ya integrado en este repo (migración `009_agenda.sql`) — ver Historial de Cambios e Imágenes/PWA acá mismo |
+| PWA instalable / acceso mobile del personal de campo | `app/manifest.ts` + `public/sw.js` + `scripts/generate-pwa-icons.mjs`, todo en este repo. `inglobal-app` (Expo) queda **pausado** — ver su propio TASKS.md |
 
 Regla: leer SOLO el módulo que la tarea pide (disciplina de tokens), no todos por las dudas.
