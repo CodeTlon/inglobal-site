@@ -31,11 +31,11 @@ export default function LoginPage() {
       {/* Logo */}
       <div className="flex justify-center mb-8">
         <Image
-          src="/images/logo.png"
+          src="/images/logo.webp"
           alt="Grúas InGlobal S.R.L."
           width={160}
           height={50}
-          className="h-12 w-auto object-contain invert brightness-0"
+          className="h-12 w-auto object-contain"
           sizes="160px"
         />
       </div>

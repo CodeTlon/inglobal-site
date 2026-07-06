@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   LogOut,
   ChevronRight,
+  UserCog,
 } from 'lucide-react'
 
 const navSections = [
@@ -43,6 +44,12 @@ const navSections = [
       { href: '/dashboard/montajes', label: 'Montajes', icon: Building2 },
       { href: '/dashboard/clientes', label: 'Clientes', icon: Users },
       { href: '/dashboard/galeria', label: 'Galería', icon: ImageIcon },
+    ],
+  },
+  {
+    label: 'Sistema',
+    links: [
+      { href: '/dashboard/usuarios', label: 'Usuarios', icon: UserCog },
     ],
   },
 ]
