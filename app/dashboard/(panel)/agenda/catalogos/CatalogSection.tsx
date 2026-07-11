@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { useFormState } from 'react-dom'
 import { TextField } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
+import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import { Trash2, Power, AlertCircle } from 'lucide-react'
 import type { AgendaState } from '@/app/actions/agenda'
 
@@ -31,12 +33,7 @@ interface Props {
 
 export default function CatalogSection({ title, items, fields, createAction, toggleAction, deleteAction }: Props) {
   const [createState, createFormAction] = useFormState(createAction, undefined)
-
-  function confirmDelete(e: React.FormEvent<HTMLFormElement>, nombre: string) {
-    if (!window.confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
-      e.preventDefault()
-    }
-  }
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
 
   return (
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
@@ -61,12 +58,14 @@ export default function CatalogSection({ title, items, fields, createAction, tog
                 <Power size={12} /> {item.activo ? 'Activo' : 'Inactivo'}
               </button>
             </form>
-            <form action={async (formData) => { await deleteAction(undefined, formData) }} onSubmit={(e) => confirmDelete(e, item.nombre)}>
-              <input type="hidden" name="id" value={item.id} />
-              <button type="submit" className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors" aria-label="Eliminar">
-                <Trash2 size={14} />
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={() => setPendingDelete({ id: item.id, nombre: item.nombre })}
+              className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
+              aria-label="Eliminar"
+            >
+              <Trash2 size={14} />
+            </button>
           </div>
         ))}
         {items.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
@@ -87,6 +86,21 @@ export default function CatalogSection({ title, items, fields, createAction, tog
           <SaveButton />
         </div>
       </form>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Eliminar registro"
+        message={pendingDelete ? `¿Eliminar "${pendingDelete.nombre}"? Esta acción no se puede deshacer.` : ''}
+        confirmLabel="Eliminar"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return
+          const fd = new FormData()
+          fd.append('id', pendingDelete.id)
+          deleteAction(undefined, fd)
+          setPendingDelete(null)
+        }}
+      />
     </div>
   )
 }
