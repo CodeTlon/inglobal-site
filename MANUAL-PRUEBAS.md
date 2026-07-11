@@ -37,7 +37,19 @@ se construyen o tocan esas features.
 ## Upload de imágenes/video (Storage `media`)
 - [ ] Subir una imagen de más de unos pocos MB → se procesa (resize/WebP) sin timeout ni error silencioso.
 - [ ] Subir un archivo que no sea imagen/video válido → error claro, no sube basura al bucket.
-- [ ] Reemplazar una imagen ya subida → la vieja no queda huérfana rompiendo referencias (o se documenta que sí puede quedar huérfana en Storage).
+- [ ] Reemplazar una imagen ya subida (mismo campo) → la vieja se borra del bucket `media` (verificar en el dashboard de Supabase Storage).
+- [ ] Apretar "Quitar" en un `ImageUpload`/`VideoUpload` sin reemplazar → el archivo también se borra del bucket, no queda huérfano.
+- [ ] Borrar un montaje/cliente/trabajo/item de galería que tenga imagen → el archivo asociado desaparece del bucket junto con la fila.
+
+## Orden (`display_order` / `work_rank`)
+- [ ] Crear dos montajes (o clientes/servicios/trabajos del mismo cliente) con el mismo número de orden → el segundo se guarda con el siguiente valor libre, sin error y sin pisar al primero.
+- [ ] Editar un registro existente al mismo `display_order` que otro → se resuelve solo (no bloquea el guardado).
+
+## Agenda — catálogos y eventos
+- [ ] Crear una empresa sin completar "Contacto"/"Teléfono" → se guarda sin el error de Zod ("Invalid input: expected string, received null").
+- [ ] Crear un evento sin elegir grúa o empresa → mensaje "Seleccioná una grúa/empresa" (no el error genérico de Zod).
+- [ ] Intentar crear una grúa sin patente o sin capacidad → rechazo con mensaje claro, no se guarda.
+- [ ] Intentar crear un operario sin teléfono → rechazo con mensaje claro.
 
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
