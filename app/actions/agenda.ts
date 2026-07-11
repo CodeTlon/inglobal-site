@@ -170,16 +170,36 @@ async function catalogDelete(table: CatalogTable, formData: FormData): Promise<A
   }
 }
 
+function parseGruaForm(formData: FormData) {
+  return gruaSchema.safeParse({
+    nombre:              formData.get('nombre'),
+    patente:             formData.get('patente'),
+    capacidad_toneladas: formData.get('capacidad_toneladas') || undefined,
+    tipo:                formData.get('tipo') || undefined,
+  })
+}
+
 export async function createGrua(prevState: unknown, formData: FormData): Promise<AgendaState> {
   try {
     const supabase = await requireUser()
-    const parsed = gruaSchema.safeParse({
-      nombre:              formData.get('nombre'),
-      patente:             formData.get('patente'),
-      capacidad_toneladas: formData.get('capacidad_toneladas') || undefined,
-    })
+    const parsed = parseGruaForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     const { error } = await supabase.from('gruas').insert(parsed.data)
+    if (error) return { error: error.message }
+    revalidateCatalogos()
+    return { success: true }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+  }
+}
+export async function updateGrua(prevState: unknown, formData: FormData): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    const id = String(formData.get('id') ?? '').trim()
+    if (!id) return { error: 'ID de grúa requerido.' }
+    const parsed = parseGruaForm(formData)
+    if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const { error } = await supabase.from('gruas').update(parsed.data).eq('id', id)
     if (error) return { error: error.message }
     revalidateCatalogos()
     return { success: true }

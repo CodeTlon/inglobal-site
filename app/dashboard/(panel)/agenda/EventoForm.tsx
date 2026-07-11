@@ -14,6 +14,14 @@ const ESTADOS = [
   { value: 'cancelado', label: 'Cancelado' },
 ]
 
+function toDateInput(d: Date): string {
+  return d.toISOString().slice(0, 10)
+}
+
+const today = new Date()
+const FECHA_MIN = toDateInput(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7))
+const FECHA_MAX = toDateInput(new Date(today.getFullYear(), today.getMonth() + 6, today.getDate()))
+
 interface Props {
   evento?: EventoAgenda
   gruas: Grua[]
@@ -37,7 +45,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <TextField label="Fecha" name="fecha" type="date" defaultValue={evento?.fecha} required />
+        <TextField label="Fecha" name="fecha" type="date" defaultValue={evento?.fecha} required min={FECHA_MIN} max={FECHA_MAX} />
         <TextField label="Hora inicio" name="hora_inicio" type="time" defaultValue={evento?.hora_inicio} required />
         <TextField label="Hora fin" name="hora_fin" type="time" defaultValue={evento?.hora_fin ?? undefined} />
       </div>

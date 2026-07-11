@@ -20,6 +20,8 @@ export function TextField({
   hint,
   required,
   placeholder,
+  min,
+  max,
 }: {
   label: string
   name: string
@@ -28,6 +30,8 @@ export function TextField({
   hint?: string
   required?: boolean
   placeholder?: string
+  min?: string
+  max?: string
 }) {
   return (
     <div>
@@ -41,6 +45,8 @@ export function TextField({
         defaultValue={defaultValue ?? ''}
         required={required}
         placeholder={placeholder}
+        min={min}
+        max={max}
         className={fieldInput}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
