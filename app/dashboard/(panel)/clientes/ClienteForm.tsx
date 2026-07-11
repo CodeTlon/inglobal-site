@@ -9,7 +9,7 @@ import {
   Checkbox,
 } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import type { Cliente } from '@/lib/content'
 import type { ClienteState } from '@/app/actions/clientes'
 
@@ -17,22 +17,15 @@ interface Props {
   cliente?: Cliente
   entityId?: string
   action: (prevState: unknown, formData: FormData) => Promise<ClienteState>
-  successMessage?: string
 }
 
-export default function ClienteForm({ cliente, entityId, action, successMessage = 'Guardado correctamente.' }: Props) {
+export default function ClienteForm({ cliente, entityId, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
 
   return (
     <form action={formAction} className="space-y-6">
       {entityId && <input type="hidden" name="id" value={entityId} />}
 
-      {state?.success && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-4">
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <p className="text-green-700 text-sm font-medium">{successMessage}</p>
-        </div>
-      )}
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />

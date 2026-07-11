@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { trabajoSchema } from '@/lib/validations/trabajo'
@@ -34,12 +35,14 @@ async function uniqueSlug(supabase: ServerSupabase, clienteId: string, base: str
   }
 }
 
-async function revalidateTrabajos(supabase: ServerSupabase, clienteId: string) {
+/** Revalida las páginas afectadas y devuelve el slug del cliente (para redirigir a su listado de trabajos). */
+async function revalidateTrabajos(supabase: ServerSupabase, clienteId: string): Promise<string | null> {
   const { data: cliente } = await supabase.from('clientes').select('slug').eq('id', clienteId).single()
-  if (!cliente) return
+  if (!cliente) return null
   revalidatePath(`/clientes/${cliente.slug}`)
   revalidatePath(`/clientes/${cliente.slug}/[trabajo]`, 'page')
   revalidatePath(`/dashboard/clientes/${cliente.slug}/trabajos`)
+  return cliente.slug
 }
 
 function parse(formData: FormData) {
@@ -59,6 +62,7 @@ export async function createTrabajo(
   prevState: unknown,
   formData: FormData,
 ): Promise<TrabajoState> {
+  let clienteSlug: string | null = null
   try {
     const supabase = await requireUser()
 
@@ -85,17 +89,18 @@ export async function createTrabajo(
 
     if (error) return { error: error.message }
 
-    await revalidateTrabajos(supabase, cliente_id)
-    return { success: true }
+    clienteSlug = await revalidateTrabajos(supabase, cliente_id)
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos` : '/dashboard/clientes')
 }
 
 export async function updateTrabajo(
   prevState: unknown,
   formData: FormData,
 ): Promise<TrabajoState> {
+  let clienteSlug: string | null = null
   try {
     const supabase = await requireUser()
 
@@ -128,17 +133,18 @@ export async function updateTrabajo(
 
     if (error) return { error: error.message }
 
-    await revalidateTrabajos(supabase, cliente_id)
-    return { success: true }
+    clienteSlug = await revalidateTrabajos(supabase, cliente_id)
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos` : '/dashboard/clientes')
 }
 
 export async function deleteTrabajo(
   prevState: unknown,
   formData: FormData,
 ): Promise<TrabajoState> {
+  let clienteSlug: string | null = null
   try {
     const supabase = await requireUser()
 
@@ -152,10 +158,10 @@ export async function deleteTrabajo(
 
     if (existing) {
       await removeMediaUrls(supabase, [existing.cover_image])
-      await revalidateTrabajos(supabase, existing.cliente_id)
+      clienteSlug = await revalidateTrabajos(supabase, existing.cliente_id)
     }
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos` : '/dashboard/clientes')
 }

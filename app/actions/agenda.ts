@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import {
   eventoAgendaSchema,
@@ -89,10 +90,10 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
     if (syncError) return { error: syncError }
 
     revalidateEventos()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect('/dashboard/agenda')
 }
 
 export async function updateEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -116,10 +117,10 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     if (syncError) return { error: syncError }
 
     revalidateEventos()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect('/dashboard/agenda')
 }
 
 export async function deleteEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -132,10 +133,10 @@ export async function deleteEvento(prevState: unknown, formData: FormData): Prom
     if (error) return { error: error.message }
 
     revalidateEventos()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect('/dashboard/agenda')
 }
 
 // ─── Catálogos (gruas / empresas_agenda / operarios) ───────────────────────

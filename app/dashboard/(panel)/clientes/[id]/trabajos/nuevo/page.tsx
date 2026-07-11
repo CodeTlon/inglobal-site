@@ -29,7 +29,7 @@ export default async function NuevoTrabajoPage({ params }: Props) {
       <PageHeader title={`Nuevo trabajo — ${cliente.name}`} description="Completá los campos para publicar un nuevo trabajo." />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <TrabajoForm clienteId={cliente.id} action={createTrabajo} successMessage="Trabajo creado correctamente." />
+        <TrabajoForm clienteId={cliente.id} action={createTrabajo} />
       </div>
     </div>
   )

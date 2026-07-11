@@ -19,7 +19,7 @@ export default function NuevaImagenGaleriaPage() {
       <PageHeader title="Nueva imagen" description="Subí una foto y definí cuánto espacio ocupa en la grilla." />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <GaleriaForm action={createGaleriaItem} successMessage="Imagen creada correctamente." />
+        <GaleriaForm action={createGaleriaItem} />
       </div>
     </div>
   )

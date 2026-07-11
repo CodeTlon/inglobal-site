@@ -1,12 +1,14 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { montajeSchema } from '@/lib/validations/montaje'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
 
 export type MontajeState = { success?: boolean; error?: string } | undefined
+const LIST_PATH = '/dashboard/montajes'
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
@@ -63,10 +65,10 @@ export async function createMontaje(
     if (error) return { error: error.message }
 
     revalidateMontajes()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }
 
 export async function updateMontaje(
@@ -105,10 +107,10 @@ export async function updateMontaje(
     if (error) return { error: error.message }
 
     revalidateMontajes()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }
 
 export async function deleteMontaje(
@@ -130,8 +132,8 @@ export async function deleteMontaje(
     if (existing) await removeMediaUrls(supabase, [existing.cover_image])
 
     revalidateMontajes()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }

@@ -11,7 +11,7 @@ import {
 } from '@/components/dashboard/Field'
 import ContentEditor from '@/components/dashboard/ContentEditor'
 import SaveButton from '@/components/dashboard/SaveButton'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import type { Trabajo } from '@/lib/content'
 import type { TrabajoState } from '@/app/actions/trabajos'
 
@@ -20,10 +20,9 @@ interface Props {
   trabajo?: Trabajo
   entityId?: string
   action: (prevState: unknown, formData: FormData) => Promise<TrabajoState>
-  successMessage?: string
 }
 
-export default function TrabajoForm({ clienteId, trabajo, entityId, action, successMessage = 'Guardado correctamente.' }: Props) {
+export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
   const [content, setContent] = useState(trabajo?.content ?? '')
 
@@ -33,12 +32,6 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action, succ
       {entityId && <input type="hidden" name="id" value={entityId} />}
       <input type="hidden" name="content" value={content} />
 
-      {state?.success && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-4">
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <p className="text-green-700 text-sm font-medium">{successMessage}</p>
-        </div>
-      )}
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
