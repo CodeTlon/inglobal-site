@@ -26,6 +26,9 @@ Mapa para mantenimiento. **No releas el repo entero**: buscá tu tipo de cambio 
 | Orden de "Clientes Destacados" | Campo `work_rank` en la tabla `clientes` (mayor = aparece más arriba) — se edita desde `ClienteForm.tsx`, sin drag&drop |
 | Estilos / paleta InGlobal | `app/globals.css` + `tailwind.config.ts` (`igb-yellow`, `igb-navy`, etc. — ver tabla de tokens en `.claude/CLAUDE.md`) |
 | SEO / JSON-LD / redirects legacy `.php` | `app/layout.tsx`, páginas individuales (metadata por ruta), `next.config.mjs` |
+| Headers de seguridad (X-Frame-Options, HSTS, etc.) | `next.config.mjs` → `headers()` |
+| Loading state de una sección del panel | `loading.tsx` en la carpeta top-level de esa sección (usa `components/dashboard/PageSkeleton.tsx` + `components/ui/skeleton.tsx`) |
+| Error boundary | `app/error.tsx` (público) · `app/dashboard/(panel)/error.tsx` (panel) · `app/global-error.tsx` (root layout) |
 
 ## Dónde NO meterse sin pensar
 - **`lib/content.ts` + `lib/constants.ts`** — la cadena de fallbacks mantiene el sitio vivo sin DB. Si cambiás la forma de un JSONB de `site_settings` o los campos de `montajes`/`clientes`, actualizá el getter/fallback acá Y el form del dashboard que lo edita, o el público queda desincronizado silenciosamente (bug real ya encontrado esta sesión, ver `.claude/ERRORES.md`).

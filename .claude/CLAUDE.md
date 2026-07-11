@@ -93,8 +93,18 @@ components/
     Field.tsx                   Inputs del panel + ImageUpload/VideoUpload/Checkbox
     ContentEditor.tsx           TipTap rico (bold/italic/H2/quote/listas/link/imagen/YouTube) — reusable, folder 'trabajos/content'
     PageHeader.tsx, SaveButton.tsx, DeleteButton.tsx
+    PageSkeleton.tsx             Placeholder genérico (usa <Skeleton>) para los `loading.tsx` de cada sección del panel
+  ui/
+    skeleton.tsx                 shadcn Skeleton adaptado a tokens `igb-*` (bg-igb-surface-high, no bg-muted — este proyecto no usa CSS vars de shadcn)
+
+app/error.tsx                    Error boundary del sitio público (branded, btn-primary/btn-outline)
+app/dashboard/(panel)/error.tsx  Error boundary propio del panel (estilo CMS, no reusa el público)
+app/global-error.tsx            Fallback de último recurso si el ROOT layout tira error — <html>/<body> propios, estilos inline
+app/dashboard/(panel)/{agenda,clientes,contenido,galeria,montajes,servicios,usuarios}/loading.tsx
+                                 Un loading.tsx por sección top-level del panel (usa PageSkeleton) — contenido/loading.tsx cubre también sus 9 subrutas anidadas (hero, quienes-somos, etc.)
 
 lib/
+  utils.ts                      cn() (clsx + tailwind-merge) — usado por components/ui/skeleton.tsx
   supabase.ts                   createClient (browser/RSC) + service client
   supabase-server.ts            createSupabaseServerClient (cookies SSR, @supabase/ssr)
   content.ts                    Getters con fallback: getSiteSettings, getMontajes/getMontaje,
@@ -282,6 +292,7 @@ npx playwright test       # E2E (puerto 3310)
 | 2026-07-04 | **Doble Supabase dev/prod**: creados `inglobal-dev`/`inglobal-prod`, migraciones 001-006 aplicadas a ambos, `.env.development.local`/`.env.production.local`/`.env.supabase.local` + `scripts/db-sync-dev.mjs` (copiado de gc2). Fix: columna reservada `desc` sin comillas en `005_servicios.sql`. Pendiente: `RESEND_API_KEY` de prod. |
 | 2026-07-04 | **Feature: Trabajos por cliente (mini-blog)**: nueva tabla `trabajos` (FK `cliente_id`, migración `007_trabajos.sql`) — cada cliente puede tener N trabajos con contenido rico (TipTap, portado de gc2: imágenes, links, YouTube), listado paginado en `/clientes/[slug]` (intro/historia del cliente vía `content` + grid de trabajos) y detalle propio en `/clientes/[slug]/[trabajo-slug]`. Dashboard CRUD en `clientes/[id]/trabajos/`. Nuevas deps: `@tiptap/*`, `slugify`. Nuevo `.prose-igb` en `globals.css` (sin plugin de Tailwind typography, igual que gc2). Build + tsc + lint OK, migración aplicada a dev. |
 | 2026-07-06 | **Feature: Agenda de Grúas** (dashboard CRUD `/dashboard/agenda` + catálogos + TV kiosco `/agenda-tv`). Migración `009_agenda.sql` (`gruas`/`empresas_agenda`/`operarios`/`eventos_agenda`/`eventos_operarios`, RLS solo `authenticated`). `CheckboxGroup` nuevo en `Field.tsx` para asignar operarios. |
+| 2026-07-11 | **Seguridad + progressive loading** (rama `chore/security-headers-loading-states`, sesión abierta, sin mergear): headers de seguridad en `next.config.mjs` (X-Frame-Options DENY, HSTS, nosniff, Referrer-Policy, Permissions-Policy). RLS auditado en las 9 migraciones — sin gaps. Sin `app/api/**` en el proyecto — CORS N/A (todo por Server Actions). `Skeleton` (shadcn adaptado a tokens `igb-*`) + `loading.tsx` por sección top-level del panel. Error boundaries branded (`app/error.tsx`, `app/dashboard/(panel)/error.tsx`, `app/global-error.tsx`). Nuevas deps: `clsx`, `tailwind-merge` (para `cn()`). |
 | 2026-07-06 | **PWA instalable (reemplaza el plan de app nativa Expo, ver `inglobal-app`)**: personal de campo usa iPhones sin presupuesto para Apple Developer/App Store. `app/manifest.ts` (Metadata API, `start_url: /dashboard/agenda`, `scope: /dashboard/`) + `appleWebApp`/`apple-touch-icon` en `app/layout.tsx` + íconos generados con `scripts/generate-pwa-icons.mjs` (recorta el isotipo circular del logo sobre fondo `#f5d100`). Service worker propio (`public/sw.js`, sin librería) network-first-con-fallback-a-cache para que abra y muestre la última agenda conocida con señal mala; `OfflineBanner` avisa cuando está sirviendo datos cacheados. Sidebar del panel (`(panel)/layout.tsx`) ahora es un drawer off-canvas en `<lg` (antes rompía en mobile, ancho fijo sin colapsar). |
 
 ---
