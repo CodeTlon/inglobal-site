@@ -16,6 +16,7 @@ import {
   ChevronRight,
   UserCog,
   CalendarClock,
+  CalendarDays,
   Menu,
   X,
 } from 'lucide-react'
@@ -54,6 +55,7 @@ const navSections = [
     label: 'Operaciones',
     links: [
       { href: '/dashboard/agenda', label: 'Agenda de Grúas', icon: CalendarClock },
+      { href: '/dashboard/agenda/calendario', label: 'Calendario (solo lectura)', icon: CalendarDays },
     ],
   },
   {

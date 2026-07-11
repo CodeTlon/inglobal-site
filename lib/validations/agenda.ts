@@ -13,10 +13,13 @@ export const eventoAgendaSchema = z.object({
 
 export type EventoAgendaFormData = z.infer<typeof eventoAgendaSchema>
 
+export const TIPOS_GRUA = ['Grúa', 'Hidrogrúa', 'Camión', 'Otro'] as const
+
 export const gruaSchema = z.object({
   nombre:              z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   patente:             z.string().min(1, 'La patente es obligatoria'),
   capacidad_toneladas: z.coerce.number().positive('La capacidad debe ser mayor a 0'),
+  tipo:                z.enum(TIPOS_GRUA).default('Grúa'),
 })
 
 export const empresaAgendaSchema = z.object({

@@ -1,13 +1,16 @@
 import Link from 'next/link'
 import { getGruas, getEmpresasAgenda, getOperarios } from '@/lib/agenda'
+import { TIPOS_GRUA } from '@/lib/validations/agenda'
 import {
-  createGrua, toggleGrua, deleteGrua,
+  createGrua, updateGrua, toggleGrua, deleteGrua,
   createEmpresaAgenda, toggleEmpresaAgenda, deleteEmpresaAgenda,
   createOperario, toggleOperario, deleteOperario,
 } from '@/app/actions/agenda'
 import PageHeader from '@/components/dashboard/PageHeader'
 import CatalogSection from './CatalogSection'
 import { ArrowLeft } from 'lucide-react'
+
+const TIPO_OPTIONS = TIPOS_GRUA.map((t) => ({ value: t, label: t }))
 
 export default async function CatalogosAgendaPage() {
   const [gruas, empresas, operarios] = await Promise.all([
@@ -36,14 +39,17 @@ export default async function CatalogosAgendaPage() {
             id: g.id,
             nombre: g.nombre,
             activo: g.activo,
-            subtitle: [g.patente, g.capacidad_toneladas ? `${g.capacidad_toneladas} tn` : null].filter(Boolean).join(' · '),
+            subtitle: [g.tipo, g.patente, g.capacidad_toneladas ? `${g.capacidad_toneladas} tn` : null].filter(Boolean).join(' · '),
+            values: { nombre: g.nombre, patente: g.patente ?? '', capacidad_toneladas: g.capacidad_toneladas ?? '', tipo: g.tipo },
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre' },
+            { name: 'tipo', label: 'Tipo', type: 'select', options: TIPO_OPTIONS },
             { name: 'patente', label: 'Patente', required: true },
             { name: 'capacidad_toneladas', label: 'Capacidad (tn)', type: 'number', required: true },
           ]}
           createAction={createGrua}
+          updateAction={updateGrua}
           toggleAction={toggleGrua}
           deleteAction={deleteGrua}
         />
@@ -58,7 +64,7 @@ export default async function CatalogosAgendaPage() {
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre' },
-            { name: 'contacto', label: 'Contacto' },
+            { name: 'contacto', label: 'Persona de contacto' },
             { name: 'telefono', label: 'Teléfono' },
           ]}
           createAction={createEmpresaAgenda}

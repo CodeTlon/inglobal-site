@@ -14,6 +14,7 @@ export interface Grua {
   nombre: string
   patente: string | null
   capacidad_toneladas: number | null
+  tipo: string
   activo: boolean
   created_at: string
 }
