@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { galeriaSchema } from '@/lib/validations/galeria'
+import { removeMediaUrls } from '@/lib/storage'
 
 export type GaleriaState = { success?: boolean; error?: string } | undefined
 
@@ -96,9 +97,13 @@ export async function deleteGaleriaItem(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de imagen requerido.' }
 
+    const { data: existing } = await supabase.from('galeria').select('imagen').eq('id', id).single()
+
     const { error } = await supabase.from('galeria').delete().eq('id', id)
 
     if (error) return { error: error.message }
+
+    if (existing) await removeMediaUrls(supabase, [existing.imagen])
 
     revalidateGaleria()
     return { success: true }

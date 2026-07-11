@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { trabajoSchema } from '@/lib/validations/trabajo'
+import { removeMediaUrls } from '@/lib/storage'
 
 export type TrabajoState = { success?: boolean; error?: string } | undefined
 
@@ -134,12 +135,15 @@ export async function deleteTrabajo(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de trabajo requerido.' }
 
-    const { data: existing } = await supabase.from('trabajos').select('cliente_id').eq('id', id).single()
+    const { data: existing } = await supabase.from('trabajos').select('cliente_id, cover_image').eq('id', id).single()
 
     const { error } = await supabase.from('trabajos').delete().eq('id', id)
     if (error) return { error: error.message }
 
-    if (existing) await revalidateTrabajos(supabase, existing.cliente_id)
+    if (existing) {
+      await removeMediaUrls(supabase, [existing.cover_image])
+      await revalidateTrabajos(supabase, existing.cliente_id)
+    }
     return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }

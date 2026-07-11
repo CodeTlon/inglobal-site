@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon } from 'lucide-react'
-import { uploadMediaAction } from '@/app/actions/settings'
+import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 
 // Shared class strings — keep dashboard styling in one place
 export const fieldLabel =
@@ -239,7 +239,10 @@ export function ImageUpload({
             {url && (
               <button
                 type="button"
-                onClick={() => setUrl('')}
+                onClick={() => {
+                  deleteMediaAction(url)
+                  setUrl('')
+                }}
                 className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
               >
                 Quitar
@@ -347,7 +350,10 @@ export function VideoUpload({
             {url && (
               <button
                 type="button"
-                onClick={() => setUrl('')}
+                onClick={() => {
+                  deleteMediaAction(url)
+                  setUrl('')
+                }}
                 className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
               >
                 Quitar

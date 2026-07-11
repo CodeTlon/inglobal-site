@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { montajeSchema } from '@/lib/validations/montaje'
+import { removeMediaUrls } from '@/lib/storage'
 
 export type MontajeState = { success?: boolean; error?: string } | undefined
 
@@ -117,9 +118,13 @@ export async function deleteMontaje(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de montaje requerido.' }
 
+    const { data: existing } = await supabase.from('montajes').select('cover_image').eq('id', id).single()
+
     const { error } = await supabase.from('montajes').delete().eq('id', id)
 
     if (error) return { error: error.message }
+
+    if (existing) await removeMediaUrls(supabase, [existing.cover_image])
 
     revalidateMontajes()
     return { success: true }

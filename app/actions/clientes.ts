@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { clienteSchema } from '@/lib/validations/cliente'
+import { removeMediaUrls } from '@/lib/storage'
 
 export type ClienteState = { success?: boolean; error?: string } | undefined
 
@@ -105,9 +106,13 @@ export async function deleteCliente(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de cliente requerido.' }
 
+    const { data: existing } = await supabase.from('clientes').select('logo').eq('id', id).single()
+
     const { error } = await supabase.from('clientes').delete().eq('id', id)
 
     if (error) return { error: error.message }
+
+    if (existing) await removeMediaUrls(supabase, [existing.logo])
 
     revalidateClientes()
     return { success: true }
