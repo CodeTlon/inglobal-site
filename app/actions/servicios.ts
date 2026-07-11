@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -68,10 +69,10 @@ export async function updateServicio(
     if (error) return { error: error.message }
 
     revalidateServicios()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect('/dashboard/servicios')
 }
 
 /**

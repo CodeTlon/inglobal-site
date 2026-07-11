@@ -1,12 +1,14 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { galeriaSchema } from '@/lib/validations/galeria'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
 
 export type GaleriaState = { success?: boolean; error?: string } | undefined
+const LIST_PATH = '/dashboard/galeria'
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
@@ -56,10 +58,10 @@ export async function createGaleriaItem(
     if (error) return { error: error.message }
 
     revalidateGaleria()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }
 
 export async function updateGaleriaItem(
@@ -87,10 +89,10 @@ export async function updateGaleriaItem(
     if (error) return { error: error.message }
 
     revalidateGaleria()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }
 
 export async function deleteGaleriaItem(
@@ -112,8 +114,8 @@ export async function deleteGaleriaItem(
     if (existing) await removeMediaUrls(supabase, [existing.imagen])
 
     revalidateGaleria()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }

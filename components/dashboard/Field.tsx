@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon } from 'lucide-react'
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 
@@ -177,20 +177,34 @@ export function ImageUpload({
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const objectUrlRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+    }
+  }, [])
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    const previousUrl = url
+    const localPreview = URL.createObjectURL(file)
+    objectUrlRef.current = localPreview
+    setUrl(localPreview)
     setBusy(true)
     setErr(null)
     const fd = new FormData()
     fd.append('file', file)
     fd.append('folder', folder)
-    if (url) fd.append('oldUrl', url)
+    if (previousUrl) fd.append('oldUrl', previousUrl)
     const res = await uploadMediaAction(fd)
     setBusy(false)
+    URL.revokeObjectURL(localPreview)
+    objectUrlRef.current = null
     if (res.error) {
       setErr(res.error)
+      setUrl(previousUrl)
       return
     }
     if (res.url) setUrl(res.url)
@@ -281,20 +295,34 @@ export function VideoUpload({
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const objectUrlRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+    }
+  }, [])
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    const previousUrl = url
+    const localPreview = URL.createObjectURL(file)
+    objectUrlRef.current = localPreview
+    setUrl(localPreview)
     setBusy(true)
     setErr(null)
     const fd = new FormData()
     fd.append('file', file)
     fd.append('folder', folder)
-    if (url) fd.append('oldUrl', url)
+    if (previousUrl) fd.append('oldUrl', previousUrl)
     const res = await uploadMediaAction(fd)
     setBusy(false)
+    URL.revokeObjectURL(localPreview)
+    objectUrlRef.current = null
     if (res.error) {
       setErr(res.error)
+      setUrl(previousUrl)
       return
     }
     if (res.url) setUrl(res.url)

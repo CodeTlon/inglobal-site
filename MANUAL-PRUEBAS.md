@@ -51,6 +51,12 @@ se construyen o tocan esas features.
 - [ ] Intentar crear una grúa sin patente o sin capacidad → rechazo con mensaje claro, no se guarda.
 - [ ] Intentar crear un operario sin teléfono → rechazo con mensaje claro.
 
+## UX de formularios del dashboard (redirect + confirm dialog + preview)
+- [ ] Crear/editar un montaje/cliente/servicio/trabajo/imagen de galería/evento con datos válidos → redirige a la página base (listado) en vez de quedarse mostrando un banner verde.
+- [ ] Provocar un error de validación en cualquiera de esos forms (ej. slug vacío) → se queda en el mismo form, con los datos tal cual se dejaron y el banner rojo de error (no se pierde lo tipeado).
+- [ ] Borrar cualquier registro (montaje/cliente/trabajo/imagen de galería/evento/catálogo de agenda) → aparece el modal de confirmación propio del sitio (no el `confirm()` gris del navegador); "Cancelar" no borra nada, "Eliminar" borra y redirige al listado.
+- [ ] Elegir un archivo en un `ImageUpload`/`VideoUpload` → el preview aparece de inmediato (antes de que termine de subir), y se reemplaza por la URL real una vez terminada la subida.
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.

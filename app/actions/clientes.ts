@@ -1,12 +1,14 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { clienteSchema } from '@/lib/validations/cliente'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
 
 export type ClienteState = { success?: boolean; error?: string } | undefined
+const LIST_PATH = '/dashboard/clientes'
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
@@ -55,10 +57,10 @@ export async function createCliente(
     if (error) return { error: error.message }
 
     revalidateClientes()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }
 
 export async function updateCliente(
@@ -96,10 +98,10 @@ export async function updateCliente(
     if (error) return { error: error.message }
 
     revalidateClientes()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }
 
 export async function deleteCliente(
@@ -121,8 +123,8 @@ export async function deleteCliente(
     if (existing) await removeMediaUrls(supabase, [existing.logo])
 
     revalidateClientes()
-    return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
+  redirect(LIST_PATH)
 }

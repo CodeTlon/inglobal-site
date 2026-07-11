@@ -19,7 +19,7 @@ export default function NuevoMontajePage() {
       <PageHeader title="Nuevo Montaje" description="Completá los campos para publicar un nuevo caso de éxito." />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <MontajeForm action={createMontaje} successMessage="Montaje creado correctamente." />
+        <MontajeForm action={createMontaje} />
       </div>
     </div>
   )

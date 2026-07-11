@@ -3,7 +3,7 @@
 import { useFormState } from 'react-dom'
 import { TextField, TextArea, SelectField, CheckboxGroup } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import type { EventoAgenda, Grua, EmpresaAgenda, Operario } from '@/lib/agenda'
 import type { AgendaState } from '@/app/actions/agenda'
 
@@ -20,22 +20,15 @@ interface Props {
   empresas: EmpresaAgenda[]
   operarios: Operario[]
   action: (prevState: unknown, formData: FormData) => Promise<AgendaState>
-  successMessage?: string
 }
 
-export default function EventoForm({ evento, gruas, empresas, operarios, action, successMessage = 'Guardado correctamente.' }: Props) {
+export default function EventoForm({ evento, gruas, empresas, operarios, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
 
   return (
     <form action={formAction} className="space-y-6">
       {evento && <input type="hidden" name="id" value={evento.id} />}
 
-      {state?.success && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-4">
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <p className="text-green-700 text-sm font-medium">{successMessage}</p>
-        </div>
-      )}
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
