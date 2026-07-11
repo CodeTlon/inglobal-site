@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { servicioSchema } from '@/lib/validations/servicio'
+import { nextFreeOrder } from '@/lib/ordering'
 
 export type ServicioState = { success?: boolean; error?: string } | undefined
 
@@ -57,6 +58,7 @@ export async function updateServicio(
     }
 
     const { specs, ...rest } = parsed.data
+    rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order, { excludeId: id })
 
     const { error } = await supabase
       .from('servicios')

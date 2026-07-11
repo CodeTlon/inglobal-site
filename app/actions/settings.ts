@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { extractStoragePath } from '@/lib/storage'
 
 export type SaveState = { success?: boolean; error?: string } | undefined
 
@@ -68,12 +69,6 @@ export async function updateSiteSettings(
 // ─────────────────────────────────────────────────────────────
 // Upload de media al bucket de Storage
 // ─────────────────────────────────────────────────────────────
-
-function extractStoragePath(url: string): string | null {
-  // URLs de Supabase Storage: .../storage/v1/object/public/media/<path>
-  const match = url.split('#')[0].match(/\/storage\/v1\/object\/public\/media\/(.+)/)
-  return match?.[1] ?? null
-}
 
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024  // 12 MB
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024  // 50 MB
@@ -147,6 +142,20 @@ export async function uploadMediaAction(
 
     const { data } = supabase.storage.from('media').getPublicUrl(path)
     return { url: data.publicUrl }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+  }
+}
+
+/** Borra un archivo del bucket `media` a partir de su URL pública (botón "Quitar" en el dashboard). */
+export async function deleteMediaAction(url: string): Promise<{ error?: string }> {
+  try {
+    const supabase = await requireUser()
+    const path = extractStoragePath(url)
+    if (!path) return {}
+    const { error } = await supabase.storage.from('media').remove([path])
+    if (error) return { error: error.message }
+    return {}
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }

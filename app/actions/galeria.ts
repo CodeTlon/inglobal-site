@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { galeriaSchema } from '@/lib/validations/galeria'
+import { removeMediaUrls } from '@/lib/storage'
+import { nextFreeOrder } from '@/lib/ordering'
 
 export type GaleriaState = { success?: boolean; error?: string } | undefined
 
@@ -43,8 +45,11 @@ export async function createGaleriaItem(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
+    const display_order = await nextFreeOrder(supabase, 'galeria', 'display_order', parsed.data.display_order)
+
     const { error } = await supabase.from('galeria').insert({
       ...parsed.data,
+      display_order,
       updated_at: new Date().toISOString(),
     })
 
@@ -72,9 +77,11 @@ export async function updateGaleriaItem(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
+    const display_order = await nextFreeOrder(supabase, 'galeria', 'display_order', parsed.data.display_order, { excludeId: id })
+
     const { error } = await supabase
       .from('galeria')
-      .update({ ...parsed.data, updated_at: new Date().toISOString() })
+      .update({ ...parsed.data, display_order, updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return { error: error.message }
@@ -96,9 +103,13 @@ export async function deleteGaleriaItem(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de imagen requerido.' }
 
+    const { data: existing } = await supabase.from('galeria').select('imagen').eq('id', id).single()
+
     const { error } = await supabase.from('galeria').delete().eq('id', id)
 
     if (error) return { error: error.message }
+
+    if (existing) await removeMediaUrls(supabase, [existing.imagen])
 
     revalidateGaleria()
     return { success: true }

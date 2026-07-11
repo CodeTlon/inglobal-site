@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon } from 'lucide-react'
-import { uploadMediaAction } from '@/app/actions/settings'
+import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 
 // Shared class strings — keep dashboard styling in one place
 export const fieldLabel =
@@ -127,19 +127,22 @@ export function SelectField({
   defaultValue,
   options,
   hint,
+  placeholder,
 }: {
   label: string
   name: string
   defaultValue?: number | string
   options: { value: number | string; label: string }[]
   hint?: string
+  placeholder?: string
 }) {
   return (
     <div>
       <label htmlFor={name} className={fieldLabel}>
         {label}
       </label>
-      <select id={name} name={name} defaultValue={defaultValue} className={fieldInput}>
+      <select id={name} name={name} defaultValue={defaultValue ?? ''} className={fieldInput}>
+        {placeholder && <option value="">{placeholder}</option>}
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -239,7 +242,10 @@ export function ImageUpload({
             {url && (
               <button
                 type="button"
-                onClick={() => setUrl('')}
+                onClick={() => {
+                  deleteMediaAction(url)
+                  setUrl('')
+                }}
                 className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
               >
                 Quitar
@@ -347,7 +353,10 @@ export function VideoUpload({
             {url && (
               <button
                 type="button"
-                onClick={() => setUrl('')}
+                onClick={() => {
+                  deleteMediaAction(url)
+                  setUrl('')
+                }}
                 className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
               >
                 Quitar

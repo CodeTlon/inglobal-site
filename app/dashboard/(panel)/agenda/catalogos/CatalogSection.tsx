@@ -17,6 +17,7 @@ interface FieldConfig {
   name: string
   label: string
   type?: string
+  required?: boolean
 }
 
 interface Props {
@@ -80,7 +81,7 @@ export default function CatalogSection({ title, items, fields, createAction, tog
 
       <form action={createFormAction} className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
         {fields.map((f) => (
-          <TextField key={f.name} label={f.label} name={f.name} type={f.type} />
+          <TextField key={f.name} label={f.label} name={f.name} type={f.type} required={f.required} />
         ))}
         <div className="sm:col-span-2 flex justify-end">
           <SaveButton />

@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { trabajoSchema } from '@/lib/validations/trabajo'
+import { removeMediaUrls } from '@/lib/storage'
+import { nextFreeOrder } from '@/lib/ordering'
 
 export type TrabajoState = { success?: boolean; error?: string } | undefined
 
@@ -68,6 +70,10 @@ export async function createTrabajo(
     const { cliente_id, title, ...rest } = parsed.data
     const baseSlug = slugify(title, { lower: true, strict: true })
     const slug = await uniqueSlug(supabase, cliente_id, baseSlug)
+    rest.display_order = await nextFreeOrder(supabase, 'trabajos', 'display_order', rest.display_order, {
+      scopeColumn: 'cliente_id',
+      scopeValue: cliente_id,
+    })
 
     const { error } = await supabase.from('trabajos').insert({
       cliente_id,
@@ -109,6 +115,11 @@ export async function updateTrabajo(
       const baseSlug = slugify(title, { lower: true, strict: true })
       slug = await uniqueSlug(supabase, cliente_id, baseSlug, id)
     }
+    rest.display_order = await nextFreeOrder(supabase, 'trabajos', 'display_order', rest.display_order, {
+      scopeColumn: 'cliente_id',
+      scopeValue: cliente_id,
+      excludeId: id,
+    })
 
     const { error } = await supabase
       .from('trabajos')
@@ -134,12 +145,15 @@ export async function deleteTrabajo(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de trabajo requerido.' }
 
-    const { data: existing } = await supabase.from('trabajos').select('cliente_id').eq('id', id).single()
+    const { data: existing } = await supabase.from('trabajos').select('cliente_id, cover_image').eq('id', id).single()
 
     const { error } = await supabase.from('trabajos').delete().eq('id', id)
     if (error) return { error: error.message }
 
-    if (existing) await revalidateTrabajos(supabase, existing.cliente_id)
+    if (existing) {
+      await removeMediaUrls(supabase, [existing.cover_image])
+      await revalidateTrabajos(supabase, existing.cliente_id)
+    }
     return { success: true }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }

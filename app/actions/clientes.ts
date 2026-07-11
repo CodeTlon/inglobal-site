@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { clienteSchema } from '@/lib/validations/cliente'
+import { removeMediaUrls } from '@/lib/storage'
+import { nextFreeOrder } from '@/lib/ordering'
 
 export type ClienteState = { success?: boolean; error?: string } | undefined
 
@@ -42,8 +44,11 @@ export async function createCliente(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
+    const work_rank = await nextFreeOrder(supabase, 'clientes', 'work_rank', parsed.data.work_rank)
+
     const { error } = await supabase.from('clientes').insert({
       ...parsed.data,
+      work_rank,
       updated_at: new Date().toISOString(),
     })
 
@@ -81,9 +86,11 @@ export async function updateCliente(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
+    const work_rank = await nextFreeOrder(supabase, 'clientes', 'work_rank', parsed.data.work_rank, { excludeId: id })
+
     const { error } = await supabase
       .from('clientes')
-      .update({ ...parsed.data, updated_at: new Date().toISOString() })
+      .update({ ...parsed.data, work_rank, updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return { error: error.message }
@@ -105,9 +112,13 @@ export async function deleteCliente(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de cliente requerido.' }
 
+    const { data: existing } = await supabase.from('clientes').select('logo').eq('id', id).single()
+
     const { error } = await supabase.from('clientes').delete().eq('id', id)
 
     if (error) return { error: error.message }
+
+    if (existing) await removeMediaUrls(supabase, [existing.logo])
 
     revalidateClientes()
     return { success: true }
