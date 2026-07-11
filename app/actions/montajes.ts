@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { montajeSchema } from '@/lib/validations/montaje'
 import { removeMediaUrls } from '@/lib/storage'
+import { nextFreeOrder } from '@/lib/ordering'
 
 export type MontajeState = { success?: boolean; error?: string } | undefined
 
@@ -51,6 +52,7 @@ export async function createMontaje(
     }
 
     const { tags, ...rest } = parsed.data
+    rest.display_order = await nextFreeOrder(supabase, 'montajes', 'display_order', rest.display_order)
 
     const { error } = await supabase.from('montajes').insert({
       ...rest,
@@ -93,6 +95,7 @@ export async function updateMontaje(
     }
 
     const { tags, ...rest } = parsed.data
+    rest.display_order = await nextFreeOrder(supabase, 'montajes', 'display_order', rest.display_order, { excludeId: id })
 
     const { error } = await supabase
       .from('montajes')

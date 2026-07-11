@@ -5,6 +5,7 @@ import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { trabajoSchema } from '@/lib/validations/trabajo'
 import { removeMediaUrls } from '@/lib/storage'
+import { nextFreeOrder } from '@/lib/ordering'
 
 export type TrabajoState = { success?: boolean; error?: string } | undefined
 
@@ -69,6 +70,10 @@ export async function createTrabajo(
     const { cliente_id, title, ...rest } = parsed.data
     const baseSlug = slugify(title, { lower: true, strict: true })
     const slug = await uniqueSlug(supabase, cliente_id, baseSlug)
+    rest.display_order = await nextFreeOrder(supabase, 'trabajos', 'display_order', rest.display_order, {
+      scopeColumn: 'cliente_id',
+      scopeValue: cliente_id,
+    })
 
     const { error } = await supabase.from('trabajos').insert({
       cliente_id,
@@ -110,6 +115,11 @@ export async function updateTrabajo(
       const baseSlug = slugify(title, { lower: true, strict: true })
       slug = await uniqueSlug(supabase, cliente_id, baseSlug, id)
     }
+    rest.display_order = await nextFreeOrder(supabase, 'trabajos', 'display_order', rest.display_order, {
+      scopeColumn: 'cliente_id',
+      scopeValue: cliente_id,
+      excludeId: id,
+    })
 
     const { error } = await supabase
       .from('trabajos')
