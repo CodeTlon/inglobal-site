@@ -50,6 +50,11 @@ se construyen o tocan esas features.
 - [ ] Crear un evento sin elegir grúa o empresa → mensaje "Seleccioná una grúa/empresa" (no el error genérico de Zod).
 - [ ] Intentar crear una grúa sin patente o sin capacidad → rechazo con mensaje claro, no se guarda.
 - [ ] Intentar crear un operario sin teléfono → rechazo con mensaje claro.
+- [ ] Editar una grúa existente desde Catálogos (nombre/tipo/patente/capacidad) → "Guardar" persiste los cambios, "Cancelar" descarta y vuelve a la fila normal.
+- [ ] Crear una grúa con tipo "Hidrogrúa"/"Camión"/"Otro" → se guarda y se lista con ese tipo.
+- [ ] Cargar un evento con fecha fuera del rango permitido (más de ~7 días atrás o más de 6 meses adelante) → el date picker nativo lo bloquea (min/max del input).
+- [ ] Entrar a `/dashboard/agenda/calendario` logueado → ve el mismo listado agrupado (Hoy/Mañana/Semana/Próximamente) que `/agenda-tv`, sin ningún link de editar/borrar.
+- [ ] `/agenda-tv` (kiosco) sigue funcionando igual que antes (fullscreen, auto-refresh, sin sidebar del dashboard).
 
 ## UX de formularios del dashboard (redirect + confirm dialog + preview)
 - [ ] Crear/editar un montaje/cliente/servicio/trabajo/imagen de galería/evento con datos válidos → redirige a la página base (listado) en vez de quedarse mostrando un banner verde.
