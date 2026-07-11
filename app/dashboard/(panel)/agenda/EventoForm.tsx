@@ -55,12 +55,14 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
           name="grua_id"
           defaultValue={evento?.grua_id}
           options={gruas.map((g) => ({ value: g.id, label: g.nombre }))}
+          placeholder="Seleccioná una grúa"
         />
         <SelectField
           label="Empresa"
           name="empresa_id"
           defaultValue={evento?.empresa_id}
           options={empresas.map((e) => ({ value: e.id, label: e.nombre }))}
+          placeholder="Seleccioná una empresa"
         />
       </div>
 

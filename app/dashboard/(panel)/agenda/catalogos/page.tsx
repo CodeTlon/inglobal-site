@@ -40,8 +40,8 @@ export default async function CatalogosAgendaPage() {
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre' },
-            { name: 'patente', label: 'Patente' },
-            { name: 'capacidad_toneladas', label: 'Capacidad (tn)', type: 'number' },
+            { name: 'patente', label: 'Patente', required: true },
+            { name: 'capacidad_toneladas', label: 'Capacidad (tn)', type: 'number', required: true },
           ]}
           createAction={createGrua}
           toggleAction={toggleGrua}
@@ -76,7 +76,7 @@ export default async function CatalogosAgendaPage() {
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre' },
-            { name: 'telefono', label: 'Teléfono' },
+            { name: 'telefono', label: 'Teléfono', required: true },
           ]}
           createAction={createOperario}
           toggleAction={toggleOperario}

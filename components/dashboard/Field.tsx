@@ -127,19 +127,22 @@ export function SelectField({
   defaultValue,
   options,
   hint,
+  placeholder,
 }: {
   label: string
   name: string
   defaultValue?: number | string
   options: { value: number | string; label: string }[]
   hint?: string
+  placeholder?: string
 }) {
   return (
     <div>
       <label htmlFor={name} className={fieldLabel}>
         {label}
       </label>
-      <select id={name} name={name} defaultValue={defaultValue} className={fieldInput}>
+      <select id={name} name={name} defaultValue={defaultValue ?? ''} className={fieldInput}>
+        {placeholder && <option value="">{placeholder}</option>}
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
