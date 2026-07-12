@@ -85,6 +85,13 @@ se construyen o tocan esas features.
 - [ ] En Galería, usar el `SpanPicker` (grilla de cuadraditos) para elegir cuántas columnas/filas ocupa una imagen en mobile y desktop → el layout bento en `/galeria` refleja lo elegido, igual que antes con los selects.
 - [ ] Items de galería ya cargados antes de este cambio (con `col_span`/`row_span` numérico) siguen viéndose igual — el `SpanPicker` es solo un input visual nuevo, no cambia el formato de los datos guardados.
 
+## Auth — cambio de contraseña
+- [ ] Crear un usuario nuevo desde `/dashboard/usuarios` → loguearse con esa cuenta → debe redirigir forzoso a `/dashboard/cambiar-password`, sin poder navegar a ninguna otra ruta de `/dashboard/**` hasta cambiarla.
+- [ ] Cambiar la contraseña en esa pantalla → redirige a `/dashboard` y a partir de ahí navega libre (sin volver a pedir el cambio).
+- [ ] Resetear la contraseña de una cuenta existente desde `/dashboard/usuarios` → esa cuenta también queda forzada a cambiarla en su próximo login.
+- [ ] Con una cuenta que NO tiene el flag activo, entrar a "Cambiar contraseña" desde el link del topbar del panel → puede cambiarla voluntariamente en cualquier momento, sin estar forzado.
+- [ ] Verificar que no hay loop de redirect: `/dashboard/cambiar-password` es accesible incluso con el flag activo (no redirige a sí misma).
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.
