@@ -30,6 +30,7 @@ export async function middleware(request: NextRequest) {
   const isDashboard = path.startsWith('/dashboard')
   const isAgendaTv = path.startsWith('/agenda-tv')
   const isLogin = path === '/dashboard/login'
+  const isCambiarPassword = path === '/dashboard/cambiar-password'
 
   // Sin sesión en rutas protegidas (dashboard + TV de agenda) → redirigir al login
   if ((isDashboard || isAgendaTv) && !isLogin && !user) {
@@ -43,6 +44,15 @@ export async function middleware(request: NextRequest) {
   if (isLogin && user) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
+
+  // Contraseña temporal (alta nueva o reset) sin cambiar → forzar a cambiarla
+  // antes de dejar entrar a cualquier otra ruta del panel.
+  if (isDashboard && !isLogin && !isCambiarPassword && user?.user_metadata?.must_change_password) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard/cambiar-password'
     url.search = ''
     return NextResponse.redirect(url)
   }
