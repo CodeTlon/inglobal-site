@@ -85,6 +85,7 @@ export interface Trabajo {
   cover_image:   string | null
   youtube_url:   string | null
   fecha:         string | null
+  attachment_url: string | null
   display_order: number
   published:     boolean
   created_at:    string

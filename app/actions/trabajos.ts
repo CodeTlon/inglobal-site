@@ -54,6 +54,7 @@ function parse(formData: FormData) {
     cover_image:   formData.get('cover_image'),
     youtube_url:   formData.get('youtube_url'),
     fecha:         formData.get('fecha') || null,
+    attachment_url: formData.get('attachment_url'),
     display_order: formData.get('display_order'),
     published:     formData.get('published'),
   })
@@ -152,13 +153,13 @@ export async function deleteTrabajo(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de trabajo requerido.' }
 
-    const { data: existing } = await supabase.from('trabajos').select('cliente_id, cover_image').eq('id', id).single()
+    const { data: existing } = await supabase.from('trabajos').select('cliente_id, cover_image, attachment_url').eq('id', id).single()
 
     const { error } = await supabase.from('trabajos').delete().eq('id', id)
     if (error) return { error: error.message }
 
     if (existing) {
-      await removeMediaUrls(supabase, [existing.cover_image])
+      await removeMediaUrls(supabase, [existing.cover_image, existing.attachment_url])
       clienteSlug = await revalidateTrabajos(supabase, existing.cliente_id)
     }
   } catch (e) {

@@ -88,12 +88,13 @@ export async function updateSiteSettings(
 
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024  // 12 MB
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024  // 50 MB
+const MAX_DOC_BYTES   = 8 * 1024 * 1024   // 8 MB
 
 /**
  * Sube un archivo al bucket `media`.
  * - Imágenes rasterizadas: resize ≤2000px + WebP q=82 via sharp.
  * - video/mp4: validación de tamaño y tipo únicamente, sin transformación.
- * - SVG / GIF: se suben tal cual (sin optimización).
+ * - SVG / GIF / PDF: se suben tal cual (sin optimización).
  *
  * formData: { file: File, folder: string, oldUrl?: string }
  */
@@ -107,9 +108,11 @@ export async function uploadMediaAction(
 
     const mime = file.type || ''
     const isVideo = mime === 'video/mp4'
+    const isDoc = mime === 'application/pdf'
 
     if (isVideo && file.size > MAX_VIDEO_BYTES) return { error: 'El video no puede superar 50 MB.' }
-    if (!isVideo && file.size > MAX_IMAGE_BYTES) return { error: 'La imagen no puede superar 12 MB.' }
+    if (isDoc && file.size > MAX_DOC_BYTES) return { error: 'El documento no puede superar 8 MB.' }
+    if (!isVideo && !isDoc && file.size > MAX_IMAGE_BYTES) return { error: 'La imagen no puede superar 12 MB.' }
 
     const folder = String(formData.get('folder') ?? 'uploads')
 
