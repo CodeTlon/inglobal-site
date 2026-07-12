@@ -53,6 +53,7 @@ function parse(formData: FormData) {
     content:       formData.get('content'),
     cover_image:   formData.get('cover_image'),
     youtube_url:   formData.get('youtube_url'),
+    fecha:         formData.get('fecha') || null,
     display_order: formData.get('display_order'),
     published:     formData.get('published'),
   })

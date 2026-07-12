@@ -7,6 +7,7 @@ export const trabajoSchema = z.object({
   content:       z.string().optional(),
   cover_image:   z.string().optional(),
   youtube_url:   z.string().optional(),
+  fecha:         z.string().nullable().optional(),
   display_order: z.coerce.number().int().min(0).default(0),
   published:     z.coerce.boolean().default(true),
 })

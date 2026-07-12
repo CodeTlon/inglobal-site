@@ -84,6 +84,7 @@ export interface Trabajo {
   content:       string
   cover_image:   string | null
   youtube_url:   string | null
+  fecha:         string | null
   display_order: number
   published:     boolean
   created_at:    string

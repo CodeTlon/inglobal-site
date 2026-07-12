@@ -55,6 +55,13 @@ export default async function TrabajoDetailPage({ params }: Props) {
   if (!trabajo) notFound()
 
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
+  const fechaFormateada = trabajo.fecha
+    ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : null
 
   return (
     <main className="bg-white">
@@ -85,6 +92,11 @@ export default async function TrabajoDetailPage({ params }: Props) {
               >
                 {trabajo.title}
               </h1>
+              {fechaFormateada && (
+                <p className="text-slate-300 text-sm mt-3" data-animate="fade-up" data-delay="150">
+                  {fechaFormateada}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -104,6 +116,11 @@ export default async function TrabajoDetailPage({ params }: Props) {
             >
               {trabajo.title}
             </h1>
+            {fechaFormateada && (
+              <p className="text-zinc-400 text-sm mt-3" data-animate="fade-up" data-delay="150">
+                {fechaFormateada}
+              </p>
+            )}
           </div>
         </section>
       )}

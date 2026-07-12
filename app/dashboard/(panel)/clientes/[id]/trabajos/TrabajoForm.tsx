@@ -41,6 +41,14 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
 
       <TextField label="Título" name="title" defaultValue={trabajo?.title} required />
 
+      <TextField
+        label="Fecha del trabajo"
+        name="fecha"
+        type="date"
+        defaultValue={trabajo?.fecha ?? undefined}
+        hint="Opcional. Se muestra en el detalle público del trabajo."
+      />
+
       <TextArea
         label="Copete (excerpt)"
         name="excerpt"
