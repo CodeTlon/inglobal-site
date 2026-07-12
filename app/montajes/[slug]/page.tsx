@@ -88,6 +88,7 @@ export default async function MontajeDetailPage({ params }: Props) {
                 priority
                 sizes="100vw"
                 className="object-cover hero-bg-zoom"
+                style={{ objectPosition: montaje.cover_image_focal ?? undefined }}
               />
             ) : (
               <Picture
@@ -97,6 +98,7 @@ export default async function MontajeDetailPage({ params }: Props) {
                 priority
                 sizes="100vw"
                 className="object-cover hero-bg-zoom"
+                style={{ objectPosition: montaje.cover_image_focal ?? undefined }}
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

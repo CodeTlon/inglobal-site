@@ -64,6 +64,8 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         defaultValue={cliente?.logo}
         folder="clientes"
         hint="Logo de la empresa. PNG con fondo transparente recomendado. Máximo 12px de alto en uso."
+        focalName="logo_focal"
+        focalDefaultValue={cliente?.logo_focal}
       />
 
       <NumberField

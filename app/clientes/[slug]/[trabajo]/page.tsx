@@ -75,6 +75,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
             priority
             sizes="100vw"
             className="object-cover hero-bg-zoom"
+            style={{ objectPosition: trabajo.cover_image_focal ?? undefined }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/80" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">

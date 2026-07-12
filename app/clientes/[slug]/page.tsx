@@ -65,6 +65,7 @@ export default async function ClienteDetailPage({ params }: Props) {
                   height={80}
                   sizes="160px"
                   className="object-contain max-h-16 w-auto"
+                  style={{ objectPosition: cliente.logo_focal ?? undefined }}
                 />
               </div>
             )}

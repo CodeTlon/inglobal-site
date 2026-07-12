@@ -63,6 +63,8 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         name="cover_image"
         defaultValue={trabajo?.cover_image ?? undefined}
         folder="trabajos"
+        focalName="cover_image_focal"
+        focalDefaultValue={trabajo?.cover_image_focal}
       />
 
       <TextField
