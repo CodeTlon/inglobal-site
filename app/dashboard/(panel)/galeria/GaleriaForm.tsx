@@ -4,10 +4,10 @@ import { useFormState } from 'react-dom'
 import {
   TextField,
   ImageUpload,
-  SelectField,
   NumberField,
   Checkbox,
 } from '@/components/dashboard/Field'
+import SpanPicker from '@/components/dashboard/SpanPicker'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { Galeria } from '@/lib/content'
@@ -18,23 +18,6 @@ interface Props {
   entityId?: string
   action: (prevState: unknown, formData: FormData) => Promise<GaleriaState>
 }
-
-const MOBILE_SPAN_OPTIONS = [
-  { value: 1, label: '1 columna' },
-  { value: 2, label: '2 columnas (ancho completo)' },
-]
-
-const DESKTOP_COL_OPTIONS = [
-  { value: 1, label: '1 columna' },
-  { value: 2, label: '2 columnas' },
-  { value: 3, label: '3 columnas' },
-  { value: 4, label: '4 columnas (ancho completo)' },
-]
-
-const ROW_OPTIONS = [
-  { value: 1, label: '1 fila' },
-  { value: 2, label: '2 filas (doble alto)' },
-]
 
 export default function GaleriaForm({ item, entityId, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
@@ -70,32 +53,24 @@ export default function GaleriaForm({ item, entityId, action }: Props) {
         <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">
           Tamaño en la grilla — cuánto espacio ocupa esta imagen en cada tamaño de pantalla
         </p>
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <SelectField
-            label="Ancho en mobile"
-            name="col_span_mobile"
-            defaultValue={item?.col_span_mobile ?? 1}
-            options={MOBILE_SPAN_OPTIONS}
+        <div className="flex flex-wrap gap-8">
+          <SpanPicker
+            label="En mobile"
+            colsName="col_span_mobile"
+            rowsName="row_span_mobile"
+            maxCols={2}
+            maxRows={2}
+            defaultCols={item?.col_span_mobile ?? 1}
+            defaultRows={item?.row_span_mobile ?? 1}
           />
-          <SelectField
-            label="Alto en mobile"
-            name="row_span_mobile"
-            defaultValue={item?.row_span_mobile ?? 1}
-            options={ROW_OPTIONS}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <SelectField
-            label="Ancho en desktop"
-            name="col_span_desktop"
-            defaultValue={item?.col_span_desktop ?? 1}
-            options={DESKTOP_COL_OPTIONS}
-          />
-          <SelectField
-            label="Alto en desktop"
-            name="row_span_desktop"
-            defaultValue={item?.row_span_desktop ?? 1}
-            options={ROW_OPTIONS}
+          <SpanPicker
+            label="En desktop"
+            colsName="col_span_desktop"
+            rowsName="row_span_desktop"
+            maxCols={4}
+            maxRows={2}
+            defaultCols={item?.col_span_desktop ?? 1}
+            defaultRows={item?.row_span_desktop ?? 1}
           />
         </div>
       </div>

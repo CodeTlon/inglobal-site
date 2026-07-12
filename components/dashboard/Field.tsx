@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon } from 'lucide-react'
+import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon, FileText } from 'lucide-react'
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 
 // Shared class strings — keep dashboard styling in one place
@@ -173,17 +173,30 @@ export function ImageUpload({
   defaultValue,
   folder = 'uploads',
   hint,
+  focalName,
+  focalDefaultValue,
 }: {
   label: string
   name: string
   defaultValue?: string | null
   folder?: string
   hint?: string
+  /** Si se pasa, agrega un picker de foco: click sobre el preview elige qué parte de la imagen se prioriza al recortar. */
+  focalName?: string
+  focalDefaultValue?: string | null
 }) {
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
   const objectUrlRef = useRef<string | null>(null)
+
+  function onPickFocal(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100)
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100)
+    setFocal(`${x}% ${y}%`)
+  }
 
   useEffect(() => {
     return () => {
@@ -222,13 +235,32 @@ export function ImageUpload({
       <label className={fieldLabel}>{label}</label>
       {/* Hidden input carries URL to parent form on submit */}
       <input type="hidden" name={name} value={url} />
+      {focalName && <input type="hidden" name={focalName} value={focal} />}
 
       <div className="flex flex-col sm:flex-row gap-3 items-stretch">
         {/* Preview thumbnail */}
-        <div className="flex-shrink-0 w-full sm:w-32 h-24 rounded-lg border border-zinc-200 overflow-hidden flex items-center justify-center bg-zinc-50">
+        <div
+          className={`relative flex-shrink-0 w-full sm:w-32 h-24 rounded-lg border border-zinc-200 overflow-hidden flex items-center justify-center bg-zinc-50 ${
+            focalName && url ? 'cursor-crosshair' : ''
+          }`}
+          onClick={focalName && url ? onPickFocal : undefined}
+        >
           {url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt="" className="w-full h-full object-cover" />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={url}
+                alt=""
+                className="w-full h-full object-cover pointer-events-none"
+                style={focalName ? { objectPosition: focal } : undefined}
+              />
+              {focalName && (
+                <span
+                  className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                  style={{ left: focal.split(' ')[0], top: focal.split(' ')[1] }}
+                />
+              )}
+            </>
           ) : (
             <ImageIcon size={20} className="text-zinc-300" />
           )}
@@ -273,6 +305,9 @@ export function ImageUpload({
             )}
           </div>
           {err && <p className="text-xs text-red-500">{err}</p>}
+          {focalName && url && (
+            <p className="text-zinc-400 text-xs">Clic sobre la miniatura para elegir qué parte de la foto se prioriza al recortar.</p>
+          )}
         </div>
       </div>
 
@@ -401,6 +436,101 @@ export function VideoUpload({
         </div>
       </div>
 
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
+
+// ─── FileUpload ──────────────────────────────────────────────────────────────
+// Adjuntos genéricos (PDF). Mismo patrón que ImageUpload/VideoUpload pero sin
+// preview visual — solo nombre de archivo + link "Ver PDF".
+
+export function FileUpload({
+  label,
+  name,
+  defaultValue,
+  folder = 'documentos',
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: string | null
+  folder?: string
+  hint?: string
+}) {
+  const [url, setUrl] = useState<string>(defaultValue ?? '')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBusy(true)
+    setErr(null)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('folder', folder)
+    if (url) fd.append('oldUrl', url)
+    const res = await uploadMediaAction(fd)
+    setBusy(false)
+    if (res.error) {
+      setErr(res.error)
+      return
+    }
+    if (res.url) setUrl(res.url)
+    e.target.value = ''
+  }
+
+  const fileName = url ? decodeURIComponent(url.split('/').pop() ?? '') : ''
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      <input type="hidden" name={name} value={url} />
+
+      <div className="flex items-center gap-3">
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold bg-zinc-50 border border-zinc-200 text-zinc-700 hover:text-igb-yellow-dark hover:border-igb-yellow/40 transition-colors truncate max-w-[220px]"
+          >
+            <FileText size={14} className="flex-shrink-0" />
+            <span className="truncate">{fileName}</span>
+          </a>
+        ) : (
+          <span className="inline-flex items-center gap-2 text-xs text-zinc-400">
+            <FileText size={14} /> Sin adjunto
+          </span>
+        )}
+
+        <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition-colors bg-igb-yellow/10 text-igb-yellow-dark border border-igb-yellow/30 hover:bg-igb-yellow/20">
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+          {busy ? 'Subiendo…' : url ? 'Reemplazar' : 'Subir PDF'}
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={onPick}
+            disabled={busy}
+            className="hidden"
+          />
+        </label>
+
+        {url && (
+          <button
+            type="button"
+            onClick={() => {
+              deleteMediaAction(url)
+              setUrl('')
+            }}
+            className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
+          >
+            Quitar
+          </button>
+        )}
+      </div>
+      {err && <p className="text-xs text-red-500 mt-1.5">{err}</p>}
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
     </div>
   )

@@ -7,6 +7,7 @@ import {
   TextArea,
   NumberField,
   ImageUpload,
+  FileUpload,
   Checkbox,
 } from '@/components/dashboard/Field'
 import ContentEditor from '@/components/dashboard/ContentEditor'
@@ -41,6 +42,14 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
 
       <TextField label="Título" name="title" defaultValue={trabajo?.title} required />
 
+      <TextField
+        label="Fecha del trabajo"
+        name="fecha"
+        type="date"
+        defaultValue={trabajo?.fecha ?? undefined}
+        hint="Opcional. Se muestra en el detalle público del trabajo."
+      />
+
       <TextArea
         label="Copete (excerpt)"
         name="excerpt"
@@ -54,6 +63,8 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         name="cover_image"
         defaultValue={trabajo?.cover_image ?? undefined}
         folder="trabajos"
+        focalName="cover_image_focal"
+        focalDefaultValue={trabajo?.cover_image_focal}
       />
 
       <TextField
@@ -61,6 +72,14 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         name="youtube_url"
         defaultValue={trabajo?.youtube_url ?? undefined}
         hint="Se muestra como video destacado en la página del trabajo."
+      />
+
+      <FileUpload
+        label="Documento adjunto (PDF, opcional)"
+        name="attachment_url"
+        defaultValue={trabajo?.attachment_url}
+        folder="trabajos/adjuntos"
+        hint="Plano, certificado o informe. Máximo 8 MB."
       />
 
       <div>

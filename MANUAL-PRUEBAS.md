@@ -78,6 +78,13 @@ se construyen o tocan esas features.
 - [ ] Header del panel en mobile (375px) → "Grúas InGlobal S.R.L." completo, sin cortarse ni decir "— CMS".
 - [ ] `/dashboard/login` en desktop (≥1024px) → imagen a la izquierda (50vw x 100vh), form a la derecha. En mobile, sin imagen (layout de siempre).
 
+## Features nuevas de contenido (trabajos: fecha, PDF, focal point, galería)
+- [ ] Cargar un trabajo con fecha → se ve formateada en el detalle público (`/clientes/[slug]/[trabajo-slug]`).
+- [ ] Subir un PDF a un trabajo → aparece el link "Descargar PDF" en el detalle público y abre el archivo. Subir un PDF de más de 8MB → rechazado con mensaje claro.
+- [ ] Elegir un foco distinto al centro en la imagen de portada de un montaje/trabajo o el logo de un cliente (click sobre la miniatura en el dashboard) → el recorte visual cambia acorde en el sitio público.
+- [ ] En Galería, usar el `SpanPicker` (grilla de cuadraditos) para elegir cuántas columnas/filas ocupa una imagen en mobile y desktop → el layout bento en `/galeria` refleja lo elegido, igual que antes con los selects.
+- [ ] Items de galería ya cargados antes de este cambio (con `col_span`/`row_span` numérico) siguen viéndose igual — el `SpanPicker` es solo un input visual nuevo, no cambia el formato de los datos guardados.
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.

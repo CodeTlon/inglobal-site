@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, FileText } from 'lucide-react'
 import { getCliente, getClientes, getTrabajo, getTrabajos } from '@/lib/content'
 import { youtubeEmbedUrl } from '@/lib/youtube'
 import { sanitizeHtml } from '@/lib/sanitize'
@@ -55,6 +55,13 @@ export default async function TrabajoDetailPage({ params }: Props) {
   if (!trabajo) notFound()
 
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
+  const fechaFormateada = trabajo.fecha
+    ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : null
 
   return (
     <main className="bg-white">
@@ -68,6 +75,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
             priority
             sizes="100vw"
             className="object-cover hero-bg-zoom"
+            style={{ objectPosition: trabajo.cover_image_focal ?? undefined }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/80" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">
@@ -85,6 +93,11 @@ export default async function TrabajoDetailPage({ params }: Props) {
               >
                 {trabajo.title}
               </h1>
+              {fechaFormateada && (
+                <p className="text-slate-300 text-sm mt-3" data-animate="fade-up" data-delay="150">
+                  {fechaFormateada}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -104,6 +117,11 @@ export default async function TrabajoDetailPage({ params }: Props) {
             >
               {trabajo.title}
             </h1>
+            {fechaFormateada && (
+              <p className="text-zinc-400 text-sm mt-3" data-animate="fade-up" data-delay="150">
+                {fechaFormateada}
+              </p>
+            )}
           </div>
         </section>
       )}
@@ -131,6 +149,17 @@ export default async function TrabajoDetailPage({ params }: Props) {
           )}
 
           <div className="prose-igb" dangerouslySetInnerHTML={{ __html: sanitizeHtml(trabajo.content) }} />
+
+          {trabajo.attachment_url && (
+            <a
+              href={trabajo.attachment_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-10 px-5 py-3 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-700 hover:text-igb-yellow-dark hover:border-igb-yellow/40 transition-colors font-bold text-sm"
+            >
+              <FileText size={16} /> Descargar PDF
+            </a>
+          )}
 
           <div className="mt-12 pt-8 border-t border-zinc-100">
             <Link

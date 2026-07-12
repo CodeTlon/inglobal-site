@@ -25,6 +25,7 @@ export interface Montaje {
   excerpt:       string | null
   content:       string | null
   cover_image:   string | null
+  cover_image_focal?: string | null
   tags:          string[]
   display_order: number
   published:     boolean
@@ -37,6 +38,7 @@ export interface Cliente {
   slug:        string
   name:        string
   logo:        string
+  logo_focal?: string | null
   bio:         string | null
   content:     string | null
   featured:    boolean
@@ -84,6 +86,9 @@ export interface Trabajo {
   content:       string
   cover_image:   string | null
   youtube_url:   string | null
+  fecha:         string | null
+  attachment_url: string | null
+  cover_image_focal?: string | null
   display_order: number
   published:     boolean
   created_at:    string

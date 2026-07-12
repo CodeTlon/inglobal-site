@@ -64,6 +64,8 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         defaultValue={montaje?.cover_image}
         folder="montajes"
         hint="Foto principal del montaje. Aspect ratio 16:10 recomendado."
+        focalName="cover_image_focal"
+        focalDefaultValue={montaje?.cover_image_focal}
       />
 
       <StringList
