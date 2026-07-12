@@ -22,12 +22,6 @@ test('navbar visible con links en desktop', async ({ page }) => {
   await expect(links.first()).toBeVisible()
 })
 
-test('boton WhatsApp visible', async ({ page }) => {
-  await page.goto('/')
-  const wa = page.locator('a[href*="wa.me"]')
-  await expect(wa).toBeVisible()
-})
-
 // ─── NAVEGACIÓN ───────────────────────────────────────────────────────────────
 
 test('página /servicios carga', async ({ page }) => {

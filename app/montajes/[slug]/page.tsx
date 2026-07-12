@@ -46,7 +46,7 @@ export default async function MontajeDetailPage({ params }: Props) {
   return (
     <main className="bg-white">
       {/* Hero header con imagen de portada */}
-      <section className="relative pt-40 pb-0 bg-zinc-900">
+      <section className="relative pt-40 pb-0 bg-zinc-900" data-navbar="dark">
         <div className="container-igb pb-12">
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-6" data-animate="fade-up">
