@@ -1,13 +1,18 @@
 import Link from 'next/link'
-import { getMontajes, getClientes, getServicios } from '@/lib/content'
-import { Building2, Users, Wrench, ArrowRight } from 'lucide-react'
+import { getMontajes, getClientes, getServicios, getSiteSettings } from '@/lib/content'
+import { Building2, Users, Wrench, ArrowRight, Zap } from 'lucide-react'
 
 export default async function DashboardHomePage() {
-  const [montajes, clientes, servicios] = await Promise.all([
+  const [montajes, clientes, servicios, quicklinksSettings] = await Promise.all([
     getMontajes({ includeUnpublished: true }),
     getClientes({ includeUnpublished: true }),
     getServicios({ includeUnpublished: true }),
+    getSiteSettings('dashboard_quicklinks'),
   ])
+
+  const quickLinks = Array.isArray(quicklinksSettings.items)
+    ? (quicklinksSettings.items as { href: string; label: string }[])
+    : []
 
   const stats = [
     {
@@ -31,14 +36,6 @@ export default async function DashboardHomePage() {
       icon: Users,
       color: 'bg-green-50 text-green-600',
     },
-  ]
-
-  const quickLinks = [
-    { href: '/dashboard/contenido/hero', label: 'Editar Hero' },
-    { href: '/dashboard/contenido/footer', label: 'Editar Footer' },
-    { href: '/dashboard/contenido/stats', label: 'Editar Stats' },
-    { href: '/dashboard/montajes/nuevo', label: 'Nuevo Montaje' },
-    { href: '/dashboard/clientes/nuevo', label: 'Nuevo Cliente' },
   ]
 
   return (
@@ -79,20 +76,39 @@ export default async function DashboardHomePage() {
 
       {/* Accesos rápidos */}
       <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm">
-        <h2 className="text-base font-headline font-bold text-zinc-900 mb-4">
-          Accesos rápidos
-        </h2>
-        <div className="flex flex-wrap gap-3">
-          {quickLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="inline-flex items-center gap-2 bg-zinc-50 hover:bg-igb-yellow/10 text-zinc-700 hover:text-igb-yellow-dark border border-zinc-200 hover:border-igb-yellow/40 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-headline font-bold text-zinc-900">
+            Accesos rápidos
+          </h2>
+          <Link
+            href="/dashboard/contenido/accesos-rapidos"
+            className="text-xs font-bold text-igb-yellow-dark hover:text-igb-on-surface transition-colors"
+          >
+            Editar
+          </Link>
         </div>
+        {quickLinks.length === 0 ? (
+          <p className="text-sm text-zinc-400">
+            Sin accesos configurados. <Link href="/dashboard/contenido/accesos-rapidos" className="underline">Agregá uno</Link>.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {quickLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center gap-3 bg-zinc-50 hover:bg-igb-yellow/10 border border-zinc-200 hover:border-igb-yellow/40 hover:shadow-sm px-4 py-3.5 rounded-lg transition-all group"
+              >
+                <div className="w-9 h-9 rounded-lg bg-white border border-zinc-200 flex items-center justify-center flex-shrink-0 group-hover:border-igb-yellow/40">
+                  <Zap size={16} className="text-igb-yellow-dark" />
+                </div>
+                <span className="text-sm font-bold text-zinc-700 group-hover:text-igb-yellow-dark transition-colors">
+                  {link.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

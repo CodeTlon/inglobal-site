@@ -40,6 +40,7 @@ const navSections = [
       { href: '/dashboard/contenido/ubicacion', label: 'Ubicación', icon: Settings },
       { href: '/dashboard/contenido/footer', label: 'Footer', icon: Settings },
       { href: '/dashboard/contenido/contacto', label: 'Contacto', icon: Settings },
+      { href: '/dashboard/contenido/accesos-rapidos', label: 'Accesos rápidos', icon: Settings },
     ],
   },
   {
@@ -197,7 +198,7 @@ export default function DashboardPanelLayout({
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-zinc-900 font-headline truncate">
-              Grúas InGlobal S.R.L. — CMS
+              Grúas InGlobal S.R.L.
             </p>
           </div>
           <a

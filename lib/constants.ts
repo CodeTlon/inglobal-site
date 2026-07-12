@@ -19,11 +19,13 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     video_url_mobile: '/videos/opt/hero-crane.mp4', // vertical, grúa/torre en obra, para <md
     fallback_image: 'igb-3',
   },
-  stats: [
-    { number: '40+',  label: 'Años de experiencia' },
-    { number: '200t', label: 'Toneladas de capacidad' },
-    { number: '100m', label: 'Altura máxima' },
-  ],
+  stats: {
+    items: [
+      { number: '40+',  label: 'Años de experiencia' },
+      { number: '200t', label: 'Toneladas de capacidad' },
+      { number: '100m', label: 'Altura máxima' },
+    ],
+  },
   quienes_somos: {
     label:        'Quiénes Somos',
     heading:      'Grúas InGlobal S.R.L.',
@@ -67,6 +69,15 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     hours_saturday: 'Sáb 8:00 — 13:00h',
     phone:          '0351 345-4244',
     email:          'info@gruasinglobal.com',
+  },
+  dashboard_quicklinks: {
+    items: [
+      { href: '/dashboard/contenido/hero', label: 'Editar Hero' },
+      { href: '/dashboard/contenido/footer', label: 'Editar Footer' },
+      { href: '/dashboard/contenido/stats', label: 'Editar Stats' },
+      { href: '/dashboard/montajes/nuevo', label: 'Nuevo Montaje' },
+      { href: '/dashboard/clientes/nuevo', label: 'Nuevo Cliente' },
+    ],
   },
 }
 
