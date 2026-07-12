@@ -18,6 +18,7 @@ const SETTING_PATHS: Record<string, string[]> = {
   ubicacion:          ['/', '/#ubicacion', '/contacto'],
   footer:             ['/'],
   contacto:           ['/contacto'],
+  dashboard_quicklinks: ['/dashboard'],
 }
 
 async function requireUser() {

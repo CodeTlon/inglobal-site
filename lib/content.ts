@@ -114,6 +114,7 @@ type SiteSettingsKey =
   | 'ubicacion'
   | 'footer'
   | 'contacto'
+  | 'dashboard_quicklinks'
 
 /**
  * Devuelve el valor de una clave de site_settings, siempre como objeto

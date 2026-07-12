@@ -70,6 +70,15 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     phone:          '0351 345-4244',
     email:          'info@gruasinglobal.com',
   },
+  dashboard_quicklinks: {
+    items: [
+      { href: '/dashboard/contenido/hero', label: 'Editar Hero' },
+      { href: '/dashboard/contenido/footer', label: 'Editar Footer' },
+      { href: '/dashboard/contenido/stats', label: 'Editar Stats' },
+      { href: '/dashboard/montajes/nuevo', label: 'Nuevo Montaje' },
+      { href: '/dashboard/clientes/nuevo', label: 'Nuevo Cliente' },
+    ],
+  },
 }
 
 // ─────────────────────────────────────────────────────────────

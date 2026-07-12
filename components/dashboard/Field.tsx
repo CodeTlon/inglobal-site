@@ -625,3 +625,77 @@ export function StatsList({
     </div>
   )
 }
+
+// ─── LinkList ────────────────────────────────────────────────────────────────
+// Lista de links [{href, label}] (ej: accesos rápidos del dashboard). Serializa como JSON.
+
+type LinkItem = { href: string; label: string }
+
+export function LinkList({
+  label,
+  name,
+  defaultValue,
+  hint,
+}: {
+  label: string
+  name: string
+  defaultValue?: LinkItem[]
+  hint?: string
+}) {
+  const [items, setItems] = useState<LinkItem[]>(
+    defaultValue?.length ? defaultValue : [{ href: '', label: '' }]
+  )
+
+  function update(i: number, key: keyof LinkItem, val: string) {
+    setItems(items.map((it, idx) => (idx === i ? { ...it, [key]: val } : it)))
+  }
+
+  return (
+    <div>
+      <label className={fieldLabel}>{label}</label>
+      <input
+        type="hidden"
+        name={name}
+        value={JSON.stringify(items.filter((l) => l.href.trim() && l.label.trim()))}
+      />
+      <div className="space-y-3">
+        {items.map((it, i) => (
+          <div key={i} className="flex gap-2 items-start">
+            <div className="flex-1 grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={it.label}
+                onChange={(e) => update(i, 'label', e.target.value)}
+                placeholder="Etiqueta (ej: Nuevo Montaje)"
+                className={fieldInput}
+              />
+              <input
+                type="text"
+                value={it.href}
+                onChange={(e) => update(i, 'href', e.target.value)}
+                placeholder="Ruta (ej: /dashboard/montajes/nuevo)"
+                className={fieldInput}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setItems(items.filter((_, idx) => idx !== i))}
+              className="mt-0.5 px-3 py-2.5 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
+              aria-label="Quitar"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => setItems([...items, { href: '', label: '' }])}
+        className="mt-2 inline-flex items-center gap-2 text-xs text-igb-yellow-dark hover:text-igb-on-surface transition-colors font-bold"
+      >
+        <Plus size={14} /> Agregar acceso
+      </button>
+      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+    </div>
+  )
+}
