@@ -35,6 +35,7 @@ export async function createAdminUser(
       email,
       password,
       email_confirm: true,
+      user_metadata: { must_change_password: true },
     })
 
     if (error) return { error: error.message }
@@ -65,7 +66,10 @@ export async function resetAdminPassword(
     if (password.length < 6) return { error: 'La contraseña debe tener al menos 6 caracteres.' }
 
     const admin = createSupabaseAdminClient()
-    const { error } = await admin.auth.admin.updateUserById(userId, { password })
+    const { error } = await admin.auth.admin.updateUserById(userId, {
+      password,
+      user_metadata: { must_change_password: true },
+    })
 
     if (error) return { error: error.message }
 
