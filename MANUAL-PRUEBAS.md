@@ -62,6 +62,15 @@ se construyen o tocan esas features.
 - [ ] Borrar cualquier registro (montaje/cliente/trabajo/imagen de galería/evento/catálogo de agenda) → aparece el modal de confirmación propio del sitio (no el `confirm()` gris del navegador); "Cancelar" no borra nada, "Eliminar" borra y redirige al listado.
 - [ ] Elegir un archivo en un `ImageUpload`/`VideoUpload` → el preview aparece de inmediato (antes de que termine de subir), y se reemplaza por la URL real una vez terminada la subida.
 
+## Estilos del sitio público (navbar, hero de cliente, artículos)
+- [ ] Entrar a `/montajes/[slug]` (hero siempre oscuro) sin hacer scroll → navbar oscuro con logo claro (el del Footer). Hacer scroll → navbar pasa a blanco con logo de color.
+- [ ] Entrar a `/clientes/[slug]/[trabajo]` de un trabajo CON foto de portada → mismo comportamiento de navbar oscuro. Un trabajo SIN foto de portada → navbar blanco normal desde el inicio (no tiene el marcador de hero oscuro).
+- [ ] Entrar a cualquier otra página (home, servicios, contacto, etc.) → navbar sin cambios, comportamiento de siempre.
+- [ ] Entrar a `/clientes/[slug]` → el logo del cliente se ve sobre una card blanca con sombra, no directo sobre el fondo gris del header.
+- [ ] Ver un trabajo con imágenes chicas y/o muy verticales insertadas en el contenido rico (TipTap) → ya no se estiran/pixelan ni desbordan el ancho del artículo.
+- [ ] Home: la sección de servicios ("Qué Hacemos") muestra solo foto + título + tags, sin ícono circular ni descripción larga.
+- [ ] Confirmar que no queda ningún rastro del botón flotante de WhatsApp en ninguna página del sitio público.
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.
