@@ -71,6 +71,13 @@ se construyen o tocan esas features.
 - [ ] Home: la sección de servicios ("Qué Hacemos") muestra solo foto + título + tags, sin ícono circular ni descripción larga.
 - [ ] Confirmar que no queda ningún rastro del botón flotante de WhatsApp en ninguna página del sitio público.
 
+## Guardado de site_settings (bug crítico corregido) + Accesos rápidos + Login
+- [ ] Editar y guardar Hero, Footer, Stats, Quiénes Somos, Qué Hacemos, CTA Banner, Clientes Destacados, Ubicación y Contacto → cada uno debe guardar sin el error "El valor debe ser JSON válido." y reflejar el cambio en el sitio público (antes de este fix, NINGUNO guardaba).
+- [ ] Guardar Stats con 1, 2 o 3 indicadores → se ven correctamente en el home (antes de este fix, siempre mostraba los 3 valores hardcodeados sin importar lo guardado).
+- [ ] Entrar a `/dashboard/contenido/accesos-rapidos`, agregar/editar/quitar un acceso → se refleja como card en el home del panel (`/dashboard`), con ícono y mejor estilo que antes.
+- [ ] Header del panel en mobile (375px) → "Grúas InGlobal S.R.L." completo, sin cortarse ni decir "— CMS".
+- [ ] `/dashboard/login` en desktop (≥1024px) → imagen a la izquierda (50vw x 100vh), form a la derecha. En mobile, sin imagen (layout de siempre).
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.

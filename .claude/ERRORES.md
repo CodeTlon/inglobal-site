@@ -53,3 +53,43 @@ en el sitio — no había regresión real.
 si el puerto configurado está ocupado por OTRO proyecto, Playwright no lo detecta y corre la suite
 entera contra el server equivocado sin ningún error obvio. Cada proyecto de la fábrica debería usar
 un puerto propio en su `playwright.config.ts` en vez de confiar en el 3000 default.
+
+## 2026-07-12 `updateSiteSettings` nunca pudo guardar ningún form de Contenido
+
+**Síntoma**
+Los 9 forms de `/dashboard/contenido/*` (Hero, Footer, Stats, Quiénes Somos, Qué Hacemos, CTA Banner,
+Clientes Destacados, Ubicación, Contacto) parecían funcionar (renderizaban, tenían sus campos con
+`defaultValue` correcto) pero al apretar "Guardar" siempre devolvían "El valor debe ser JSON válido.".
+Nadie lo había reportado porque el contenido de fallback (`lib/constants.ts`) coincide visualmente con
+lo que ya está "guardado" — un cambio real nunca llegaba a persistirse, así que el síntoma en el sitio
+público era simplemente "edité pero no cambió nada", fácil de confundir con caché.
+
+**Causa raíz**
+`updateSiteSettings(key, prevState, formData)` en `app/actions/settings.ts` leía
+`formData.get('value')` esperando un único campo JSON — pero ningún `*Form.tsx` de `contenido/*` tiene
+un input `name="value"`: todos mandan sus campos individuales tal cual (`name="headline"`,
+`name="phone"`, etc.), o una lista serializada en un campo con su propio nombre (`StatsList` manda
+`name="items"`). El campo `value` nunca existió en el FormData → `formData.get('value')` daba `null` →
+`JSON.parse('')` tiraba siempre. Estaba así desde el commit que introdujo la función (`62bc191`), antes
+de que existieran los forms reales de `contenido/*` — el contrato quedó desactualizado cuando se
+construyeron los forms.
+
+Además, `stats` tenía una segunda inconsistencia independiente: el seed SQL (`002_site_settings.sql`)
+guarda un array crudo (`[{number,label},...]`), pero tanto `StatsForm.tsx` como `app/page.tsx` siempre
+leyeron `settings.items` (esperando `{items: [...]}`) — con un array crudo, `.items` es `undefined`, así
+que el home siempre mostraba los 3 stats hardcodeados sin importar lo que hubiera en la DB.
+
+**Solución**
+`updateSiteSettings` ahora arma el objeto `value` a partir de TODOS los campos del FormData recibido
+(`Object.entries` vía `formData.entries()`), parseando como JSON los que empiezan con `[`/`{` (listas
+serializadas) y dejando el resto como texto plano. `getSiteSettings` (`lib/content.ts`) normaliza un
+array crudo de DB a `{ items: [...] }` antes del merge con el fallback, y `FALLBACK_SITE_SETTINGS.stats`
+pasó de array crudo a `{ items: [...] }` para ser consistente en el path de fallback también. No se tocó
+la migración `002_site_settings.sql` (las migraciones ya aplicadas no se editan) — la normalización en
+`getSiteSettings` cubre el array crudo que ya está en cualquier DB existente.
+
+**Lección**
+Un formulario que "no tira error visible al cargar" no prueba que su submit funcione — hay que probar
+el guardado end-to-end (editar → guardar → recargar en otra pestaña) antes de dar por completo una
+feature de CMS, sobre todo cuando el contrato entre `action` y `*Form.tsx` se escribió en momentos
+distintos (la action es de `62bc191`, los forms reales son de `3d783e8`, casi 3 meses después).
