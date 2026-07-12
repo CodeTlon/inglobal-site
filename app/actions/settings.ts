@@ -28,10 +28,27 @@ async function requireUser() {
 }
 
 /**
+ * Los campos de lista (StatsList/StringList/CheckboxGroup) mandan su valor como
+ * un string JSON (`[...]`/`{...}`) en un único input; el resto son texto plano.
+ */
+function parseFieldValue(raw: string): unknown {
+  const trimmed = raw.trim()
+  if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+    try {
+      return JSON.parse(trimmed)
+    } catch {
+      // no era JSON después de todo, se guarda como texto
+    }
+  }
+  return raw
+}
+
+/**
  * Upsert de una clave en site_settings.
  * Primer arg = key (string, prefijado via .bind(null, key) desde el cliente).
  * Segundo arg = prevState (inyectado por useFormState).
- * Tercer arg = formData con el valor JSON del campo `value`.
+ * Tercer arg = formData con los campos del form — se arma un objeto JSON con
+ * todos ellos (cada campo lista ya viene serializado, ver parseFieldValue).
  */
 export async function updateSiteSettings(
   key: string,
@@ -40,15 +57,13 @@ export async function updateSiteSettings(
 ): Promise<SaveState> {
   try {
     const supabase = await requireUser()
-    const rawValue = String(formData.get('value') ?? '').trim()
 
     if (!key) return { error: 'Clave de configuración requerida.' }
 
-    let value: unknown
-    try {
-      value = JSON.parse(rawValue)
-    } catch {
-      return { error: 'El valor debe ser JSON válido.' }
+    const value: Record<string, unknown> = {}
+    for (const [field, raw] of formData.entries()) {
+      if (typeof raw !== 'string') continue
+      value[field] = parseFieldValue(raw)
     }
 
     const { error } = await supabase

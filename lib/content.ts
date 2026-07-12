@@ -116,8 +116,8 @@ type SiteSettingsKey =
   | 'contacto'
 
 /**
- * Devuelve el valor JSON de una clave de site_settings.
- * Puede ser un objeto o un array (e.g. `stats`).
+ * Devuelve el valor de una clave de site_settings, siempre como objeto
+ * (un array crudo en DB, ej. seed viejo de `stats`, se normaliza a `{ items: [...] }`).
  * Fallback al valor hardcodeado si Supabase no responde.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -137,12 +137,12 @@ export async function getSiteSettings(key: SiteSettingsKey): Promise<any> {
       return FALLBACK_SITE_SETTINGS[key] ?? {}
     }
 
-    // Para valores objeto: merge con fallback (preserva campos no editados).
-    // Para arrays (e.g. stats): devolver el valor de DB directamente.
+    // Todas las keys se consumen como objeto — si la DB tiene un array crudo
+    // (seed viejo de `stats`), se normaliza a `{ items: [...] }` antes del merge.
     const dbVal = data.value
-    if (Array.isArray(dbVal)) return dbVal
+    const normalizedDbVal = Array.isArray(dbVal) ? { items: dbVal } : dbVal
     const fallback = FALLBACK_SITE_SETTINGS[key] ?? {}
-    return { ...fallback, ...dbVal }
+    return { ...fallback, ...normalizedDbVal }
   } catch (e) {
     console.error(`site_settings[${key}] unexpected error:`, e)
     return FALLBACK_SITE_SETTINGS[key] ?? {}

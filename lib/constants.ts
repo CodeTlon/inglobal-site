@@ -19,11 +19,13 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     video_url_mobile: '/videos/opt/hero-crane.mp4', // vertical, grúa/torre en obra, para <md
     fallback_image: 'igb-3',
   },
-  stats: [
-    { number: '40+',  label: 'Años de experiencia' },
-    { number: '200t', label: 'Toneladas de capacidad' },
-    { number: '100m', label: 'Altura máxima' },
-  ],
+  stats: {
+    items: [
+      { number: '40+',  label: 'Años de experiencia' },
+      { number: '200t', label: 'Toneladas de capacidad' },
+      { number: '100m', label: 'Altura máxima' },
+    ],
+  },
   quienes_somos: {
     label:        'Quiénes Somos',
     heading:      'Grúas InGlobal S.R.L.',
