@@ -55,7 +55,7 @@ export default async function ClienteDetailPage({ params }: Props) {
           <div className="flex flex-col md:flex-row md:items-center gap-8">
             {cliente.logo && (
               <div
-                className="w-32 h-20 flex items-center flex-shrink-0"
+                className="w-40 h-24 flex items-center justify-center flex-shrink-0 bg-white rounded-xl p-4 border border-slate-100 shadow-sm"
                 data-animate="scale"
               >
                 <Image
@@ -64,7 +64,7 @@ export default async function ClienteDetailPage({ params }: Props) {
                   width={160}
                   height={80}
                   sizes="160px"
-                  className="object-contain max-h-20 w-auto"
+                  className="object-contain max-h-16 w-auto"
                 />
               </div>
             )}

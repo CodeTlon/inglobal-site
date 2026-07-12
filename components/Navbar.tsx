@@ -18,34 +18,44 @@ const navLinks = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [hasDarkHero, setHasDarkHero] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
+    handler()
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     setOpen(false)
+    setHasDarkHero(!!document.querySelector('[data-navbar="dark"]'))
   }, [pathname])
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href)
+
+  // Dark hero = página con sección oscura arriba de todo. Mientras no se hizo scroll,
+  // el navbar se pinta oscuro sobre ella (en vez del blanco translúcido que se ve gris
+  // sobre fondos oscuros) y el logo pasa a la variante clara (la que usa el Footer).
+  const darkMode = hasDarkHero && !scrolled && !open
 
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled || open
           ? 'bg-white/90 backdrop-blur-md shadow-sm'
-          : 'bg-white/80 backdrop-blur-md'
+          : darkMode
+            ? 'bg-zinc-950/90 backdrop-blur-md'
+            : 'bg-white/80 backdrop-blur-md'
       }`}
     >
       <nav className="container-igb flex items-center justify-between h-16 lg:h-20">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
         <Image
-          src="/images/logo.webp"
+          src={darkMode ? '/images/logo.png' : '/images/logo.webp'}
           alt="Grúas InGlobal S.R.L."
           className="h-10 w-auto"
           sizes="160px"
@@ -63,8 +73,10 @@ export default function Navbar() {
               href={link.href}
               className={`font-headline font-bold text-sm tracking-tight transition-colors ${
                 isActive(link.href)
-                  ? 'text-igb-yellow-dark border-b-2 border-igb-yellow pb-0.5'
-                  : 'text-igb-on-surface/70 hover:text-igb-on-surface'
+                  ? `border-b-2 border-igb-yellow pb-0.5 ${darkMode ? 'text-igb-yellow' : 'text-igb-yellow-dark'}`
+                  : darkMode
+                    ? 'text-white/70 hover:text-white'
+                    : 'text-igb-on-surface/70 hover:text-igb-on-surface'
               }`}
             >
               {link.label}
@@ -78,7 +90,7 @@ export default function Navbar() {
 
         {/* Mobile burger */}
         <button
-          className="lg:hidden p-2 text-igb-on-surface"
+          className={`lg:hidden p-2 ${darkMode ? 'text-white' : 'text-igb-on-surface'}`}
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
         >

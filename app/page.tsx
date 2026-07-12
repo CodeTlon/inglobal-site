@@ -4,21 +4,6 @@ import Picture from '@/components/Picture'
 import HeroVideo from '@/components/HeroVideo'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
 import { getSiteSettings, getServicios, getClientes } from '@/lib/content'
-import {
-  ArrowUpToLine,
-  HardHat,
-  Move,
-  Truck,
-  type LucideIcon,
-} from 'lucide-react'
-
-// ─── Icon map for services (slug/name → Lucide component) ────────────────────
-const ICON_MAP: Record<string, LucideIcon> = {
-  ArrowUpToLine,
-  HardHat,
-  Move,
-  Truck,
-}
 
 // ─── Static gallery (not in CMS scope) ───────────────────────────────────────
 const galleryItems = [
@@ -206,7 +191,6 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {servicios.map((servicio) => {
-              const Icon = ICON_MAP[servicio.icon] ?? ArrowUpToLine
               const isRemoteImg = servicio.img?.startsWith('http')
               return (
                 <Link
@@ -238,25 +222,22 @@ export default async function HomePage() {
                     </div>
                   )}
 
-                  <div className="w-12 h-12 bg-igb-yellow/20 rounded-lg flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
-                    <Icon className="w-6 h-6 text-igb-yellow-dark" />
-                  </div>
-
-                  <h3 className="text-lg font-headline font-bold mb-3 text-igb-on-surface">
+                  <h3 className="text-lg font-headline font-bold mb-4 text-igb-on-surface">
                     {servicio.title}
                   </h3>
 
-                  <p className="text-igb-secondary text-sm leading-relaxed mb-6 flex-grow">
-                    {servicio.desc}
-                  </p>
-
-                  <div className="mt-auto pt-4 border-t border-slate-200/10">
-                    {Array.isArray(servicio.specs) && servicio.specs[0] && (
-                      <span className="text-xs font-bold text-igb-yellow-dark tracking-wide uppercase block">
-                        {servicio.specs[0]}
-                      </span>
-                    )}
-                  </div>
+                  {Array.isArray(servicio.specs) && servicio.specs.length > 0 && (
+                    <div className="mt-auto pt-4 border-t border-slate-200/10 flex flex-wrap gap-2">
+                      {servicio.specs.map((spec) => (
+                        <span
+                          key={spec}
+                          className="text-xs font-bold text-igb-yellow-dark tracking-wide uppercase"
+                        >
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </Link>
               )
             })}

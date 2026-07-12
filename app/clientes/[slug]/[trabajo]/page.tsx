@@ -60,7 +60,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
     <main className="bg-white">
       {/* Hero */}
       {trabajo.cover_image ? (
-        <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }}>
+        <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }} data-navbar="dark">
           <Image
             src={trabajo.cover_image}
             alt={trabajo.title}
