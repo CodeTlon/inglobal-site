@@ -2,17 +2,18 @@
 
 import { useFormState } from 'react-dom'
 import { updateSiteSettings } from '@/app/actions/settings'
-import { LinkList } from '@/components/dashboard/Field'
+import { CheckboxGroup } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
+import { QUICKLINK_CANDIDATES } from '@/lib/constants'
 import { CheckCircle, AlertCircle } from 'lucide-react'
 
 const action = updateSiteSettings.bind(null, 'dashboard_quicklinks')
 
 export default function AccesosRapidosForm({ settings }: { settings: Record<string, unknown> }) {
   const [state, formAction] = useFormState(action, null)
-  const items = Array.isArray(settings.items)
-    ? (settings.items as { href: string; label: string }[])
-    : []
+  // Compat: versiones previas guardaban {href,label}[] en vez de href[].
+  const rawItems = Array.isArray(settings.items) ? settings.items : []
+  const selectedHrefs = rawItems.map((it) => (typeof it === 'string' ? it : (it as { href: string }).href))
 
   return (
     <form action={formAction} className="space-y-6">
@@ -29,11 +30,12 @@ export default function AccesosRapidosForm({ settings }: { settings: Record<stri
         </div>
       )}
 
-      <LinkList
+      <CheckboxGroup
         label="Accesos rápidos"
         name="items"
-        defaultValue={items}
-        hint="Aparecen como cards en el inicio del panel. La ruta debe empezar con /dashboard/…"
+        options={QUICKLINK_CANDIDATES.map((c) => ({ value: c.href, label: c.label }))}
+        defaultValue={selectedHrefs}
+        hint="Elegí cuáles aparecen como cards en el inicio del panel."
       />
 
       <div className="flex justify-end pt-2">

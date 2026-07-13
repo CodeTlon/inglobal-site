@@ -72,11 +72,11 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
   },
   dashboard_quicklinks: {
     items: [
-      { href: '/dashboard/contenido/hero', label: 'Editar Hero' },
-      { href: '/dashboard/contenido/footer', label: 'Editar Footer' },
-      { href: '/dashboard/contenido/stats', label: 'Editar Stats' },
-      { href: '/dashboard/montajes/nuevo', label: 'Nuevo Montaje' },
-      { href: '/dashboard/clientes/nuevo', label: 'Nuevo Cliente' },
+      '/dashboard/contenido/hero',
+      '/dashboard/contenido/footer',
+      '/dashboard/contenido/stats',
+      '/dashboard/montajes/nuevo',
+      '/dashboard/clientes/nuevo',
     ],
   },
 }
@@ -265,4 +265,24 @@ export const FALLBACK_GALERIA: Galeria[] = [
   { id: 'fallback-gal-8',  imagen: 'igb-8',  alt: 'Mantenimiento preventivo en obra',                col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 7, published: true, created_at: '', updated_at: '' },
   { id: 'fallback-gal-9',  imagen: 'igb-9',  alt: 'Izaje nocturno en planta',                        col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 8, published: true, created_at: '', updated_at: '' },
   { id: 'fallback-gal-10', imagen: 'igb-10', alt: 'Grúa telescópica en parque eólico',               col_span_mobile: 1, row_span_mobile: 1, col_span_desktop: 1, row_span_desktop: 1, display_order: 9, published: true, created_at: '', updated_at: '' },
+]
+
+// ─────────────────────────────────────────────────────────────
+// Accesos rápidos del home del panel — candidatos predefinidos
+// ─────────────────────────────────────────────────────────────
+// El cliente elige de esta lista fija (no tipea rutas a mano, ver LinkList
+// vs QuickLinksPicker en Field.tsx) — mantenerla al día con las rutas de
+// alta reales del dashboard.
+export const QUICKLINK_CANDIDATES: { href: string; label: string }[] = [
+  { href: '/dashboard/montajes/nuevo', label: 'Nuevo Montaje' },
+  { href: '/dashboard/clientes/nuevo', label: 'Nuevo Cliente' },
+  { href: '/dashboard/galeria/nuevo', label: 'Nueva Foto de Galería' },
+  { href: '/dashboard/agenda/nuevo', label: 'Nuevo Evento de Agenda' },
+  { href: '/dashboard/agenda', label: 'Ver Agenda' },
+  { href: '/dashboard/agenda/calendario', label: 'Calendario' },
+  { href: '/dashboard/agenda/catalogos', label: 'Catálogos de Agenda' },
+  { href: '/dashboard/usuarios', label: 'Usuarios' },
+  { href: '/dashboard/contenido/hero', label: 'Editar Hero' },
+  { href: '/dashboard/contenido/footer', label: 'Editar Footer' },
+  { href: '/dashboard/contenido/stats', label: 'Editar Stats' },
 ]
