@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getMontajes, getClientes, getServicios, getSiteSettings } from '@/lib/content'
+import { QUICKLINK_CANDIDATES } from '@/lib/constants'
 import { Building2, Users, Wrench, ArrowRight, Zap } from 'lucide-react'
 
 export default async function DashboardHomePage() {
@@ -10,9 +11,12 @@ export default async function DashboardHomePage() {
     getSiteSettings('dashboard_quicklinks'),
   ])
 
-  const quickLinks = Array.isArray(quicklinksSettings.items)
-    ? (quicklinksSettings.items as { href: string; label: string }[])
-    : []
+  // Compat: versiones previas guardaban {href,label}[] en vez de href[].
+  const rawItems: unknown[] = Array.isArray(quicklinksSettings.items) ? quicklinksSettings.items : []
+  const quickLinks = rawItems
+    .map((it) => (typeof it === 'string' ? it : (it as { href: string }).href))
+    .map((href) => QUICKLINK_CANDIDATES.find((c) => c.href === href))
+    .filter((c): c is { href: string; label: string } => !!c)
 
   const stats = [
     {

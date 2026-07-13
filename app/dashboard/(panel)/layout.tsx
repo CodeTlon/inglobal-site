@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/actions/auth'
+import SavedToast from '@/components/dashboard/SavedToast'
 import {
   LayoutDashboard,
   Settings,
@@ -107,6 +108,9 @@ export default function DashboardPanelLayout({
   return (
     /* Cubre la Navbar/Footer del layout raíz — z-[100] > z-50 del Navbar */
     <div className="fixed inset-0 z-[100] flex bg-zinc-100 overflow-hidden">
+      <Suspense fallback={null}>
+        <SavedToast />
+      </Suspense>
 
       {/* Backdrop (mobile, solo con drawer abierto) */}
       {navOpen && (
@@ -150,7 +154,7 @@ export default function DashboardPanelLayout({
 
         {/* Nav — cierra el drawer al navegar (mobile) */}
         <nav
-          className="flex-1 overflow-y-auto px-3 py-4 space-y-6"
+          className="dashboard-scroll-dark flex-1 overflow-y-auto px-3 py-4 space-y-6"
           onClick={() => setNavOpen(false)}
         >
           {navSections.map((section) => (
@@ -201,12 +205,6 @@ export default function DashboardPanelLayout({
               Grúas InGlobal S.R.L.
             </p>
           </div>
-          <Link
-            href="/dashboard/cambiar-password"
-            className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:inline"
-          >
-            Cambiar contraseña
-          </Link>
           <a
             href="/"
             target="_blank"
@@ -218,7 +216,7 @@ export default function DashboardPanelLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="dashboard-scroll-light flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

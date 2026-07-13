@@ -28,7 +28,7 @@ export default async function EventoEditPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <div className="mb-6">
         <Link
           href="/dashboard/agenda"

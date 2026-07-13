@@ -98,7 +98,7 @@ export async function createTrabajo(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos` : '/dashboard/clientes')
+  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos?saved=1` : '/dashboard/clientes?saved=1')
 }
 
 export async function updateTrabajo(
@@ -142,7 +142,7 @@ export async function updateTrabajo(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos` : '/dashboard/clientes')
+  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos?saved=1` : '/dashboard/clientes?saved=1')
 }
 
 export async function deleteTrabajo(
@@ -168,5 +168,5 @@ export async function deleteTrabajo(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos` : '/dashboard/clientes')
+  redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos?saved=1` : '/dashboard/clientes?saved=1')
 }

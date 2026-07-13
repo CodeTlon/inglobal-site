@@ -10,7 +10,7 @@ import {
   FileUpload,
   Checkbox,
 } from '@/components/dashboard/Field'
-import ContentEditor from '@/components/dashboard/ContentEditor'
+import ContentEditor from '@/components/dashboard/ContentEditorBoundary'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { Trabajo } from '@/lib/content'

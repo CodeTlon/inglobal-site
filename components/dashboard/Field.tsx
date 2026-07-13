@@ -190,6 +190,7 @@ export function ImageUpload({
   const [err, setErr] = useState<string | null>(null)
   const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
   const objectUrlRef = useRef<string | null>(null)
+  const genRef = useRef(0)
 
   function onPickFocal(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -207,6 +208,10 @@ export function ImageUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    // Contador de generación: si el usuario elige otro archivo antes de que
+    // termine este upload, la respuesta de este pick queda obsoleta y no debe
+    // pisar el preview del pick más nuevo.
+    const myGen = ++genRef.current
     const previousUrl = url
     const localPreview = URL.createObjectURL(file)
     objectUrlRef.current = localPreview
@@ -218,8 +223,9 @@ export function ImageUpload({
     fd.append('folder', folder)
     if (previousUrl) fd.append('oldUrl', previousUrl)
     const res = await uploadMediaAction(fd)
-    setBusy(false)
     URL.revokeObjectURL(localPreview)
+    if (myGen !== genRef.current) return
+    setBusy(false)
     objectUrlRef.current = null
     if (res.error) {
       setErr(res.error)
@@ -336,7 +342,9 @@ export function VideoUpload({
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [previewBroken, setPreviewBroken] = useState(false)
   const objectUrlRef = useRef<string | null>(null)
+  const genRef = useRef(0)
 
   useEffect(() => {
     return () => {
@@ -347,10 +355,12 @@ export function VideoUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    const myGen = ++genRef.current
     const previousUrl = url
     const localPreview = URL.createObjectURL(file)
     objectUrlRef.current = localPreview
     setUrl(localPreview)
+    setPreviewBroken(false)
     setBusy(true)
     setErr(null)
     const fd = new FormData()
@@ -358,8 +368,9 @@ export function VideoUpload({
     fd.append('folder', folder)
     if (previousUrl) fd.append('oldUrl', previousUrl)
     const res = await uploadMediaAction(fd)
-    setBusy(false)
     URL.revokeObjectURL(localPreview)
+    if (myGen !== genRef.current) return
+    setBusy(false)
     objectUrlRef.current = null
     if (res.error) {
       setErr(res.error)
@@ -377,7 +388,7 @@ export function VideoUpload({
 
       <div className="flex flex-col gap-3">
         {/* Video preview or placeholder */}
-        {url ? (
+        {url && !previewBroken ? (
           <div className="rounded-lg overflow-hidden border border-zinc-200 bg-zinc-900 aspect-video">
             <video
               src={url}
@@ -385,6 +396,7 @@ export function VideoUpload({
               muted
               playsInline
               preload="metadata"
+              onError={() => setPreviewBroken(true)}
             />
           </div>
         ) : (
@@ -399,7 +411,7 @@ export function VideoUpload({
           <input
             type="text"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => { setUrl(e.target.value); setPreviewBroken(false) }}
             placeholder="URL del video, o subí un archivo MP4"
             className={fieldInput}
           />
@@ -756,76 +768,3 @@ export function StatsList({
   )
 }
 
-// ─── LinkList ────────────────────────────────────────────────────────────────
-// Lista de links [{href, label}] (ej: accesos rápidos del dashboard). Serializa como JSON.
-
-type LinkItem = { href: string; label: string }
-
-export function LinkList({
-  label,
-  name,
-  defaultValue,
-  hint,
-}: {
-  label: string
-  name: string
-  defaultValue?: LinkItem[]
-  hint?: string
-}) {
-  const [items, setItems] = useState<LinkItem[]>(
-    defaultValue?.length ? defaultValue : [{ href: '', label: '' }]
-  )
-
-  function update(i: number, key: keyof LinkItem, val: string) {
-    setItems(items.map((it, idx) => (idx === i ? { ...it, [key]: val } : it)))
-  }
-
-  return (
-    <div>
-      <label className={fieldLabel}>{label}</label>
-      <input
-        type="hidden"
-        name={name}
-        value={JSON.stringify(items.filter((l) => l.href.trim() && l.label.trim()))}
-      />
-      <div className="space-y-3">
-        {items.map((it, i) => (
-          <div key={i} className="flex gap-2 items-start">
-            <div className="flex-1 grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                value={it.label}
-                onChange={(e) => update(i, 'label', e.target.value)}
-                placeholder="Etiqueta (ej: Nuevo Montaje)"
-                className={fieldInput}
-              />
-              <input
-                type="text"
-                value={it.href}
-                onChange={(e) => update(i, 'href', e.target.value)}
-                placeholder="Ruta (ej: /dashboard/montajes/nuevo)"
-                className={fieldInput}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => setItems(items.filter((_, idx) => idx !== i))}
-              className="mt-0.5 px-3 py-2.5 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
-              aria-label="Quitar"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={() => setItems([...items, { href: '', label: '' }])}
-        className="mt-2 inline-flex items-center gap-2 text-xs text-igb-yellow-dark hover:text-igb-on-surface transition-colors font-bold"
-      >
-        <Plus size={14} /> Agregar acceso
-      </button>
-      {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
-    </div>
-  )
-}

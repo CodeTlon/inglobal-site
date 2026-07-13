@@ -200,6 +200,59 @@
   height: 100%;
 }
 
+/* Mismo criterio que .prose-igb, para el editor TipTap del dashboard
+   (ContentEditor.tsx) — el nodo de YouTube trae 640x480 fijo por defecto
+   y desborda el ancho angosto del form si no se lo contiene. */
+.tiptap-editor [data-youtube-video] {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.tiptap-editor [data-youtube-video] iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tiptap-editor img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ─── SCROLLBAR DEL PANEL (dashboard) ──────────────────────────────────── */
+/* Scrollbar delgada, acorde a los tokens del sitio en vez de la nativa del navegador. */
+.dashboard-scroll-light {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.igb-outline') transparent;
+}
+.dashboard-scroll-light::-webkit-scrollbar {
+  width: 8px;
+}
+.dashboard-scroll-light::-webkit-scrollbar-thumb {
+  background-color: theme('colors.igb-outline');
+  border-radius: 9999px;
+}
+.dashboard-scroll-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-scroll-dark {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.slate.700') transparent;
+}
+.dashboard-scroll-dark::-webkit-scrollbar {
+  width: 8px;
+}
+.dashboard-scroll-dark::-webkit-scrollbar-thumb {
+  background-color: theme('colors.slate.700');
+  border-radius: 9999px;
+}
+.dashboard-scroll-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* ─── REDUCED MOTION ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   /* Scroll reveals: show immediately */

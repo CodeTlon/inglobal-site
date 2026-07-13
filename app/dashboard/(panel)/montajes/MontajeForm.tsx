@@ -34,13 +34,6 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
       )}
 
       <TextField label="Título" name="title" defaultValue={montaje?.title} required />
-      <TextField
-        label="Slug (URL)"
-        name="slug"
-        defaultValue={montaje?.slug}
-        hint={montaje ? 'Modificar el slug cambia la URL pública del montaje.' : 'Identificador único en la URL. Solo letras, números y guiones.'}
-        required
-      />
 
       <TextArea
         label="Extracto (resumen)"
