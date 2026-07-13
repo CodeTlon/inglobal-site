@@ -92,6 +92,15 @@ se construyen o tocan esas features.
 - [ ] Con una cuenta que NO tiene el flag activo, entrar a "Cambiar contraseña" desde el link del topbar del panel → puede cambiarla voluntariamente en cualquier momento, sin estar forzado.
 - [ ] Verificar que no hay loop de redirect: `/dashboard/cambiar-password` es accesible incluso con el flag activo (no redirige a sí misma).
 
+## Ronda 2 post-QA, Fase 8/12 — contenido público
+- [ ] Home: la sección "Qué Hacemos" muestra solo foto + título (más grande que antes), sin tags/etiquetas debajo.
+- [ ] Entrar a `/montajes/[slug]` sin hacer scroll → navbar oscuro matchea el gris casi negro del hero (ya no un negro más puro/distinto).
+- [ ] Entrar a `/clientes/[slug]/[trabajo]` de un trabajo CON foto de portada → navbar SIEMPRE claro (antes se ponía oscuro con la foto) — el nombre del cliente aparece en un badge navy sobre la foto (antes amarillo).
+- [ ] Entrar a `/clientes/[slug]` → ya NO aparece el logo del cliente junto al título (solo nombre + historia + lista de trabajos).
+- [ ] Entrar al detalle de un trabajo de ese cliente → el logo aparece ahí, en una card blanca, antes del copete.
+- [ ] En el dashboard, editar un montaje o un trabajo y cargar una "Imagen de banner" distinta a la de portada → el detalle público usa el banner; el listado sigue mostrando la portada. Sin cargar banner → el detalle cae a la portada (sin romperse).
+- [ ] Borrar un montaje/trabajo que tenga banner cargado → confirmar que el archivo del banner también se borra del bucket `media` (no queda huérfano).
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.
