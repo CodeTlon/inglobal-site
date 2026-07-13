@@ -221,6 +221,38 @@
   height: auto;
 }
 
+/* ─── SCROLLBAR DEL PANEL (dashboard) ──────────────────────────────────── */
+/* Scrollbar delgada, acorde a los tokens del sitio en vez de la nativa del navegador. */
+.dashboard-scroll-light {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.igb-outline') transparent;
+}
+.dashboard-scroll-light::-webkit-scrollbar {
+  width: 8px;
+}
+.dashboard-scroll-light::-webkit-scrollbar-thumb {
+  background-color: theme('colors.igb-outline');
+  border-radius: 9999px;
+}
+.dashboard-scroll-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-scroll-dark {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.slate.700') transparent;
+}
+.dashboard-scroll-dark::-webkit-scrollbar {
+  width: 8px;
+}
+.dashboard-scroll-dark::-webkit-scrollbar-thumb {
+  background-color: theme('colors.slate.700');
+  border-radius: 9999px;
+}
+.dashboard-scroll-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* ─── REDUCED MOTION ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   /* Scroll reveals: show immediately */
