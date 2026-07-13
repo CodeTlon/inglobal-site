@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 export const clienteSchema = z.object({
-  slug:      z.string().min(2, 'El slug debe tener al menos 2 caracteres').regex(/^[a-z0-9-]+$/, 'Solo minúsculas, números y guiones'),
   name:      z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   logo:      z.string().min(1, 'El logo es obligatorio'),
   logo_focal: z.string().nullable().optional(),

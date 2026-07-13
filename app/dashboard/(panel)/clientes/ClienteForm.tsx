@@ -34,13 +34,6 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
       )}
 
       <TextField label="Nombre" name="name" defaultValue={cliente?.name} required />
-      <TextField
-        label="Slug (URL)"
-        name="slug"
-        defaultValue={cliente?.slug}
-        hint={cliente ? 'Modificar el slug cambia la URL pública del cliente.' : 'Identificador único. Solo letras, números y guiones.'}
-        required
-      />
 
       <TextArea
         label="Bio (descripción corta)"

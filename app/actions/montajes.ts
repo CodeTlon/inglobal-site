@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { montajeSchema } from '@/lib/validations/montaje'
 import { removeMediaUrls } from '@/lib/storage'
@@ -10,11 +11,24 @@ import { nextFreeOrder } from '@/lib/ordering'
 export type MontajeState = { success?: boolean; error?: string } | undefined
 const LIST_PATH = '/dashboard/montajes'
 
+type ServerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>
+
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado.')
   return supabase
+}
+
+async function uniqueSlug(supabase: ServerSupabase, base: string, excludeId?: string) {
+  let slug = base
+  let n = 2
+  while (true) {
+    const { data } = await supabase.from('montajes').select('id').eq('slug', slug).limit(1)
+    if (!data || data.length === 0) return slug
+    if (excludeId && data[0].id === excludeId) return slug
+    slug = `${base}-${n++}`
+  }
 }
 
 function parseTags(raw: string | undefined): string[] {
@@ -39,7 +53,6 @@ export async function createMontaje(
     const supabase = await requireUser()
 
     const parsed = montajeSchema.safeParse({
-      slug:          formData.get('slug'),
       title:         formData.get('title'),
       excerpt:       formData.get('excerpt'),
       content:       formData.get('content'),
@@ -56,10 +69,13 @@ export async function createMontaje(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
-    const { tags, ...rest } = parsed.data
+    const { tags, title, ...rest } = parsed.data
+    const slug = await uniqueSlug(supabase, slugify(title, { lower: true, strict: true }))
     rest.display_order = await nextFreeOrder(supabase, 'montajes', 'display_order', rest.display_order)
 
     const { error } = await supabase.from('montajes').insert({
+      title,
+      slug,
       ...rest,
       tags:       parseTags(tags),
       updated_at: new Date().toISOString(),
@@ -85,7 +101,6 @@ export async function updateMontaje(
     if (!id) return { error: 'ID de montaje requerido.' }
 
     const parsed = montajeSchema.safeParse({
-      slug:          formData.get('slug'),
       title:         formData.get('title'),
       excerpt:       formData.get('excerpt'),
       content:       formData.get('content'),
@@ -102,12 +117,18 @@ export async function updateMontaje(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
-    const { tags, ...rest } = parsed.data
+    const { tags, title, ...rest } = parsed.data
+
+    const { data: existing } = await supabase.from('montajes').select('slug, title').eq('id', id).single()
+    let slug = existing?.slug
+    if (existing && existing.title !== title) {
+      slug = await uniqueSlug(supabase, slugify(title, { lower: true, strict: true }), id)
+    }
     rest.display_order = await nextFreeOrder(supabase, 'montajes', 'display_order', rest.display_order, { excludeId: id })
 
     const { error } = await supabase
       .from('montajes')
-      .update({ ...rest, tags: parseTags(tags), updated_at: new Date().toISOString() })
+      .update({ title, slug, ...rest, tags: parseTags(tags), updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return { error: error.message }
