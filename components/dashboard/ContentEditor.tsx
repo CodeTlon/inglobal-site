@@ -74,6 +74,7 @@ export default function ContentEditor({
     content: value || '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onContentError: ({ error }) => console.error('Contenido inválido para el editor:', error),
   })
 
   async function pickImage(e: React.ChangeEvent<HTMLInputElement>) {
