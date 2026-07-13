@@ -126,6 +126,15 @@ se construyen o tocan esas features.
 - [ ] `/agenda-tv` → grilla mensual clásica (semanas x días) en vez del listado agrupado anterior; cada celda muestra la cantidad de eventos del día y hasta 3 nombres/horarios. Probar en una resolución tipo TV (1920x1080 horizontal) — nada debe recortarse ni verse ilegible a distancia.
 - [ ] Días de meses vecinos (ej. últimos días de junio en la grilla de julio) se ven atenuados/grises, no confundibles con los del mes actual.
 
+## Ronda 2 post-QA, Fase 12/12 — Pipeline de video (parcial, deploy sigue en Vercel)
+- [ ] Subir un video al hero o al editor de trabajos → sigue funcionando igual que antes (Vercel no tiene `ffmpeg`, así que el archivo se sube tal cual, sin transcodear) — verificar que NO se rompe el upload.
+- [ ] Intentar subir un video de más de 20MB → rechazado con mensaje claro (antes el límite era 50MB).
+- [ ] `/dashboard/contenido/hero`: cargar un video distinto para "mobile" → en `/` con el viewport angosto (<768px) se reproduce ese video en vez del de desktop.
+- [ ] En el video de fondo del hero, click sobre el preview para fijar el foco → el recorte visual cambia acorde en el home (mismo mecanismo que el foco de imágenes).
+- [ ] Bajar "Opacidad del overlay" a, por ejemplo, 50 y guardar → el degradé sobre el hero se ve más transparente. Dejarlo en 100 (default) → el home se ve exactamente igual que antes de este cambio.
+- [ ] En `ContentEditor` (trabajos), usar el botón "Video propio" para subir un MP4 → se inserta un `<video>` con controles en el contenido, no desborda el ancho del editor ni del artículo público.
+- [ ] Pendiente de probar de verdad una vez que el deploy pase a Coolify: confirmar que `ffmpeg` está en el runtime y que un video de ~20MB efectivamente se re-comprime al subirlo (comparar tamaño en el bucket antes/después).
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.

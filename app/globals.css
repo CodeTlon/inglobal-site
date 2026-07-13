@@ -199,6 +199,11 @@
   width: 100%;
   height: 100%;
 }
+.prose-igb video {
+  @apply rounded-xl mx-auto block;
+  max-width: 100%;
+  height: auto;
+}
 
 /* Mismo criterio que .prose-igb, para el editor TipTap del dashboard
    (ContentEditor.tsx) — el nodo de YouTube trae 640x480 fijo por defecto
@@ -219,6 +224,11 @@
 .tiptap-editor img {
   max-width: 100%;
   height: auto;
+}
+.tiptap-editor video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
 }
 
 /* ─── SCROLLBAR DEL PANEL (dashboard) ──────────────────────────────────── */
