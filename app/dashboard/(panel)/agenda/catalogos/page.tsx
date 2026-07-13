@@ -64,8 +64,8 @@ export default async function CatalogosAgendaPage() {
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre' },
-            { name: 'contacto', label: 'Persona de contacto' },
-            { name: 'telefono', label: 'Teléfono' },
+            { name: 'contacto', label: 'Persona de contacto', required: true },
+            { name: 'telefono', label: 'Teléfono', required: true },
           ]}
           createAction={createEmpresaAgenda}
           toggleAction={toggleEmpresaAgenda}

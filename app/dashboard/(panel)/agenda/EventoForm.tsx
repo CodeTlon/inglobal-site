@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useFormState } from 'react-dom'
 import { TextField, TextArea, SelectField, CheckboxGroup } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
@@ -19,8 +20,9 @@ function toDateInput(d: Date): string {
 }
 
 const today = new Date()
-const FECHA_MIN = toDateInput(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7))
+const FECHA_MIN = toDateInput(today)
 const FECHA_MAX = toDateInput(new Date(today.getFullYear(), today.getMonth() + 6, today.getDate()))
+const MIN_DURACION_MIN = 15
 
 interface Props {
   evento?: EventoAgenda
@@ -32,15 +34,32 @@ interface Props {
 
 export default function EventoForm({ evento, gruas, empresas, operarios, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
+  const [clientError, setClientError] = useState<string | null>(null)
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget)
+    const horaInicio = formData.get('hora_inicio') as string
+    const horaFin = formData.get('hora_fin') as string
+    if (horaInicio && horaFin) {
+      const [hi, mi] = horaInicio.split(':').map(Number)
+      const [hf, mf] = horaFin.split(':').map(Number)
+      if (hf * 60 + mf < hi * 60 + mi + MIN_DURACION_MIN) {
+        e.preventDefault()
+        setClientError(`La hora de fin debe ser al menos ${MIN_DURACION_MIN} minutos después de la de inicio.`)
+        return
+      }
+    }
+    setClientError(null)
+  }
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
       {evento && <input type="hidden" name="id" value={evento.id} />}
 
-      {state?.error && (
+      {(clientError || state?.error) && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-red-700 text-sm">{state.error}</p>
+          <p className="text-red-700 text-sm">{clientError ?? state?.error}</p>
         </div>
       )}
 
