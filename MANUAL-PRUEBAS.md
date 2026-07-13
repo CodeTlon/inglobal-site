@@ -89,7 +89,7 @@ se construyen o tocan esas features.
 - [ ] Crear un usuario nuevo desde `/dashboard/usuarios` → loguearse con esa cuenta → debe redirigir forzoso a `/dashboard/cambiar-password`, sin poder navegar a ninguna otra ruta de `/dashboard/**` hasta cambiarla.
 - [ ] Cambiar la contraseña en esa pantalla → redirige a `/dashboard` y a partir de ahí navega libre (sin volver a pedir el cambio).
 - [ ] Resetear la contraseña de una cuenta existente desde `/dashboard/usuarios` → esa cuenta también queda forzada a cambiarla en su próximo login.
-- [ ] Con una cuenta que NO tiene el flag activo, entrar a "Cambiar contraseña" desde el link del topbar del panel → puede cambiarla voluntariamente en cualquier momento, sin estar forzado.
+- [ ] Con una cuenta que NO tiene el flag activo, entrar a "Cambiar mi contraseña" desde `/dashboard/usuarios` → puede cambiarla voluntariamente en cualquier momento, sin estar forzado.
 - [ ] Verificar que no hay loop de redirect: `/dashboard/cambiar-password` es accesible incluso con el flag activo (no redirige a sí misma).
 
 ## Ronda 2 post-QA, Fase 8/12 — contenido público
@@ -100,6 +100,17 @@ se construyen o tocan esas features.
 - [ ] Entrar al detalle de un trabajo de ese cliente → el logo aparece ahí, en una card blanca, antes del copete.
 - [ ] En el dashboard, editar un montaje o un trabajo y cargar una "Imagen de banner" distinta a la de portada → el detalle público usa el banner; el listado sigue mostrando la portada. Sin cargar banner → el detalle cae a la portada (sin romperse).
 - [ ] Borrar un montaje/trabajo que tenga banner cargado → confirmar que el archivo del banner también se borra del bucket `media` (no queda huérfano).
+
+## Ronda 2 post-QA, Fase 9/12 — UX del dashboard
+- [ ] Editar un trabajo con contenido largo/antiguo en `ContentEditor` → si en algún caso el editor visual no carga, debe verse un aviso + un textarea plano editable (no un form roto ni una pantalla de error genérica).
+- [ ] En cualquier `ImageUpload`/`VideoUpload`, elegir un archivo y, antes de que termine de subir, elegir otro rápidamente → el preview final debe ser el del último archivo elegido, sin quedar roto.
+- [ ] Abrir cualquier formulario del panel (montajes, clientes, trabajos, etc.) en desktop ancho → ya no debería quedar tanto espacio vacío a los costados.
+- [ ] Insertar un video de YouTube en `ContentEditor` (trabajos) → no debe desbordar el ancho del editor ni en desktop ni en mobile.
+- [ ] Crear un montaje o un cliente nuevo → no hay campo de slug, se genera solo a partir del título/nombre; si el título cambia después, el slug solo se regenera si cambió el título.
+- [ ] Entrar a `/dashboard/contenido/accesos-rapidos` → ahora es una lista de checkboxes predefinidos, no texto libre. Tildar/destildar algunos y guardar → se reflejan como cards en el home del panel.
+- [ ] El topbar del panel ya NO tiene el link "Cambiar contraseña" → está en `/dashboard/usuarios`.
+- [ ] Hacer scroll en el sidebar o en el contenido del panel → la scrollbar se ve delgada y con los colores del sitio, no la nativa del navegador.
+- [ ] Guardar o borrar un montaje/cliente/servicio/trabajo/foto de galería/evento de agenda → tras el redirect a la lista, aparece un toast "Guardado correctamente" abajo a la derecha que desaparece solo (y la URL queda limpia, sin `?saved=1` colgando).
 
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
