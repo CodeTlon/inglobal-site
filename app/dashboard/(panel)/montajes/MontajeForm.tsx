@@ -63,9 +63,19 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         name="cover_image"
         defaultValue={montaje?.cover_image}
         folder="montajes"
-        hint="Foto principal del montaje. Aspect ratio 16:10 recomendado."
+        hint="Foto de la miniatura en el listado de montajes. Aspect ratio 16:10 recomendado."
         focalName="cover_image_focal"
         focalDefaultValue={montaje?.cover_image_focal}
+      />
+
+      <ImageUpload
+        label="Imagen de banner (detalle)"
+        name="banner_image"
+        defaultValue={montaje?.banner_image ?? undefined}
+        folder="montajes"
+        hint="Foto grande que va detrás del título en la página de detalle. Si no se carga, se usa la imagen de portada."
+        focalName="banner_image_focal"
+        focalDefaultValue={montaje?.banner_image_focal}
       />
 
       <StringList

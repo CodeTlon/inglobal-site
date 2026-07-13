@@ -47,7 +47,7 @@ export default function Navbar() {
         scrolled || open
           ? 'bg-white/90 backdrop-blur-md shadow-sm'
           : darkMode
-            ? 'bg-zinc-950/90 backdrop-blur-md'
+            ? 'bg-zinc-900/90 backdrop-blur-md'
             : 'bg-white/80 backdrop-blur-md'
       }`}
     >

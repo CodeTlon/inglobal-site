@@ -222,22 +222,9 @@ export default async function HomePage() {
                     </div>
                   )}
 
-                  <h3 className="text-lg font-headline font-bold mb-4 text-igb-on-surface">
+                  <h3 className="text-2xl font-headline font-bold text-igb-on-surface">
                     {servicio.title}
                   </h3>
-
-                  {Array.isArray(servicio.specs) && servicio.specs.length > 0 && (
-                    <div className="mt-auto pt-4 border-t border-slate-200/10 flex flex-wrap gap-2">
-                      {servicio.specs.map((spec) => (
-                        <span
-                          key={spec}
-                          className="text-xs font-bold text-igb-yellow-dark tracking-wide uppercase"
-                        >
-                          {spec}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </Link>
               )
             })}

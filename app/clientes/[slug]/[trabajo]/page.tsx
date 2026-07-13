@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: trabajo.title,
         description: trabajo.excerpt ?? undefined,
-        images: trabajo.cover_image ? [{ url: trabajo.cover_image }] : [],
+        images: (trabajo.banner_image ?? trabajo.cover_image) ? [{ url: (trabajo.banner_image ?? trabajo.cover_image)! }] : [],
       },
     }
   } catch {
@@ -54,6 +54,8 @@ export default async function TrabajoDetailPage({ params }: Props) {
   const trabajo = await getTrabajo(cliente.id, trabajoSlug)
   if (!trabajo) notFound()
 
+  const heroImage = trabajo.banner_image ?? trabajo.cover_image
+  const heroImageFocal = trabajo.banner_image ? trabajo.banner_image_focal : trabajo.cover_image_focal
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
   const fechaFormateada = trabajo.fecha
     ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', {
@@ -66,22 +68,22 @@ export default async function TrabajoDetailPage({ params }: Props) {
   return (
     <main className="bg-white">
       {/* Hero */}
-      {trabajo.cover_image ? (
-        <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }} data-navbar="dark">
+      {heroImage ? (
+        <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }}>
           <Image
-            src={trabajo.cover_image}
+            src={heroImage}
             alt={trabajo.title}
             fill
             priority
             sizes="100vw"
             className="object-cover hero-bg-zoom"
-            style={{ objectPosition: trabajo.cover_image_focal ?? undefined }}
+            style={{ objectPosition: heroImageFocal ?? undefined }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/85" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">
             <div className="container-igb">
               <span
-                className="text-igb-yellow text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+                className="inline-block text-xs font-bold tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-md bg-igb-navy/90 text-white"
                 data-animate="fade-up"
               >
                 {cliente.name}
@@ -105,7 +107,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
         <section className="pt-40 pb-12 bg-zinc-50 border-b border-zinc-100">
           <div className="container-igb">
             <span
-              className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+              className="inline-block text-xs font-bold tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-md bg-igb-navy/10 text-igb-navy"
               data-animate="fade-up"
             >
               {cliente.name}
@@ -129,6 +131,23 @@ export default async function TrabajoDetailPage({ params }: Props) {
       {/* Content */}
       <section className="py-16 md:py-24">
         <div className="container-igb max-w-3xl">
+          {cliente.logo && (
+            <div
+              className="w-40 h-24 flex items-center justify-center bg-white rounded-xl p-4 border border-slate-100 shadow-sm mb-10"
+              data-animate="scale"
+            >
+              <Image
+                src={cliente.logo}
+                alt={`Logo ${cliente.name}`}
+                width={160}
+                height={80}
+                sizes="160px"
+                className="object-contain max-h-16 w-auto"
+                style={{ objectPosition: cliente.logo_focal ?? undefined }}
+              />
+            </div>
+          )}
+
           {trabajo.excerpt && (
             <p className="text-zinc-600 text-xl leading-relaxed mb-10 border-l-4 border-igb-yellow pl-6">
               {trabajo.excerpt}

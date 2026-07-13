@@ -63,8 +63,19 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         name="cover_image"
         defaultValue={trabajo?.cover_image ?? undefined}
         folder="trabajos"
+        hint="Foto de la miniatura en el listado de trabajos del cliente."
         focalName="cover_image_focal"
         focalDefaultValue={trabajo?.cover_image_focal}
+      />
+
+      <ImageUpload
+        label="Imagen de banner (detalle)"
+        name="banner_image"
+        defaultValue={trabajo?.banner_image ?? undefined}
+        folder="trabajos"
+        hint="Foto grande que va detrás del título en la página de detalle. Si no se carga, se usa la imagen de portada."
+        focalName="banner_image_focal"
+        focalDefaultValue={trabajo?.banner_image_focal}
       />
 
       <TextField

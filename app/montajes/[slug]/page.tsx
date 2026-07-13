@@ -38,7 +38,9 @@ export default async function MontajeDetailPage({ params }: Props) {
 
   if (!montaje) notFound()
 
-  const isRemoteImg = montaje.cover_image?.startsWith('http')
+  const heroImage = montaje.banner_image ?? montaje.cover_image
+  const heroImageFocal = montaje.banner_image ? montaje.banner_image_focal : montaje.cover_image_focal
+  const isRemoteImg = heroImage?.startsWith('http')
   const paragraphs = (montaje.content || montaje.excerpt || '')
     .split('\n\n')
     .filter(Boolean)
@@ -77,28 +79,28 @@ export default async function MontajeDetailPage({ params }: Props) {
           </p>
         </div>
 
-        {/* Cover image */}
-        {montaje.cover_image && (
+        {/* Banner image (o portada si no hay banner propio) */}
+        {heroImage && (
           <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
             {isRemoteImg ? (
               <Image
-                src={montaje.cover_image}
+                src={heroImage}
                 alt={montaje.title}
                 fill
                 priority
                 sizes="100vw"
                 className="object-cover hero-bg-zoom"
-                style={{ objectPosition: montaje.cover_image_focal ?? undefined }}
+                style={{ objectPosition: heroImageFocal ?? undefined }}
               />
             ) : (
               <Picture
-                src={montaje.cover_image}
+                src={heroImage}
                 alt={montaje.title}
                 fill
                 priority
                 sizes="100vw"
                 className="object-cover hero-bg-zoom"
-                style={{ objectPosition: montaje.cover_image_focal ?? undefined }}
+                style={{ objectPosition: heroImageFocal ?? undefined }}
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

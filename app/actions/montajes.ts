@@ -45,6 +45,8 @@ export async function createMontaje(
       content:       formData.get('content'),
       cover_image:   formData.get('cover_image'),
       cover_image_focal: formData.get('cover_image_focal'),
+      banner_image:  formData.get('banner_image'),
+      banner_image_focal: formData.get('banner_image_focal'),
       tags:          formData.get('tags'),
       display_order: formData.get('display_order'),
       published:     formData.get('published'),
@@ -89,6 +91,8 @@ export async function updateMontaje(
       content:       formData.get('content'),
       cover_image:   formData.get('cover_image'),
       cover_image_focal: formData.get('cover_image_focal'),
+      banner_image:  formData.get('banner_image'),
+      banner_image_focal: formData.get('banner_image_focal'),
       tags:          formData.get('tags'),
       display_order: formData.get('display_order'),
       published:     formData.get('published'),
@@ -125,13 +129,13 @@ export async function deleteMontaje(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de montaje requerido.' }
 
-    const { data: existing } = await supabase.from('montajes').select('cover_image').eq('id', id).single()
+    const { data: existing } = await supabase.from('montajes').select('cover_image, banner_image').eq('id', id).single()
 
     const { error } = await supabase.from('montajes').delete().eq('id', id)
 
     if (error) return { error: error.message }
 
-    if (existing) await removeMediaUrls(supabase, [existing.cover_image])
+    if (existing) await removeMediaUrls(supabase, [existing.cover_image, existing.banner_image])
 
     revalidateMontajes()
   } catch (e) {

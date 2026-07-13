@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCliente, getClientes, getTrabajos } from '@/lib/content'
@@ -52,31 +51,13 @@ export default async function ClienteDetailPage({ params }: Props) {
           >
             Nuestros Clientes
           </span>
-          <div className="flex flex-col md:flex-row md:items-center gap-8">
-            {cliente.logo && (
-              <div
-                className="w-40 h-24 flex items-center justify-center flex-shrink-0 bg-white rounded-xl p-4 border border-slate-100 shadow-sm"
-                data-animate="scale"
-              >
-                <Image
-                  src={cliente.logo}
-                  alt={`Logo ${cliente.name}`}
-                  width={160}
-                  height={80}
-                  sizes="160px"
-                  className="object-contain max-h-16 w-auto"
-                  style={{ objectPosition: cliente.logo_focal ?? undefined }}
-                />
-              </div>
-            )}
-            <h1
-              className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight"
-              data-animate="blur-up"
-              data-delay="100"
-            >
-              {cliente.name}
-            </h1>
-          </div>
+          <h1
+            className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight"
+            data-animate="blur-up"
+            data-delay="100"
+          >
+            {cliente.name}
+          </h1>
           {cliente.bio && (
             <p
               className="text-xl text-zinc-500 max-w-2xl leading-relaxed mt-6"
