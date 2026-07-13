@@ -129,6 +129,23 @@ export default async function TrabajoDetailPage({ params }: Props) {
       {/* Content */}
       <section className="py-16 md:py-24">
         <div className="container-igb max-w-3xl">
+          {cliente.logo && (
+            <div
+              className="w-40 h-24 flex items-center justify-center bg-white rounded-xl p-4 border border-slate-100 shadow-sm mb-10"
+              data-animate="scale"
+            >
+              <Image
+                src={cliente.logo}
+                alt={`Logo ${cliente.name}`}
+                width={160}
+                height={80}
+                sizes="160px"
+                className="object-contain max-h-16 w-auto"
+                style={{ objectPosition: cliente.logo_focal ?? undefined }}
+              />
+            </div>
+          )}
+
           {trabajo.excerpt && (
             <p className="text-zinc-600 text-xl leading-relaxed mb-10 border-l-4 border-igb-yellow pl-6">
               {trabajo.excerpt}
