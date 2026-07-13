@@ -26,6 +26,8 @@ export interface Montaje {
   content:       string | null
   cover_image:   string | null
   cover_image_focal?: string | null
+  banner_image?: string | null
+  banner_image_focal?: string | null
   tags:          string[]
   display_order: number
   published:     boolean
@@ -89,6 +91,8 @@ export interface Trabajo {
   fecha:         string | null
   attachment_url: string | null
   cover_image_focal?: string | null
+  banner_image?: string | null
+  banner_image_focal?: string | null
   display_order: number
   published:     boolean
   created_at:    string

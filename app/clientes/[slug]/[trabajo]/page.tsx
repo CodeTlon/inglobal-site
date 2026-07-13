@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: trabajo.title,
         description: trabajo.excerpt ?? undefined,
-        images: trabajo.cover_image ? [{ url: trabajo.cover_image }] : [],
+        images: (trabajo.banner_image ?? trabajo.cover_image) ? [{ url: (trabajo.banner_image ?? trabajo.cover_image)! }] : [],
       },
     }
   } catch {
@@ -54,6 +54,8 @@ export default async function TrabajoDetailPage({ params }: Props) {
   const trabajo = await getTrabajo(cliente.id, trabajoSlug)
   if (!trabajo) notFound()
 
+  const heroImage = trabajo.banner_image ?? trabajo.cover_image
+  const heroImageFocal = trabajo.banner_image ? trabajo.banner_image_focal : trabajo.cover_image_focal
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
   const fechaFormateada = trabajo.fecha
     ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', {
@@ -66,18 +68,18 @@ export default async function TrabajoDetailPage({ params }: Props) {
   return (
     <main className="bg-white">
       {/* Hero */}
-      {trabajo.cover_image ? (
+      {heroImage ? (
         <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }}>
           <Image
-            src={trabajo.cover_image}
+            src={heroImage}
             alt={trabajo.title}
             fill
             priority
             sizes="100vw"
             className="object-cover hero-bg-zoom"
-            style={{ objectPosition: trabajo.cover_image_focal ?? undefined }}
+            style={{ objectPosition: heroImageFocal ?? undefined }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/85" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">
             <div className="container-igb">
               <span
