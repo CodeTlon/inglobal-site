@@ -52,8 +52,7 @@ se construyen o tocan esas features.
 - [ ] Intentar crear un operario sin teléfono → rechazo con mensaje claro.
 - [ ] Editar una grúa existente desde Catálogos (nombre/tipo/patente/capacidad) → "Guardar" persiste los cambios, "Cancelar" descarta y vuelve a la fila normal.
 - [ ] Crear una grúa con tipo "Hidrogrúa"/"Camión"/"Otro" → se guarda y se lista con ese tipo.
-- [ ] Cargar un evento con fecha fuera del rango permitido (más de ~7 días atrás o más de 6 meses adelante) → el date picker nativo lo bloquea (min/max del input).
-- [ ] Entrar a `/dashboard/agenda/calendario` logueado → ve el mismo listado agrupado (Hoy/Mañana/Semana/Próximamente) que `/agenda-tv`, sin ningún link de editar/borrar.
+- [ ] Cargar un evento con fecha fuera del rango permitido (anterior a hoy o más de 6 meses adelante) → el date picker nativo lo bloquea (min/max del input).
 - [ ] `/agenda-tv` (kiosco) sigue funcionando igual que antes (fullscreen, auto-refresh, sin sidebar del dashboard).
 
 ## UX de formularios del dashboard (redirect + confirm dialog + preview)
@@ -111,6 +110,21 @@ se construyen o tocan esas features.
 - [ ] El topbar del panel ya NO tiene el link "Cambiar contraseña" → está en `/dashboard/usuarios`.
 - [ ] Hacer scroll en el sidebar o en el contenido del panel → la scrollbar se ve delgada y con los colores del sitio, no la nativa del navegador.
 - [ ] Guardar o borrar un montaje/cliente/servicio/trabajo/foto de galería/evento de agenda → tras el redirect a la lista, aparece un toast "Guardado correctamente" abajo a la derecha que desaparece solo (y la URL queda limpia, sin `?saved=1` colgando).
+
+## Ronda 2 post-QA, Fase 10/12 — Agenda: validaciones
+- [ ] Crear una empresa sin "Contacto" o sin "Teléfono" → rechazo con mensaje claro (antes eran opcionales).
+- [ ] Intentar cargar un evento con fecha de hoy hacia atrás → bloqueado tanto por el date picker como si se fuerza el request (validación server-side).
+- [ ] Cargar un evento con hora de fin menor a (hora de inicio + 15 min) → error claro antes de enviar el form (client-side) y también si se bypassea el form.
+- [ ] Cargar un trabajo con fecha futura → rechazado; el date picker tampoco deja elegir una fecha posterior a hoy.
+- [ ] En el sidebar del panel, parado en `/dashboard/agenda/calendario` o `/dashboard/agenda/catalogos` → el link "Agenda de Grúas" ya NO se marca activo (solo se resalta en `/dashboard/agenda` exacto).
+
+## Ronda 2 post-QA, Fase 11/12 — Rediseño del calendario
+- [ ] `/dashboard/agenda/calendario` → grilla semanal (días en columnas, horarios en filas 7-19hs), sin sidebar ni topbar del panel visibles (pantalla completa oscura con logo arriba).
+- [ ] En mobile (375px), esa misma vista → la grilla scrollea horizontal, la columna de horarios queda fija a la izquierda mientras se scrollea.
+- [ ] Navegar con "Semana anterior"/"Semana siguiente" → cambia el rango de fechas mostrado (verificar vía la URL `?week=`).
+- [ ] Un evento con estado "Programado" cuya hora de fin ya pasó (ej. cargado ayer) → se ve pintado como "Finalizado" en la grilla, sin que el campo real en la DB haya cambiado (editarlo de nuevo debe seguir mostrando "Programado" en el select del form).
+- [ ] `/agenda-tv` → grilla mensual clásica (semanas x días) en vez del listado agrupado anterior; cada celda muestra la cantidad de eventos del día y hasta 3 nombres/horarios. Probar en una resolución tipo TV (1920x1080 horizontal) — nada debe recortarse ni verse ilegible a distancia.
+- [ ] Días de meses vecinos (ej. últimos días de junio en la grilla de julio) se ven atenuados/grises, no confundibles con los del mes actual.
 
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
