@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/actions/auth'
+import SavedToast from '@/components/dashboard/SavedToast'
 import {
   LayoutDashboard,
   Settings,
@@ -107,6 +108,9 @@ export default function DashboardPanelLayout({
   return (
     /* Cubre la Navbar/Footer del layout raíz — z-[100] > z-50 del Navbar */
     <div className="fixed inset-0 z-[100] flex bg-zinc-100 overflow-hidden">
+      <Suspense fallback={null}>
+        <SavedToast />
+      </Suspense>
 
       {/* Backdrop (mobile, solo con drawer abierto) */}
       {navOpen && (

@@ -61,7 +61,7 @@ export async function createGaleriaItem(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(LIST_PATH)
+  redirect(`${LIST_PATH}?saved=1`)
 }
 
 export async function updateGaleriaItem(
@@ -92,7 +92,7 @@ export async function updateGaleriaItem(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(LIST_PATH)
+  redirect(`${LIST_PATH}?saved=1`)
 }
 
 export async function deleteGaleriaItem(
@@ -117,5 +117,5 @@ export async function deleteGaleriaItem(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(LIST_PATH)
+  redirect(`${LIST_PATH}?saved=1`)
 }
