@@ -201,12 +201,6 @@ export default function DashboardPanelLayout({
               Grúas InGlobal S.R.L.
             </p>
           </div>
-          <Link
-            href="/dashboard/cambiar-password"
-            className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:inline"
-          >
-            Cambiar contraseña
-          </Link>
           <a
             href="/"
             target="_blank"

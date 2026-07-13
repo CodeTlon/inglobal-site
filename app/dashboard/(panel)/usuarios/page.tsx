@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { KeyRound } from 'lucide-react'
 import PageHeader from '@/components/dashboard/PageHeader'
 import { createSupabaseAdminClient } from '@/lib/supabase-server'
 import CreateUserForm from './CreateUserForm'
@@ -18,6 +20,19 @@ export default async function UsuariosPage() {
       />
 
       <div className="space-y-6">
+        <Link
+          href="/dashboard/cambiar-password"
+          className="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-igb border border-zinc-100 hover:border-igb-yellow/40 transition-colors"
+        >
+          <div className="w-9 h-9 rounded-lg bg-igb-yellow/10 flex items-center justify-center flex-shrink-0">
+            <KeyRound size={16} className="text-igb-yellow-dark" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-zinc-900">Cambiar mi contraseña</p>
+            <p className="text-xs text-zinc-400">Cambiá la clave de tu propia cuenta en cualquier momento.</p>
+          </div>
+        </Link>
+
         <CreateUserForm />
 
         <div className="bg-white rounded-2xl p-6 shadow-igb border border-zinc-100">
