@@ -92,11 +92,12 @@ function mapEvento(row: any): EventoAgenda {
   }
 }
 
-/** Eventos ordenados por fecha/hora ascendente. `desde` filtra >= una fecha (YYYY-MM-DD). */
-export async function getEventosAgenda({ desde }: { desde?: string } = {}): Promise<EventoAgenda[]> {
+/** Eventos ordenados por fecha/hora ascendente. `desde`/`hasta` filtran por fecha (YYYY-MM-DD), inclusive. */
+export async function getEventosAgenda({ desde, hasta }: { desde?: string; hasta?: string } = {}): Promise<EventoAgenda[]> {
   const supabase = await createSupabaseServerClient()
   let query = supabase.from('eventos_agenda').select(EVENTO_SELECT)
   if (desde) query = query.gte('fecha', desde)
+  if (hasta) query = query.lte('fecha', hasta)
   const { data, error } = await query
     .order('fecha', { ascending: true })
     .order('hora_inicio', { ascending: true })

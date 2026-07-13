@@ -10,12 +10,14 @@ import TipTapImage from '@tiptap/extension-image'
 import TipTapLink from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import Youtube from '@tiptap/extension-youtube'
+import { Video } from './tiptap-video-extension'
 import { uploadMediaAction } from '@/app/actions/settings'
 import { parseYoutubeId } from '@/lib/youtube'
 import {
   Upload,
   Loader2,
   Video as YoutubeIcon,
+  Film,
   X,
   Bold,
   Italic,
@@ -59,6 +61,7 @@ export default function ContentEditor({
   onChange: (v: string) => void
 }) {
   const [busy, setBusy] = useState(false)
+  const [videoBusy, setVideoBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [showYt, setShowYt] = useState(false)
   const [ytInput, setYtInput] = useState('')
@@ -70,6 +73,7 @@ export default function ContentEditor({
       TipTapLink.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: 'Escribí el contenido del trabajo acá…' }),
       Youtube.configure({ controls: true, nocookie: false }),
+      Video,
     ],
     content: value || '',
     immediatelyRender: false,
@@ -93,6 +97,27 @@ export default function ContentEditor({
     }
     if (res.url) {
       editor?.chain().focus().setImage({ src: res.url, alt: '' }).run()
+      editor?.commands.createParagraphNear()
+    }
+    e.target.value = ''
+  }
+
+  async function pickVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setVideoBusy(true)
+    setErr(null)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('folder', 'trabajos/content')
+    const res = await uploadMediaAction(fd)
+    setVideoBusy(false)
+    if (res.error) {
+      setErr(res.error)
+      return
+    }
+    if (res.url) {
+      editor?.chain().focus().setVideo({ src: res.url }).run()
       editor?.commands.createParagraphNear()
     }
     e.target.value = ''
@@ -173,8 +198,17 @@ export default function ContentEditor({
           title="Insertar video de YouTube"
         >
           <YoutubeIcon size={13} />
-          Video
+          YouTube
         </button>
+
+        <label
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold cursor-pointer transition-colors bg-igb-yellow/10 text-igb-yellow-dark"
+          title="Subir e insertar video propio (MP4, hasta 20 MB)"
+        >
+          {videoBusy ? <Loader2 size={13} className="animate-spin" /> : <Film size={13} />}
+          {videoBusy ? 'Subiendo…' : 'Video propio'}
+          <input type="file" accept="video/mp4" onChange={pickVideo} disabled={videoBusy} className="hidden" />
+        </label>
 
         {err && <span className="text-xs text-red-500 ml-2">{err}</span>}
       </div>

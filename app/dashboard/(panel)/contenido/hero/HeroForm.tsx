@@ -2,7 +2,7 @@
 
 import { useFormState } from 'react-dom'
 import { updateSiteSettings } from '@/app/actions/settings'
-import { TextField, TextArea, ImageUpload, VideoUpload } from '@/components/dashboard/Field'
+import { TextField, TextArea, NumberField, ImageUpload, VideoUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -58,11 +58,21 @@ export default function HeroForm({ settings }: { settings: Record<string, unknow
       </div>
 
       <VideoUpload
-        label="Video de fondo (MP4)"
+        label="Video de fondo — desktop (MP4)"
         name="video_url"
         defaultValue={settings.video_url as string | null}
         folder="hero"
+        focalName="video_focal"
+        focalDefaultValue={settings.video_focal as string | null}
         hint="Opcional. Si hay video, reemplaza la imagen estática. Se respeta prefers-reduced-motion."
+      />
+
+      <VideoUpload
+        label="Video de fondo — mobile (MP4, opcional)"
+        name="video_url_mobile"
+        defaultValue={settings.video_url_mobile as string | null}
+        folder="hero"
+        hint="Opcional. Si no se carga, en mobile se usa el mismo video de desktop."
       />
 
       <ImageUpload
@@ -71,6 +81,15 @@ export default function HeroForm({ settings }: { settings: Record<string, unknow
         defaultValue={settings.fallback_image as string | null}
         folder="hero"
         hint="Se muestra cuando no hay video o el usuario prefiere movimiento reducido. También usada como poster del video."
+      />
+
+      <NumberField
+        label="Opacidad del overlay (%)"
+        name="overlay_opacity"
+        defaultValue={(settings.overlay_opacity as number) ?? 100}
+        min={0}
+        max={100}
+        hint="100 = look actual. Bajarlo aclara el degradé sobre el video/imagen del hero."
       />
 
       <div className="flex justify-end pt-2">

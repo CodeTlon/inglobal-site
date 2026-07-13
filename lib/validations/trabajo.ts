@@ -14,6 +14,9 @@ export const trabajoSchema = z.object({
   banner_image_focal: z.string().nullable().optional(),
   display_order: z.coerce.number().int().min(0).default(0),
   published:     z.coerce.boolean().default(true),
-})
+}).refine(
+  (data) => !data.fecha || data.fecha <= new Date().toISOString().slice(0, 10),
+  { message: 'La fecha no puede ser futura', path: ['fecha'] }
+)
 
 export type TrabajoFormData = z.infer<typeof trabajoSchema>

@@ -332,19 +332,32 @@ export function VideoUpload({
   defaultValue,
   folder = 'videos',
   hint,
+  focalName,
+  focalDefaultValue,
 }: {
   label: string
   name: string
   defaultValue?: string | null
   folder?: string
   hint?: string
+  /** Si se pasa, agrega un picker de foco: click sobre el preview elige qué parte del video se prioriza al recortar. */
+  focalName?: string
+  focalDefaultValue?: string | null
 }) {
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [previewBroken, setPreviewBroken] = useState(false)
+  const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
   const objectUrlRef = useRef<string | null>(null)
   const genRef = useRef(0)
+
+  function onPickFocal(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100)
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100)
+    setFocal(`${x}% ${y}%`)
+  }
 
   useEffect(() => {
     return () => {
@@ -385,19 +398,30 @@ export function VideoUpload({
     <div>
       <label className={fieldLabel}>{label}</label>
       <input type="hidden" name={name} value={url} />
+      {focalName && <input type="hidden" name={focalName} value={focal} />}
 
       <div className="flex flex-col gap-3">
         {/* Video preview or placeholder */}
         {url && !previewBroken ? (
-          <div className="rounded-lg overflow-hidden border border-zinc-200 bg-zinc-900 aspect-video">
+          <div
+            className={`relative rounded-lg overflow-hidden border border-zinc-200 bg-zinc-900 aspect-video ${focalName ? 'cursor-crosshair' : ''}`}
+            onClick={focalName ? onPickFocal : undefined}
+          >
             <video
               src={url}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover pointer-events-none"
+              style={focalName ? { objectPosition: focal } : undefined}
               muted
               playsInline
               preload="metadata"
               onError={() => setPreviewBroken(true)}
             />
+            {focalName && (
+              <span
+                className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                style={{ left: focal.split(' ')[0], top: focal.split(' ')[1] }}
+              />
+            )}
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 h-32 flex flex-col items-center justify-center gap-2">
@@ -445,6 +469,9 @@ export function VideoUpload({
             )}
           </div>
           {err && <p className="text-xs text-red-500">{err}</p>}
+          {focalName && url && (
+            <p className="text-zinc-400 text-xs">Clic sobre el preview para elegir qué parte del video se prioriza al recortar.</p>
+          )}
         </div>
       </div>
 

@@ -16,6 +16,8 @@ import { AlertCircle } from 'lucide-react'
 import type { Trabajo } from '@/lib/content'
 import type { TrabajoState } from '@/app/actions/trabajos'
 
+const HOY = new Date().toISOString().slice(0, 10)
+
 interface Props {
   clienteId: string
   trabajo?: Trabajo
@@ -47,6 +49,7 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         name="fecha"
         type="date"
         defaultValue={trabajo?.fecha ?? undefined}
+        max={HOY}
         hint="Opcional. Se muestra en el detalle público del trabajo."
       />
 

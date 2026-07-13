@@ -56,7 +56,7 @@ const navSections = [
   {
     label: 'Operaciones',
     links: [
-      { href: '/dashboard/agenda', label: 'Agenda de Grúas', icon: CalendarClock },
+      { href: '/dashboard/agenda', label: 'Agenda de Grúas', icon: CalendarClock, exact: true },
       { href: '/dashboard/agenda/calendario', label: 'Calendario (solo lectura)', icon: CalendarDays },
     ],
   },

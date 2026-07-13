@@ -9,6 +9,8 @@ interface HeroVideoProps {
   videoUrl?: string | null
   /** URL del video MP4 para <md (mobile). Si no hay, usa videoUrl también en mobile. */
   mobileVideoUrl?: string | null
+  /** Focal point del video, `"X% Y%"` — se aplica como object-position. `null`/undefined = centro. */
+  videoFocal?: string | null
   /**
    * Imagen de fallback. Acepta:
    * - Basename de Picture: "igb-3"
@@ -32,6 +34,7 @@ interface HeroVideoProps {
 export default function HeroVideo({
   videoUrl,
   mobileVideoUrl,
+  videoFocal,
   fallbackImageSrc,
   fallbackImageAlt,
   className = 'object-cover object-[70%_center] md:object-center',
@@ -63,6 +66,7 @@ export default function HeroVideo({
           playsInline
           poster={isRemote ? fallbackImageSrc : undefined}
           className={`absolute inset-0 w-full h-full ${className}`}
+          style={videoFocal ? { objectPosition: videoFocal } : undefined}
         >
           <source src={activeVideoUrl} type="video/mp4" />
         </video>
