@@ -16,7 +16,7 @@ export default async function NuevoTrabajoPage({ params }: Props) {
   if (!cliente) notFound()
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <div className="mb-6">
         <Link
           href={`/dashboard/clientes/${cliente.slug}/trabajos`}

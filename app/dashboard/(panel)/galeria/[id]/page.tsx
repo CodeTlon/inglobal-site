@@ -23,7 +23,7 @@ export default async function GaleriaEditPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <Link
           href="/dashboard/galeria"

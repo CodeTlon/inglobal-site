@@ -25,7 +25,7 @@ export default async function TrabajoEditPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <Link
           href={`/dashboard/clientes/${cliente.slug}/trabajos`}

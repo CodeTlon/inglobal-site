@@ -207,7 +207,7 @@ export default function ContentEditor({
       {/* Editor area */}
       <EditorContent
         editor={editor}
-        className="border border-zinc-200 rounded-b-md px-3 py-2.5 min-h-[240px] text-sm text-zinc-900 [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[220px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-zinc-400 [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none"
+        className="tiptap-editor border border-zinc-200 rounded-b-md px-3 py-2.5 min-h-[240px] text-sm text-zinc-900 overflow-hidden [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[220px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-zinc-400 [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none"
       />
     </div>
   )

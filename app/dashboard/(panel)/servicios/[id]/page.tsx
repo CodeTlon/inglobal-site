@@ -17,7 +17,7 @@ export default async function ServicioEditPage({ params }: Props) {
   if (!servicio) notFound()
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       <div className="mb-6">
         <Link
           href="/dashboard/servicios"
