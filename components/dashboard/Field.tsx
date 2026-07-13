@@ -190,6 +190,7 @@ export function ImageUpload({
   const [err, setErr] = useState<string | null>(null)
   const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
   const objectUrlRef = useRef<string | null>(null)
+  const genRef = useRef(0)
 
   function onPickFocal(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -207,6 +208,10 @@ export function ImageUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    // Contador de generación: si el usuario elige otro archivo antes de que
+    // termine este upload, la respuesta de este pick queda obsoleta y no debe
+    // pisar el preview del pick más nuevo.
+    const myGen = ++genRef.current
     const previousUrl = url
     const localPreview = URL.createObjectURL(file)
     objectUrlRef.current = localPreview
@@ -218,8 +223,9 @@ export function ImageUpload({
     fd.append('folder', folder)
     if (previousUrl) fd.append('oldUrl', previousUrl)
     const res = await uploadMediaAction(fd)
-    setBusy(false)
     URL.revokeObjectURL(localPreview)
+    if (myGen !== genRef.current) return
+    setBusy(false)
     objectUrlRef.current = null
     if (res.error) {
       setErr(res.error)
@@ -336,7 +342,9 @@ export function VideoUpload({
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [previewBroken, setPreviewBroken] = useState(false)
   const objectUrlRef = useRef<string | null>(null)
+  const genRef = useRef(0)
 
   useEffect(() => {
     return () => {
@@ -347,10 +355,12 @@ export function VideoUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    const myGen = ++genRef.current
     const previousUrl = url
     const localPreview = URL.createObjectURL(file)
     objectUrlRef.current = localPreview
     setUrl(localPreview)
+    setPreviewBroken(false)
     setBusy(true)
     setErr(null)
     const fd = new FormData()
@@ -358,8 +368,9 @@ export function VideoUpload({
     fd.append('folder', folder)
     if (previousUrl) fd.append('oldUrl', previousUrl)
     const res = await uploadMediaAction(fd)
-    setBusy(false)
     URL.revokeObjectURL(localPreview)
+    if (myGen !== genRef.current) return
+    setBusy(false)
     objectUrlRef.current = null
     if (res.error) {
       setErr(res.error)
@@ -377,7 +388,7 @@ export function VideoUpload({
 
       <div className="flex flex-col gap-3">
         {/* Video preview or placeholder */}
-        {url ? (
+        {url && !previewBroken ? (
           <div className="rounded-lg overflow-hidden border border-zinc-200 bg-zinc-900 aspect-video">
             <video
               src={url}
@@ -385,6 +396,7 @@ export function VideoUpload({
               muted
               playsInline
               preload="metadata"
+              onError={() => setPreviewBroken(true)}
             />
           </div>
         ) : (
@@ -399,7 +411,7 @@ export function VideoUpload({
           <input
             type="text"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => { setUrl(e.target.value); setPreviewBroken(false) }}
             placeholder="URL del video, o subí un archivo MP4"
             className={fieldInput}
           />
