@@ -81,7 +81,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
           <div className="absolute bottom-0 left-0 right-0 pb-12">
             <div className="container-igb">
               <span
-                className="text-igb-yellow text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+                className="inline-block text-xs font-bold tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-md bg-igb-navy/90 text-white"
                 data-animate="fade-up"
               >
                 {cliente.name}
@@ -105,7 +105,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
         <section className="pt-40 pb-12 bg-zinc-50 border-b border-zinc-100">
           <div className="container-igb">
             <span
-              className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+              className="inline-block text-xs font-bold tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-md bg-igb-navy/10 text-igb-navy"
               data-animate="fade-up"
             >
               {cliente.name}
