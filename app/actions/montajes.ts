@@ -87,7 +87,7 @@ export async function createMontaje(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(`${LIST_PATH}?saved=1`)
+  redirect(`${LIST_PATH}?saved=created`)
 }
 
 export async function updateMontaje(
@@ -137,7 +137,7 @@ export async function updateMontaje(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(`${LIST_PATH}?saved=1`)
+  redirect(`${LIST_PATH}?saved=updated`)
 }
 
 export async function deleteMontaje(
@@ -162,5 +162,5 @@ export async function deleteMontaje(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(`${LIST_PATH}?saved=1`)
+  redirect(`${LIST_PATH}?saved=deleted`)
 }

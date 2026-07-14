@@ -208,7 +208,7 @@ export default async function HomePage() {
                 >
                   {/* Service image */}
                   {servicio.img && (
-                    <div className="relative overflow-hidden rounded-lg mb-5 aspect-[16/10]">
+                    <div className="relative overflow-hidden rounded-lg mb-5 aspect-[4/3]">
                       {isRemoteImg ? (
                         <Image
                           src={servicio.img}
@@ -232,6 +232,11 @@ export default async function HomePage() {
                   <h3 className="text-2xl font-headline font-bold text-igb-on-surface">
                     {servicio.title}
                   </h3>
+                  {servicio.desc && (
+                    <p className="text-sm text-igb-secondary mt-2 line-clamp-2">
+                      {servicio.desc}
+                    </p>
+                  )}
                 </Link>
               )
             })}

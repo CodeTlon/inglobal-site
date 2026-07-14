@@ -76,7 +76,7 @@ export async function createCliente(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(`${LIST_PATH}?saved=1`)
+  redirect(`${LIST_PATH}?saved=created`)
 }
 
 export async function updateCliente(
@@ -122,7 +122,7 @@ export async function updateCliente(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(`${LIST_PATH}?saved=1`)
+  redirect(`${LIST_PATH}?saved=updated`)
 }
 
 export async function deleteCliente(
@@ -147,5 +147,5 @@ export async function deleteCliente(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect(`${LIST_PATH}?saved=1`)
+  redirect(`${LIST_PATH}?saved=deleted`)
 }

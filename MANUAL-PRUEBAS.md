@@ -135,6 +135,20 @@ se construyen o tocan esas features.
 - [ ] En `ContentEditor` (trabajos), usar el botón "Video propio" para subir un MP4 → se inserta un `<video>` con controles en el contenido, no desborda el ancho del editor ni del artículo público.
 - [ ] Pendiente de probar de verdad una vez que el deploy pase a Coolify: confirmar que `ffmpeg` está en el runtime y que un video de ~20MB efectivamente se re-comprime al subirlo (comparar tamaño en el bucket antes/después).
 
+## Ronda de fixes post-uso — badge/cierre de trabajo, home, calendario, uploads, alertas
+- [ ] Entrar a un trabajo (`/clientes/[slug]/[trabajo]`) → el nombre del cliente aparece en cursiva sin fondo de color (blanco sobre foto de hero, navy sobre fondo claro sin hero).
+- [ ] Ese mismo trabajo, si el cliente tiene "Bio" cargada en el dashboard → al final del artículo aparece un bloque con el logo del cliente + esa bio, antes del link "Volver a {cliente}". Si el cliente NO tiene bio → no aparece nada (no queda un hueco vacío).
+- [ ] Home, sección "Qué Hacemos" → la foto de cada card es más grande y aparece la descripción del servicio (`servicio.desc`) debajo del título. Un servicio sin `desc` cargado → no deja un hueco vacío.
+- [ ] `/dashboard/agenda` (listado) → el estado de cada evento se ve con mayúscula inicial ("Programado", "En curso"), no en minúsculas ni con guion bajo.
+- [ ] `/dashboard/agenda/calendario` → fondo blanco (no oscuro), click en cualquier evento de la grilla abre un modal con grúa/empresa/horario/ubicación/operarios/notas/estado. Cerrar con la X, click afuera del modal, o Escape.
+- [ ] `/agenda-tv` → sigue igual que antes (fondo oscuro, sin click en eventos) — confirmar que este cambio NO la afectó.
+- [ ] Cualquier `<textarea>` del dashboard (ej. "Descripción" de Quiénes Somos) → ya no se puede agrandar/achicar arrastrando la esquina inferior derecha.
+- [ ] Elegir un archivo en un `ImageUpload`/`VideoUpload` y apretar "Guardar cambios" del formulario ANTES de que termine de subir (subida lenta/archivo grande) → el campo guarda el valor anterior, nunca un link que empiece con `blob:`. Esperar a que termine la subida y guardar de nuevo → ahí sí persiste la imagen nueva.
+- [ ] Imágenes que hayan quedado con un link `blob:` roto de ANTES de este fix (ej. banner de un trabajo, foto de Quiénes Somos) no se autorreparan — hay que volver a subirlas una vez a mano.
+- [ ] `/dashboard/contenido/accesos-rapidos` (y las otras 9 páginas de Contenido) → tienen un link "← Volver al panel" arriba de todo.
+- [ ] Guardar cualquier form de `contenido/*` (ej. Hero) → el banner verde "Cambios guardados correctamente" desaparece solo a los 3 segundos (antes quedaba para siempre en pantalla).
+- [ ] Crear, editar y borrar un montaje/cliente/servicio/trabajo/foto de galería/evento de agenda por separado → el toast de abajo a la derecha dice "Creado correctamente" / "Guardado correctamente" / "Eliminado correctamente" según corresponda (antes siempre decía lo mismo).
+
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.

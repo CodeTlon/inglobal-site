@@ -4,7 +4,8 @@ import { useFormState } from 'react-dom'
 import { updateSiteSettings } from '@/app/actions/settings'
 import { StatsList } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
+import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
 
 const action = updateSiteSettings.bind(null, 'stats')
 
@@ -22,12 +23,7 @@ export default function StatsForm({ settings }: { settings: Record<string, unkno
 
   return (
     <form action={formAction} className="space-y-6">
-      {state?.success && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-4">
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <p className="text-green-700 text-sm font-medium">Cambios guardados correctamente.</p>
-        </div>
-      )}
+      <InlineSavedBanner trigger={state} />
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />

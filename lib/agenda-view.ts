@@ -48,6 +48,23 @@ export function estadoColorClasses(estado: string): string {
   return ESTADO_COLORS[estado] ?? ESTADO_COLORS.programado
 }
 
+/** Paleta clara (fondo blanco) — usada por la vista semanal de jefes, no por la TV. */
+const ESTADO_COLORS_LIGHT: Record<string, string> = {
+  programado: 'bg-igb-yellow/15 border-igb-yellow/30 text-igb-yellow-dark',
+  en_curso: 'bg-blue-50 border-blue-200 text-blue-600',
+  finalizado: 'bg-zinc-100 border-zinc-200 text-zinc-500',
+  cancelado: 'bg-red-50 border-red-200 text-red-500 line-through',
+}
+
+export function estadoColorClassesLight(estado: string): string {
+  return ESTADO_COLORS_LIGHT[estado] ?? ESTADO_COLORS_LIGHT.programado
+}
+
+/** "en_curso" -> "En curso", "programado" -> "Programado". */
+export function formatEstado(estado: string): string {
+  return estado.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase())
+}
+
 /**
  * Estado *visual*: un evento "programado" cuya hora de fin (o inicio, si no cargó fin) ya
  * pasó se muestra como "finalizado" sin tocar la DB — el campo real sigue siendo manual

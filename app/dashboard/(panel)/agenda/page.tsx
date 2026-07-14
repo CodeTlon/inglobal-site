@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getEventosAgenda } from '@/lib/agenda'
+import { formatEstado } from '@/lib/agenda-view'
 import PageHeader from '@/components/dashboard/PageHeader'
 import AgendaTvQrLink from './AgendaTvQrLink'
 import { ChevronRight, Plus, Settings2, MapPin, Users } from 'lucide-react'
@@ -74,7 +75,7 @@ export default async function AgendaDashboardPage() {
             </div>
 
             <span className={`text-xs font-bold px-2 py-1 rounded flex-shrink-0 ${ESTADO_STYLES[ev.estado] ?? ESTADO_STYLES.programado}`}>
-              {ev.estado}
+              {formatEstado(ev.estado)}
             </span>
 
             <ChevronRight

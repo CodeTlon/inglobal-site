@@ -72,7 +72,7 @@ export async function updateServicio(
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect('/dashboard/servicios?saved=1')
+  redirect('/dashboard/servicios?saved=updated')
 }
 
 /**
