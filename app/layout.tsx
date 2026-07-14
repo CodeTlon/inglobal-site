@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.',
   },
   icons: {
-    icon: './favicon.ico',
+    icon: '/favicon.ico',
     apple: '/icons/apple-touch-icon.png',
   },
   appleWebApp: {

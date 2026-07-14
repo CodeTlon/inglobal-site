@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon, FileText } from 'lucide-react'
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
+import ConfirmDialog from './ConfirmDialog'
 
 // Shared class strings — keep dashboard styling in one place
 export const fieldLabel =
@@ -762,6 +763,7 @@ export function StatsList({
       ? defaultValue
       : [{ number: '', label: '' }]
   )
+  const [pendingRemove, setPendingRemove] = useState<number | null>(null)
 
   function update(i: number, key: keyof StatItem, val: string) {
     setItems(items.map((it, idx) => (idx === i ? { ...it, [key]: val } : it)))
@@ -796,7 +798,7 @@ export function StatsList({
             </div>
             <button
               type="button"
-              onClick={() => setItems(items.filter((_, idx) => idx !== i))}
+              onClick={() => setPendingRemove(i)}
               className="mt-0.5 px-3 py-2.5 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
               aria-label="Quitar"
             >
@@ -813,6 +815,17 @@ export function StatsList({
         <Plus size={14} /> Agregar stat
       </button>
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        title="Quitar stat"
+        message="¿Quitar este stat? El cambio recién se guarda al apretar Guardar."
+        confirmLabel="Quitar"
+        onCancel={() => setPendingRemove(null)}
+        onConfirm={() => {
+          setItems(items.filter((_, idx) => idx !== pendingRemove))
+          setPendingRemove(null)
+        }}
+      />
     </div>
   )
 }

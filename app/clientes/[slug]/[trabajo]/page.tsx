@@ -131,23 +131,6 @@ export default async function TrabajoDetailPage({ params }: Props) {
       {/* Content */}
       <section className="py-16 md:py-24">
         <div className="container-igb max-w-3xl">
-          {cliente.logo && (
-            <div
-              className="w-40 h-24 flex items-center justify-center bg-white rounded-xl p-4 border border-slate-100 shadow-sm mb-10"
-              data-animate="scale"
-            >
-              <Image
-                src={cliente.logo}
-                alt={`Logo ${cliente.name}`}
-                width={160}
-                height={80}
-                sizes="160px"
-                className="object-contain max-h-16 w-auto"
-                style={{ objectPosition: cliente.logo_focal ?? undefined }}
-              />
-            </div>
-          )}
-
           {trabajo.excerpt && (
             <p className="text-zinc-600 text-xl leading-relaxed mb-10 border-l-4 border-igb-yellow pl-6">
               {trabajo.excerpt}
@@ -178,28 +161,6 @@ export default async function TrabajoDetailPage({ params }: Props) {
             >
               <FileText size={16} /> Descargar PDF
             </a>
-          )}
-
-          {cliente.bio && (
-            <div className="mt-16 pt-10 border-t border-zinc-100 flex items-start gap-4" data-animate="fade-up">
-              <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center bg-white rounded-xl p-3 border border-slate-100 shadow-sm">
-                <Image
-                  src={cliente.logo}
-                  alt={`Logo ${cliente.name}`}
-                  width={80}
-                  height={80}
-                  sizes="80px"
-                  className="object-contain max-h-14 w-auto"
-                  style={{ objectPosition: cliente.logo_focal ?? undefined }}
-                />
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-igb-navy mb-1">
-                  Grúas InGlobal + {cliente.name}
-                </p>
-                <p className="text-sm text-zinc-600 leading-relaxed">{cliente.bio}</p>
-              </div>
-            </div>
           )}
 
           <div className="mt-12 pt-8 border-t border-zinc-100">

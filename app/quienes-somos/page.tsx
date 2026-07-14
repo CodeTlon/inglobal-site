@@ -4,6 +4,12 @@ import Picture from '@/components/Picture'
 import { getSiteSettings } from '@/lib/content'
 import { CheckCircle, Zap, Users } from 'lucide-react'
 
+const defaultStats = [
+  { number: '40+', label: 'Años de experiencia' },
+  { number: '200t', label: 'Toneladas de capacidad' },
+  { number: '100m', label: 'Altura máxima de operación' },
+]
+
 export const metadata: Metadata = {
   title: 'Quiénes Somos',
   description: 'Somos Inglobal, empresa líder en movimientos especiales pesados y montajes industriales con más de 40 años de trayectoria en Argentina.',
@@ -16,7 +22,14 @@ const defaultFeatures = [
 ]
 
 export default async function QuienesSomosPage() {
-  const settings = await getSiteSettings('quienes_somos')
+  const [settings, statsSettings] = await Promise.all([
+    getSiteSettings('quienes_somos'),
+    getSiteSettings('stats'),
+  ])
+
+  const statsItems: { number: string; label: string }[] = Array.isArray(statsSettings.items)
+    ? (statsSettings.items as { number: string; label: string }[])
+    : defaultStats
 
   const label = (settings.label as string) || 'Quiénes Somos'
   const heading = (settings.heading as string) || 'Grúas InGlobal S.R.L.'
@@ -138,12 +151,8 @@ export default async function QuienesSomosPage() {
       {/* Stats strip */}
       <section className="section-pad bg-igb-surface-low">
         <div className="container-igb">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-            {[
-              { number: '40+', label: 'Años de trayectoria' },
-              { number: '200t', label: 'Capacidad máxima de izaje' },
-              { number: '100m', label: 'Altura máxima de operación' },
-            ].map((s) => (
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-12 text-center">
+            {statsItems.map((s) => (
               <div key={s.label} data-animate="fade-up">
                 <p className="text-5xl font-headline font-extrabold text-zinc-900 tracking-tight">
                   {s.number}
