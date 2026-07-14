@@ -10,7 +10,7 @@ import { CheckCircle } from 'lucide-react'
  * pantalla para siempre. `trigger` es el objeto que devuelve useFormState: una referencia
  * nueva en cada submit, así el efecto se vuelve a disparar aunque `success` sea true las dos veces.
  */
-export default function InlineSavedBanner({ trigger }: { trigger: { success?: boolean } | null }) {
+export default function InlineSavedBanner({ trigger }: { trigger: { success?: boolean } | null | undefined }) {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
