@@ -82,7 +82,7 @@ export function TextArea({
         rows={rows}
         defaultValue={defaultValue ?? ''}
         placeholder={placeholder}
-        className={`${fieldInput} resize-y`}
+        className={`${fieldInput} resize-none`}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
     </div>
@@ -186,6 +186,11 @@ export function ImageUpload({
   focalDefaultValue?: string | null
 }) {
   const [url, setUrl] = useState<string>(defaultValue ?? '')
+  // Valor real que viaja al formulario — a diferencia de `url` (preview, puede ser
+  // un blob: mientras se sube), esto nunca es un blob: local. Si se guarda el form
+  // a mitad de una subida, el campo conserva el valor anterior en vez de persistir
+  // un blob: que deja de existir apenas se recarga la página.
+  const [committedUrl, setCommittedUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
@@ -232,15 +237,18 @@ export function ImageUpload({
       setUrl(previousUrl)
       return
     }
-    if (res.url) setUrl(res.url)
+    if (res.url) {
+      setUrl(res.url)
+      setCommittedUrl(res.url)
+    }
     e.target.value = ''
   }
 
   return (
     <div>
       <label className={fieldLabel}>{label}</label>
-      {/* Hidden input carries URL to parent form on submit */}
-      <input type="hidden" name={name} value={url} />
+      {/* Hidden input carries URL to parent form on submit — nunca un blob: (ver committedUrl arriba) */}
+      <input type="hidden" name={name} value={committedUrl} />
       {focalName && <input type="hidden" name={focalName} value={focal} />}
 
       <div className="flex flex-col sm:flex-row gap-3 items-stretch">
@@ -277,7 +285,10 @@ export function ImageUpload({
           <input
             type="text"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => {
+              setUrl(e.target.value)
+              setCommittedUrl(e.target.value)
+            }}
             placeholder="URL de la imagen, o subí un archivo"
             className={fieldInput}
           />
@@ -303,6 +314,7 @@ export function ImageUpload({
                 onClick={() => {
                   deleteMediaAction(url)
                   setUrl('')
+                  setCommittedUrl('')
                 }}
                 className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
               >
@@ -345,6 +357,8 @@ export function VideoUpload({
   focalDefaultValue?: string | null
 }) {
   const [url, setUrl] = useState<string>(defaultValue ?? '')
+  // Ver comentario en ImageUpload: el hidden input usa esto, nunca un blob: local.
+  const [committedUrl, setCommittedUrl] = useState<string>(defaultValue ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [previewBroken, setPreviewBroken] = useState(false)
@@ -390,14 +404,17 @@ export function VideoUpload({
       setUrl(previousUrl)
       return
     }
-    if (res.url) setUrl(res.url)
+    if (res.url) {
+      setUrl(res.url)
+      setCommittedUrl(res.url)
+    }
     e.target.value = ''
   }
 
   return (
     <div>
       <label className={fieldLabel}>{label}</label>
-      <input type="hidden" name={name} value={url} />
+      <input type="hidden" name={name} value={committedUrl} />
       {focalName && <input type="hidden" name={focalName} value={focal} />}
 
       <div className="flex flex-col gap-3">
@@ -435,7 +452,11 @@ export function VideoUpload({
           <input
             type="text"
             value={url}
-            onChange={(e) => { setUrl(e.target.value); setPreviewBroken(false) }}
+            onChange={(e) => {
+              setUrl(e.target.value)
+              setCommittedUrl(e.target.value)
+              setPreviewBroken(false)
+            }}
             placeholder="URL del video, o subí un archivo MP4"
             className={fieldInput}
           />
@@ -461,6 +482,7 @@ export function VideoUpload({
                 onClick={() => {
                   deleteMediaAction(url)
                   setUrl('')
+                  setCommittedUrl('')
                 }}
                 className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
               >
