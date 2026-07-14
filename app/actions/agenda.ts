@@ -93,7 +93,7 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect('/dashboard/agenda?saved=1')
+  redirect('/dashboard/agenda?saved=created')
 }
 
 export async function updateEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -120,7 +120,7 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect('/dashboard/agenda?saved=1')
+  redirect('/dashboard/agenda?saved=updated')
 }
 
 export async function deleteEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -136,7 +136,7 @@ export async function deleteEvento(prevState: unknown, formData: FormData): Prom
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
-  redirect('/dashboard/agenda?saved=1')
+  redirect('/dashboard/agenda?saved=deleted')
 }
 
 // ─── Catálogos (gruas / empresas_agenda / operarios) ───────────────────────
