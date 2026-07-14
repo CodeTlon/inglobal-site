@@ -23,18 +23,18 @@ export default async function AgendaCalendarioPage({
 
   return (
     // z-[110]: por encima del shell fijo del panel (z-[100]) — misma técnica que /agenda-tv usa para tapar Navbar/Footer del layout raíz.
-    <div className="fixed inset-0 z-[110] bg-slate-950 overflow-y-auto">
-      <AgendaKioskHeader title="Calendario" backHref="/dashboard/agenda" />
+    <div className="fixed inset-0 z-[110] bg-white overflow-y-auto">
+      <AgendaKioskHeader title="Calendario" backHref="/dashboard/agenda" theme="light" />
       <main className="px-4 sm:px-8 py-6">
         <div className="flex items-center justify-between mb-4">
-          <Link href={`?week=${prevWeek}`} className="text-slate-400 hover:text-white flex items-center gap-1 text-sm">
+          <Link href={`?week=${prevWeek}`} className="text-zinc-400 hover:text-zinc-900 flex items-center gap-1 text-sm">
             <ChevronLeft size={16} /> Semana anterior
           </Link>
-          <p className="text-white text-sm font-bold">
+          <p className="text-zinc-900 text-sm font-bold">
             {weekStart.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} –{' '}
             {weekEnd.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
           </p>
-          <Link href={`?week=${nextWeek}`} className="text-slate-400 hover:text-white flex items-center gap-1 text-sm">
+          <Link href={`?week=${nextWeek}`} className="text-zinc-400 hover:text-zinc-900 flex items-center gap-1 text-sm">
             Semana siguiente <ChevronRight size={16} />
           </Link>
         </div>

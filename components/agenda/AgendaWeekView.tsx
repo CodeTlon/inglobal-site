@@ -1,5 +1,9 @@
+'use client'
+
+import { useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getWeekDays, estadoColorClasses, getEstadoVisual, toDateInput } from '@/lib/agenda-view'
+import { getWeekDays, estadoColorClassesLight, getEstadoVisual, toDateInput } from '@/lib/agenda-view'
+import AgendaEventModal from './AgendaEventModal'
 
 const START_HOUR = 7
 const END_HOUR = 19
@@ -14,15 +18,17 @@ function timeToSlot(time: string): number {
 }
 
 /**
- * Grilla semanal (columnas = días, filas = franjas horarias) — solo lectura.
+ * Grilla semanal (columnas = días, filas = franjas horarias) — solo lectura, click en un
+ * evento abre su detalle en AgendaEventModal. Tema claro (calendario de jefes).
  * Mobile: mismo componente, el contenedor scrollea horizontal (min-w fijo en el grid).
  */
 export default function AgendaWeekView({ eventos, weekStart }: { eventos: EventoAgenda[]; weekStart: Date }) {
+  const [selected, setSelected] = useState<EventoAgenda | null>(null)
   const days = getWeekDays(weekStart)
   const dayKeys = days.map(toDateInput)
 
   return (
-    <div className="overflow-x-auto dashboard-scroll-dark">
+    <div className="overflow-x-auto dashboard-scroll-light">
       <div
         className="grid min-w-[900px]"
         style={{
@@ -30,15 +36,15 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
           gridTemplateRows: `48px repeat(${SLOTS}, 32px)`,
         }}
       >
-        <div className="sticky left-0 z-10 bg-slate-950" style={{ gridColumn: 1, gridRow: 1 }} />
+        <div className="sticky left-0 z-10 bg-white" style={{ gridColumn: 1, gridRow: 1 }} />
         {days.map((d, i) => (
           <div
             key={dayKeys[i]}
-            className="flex flex-col items-center justify-center border-b border-white/10"
+            className="flex flex-col items-center justify-center border-b border-zinc-200"
             style={{ gridColumn: i + 2, gridRow: 1 }}
           >
-            <span className="text-xs uppercase tracking-widest text-slate-400">{DIA_LABEL[i]}</span>
-            <span className="text-sm font-bold text-white">{d.getDate()}</span>
+            <span className="text-xs uppercase tracking-widest text-zinc-400">{DIA_LABEL[i]}</span>
+            <span className="text-sm font-bold text-zinc-900">{d.getDate()}</span>
           </div>
         ))}
 
@@ -48,7 +54,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
           return (
             <div
               key={`t-${i}`}
-              className="sticky left-0 z-10 bg-slate-950 text-[11px] text-slate-500 text-right pr-2 border-t border-white/5"
+              className="sticky left-0 z-10 bg-white text-[11px] text-zinc-400 text-right pr-2 border-t border-zinc-100"
               style={{ gridColumn: 1, gridRow: i + 2 }}
             >
               {isHour ? `${String(Math.floor(totalMin / 60)).padStart(2, '0')}:00` : ''}
@@ -60,7 +66,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
           Array.from({ length: SLOTS }, (_, i) => (
             <div
               key={`bg-${dayIdx}-${i}`}
-              className="border-t border-white/5"
+              className="border-t border-zinc-100"
               style={{ gridColumn: dayIdx + 2, gridRow: i + 2 }}
             />
           )),
@@ -75,9 +81,11 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
             : rowStart + 2
           const visual = getEstadoVisual(ev)
           return (
-            <div
+            <button
               key={ev.id}
-              className={`m-0.5 rounded-lg border px-2 py-1 overflow-hidden ${estadoColorClasses(visual)}`}
+              type="button"
+              onClick={() => setSelected(ev)}
+              className={`m-0.5 rounded-lg border px-2 py-1 overflow-hidden text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(visual)}`}
               style={{ gridColumn: dayIdx + 2, gridRow: `${rowStart} / ${rowEnd}` }}
               title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
             >
@@ -85,12 +93,14 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                 {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
               </p>
               <p className="text-[10px] truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>
-            </div>
+            </button>
           )
         })}
       </div>
 
-      {eventos.length === 0 && <p className="text-center text-slate-500 py-16">No hay eventos programados esta semana.</p>}
+      {eventos.length === 0 && <p className="text-center text-zinc-400 py-16">No hay eventos programados esta semana.</p>}
+
+      <AgendaEventModal evento={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }
