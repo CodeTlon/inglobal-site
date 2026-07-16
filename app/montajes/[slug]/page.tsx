@@ -4,6 +4,7 @@ import Picture from '@/components/Picture'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getMontaje, getMontajes } from '@/lib/content'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -41,9 +42,6 @@ export default async function MontajeDetailPage({ params }: Props) {
   const heroImage = montaje.banner_image ?? montaje.cover_image
   const heroImageFocal = montaje.banner_image ? montaje.banner_image_focal : montaje.cover_image_focal
   const isRemoteImg = heroImage?.startsWith('http')
-  const paragraphs = (montaje.content || montaje.excerpt || '')
-    .split('\n\n')
-    .filter(Boolean)
 
   return (
     <main className="bg-white">
@@ -111,13 +109,7 @@ export default async function MontajeDetailPage({ params }: Props) {
       {/* Content */}
       <section className="py-24">
         <div className="container-igb max-w-3xl">
-          <div className="prose prose-zinc prose-lg max-w-none">
-            {paragraphs.map((p, i) => (
-              <p key={i} className="text-zinc-600 leading-relaxed mb-6">
-                {p}
-              </p>
-            ))}
-          </div>
+          <div className="prose-igb" dangerouslySetInnerHTML={{ __html: sanitizeHtml(montaje.content || montaje.excerpt || '') }} />
 
           {/* Back + CTA */}
           <div className="mt-16 pt-10 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

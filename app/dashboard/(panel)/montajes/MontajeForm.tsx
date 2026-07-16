@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useFormState } from 'react-dom'
 import {
   TextField,
@@ -8,6 +9,7 @@ import {
   StringList,
   Checkbox,
 } from '@/components/dashboard/Field'
+import ContentEditor from '@/components/dashboard/ContentEditorBoundary'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { Montaje } from '@/lib/content'
@@ -21,10 +23,12 @@ interface Props {
 
 export default function MontajeForm({ montaje, entityId, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
+  const [content, setContent] = useState(montaje?.content ?? '')
 
   return (
     <form action={formAction} className="space-y-6">
       {entityId && <input type="hidden" name="id" value={entityId} />}
+      <input type="hidden" name="content" value={content} />
 
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -43,13 +47,10 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         hint="Descripción corta que aparece en el listado."
       />
 
-      <TextArea
-        label="Contenido completo"
-        name="content"
-        defaultValue={montaje?.content ?? undefined}
-        rows={8}
-        hint="Texto de la página de detalle. Separar párrafos con una línea en blanco."
-      />
+      <div>
+        <label className="block text-sm font-bold text-zinc-700 mb-1.5">Contenido completo</label>
+        <ContentEditor value={content} onChange={setContent} />
+      </div>
 
       <ImageUpload
         label="Imagen de portada"
