@@ -228,7 +228,19 @@ export function ImageUpload({
     fd.append('file', file)
     fd.append('folder', folder)
     if (previousUrl) fd.append('oldUrl', previousUrl)
-    const res = await uploadMediaAction(fd)
+    let res: { url?: string; error?: string }
+    try {
+      res = await uploadMediaAction(fd)
+    } catch (uploadErr) {
+      URL.revokeObjectURL(localPreview)
+      if (myGen !== genRef.current) return
+      setBusy(false)
+      objectUrlRef.current = null
+      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      setUrl(previousUrl)
+      e.target.value = ''
+      return
+    }
     URL.revokeObjectURL(localPreview)
     if (myGen !== genRef.current) return
     setBusy(false)
@@ -395,7 +407,19 @@ export function VideoUpload({
     fd.append('file', file)
     fd.append('folder', folder)
     if (previousUrl) fd.append('oldUrl', previousUrl)
-    const res = await uploadMediaAction(fd)
+    let res: { url?: string; error?: string }
+    try {
+      res = await uploadMediaAction(fd)
+    } catch (uploadErr) {
+      URL.revokeObjectURL(localPreview)
+      if (myGen !== genRef.current) return
+      setBusy(false)
+      objectUrlRef.current = null
+      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      setUrl(previousUrl)
+      e.target.value = ''
+      return
+    }
     URL.revokeObjectURL(localPreview)
     if (myGen !== genRef.current) return
     setBusy(false)

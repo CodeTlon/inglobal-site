@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Server Actions default a 1MB de body — uploadMediaAction acepta imágenes
+    // hasta 12MB y videos hasta 20MB (ver app/actions/settings.ts), así que sin
+    // esto cualquier archivo real superaba el límite y la subida quedaba
+    // colgada (ver Field.tsx: el catch alrededor de uploadMediaAction).
+    serverActions: {
+      bodySizeLimit: '20mb',
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     qualities: [70, 75, 85],
