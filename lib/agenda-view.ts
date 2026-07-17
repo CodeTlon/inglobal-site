@@ -77,3 +77,56 @@ export function getEstadoVisual(evento: EventoAgenda, now = new Date()): string 
   }
   return evento.estado
 }
+
+export interface DayLayoutSlot {
+  lane: number
+  lanes: number
+}
+
+/**
+ * Carriles side-by-side para eventos de un mismo día que se solapan en horario
+ * (antes se apilaban todos ocupando el ancho completo de la columna, ilegibles).
+ * Algoritmo clásico de "meeting rooms": agrupa en clusters conexos por
+ * solapamiento y, dentro de cada cluster, asigna cada evento al primer carril
+ * ya libre (greedy, ordenado por hora de inicio).
+ */
+export function layoutDayEvents<T extends { hora_inicio: string; hora_fin?: string | null }>(
+  eventos: T[],
+): Map<T, DayLayoutSlot> {
+  const layout = new Map<T, DayLayoutSlot>()
+  const sorted = [...eventos].sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio))
+
+  let cluster: T[] = []
+  let clusterEnd = ''
+
+  function flushCluster() {
+    if (cluster.length === 0) return
+    const laneEnds: string[] = []
+    const laneOf = new Map<T, number>()
+    for (const ev of cluster) {
+      const fin = ev.hora_fin ?? '23:59'
+      let lane = laneEnds.findIndex((end) => end <= ev.hora_inicio)
+      if (lane === -1) {
+        lane = laneEnds.length
+        laneEnds.push(fin)
+      } else {
+        laneEnds[lane] = fin
+      }
+      laneOf.set(ev, lane)
+    }
+    const lanes = laneEnds.length
+    for (const ev of cluster) layout.set(ev, { lane: laneOf.get(ev)!, lanes })
+    cluster = []
+    clusterEnd = ''
+  }
+
+  for (const ev of sorted) {
+    const fin = ev.hora_fin ?? '23:59'
+    if (cluster.length > 0 && ev.hora_inicio >= clusterEnd) flushCluster()
+    cluster.push(ev)
+    clusterEnd = cluster.length === 1 ? fin : fin > clusterEnd ? fin : clusterEnd
+  }
+  flushCluster()
+
+  return layout
+}

@@ -98,6 +98,8 @@ export interface Trabajo {
   banner_image?: string | null
   banner_image_focal?: string | null
   banner_image_focal_mobile?: string | null
+  banner_overlay_opacity?: number | null
+  banner_overlay_opacity_mobile?: number | null
   display_order: number
   published:     boolean
   created_at:    string

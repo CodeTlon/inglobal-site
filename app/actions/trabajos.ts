@@ -60,6 +60,8 @@ function parse(formData: FormData) {
     banner_image:  formData.get('banner_image'),
     banner_image_focal: formData.get('banner_image_focal'),
     banner_image_focal_mobile: formData.get('banner_image_focal_mobile'),
+    banner_overlay_opacity: formData.get('banner_overlay_opacity') || 100,
+    banner_overlay_opacity_mobile: formData.get('banner_overlay_opacity_mobile') || null,
     display_order: formData.get('display_order'),
     published:     formData.get('published'),
   })

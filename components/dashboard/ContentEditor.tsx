@@ -12,6 +12,9 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Youtube from '@tiptap/extension-youtube'
 import { Video } from './tiptap-video-extension'
 import { uploadMediaAction } from '@/app/actions/settings'
+import { resizeImageFile } from '@/lib/client-image-resize'
+import { uploadDirectToStorage } from '@/lib/client-upload'
+import { MAX_VIDEO_BYTES } from '@/lib/upload-limits'
 import { parseYoutubeId } from '@/lib/youtube'
 import {
   Upload,
@@ -85,10 +88,14 @@ export default function ContentEditor({
   })
 
   async function pickImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const picked = e.target.files?.[0]
+    if (!picked) return
     setBusy(true)
     setErr(null)
+    // Vercel cappea el body de cualquier función serverless a 4.5MB sin
+    // importar next.config.mjs — una foto de celular real nunca llegaba a
+    // uploadMediaAction. Mismo fix que ImageUpload en Field.tsx.
+    const file = await resizeImageFile(picked)
     const fd = new FormData()
     fd.append('file', file)
     fd.append('folder', 'trabajos/content')
@@ -108,12 +115,24 @@ export default function ContentEditor({
   async function pickVideo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_VIDEO_BYTES) {
+      setErr(`El video no puede superar ${Math.round(MAX_VIDEO_BYTES / (1024 * 1024))} MB.`)
+      e.target.value = ''
+      return
+    }
     setVideoBusy(true)
     setErr(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('folder', 'trabajos/content')
-    const res = await uploadMediaAction(fd)
+    // Subida directa al bucket (no uploadMediaAction) — mismo motivo que la
+    // imagen de arriba, un video real siempre supera el límite de Vercel.
+    let res: { url?: string; error?: string }
+    try {
+      res = await uploadDirectToStorage(file, 'trabajos/content')
+    } catch (uploadErr) {
+      setVideoBusy(false)
+      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el video.')
+      e.target.value = ''
+      return
+    }
     setVideoBusy(false)
     if (res.error) {
       setErr(res.error)
