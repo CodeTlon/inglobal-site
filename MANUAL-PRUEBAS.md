@@ -35,6 +35,10 @@ se construyen o tocan esas features.
 - [ ] Click en la card "Qué Hacemos" del home → navega a `/servicios` con el servicio correcto preseleccionado/anclado.
 
 ## Upload de imágenes/video (Storage `media`)
+- [ ] Subir una foto real de celular (10-20MB) → no cuelga ni tira "unexpected response" (se resizea en el navegador antes de subir).
+- [ ] Subir un video MP4 de más de 4.5MB (pero bajo 20MB) → sube directo al bucket sin pasar por el límite de Vercel, preview funciona.
+- [ ] Subir un video de más de 20MB → mensaje de error claro al instante, sin intentar la subida.
+- [ ] Subir un PDF de más de 4.5MB (pero bajo 8MB) en el adjunto de un trabajo → sube igual, no falla por el límite de Vercel.
 - [ ] Subir una imagen de más de unos pocos MB → se procesa (resize/WebP) sin timeout ni error silencioso.
 - [ ] Subir un archivo que no sea imagen/video válido → error claro, no sube basura al bucket.
 - [ ] Reemplazar una imagen ya subida (mismo campo) → la vieja se borra del bucket `media` (verificar en el dashboard de Supabase Storage).
