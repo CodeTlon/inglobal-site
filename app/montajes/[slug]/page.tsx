@@ -79,7 +79,7 @@ export default async function MontajeDetailPage({ params }: Props) {
 
         {/* Banner image (o portada si no hay banner propio) */}
         {heroImage && (
-          <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[280px] md:min-h-[420px] overflow-hidden">
             {isRemoteImg ? (
               <Image
                 src={heroImage}

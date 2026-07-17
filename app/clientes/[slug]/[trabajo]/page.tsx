@@ -71,7 +71,10 @@ export default async function TrabajoDetailPage({ params }: Props) {
     <main className="bg-white">
       {/* Hero */}
       {heroImage ? (
-        <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }}>
+        <section
+          className="relative overflow-hidden aspect-[16/9] md:aspect-[21/9] min-h-[280px] md:min-h-[420px]"
+          data-navbar="hidden"
+        >
           <Image
             src={heroImage}
             alt={trabajo.title}
