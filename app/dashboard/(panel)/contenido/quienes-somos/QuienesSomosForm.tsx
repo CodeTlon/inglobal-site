@@ -32,6 +32,7 @@ export default function QuienesSomosForm({ settings }: { settings: Record<string
         defaultValue={settings.description1 as string}
         rows={4}
         hint="Primer párrafo de texto de la empresa."
+        placeholder="Ej: Somos una empresa cordobesa con más de 20 años de trayectoria en izaje, montaje y transporte de maquinaria pesada."
       />
       <TextArea
         label="Descripción 2"
@@ -39,6 +40,7 @@ export default function QuienesSomosForm({ settings }: { settings: Record<string
         defaultValue={settings.description2 as string}
         rows={4}
         hint="Segundo párrafo de texto de la empresa."
+        placeholder="Ej: Contamos con una flota propia y un equipo capacitado para responder a cada desafío operativo con seguridad."
       />
 
       <ImageUpload

@@ -43,10 +43,10 @@ export default async function CatalogosAgendaPage() {
             values: { nombre: g.nombre, patente: g.patente ?? '', capacidad_toneladas: g.capacidad_toneladas ?? '', tipo: g.tipo },
           }))}
           fields={[
-            { name: 'nombre', label: 'Nombre' },
+            { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Grúa Terex 25 tn' },
             { name: 'tipo', label: 'Tipo', type: 'select', options: TIPO_OPTIONS },
-            { name: 'patente', label: 'Patente', required: true },
-            { name: 'capacidad_toneladas', label: 'Capacidad (tn)', type: 'number', required: true },
+            { name: 'patente', label: 'Patente', required: true, placeholder: 'Ej: AB123CD' },
+            { name: 'capacidad_toneladas', label: 'Capacidad (tn)', type: 'number', required: true, placeholder: 'Ej: 25' },
           ]}
           createAction={createGrua}
           updateAction={updateGrua}
@@ -63,9 +63,9 @@ export default async function CatalogosAgendaPage() {
             subtitle: [e.contacto, e.telefono].filter(Boolean).join(' · '),
           }))}
           fields={[
-            { name: 'nombre', label: 'Nombre' },
-            { name: 'contacto', label: 'Persona de contacto', required: true },
-            { name: 'telefono', label: 'Teléfono', required: true },
+            { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Constructora del Sur S.A.' },
+            { name: 'contacto', label: 'Persona de contacto', required: true, placeholder: 'Ej: Juan Pérez' },
+            { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
           ]}
           createAction={createEmpresaAgenda}
           toggleAction={toggleEmpresaAgenda}
@@ -81,8 +81,8 @@ export default async function CatalogosAgendaPage() {
             subtitle: o.telefono ?? undefined,
           }))}
           fields={[
-            { name: 'nombre', label: 'Nombre' },
-            { name: 'telefono', label: 'Teléfono', required: true },
+            { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Carlos Gómez' },
+            { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
           ]}
           createAction={createOperario}
           toggleAction={toggleOperario}

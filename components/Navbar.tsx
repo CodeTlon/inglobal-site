@@ -19,6 +19,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [hasDarkHero, setHasDarkHero] = useState(false)
+  const [hasHiddenHero, setHasHiddenHero] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function Navbar() {
   useEffect(() => {
     setOpen(false)
     setHasDarkHero(!!document.querySelector('[data-navbar="dark"]'))
+    setHasHiddenHero(!!document.querySelector('[data-navbar="hidden"]'))
   }, [pathname])
 
   const isActive = (href: string) =>
@@ -40,10 +42,15 @@ export default function Navbar() {
   // el navbar se pinta oscuro sobre ella (en vez del blanco translúcido que se ve gris
   // sobre fondos oscuros) y el logo pasa a la variante clara (la que usa el Footer).
   const darkMode = hasDarkHero && !scrolled && !open
+  // Hidden hero = página con un banner de foto arriba de todo que se quiere ver
+  // "limpio" (sin navbar encima) hasta que el usuario hace scroll.
+  const hiddenMode = hasHiddenHero && !scrolled && !open
 
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        hiddenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      } ${
         scrolled || open
           ? 'bg-white/90 backdrop-blur-md shadow-sm'
           : darkMode

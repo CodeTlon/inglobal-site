@@ -31,12 +31,15 @@ async function uniqueSlug(supabase: ServerSupabase, base: string, excludeId?: st
   }
 }
 
+// StringList (Field.tsx) serializa el input oculto como JSON — no CSV.
 function parseTags(raw: string | undefined): string[] {
   if (!raw) return []
-  return raw
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean)
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((t): t is string => typeof t === 'string' && t.trim() !== '') : []
+  } catch {
+    return []
+  }
 }
 
 function revalidateMontajes() {
@@ -58,8 +61,10 @@ export async function createMontaje(
       content:       formData.get('content'),
       cover_image:   formData.get('cover_image'),
       cover_image_focal: formData.get('cover_image_focal'),
+      cover_image_focal_mobile: formData.get('cover_image_focal_mobile'),
       banner_image:  formData.get('banner_image'),
       banner_image_focal: formData.get('banner_image_focal'),
+      banner_image_focal_mobile: formData.get('banner_image_focal_mobile'),
       tags:          formData.get('tags'),
       display_order: formData.get('display_order'),
       published:     formData.get('published'),
@@ -106,8 +111,10 @@ export async function updateMontaje(
       content:       formData.get('content'),
       cover_image:   formData.get('cover_image'),
       cover_image_focal: formData.get('cover_image_focal'),
+      cover_image_focal_mobile: formData.get('cover_image_focal_mobile'),
       banner_image:  formData.get('banner_image'),
       banner_image_focal: formData.get('banner_image_focal'),
+      banner_image_focal_mobile: formData.get('banner_image_focal_mobile'),
       tags:          formData.get('tags'),
       display_order: formData.get('display_order'),
       published:     formData.get('published'),

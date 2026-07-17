@@ -4,8 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, FileText } from 'lucide-react'
 import { getCliente, getClientes, getTrabajo, getTrabajos } from '@/lib/content'
-import { youtubeEmbedUrl } from '@/lib/youtube'
+import { youtubeEmbedUrl, parseYoutubeId } from '@/lib/youtube'
 import { sanitizeHtml } from '@/lib/sanitize'
+import LazyYoutubeEmbed from '@/components/LazyYoutubeEmbed'
 
 interface Props {
   params: Promise<{ slug: string; trabajo: string }>
@@ -56,7 +57,9 @@ export default async function TrabajoDetailPage({ params }: Props) {
 
   const heroImage = trabajo.banner_image ?? trabajo.cover_image
   const heroImageFocal = trabajo.banner_image ? trabajo.banner_image_focal : trabajo.cover_image_focal
+  const heroImageFocalMobile = trabajo.banner_image ? trabajo.banner_image_focal_mobile : trabajo.cover_image_focal_mobile
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
+  const ytId = parseYoutubeId(trabajo.youtube_url)
   const fechaFormateada = trabajo.fecha
     ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', {
         day: 'numeric',
@@ -69,15 +72,21 @@ export default async function TrabajoDetailPage({ params }: Props) {
     <main className="bg-white">
       {/* Hero */}
       {heroImage ? (
-        <section className="relative overflow-hidden" style={{ height: '55vh', minHeight: '360px' }}>
+        <section
+          className="relative overflow-hidden aspect-[16/9] md:aspect-[21/9] min-h-[280px] md:min-h-[420px]"
+          data-navbar="hidden"
+        >
           <Image
             src={heroImage}
             alt={trabajo.title}
             fill
             priority
             sizes="100vw"
-            className="object-cover hero-bg-zoom"
-            style={{ objectPosition: heroImageFocal ?? undefined }}
+            className="object-cover hero-bg-zoom focal-responsive"
+            style={{
+              '--focal-desktop': heroImageFocal ?? undefined,
+              '--focal-mobile': heroImageFocalMobile ?? undefined,
+            } as React.CSSProperties}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/85" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">
@@ -137,16 +146,9 @@ export default async function TrabajoDetailPage({ params }: Props) {
             </p>
           )}
 
-          {ytEmbed && (
+          {ytEmbed && ytId && (
             <div className="relative w-full mb-10 rounded-xl overflow-hidden bg-black" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                src={ytEmbed}
-                title={trabajo.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                loading="lazy"
-                className="absolute inset-0 w-full h-full"
-              />
+              <LazyYoutubeEmbed embedUrl={ytEmbed} videoId={ytId} title={trabajo.title} />
             </div>
           )}
 

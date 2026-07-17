@@ -76,9 +76,11 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Hero background slow zoom */
+/* Hero background slow zoom — scale bajo a propósito: fotos horizontales ya
+   se recortan por el aspect-ratio del contenedor, un scale más agresivo acá
+   sumaba recorte encima. */
 @keyframes igb-hero-zoom {
-  from { transform: scale(1.06); }
+  from { transform: scale(1.03); }
   to   { transform: scale(1); }
 }
 
@@ -97,6 +99,18 @@
 
 .hero-bg-zoom {
   animation: igb-hero-zoom 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* Foco de imagen distinto en mobile vs desktop — object-position no se puede
+   condicionar por breakpoint con una sola prop de React, así que el foco de
+   cada tamaño viaja como CSS custom property y el media query elige cuál usar. */
+.focal-responsive {
+  object-position: var(--focal-desktop, 50% 50%);
+}
+@media (max-width: 767px) {
+  .focal-responsive {
+    object-position: var(--focal-mobile, var(--focal-desktop, 50% 50%));
+  }
 }
 
 /* ─── MOBILE NAV SLIDE-DOWN ─────────────────────────────────────────── */
@@ -220,6 +234,12 @@
   inset: 0;
   width: 100%;
   height: 100%;
+}
+.tiptap-editor ul {
+  @apply list-disc pl-6 space-y-1;
+}
+.tiptap-editor ol {
+  @apply list-decimal pl-6 space-y-1;
 }
 .tiptap-editor img {
   max-width: 100%;

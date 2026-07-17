@@ -6,9 +6,11 @@ export const montajeSchema = z.object({
   content:       z.string().optional(),
   cover_image:   z.string().optional(),
   cover_image_focal: z.string().nullable().optional(),
+  cover_image_focal_mobile: z.string().nullable().optional(),
   banner_image:  z.string().optional(),
   banner_image_focal: z.string().nullable().optional(),
-  tags:          z.string().optional(), // CSV en el form; se parsea en la action
+  banner_image_focal_mobile: z.string().nullable().optional(),
+  tags:          z.string().optional(), // JSON array (StringList) en el form; se parsea en la action
   display_order: z.coerce.number().int().min(0).default(0),
   published:     z.coerce.boolean().default(true),
 })

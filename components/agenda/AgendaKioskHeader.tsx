@@ -20,7 +20,7 @@ export default function AgendaKioskHeader({
   const isLight = theme === 'light'
   return (
     <header
-      className={`flex items-center gap-4 px-6 sm:px-10 py-6 border-b ${
+      className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 sm:px-10 py-4 sm:py-6 border-b ${
         isLight ? 'bg-white border-zinc-200' : 'border-white/10'
       }`}
     >
@@ -29,23 +29,25 @@ export default function AgendaKioskHeader({
         alt="InGlobal"
         width={140}
         height={44}
-        className="h-10 w-auto object-contain"
+        className="h-8 sm:h-10 w-auto object-contain"
         sizes="140px"
       />
-      <h1 className={`text-2xl font-headline font-bold ml-2 ${isLight ? 'text-zinc-900' : 'text-white'}`}>{title}</h1>
+      <h1 className={`text-lg sm:text-2xl font-headline font-bold sm:ml-2 ${isLight ? 'text-zinc-900' : 'text-white'}`}>{title}</h1>
       {backHref && (
         <Link
           href={backHref}
-          className={`ml-4 text-sm transition-colors ${
+          className={`sm:ml-4 text-sm transition-colors ${
             isLight ? 'text-zinc-400 hover:text-zinc-900' : 'text-slate-400 hover:text-white'
           }`}
         >
-          ← Volver a Agenda
+          ← Volver
         </Link>
       )}
-      <span className={`ml-auto text-sm text-right whitespace-nowrap ${isLight ? 'text-zinc-400' : 'text-slate-400'}`}>
-        {now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-        {' · '}
+      <span className={`ml-auto text-xs sm:text-sm text-right whitespace-nowrap ${isLight ? 'text-zinc-400' : 'text-slate-400'}`}>
+        <span className="hidden sm:inline">
+          {now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          {' · '}
+        </span>
         {now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
       </span>
     </header>

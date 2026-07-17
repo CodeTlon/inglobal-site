@@ -35,6 +35,10 @@ se construyen o tocan esas features.
 - [ ] Click en la card "Qué Hacemos" del home → navega a `/servicios` con el servicio correcto preseleccionado/anclado.
 
 ## Upload de imágenes/video (Storage `media`)
+- [ ] Subir una foto real de celular (10-20MB) → no cuelga ni tira "unexpected response" (se resizea en el navegador antes de subir).
+- [ ] Subir un video MP4 de más de 4.5MB (pero bajo 20MB) → sube directo al bucket sin pasar por el límite de Vercel, preview funciona.
+- [ ] Subir un video de más de 20MB → mensaje de error claro al instante, sin intentar la subida.
+- [ ] Subir un PDF de más de 4.5MB (pero bajo 8MB) en el adjunto de un trabajo → sube igual, no falla por el límite de Vercel.
 - [ ] Subir una imagen de más de unos pocos MB → se procesa (resize/WebP) sin timeout ni error silencioso.
 - [ ] Subir un archivo que no sea imagen/video válido → error claro, no sube basura al bucket.
 - [ ] Reemplazar una imagen ya subida (mismo campo) → la vieja se borra del bucket `media` (verificar en el dashboard de Supabase Storage).
@@ -44,6 +48,25 @@ se construyen o tocan esas features.
 ## Orden (`display_order` / `work_rank`)
 - [ ] Crear dos montajes (o clientes/servicios/trabajos del mismo cliente) con el mismo número de orden → el segundo se guarda con el siguiente valor libre, sin error y sin pisar al primero.
 - [ ] Editar un registro existente al mismo `display_order` que otro → se resuelve solo (no bloquea el guardado).
+
+## Agenda — calendario en mobile
+- [ ] Abrir `/dashboard/agenda/calendario` en un viewport angosto (375px) → se ve una lista de un solo día (no la grilla semanal con scroll horizontal), con navegación "día anterior/siguiente".
+- [ ] Click en un evento de la vista de día → abre el mismo modal de detalle que la vista semanal.
+- [ ] Agrandar la ventana a desktop (≥768px) → cambia a la grilla semanal de siempre, sin recargar la página raro (SSR con breakpoint CSS, no JS).
+- [ ] `AgendaKioskHeader` (topbar de calendario y `/agenda-tv`) no se corta ni desborda en 375px.
+
+## Agenda — feedback de guardado en catálogos
+- [ ] Activar/desactivar una grúa/empresa/operario → el botón muestra un spinner mientras corre y no se puede volver a clickear hasta que termina.
+- [ ] Crear o editar una grúa/empresa/operario con éxito → aparece un banner verde "Cambios guardados correctamente" que desaparece solo a los 3s.
+- [ ] Borrar una grúa/empresa/operario → el botón de confirmación dice "Eliminando…" mientras corre; si falla (ej. tiene eventos asociados y la FK es RESTRICT), aparece el error en rojo en vez de fallar en silencio.
+
+## Agenda — solapamiento y eventos de varios días
+- [ ] Crear un evento con una grúa en un horario, luego crear otro con la MISMA grúa en un horario que se pisa (mismo día) → el segundo se rechaza con mensaje claro nombrando la grúa/fecha/horario en conflicto.
+- [ ] Igual que arriba pero con el mismo operario asignado en ambos eventos (grúas distintas) → también se rechaza.
+- [ ] Crear dos eventos con la misma grúa en horarios que NO se pisan (ej. 9-11 y 11-13 el mismo día) → ambos se guardan sin error.
+- [ ] Editar un evento existente sin cambiar nada → no se rechaza a sí mismo como conflicto.
+- [ ] Crear un evento con "Hasta" (varios días) con una grúa → crear otro evento con esa misma grúa en un día intermedio del rango → se rechaza.
+- [ ] Crear un evento de varios días → aparece repetido en cada día del rango en `/dashboard/agenda/calendario` y en `/agenda-tv` (no solo en el primer día).
 
 ## Agenda — catálogos y eventos
 - [ ] Crear una empresa sin completar "Contacto"/"Teléfono" → se guarda sin el error de Zod ("Invalid input: expected string, received null").

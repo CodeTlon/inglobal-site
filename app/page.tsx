@@ -165,25 +165,29 @@ export default async function HomePage() {
                 {heroCtaSecondary}
               </Link>
             </div>
-
-            {/* Stats — ocultos en mobile, el hero ya tiene bastante info ahí (headline + subheadline + CTA) */}
-            <div className="mt-14 pt-10 border-t border-igb-outline/30 hero-anim hero-anim-d4 hidden md:block">
-              <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:gap-8">
-                {statsItems.map((s) => (
-                  <div key={s.label} className="group">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold text-zinc-900 tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none">
-                      {s.number}
-                    </p>
-                    <p className="text-[10px] sm:text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
-                      {s.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
+
+      {/* ===== STATS (banner debajo del hero — separado para que el video se vea limpio) ===== */}
+      {statsItems.length > 0 && (
+        <section className="bg-igb-on-surface py-10" data-animate="fade-up">
+          <div className="container-igb">
+            <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:justify-center md:gap-16">
+              {statsItems.map((s) => (
+                <div key={s.label} className="group text-center md:text-left">
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold text-white tracking-tight group-hover:text-igb-yellow transition-colors leading-none">
+                    {s.number}
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] md:text-sm text-zinc-400 mt-2 font-bold uppercase tracking-wider leading-snug">
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== QUÉ HACEMOS (Servicios preview) ===== */}
       <section className="section-pad bg-igb-surface-low" id="servicios-preview">

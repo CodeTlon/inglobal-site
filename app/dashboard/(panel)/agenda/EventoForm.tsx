@@ -38,6 +38,13 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(e.currentTarget)
+    const fecha = formData.get('fecha') as string
+    const fechaHasta = formData.get('fecha_hasta') as string
+    if (fechaHasta && fechaHasta < fecha) {
+      e.preventDefault()
+      setClientError('La fecha de fin no puede ser anterior a la fecha de inicio.')
+      return
+    }
     const horaInicio = formData.get('hora_inicio') as string
     const horaFin = formData.get('hora_fin') as string
     if (horaInicio && horaFin) {
@@ -63,8 +70,20 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextField label="Fecha" name="fecha" type="date" defaultValue={evento?.fecha} required min={FECHA_MIN} max={FECHA_MAX} />
+        <TextField
+          label="Hasta (opcional)"
+          name="fecha_hasta"
+          type="date"
+          defaultValue={evento?.fecha_hasta ?? undefined}
+          min={FECHA_MIN}
+          max={FECHA_MAX}
+          hint="Completar solo si el trabajo dura varios días seguidos con la misma grúa/operarios."
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextField label="Hora inicio" name="hora_inicio" type="time" defaultValue={evento?.hora_inicio} required />
         <TextField label="Hora fin" name="hora_fin" type="time" defaultValue={evento?.hora_fin ?? undefined} />
       </div>
@@ -93,9 +112,9 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
         defaultValue={evento?.operarios.map((o) => o.id)}
       />
 
-      <TextField label="Ubicación" name="ubicacion" defaultValue={evento?.ubicacion ?? undefined} hint="Dirección o link de Google Maps." />
+      <TextField label="Ubicación" name="ubicacion" defaultValue={evento?.ubicacion ?? undefined} hint="Dirección o link de Google Maps." placeholder="Ej: Av. Colón 1234, Córdoba" />
 
-      <TextArea label="Notas" name="notas" defaultValue={evento?.notas ?? undefined} rows={3} />
+      <TextArea label="Notas" name="notas" defaultValue={evento?.notas ?? undefined} rows={3} placeholder="Ej: Coordinar acceso con el encargado de obra antes de las 14hs" />
 
       <SelectField label="Estado" name="estado" defaultValue={evento?.estado ?? 'programado'} options={ESTADOS} />
 

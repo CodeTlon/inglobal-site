@@ -30,6 +30,7 @@ export default function QueHacemosForm({ settings }: { settings: Record<string, 
         defaultValue={settings.subheading as string}
         rows={3}
         hint="Párrafo de apoyo debajo del título."
+        placeholder="Ej: Desde el izaje de estructuras hasta el transporte de maquinaria pesada, resolvemos cada etapa de tu proyecto."
       />
 
       <div className="flex justify-end pt-2">

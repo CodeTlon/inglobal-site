@@ -5,7 +5,8 @@ import { useFormState } from 'react-dom'
 import { TextField, SelectField } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
-import { Trash2, Power, AlertCircle, Pencil, X } from 'lucide-react'
+import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
+import { Trash2, Power, AlertCircle, Pencil, X, Loader2 } from 'lucide-react'
 import type { AgendaState } from '@/app/actions/agenda'
 
 interface Item {
@@ -22,6 +23,7 @@ interface FieldConfig {
   type?: string
   required?: boolean
   options?: { value: string; label: string }[]
+  placeholder?: string
 }
 
 interface Props {
@@ -54,6 +56,7 @@ function FieldInputs({ fields, values }: { fields: FieldConfig[]; values?: Recor
             type={f.type}
             required={f.required}
             defaultValue={values?.[f.name] !== undefined ? String(values[f.name]) : undefined}
+            placeholder={f.placeholder}
           />
         ),
       )}
@@ -76,6 +79,19 @@ function CatalogRow({
 }) {
   const [editing, setEditing] = useState(false)
   const [updateState, updateFormAction] = useFormState(updateAction ?? (async () => undefined), undefined)
+  const [toggling, setToggling] = useState(false)
+  const [toggleError, setToggleError] = useState<string | null>(null)
+
+  async function handleToggle() {
+    setToggling(true)
+    setToggleError(null)
+    const fd = new FormData()
+    fd.append('id', item.id)
+    fd.append('activo', String(item.activo))
+    const res = await toggleAction(undefined, fd)
+    setToggling(false)
+    if (res?.error) setToggleError(res.error)
+  }
 
   if (editing && updateAction) {
     return (
@@ -86,7 +102,8 @@ function CatalogRow({
             <p className="text-red-700 text-xs">{updateState.error}</p>
           </div>
         )}
-        <form action={updateFormAction} className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+        <InlineSavedBanner trigger={updateState} />
+        <form action={updateFormAction} className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
           <input type="hidden" name="id" value={item.id} />
           <FieldInputs fields={fields} values={item.values} />
           <div className="sm:col-span-2 flex justify-end gap-2">
@@ -109,19 +126,19 @@ function CatalogRow({
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-bold truncate ${item.activo ? 'text-zinc-900' : 'text-zinc-400 line-through'}`}>{item.nombre}</p>
         {item.subtitle && <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>}
+        {toggleError && <p className="text-xs text-red-500 truncate">{toggleError}</p>}
       </div>
-      <form action={async (formData) => { await toggleAction(undefined, formData) }}>
-        <input type="hidden" name="id" value={item.id} />
-        <input type="hidden" name="activo" value={String(item.activo)} />
-        <button
-          type="submit"
-          className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded transition-colors ${
-            item.activo ? 'bg-igb-yellow/15 text-igb-yellow-dark' : 'bg-zinc-100 text-zinc-400'
-          }`}
-        >
-          <Power size={12} /> {item.activo ? 'Activo' : 'Inactivo'}
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={handleToggle}
+        disabled={toggling}
+        className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded transition-colors disabled:opacity-60 ${
+          item.activo ? 'bg-igb-yellow/15 text-igb-yellow-dark' : 'bg-zinc-100 text-zinc-400'
+        }`}
+      >
+        {toggling ? <Loader2 size={12} className="animate-spin" /> : <Power size={12} />}
+        {item.activo ? 'Activo' : 'Inactivo'}
+      </button>
       {updateAction && (
         <button
           type="button"
@@ -147,6 +164,20 @@ function CatalogRow({
 export default function CatalogSection({ title, items, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
   const [createState, createFormAction] = useFormState(createAction, undefined)
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  async function handleConfirmDelete() {
+    if (!pendingDelete || deleting) return
+    setDeleting(true)
+    setDeleteError(null)
+    const fd = new FormData()
+    fd.append('id', pendingDelete.id)
+    const res = await deleteAction(undefined, fd)
+    setDeleting(false)
+    setPendingDelete(null)
+    if (res?.error) setDeleteError(res.error)
+  }
 
   return (
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
@@ -166,14 +197,15 @@ export default function CatalogSection({ title, items, fields, createAction, upd
         {items.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
       </div>
 
-      {createState?.error && (
+      {(createState?.error || deleteError) && (
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
           <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-red-700 text-xs">{createState.error}</p>
+          <p className="text-red-700 text-xs">{createState?.error ?? deleteError}</p>
         </div>
       )}
+      <InlineSavedBanner trigger={createState} />
 
-      <form action={createFormAction} className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+      <form action={createFormAction} className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
         <FieldInputs fields={fields} />
         <div className="sm:col-span-2 flex justify-end">
           <SaveButton />
@@ -184,15 +216,9 @@ export default function CatalogSection({ title, items, fields, createAction, upd
         open={pendingDelete !== null}
         title="Eliminar registro"
         message={pendingDelete ? `¿Eliminar "${pendingDelete.nombre}"? Esta acción no se puede deshacer.` : ''}
-        confirmLabel="Eliminar"
+        confirmLabel={deleting ? 'Eliminando…' : 'Eliminar'}
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
-          if (!pendingDelete) return
-          const fd = new FormData()
-          fd.append('id', pendingDelete.id)
-          deleteAction(undefined, fd)
-          setPendingDelete(null)
-        }}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   )

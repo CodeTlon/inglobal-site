@@ -40,6 +40,7 @@ export interface Operario {
 export interface EventoAgenda {
   id: string
   fecha: string
+  fecha_hasta: string | null
   hora_inicio: string
   hora_fin: string | null
   grua_id: string
@@ -92,12 +93,17 @@ function mapEvento(row: any): EventoAgenda {
   }
 }
 
-/** Eventos ordenados por fecha/hora ascendente. `desde`/`hasta` filtran por fecha (YYYY-MM-DD), inclusive. */
+/**
+ * Eventos ordenados por fecha/hora ascendente. `desde`/`hasta` filtran por fecha
+ * (YYYY-MM-DD), inclusive — un evento de varios días (fecha_hasta) matchea si su
+ * rango se solapa con la ventana pedida, no sólo si empieza adentro (si no, un
+ * evento que arrancó antes de `desde` pero sigue vigente desaparecía de la vista).
+ */
 export async function getEventosAgenda({ desde, hasta }: { desde?: string; hasta?: string } = {}): Promise<EventoAgenda[]> {
   const supabase = await createSupabaseServerClient()
   let query = supabase.from('eventos_agenda').select(EVENTO_SELECT)
-  if (desde) query = query.gte('fecha', desde)
   if (hasta) query = query.lte('fecha', hasta)
+  if (desde) query = query.or(`fecha_hasta.gte.${desde},and(fecha_hasta.is.null,fecha.gte.${desde})`)
   const { data, error } = await query
     .order('fecha', { ascending: true })
     .order('hora_inicio', { ascending: true })

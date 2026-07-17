@@ -28,6 +28,7 @@ export default function FooterForm({ settings }: { settings: Record<string, unkn
         defaultValue={settings.description as string}
         rows={3}
         hint="Texto que aparece bajo el logo en el footer."
+        placeholder="Ej: Grúas InGlobal S.R.L. brinda servicios de izaje, montaje y transporte de maquinaria pesada en Córdoba y toda la región."
       />
 
       <TextField

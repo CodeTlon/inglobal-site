@@ -72,29 +72,33 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
           )),
         )}
 
-        {eventos.map((ev) => {
-          const dayIdx = dayKeys.indexOf(ev.fecha)
-          if (dayIdx === -1) return null
+        {eventos.flatMap((ev) => {
+          // Evento de varios días (fecha_hasta) — se repite en cada columna de
+          // día que caiga dentro de su rango y también sea parte de la semana visible.
+          const finEv = ev.fecha_hasta ?? ev.fecha
           const rowStart = Math.floor(timeToSlot(ev.hora_inicio)) + 2
           const rowEnd = ev.hora_fin
             ? Math.max(rowStart + 1, Math.ceil(timeToSlot(ev.hora_fin)) + 2)
             : rowStart + 2
           const visual = getEstadoVisual(ev)
-          return (
-            <button
-              key={ev.id}
-              type="button"
-              onClick={() => setSelected(ev)}
-              className={`m-0.5 rounded-lg border px-2 py-1 overflow-hidden text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(visual)}`}
-              style={{ gridColumn: dayIdx + 2, gridRow: `${rowStart} / ${rowEnd}` }}
-              title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
-            >
-              <p className="text-[11px] font-bold truncate">
-                {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
-              </p>
-              <p className="text-[10px] truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>
-            </button>
-          )
+          return dayKeys.flatMap((key, dayIdx) => {
+            if (key < ev.fecha || key > finEv) return []
+            return [
+              <button
+                key={`${ev.id}-${key}`}
+                type="button"
+                onClick={() => setSelected(ev)}
+                className={`m-0.5 rounded-lg border px-2 py-1 overflow-hidden text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(visual)}`}
+                style={{ gridColumn: dayIdx + 2, gridRow: `${rowStart} / ${rowEnd}` }}
+                title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
+              >
+                <p className="text-[11px] font-bold truncate">
+                  {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
+                </p>
+                <p className="text-[10px] truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>
+              </button>,
+            ]
+          })
         })}
       </div>
 

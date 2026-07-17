@@ -15,12 +15,16 @@ async function requireUser() {
   return supabase
 }
 
+// StringList (Field.tsx) serializa el input oculto como JSON — no texto
+// separado por saltos de línea.
 function parseSpecs(raw: string | undefined): string[] {
   if (!raw) return []
-  return raw
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean)
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((s): s is string => typeof s === 'string' && s.trim() !== '') : []
+  } catch {
+    return []
+  }
 }
 
 function revalidateServicios() {

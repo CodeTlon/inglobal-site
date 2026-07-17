@@ -41,7 +41,12 @@ export default async function MontajeDetailPage({ params }: Props) {
 
   const heroImage = montaje.banner_image ?? montaje.cover_image
   const heroImageFocal = montaje.banner_image ? montaje.banner_image_focal : montaje.cover_image_focal
+  const heroImageFocalMobile = montaje.banner_image ? montaje.banner_image_focal_mobile : montaje.cover_image_focal_mobile
   const isRemoteImg = heroImage?.startsWith('http')
+  const focalStyle = {
+    '--focal-desktop': heroImageFocal ?? undefined,
+    '--focal-mobile': heroImageFocalMobile ?? undefined,
+  } as React.CSSProperties
 
   return (
     <main className="bg-white">
@@ -79,7 +84,7 @@ export default async function MontajeDetailPage({ params }: Props) {
 
         {/* Banner image (o portada si no hay banner propio) */}
         {heroImage && (
-          <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[280px] md:min-h-[420px] overflow-hidden">
             {isRemoteImg ? (
               <Image
                 src={heroImage}
@@ -87,8 +92,8 @@ export default async function MontajeDetailPage({ params }: Props) {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover hero-bg-zoom"
-                style={{ objectPosition: heroImageFocal ?? undefined }}
+                className="object-cover hero-bg-zoom focal-responsive"
+                style={focalStyle}
               />
             ) : (
               <Picture
@@ -97,8 +102,8 @@ export default async function MontajeDetailPage({ params }: Props) {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover hero-bg-zoom"
-                style={{ objectPosition: heroImageFocal ?? undefined }}
+                className="object-cover hero-bg-zoom focal-responsive"
+                style={focalStyle}
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />

@@ -35,8 +35,8 @@ export default function ServicioForm({ servicio }: Props) {
         </div>
       )}
 
-      <TextField label="Título" name="title" defaultValue={servicio.title} required />
-      <TextArea label="Descripción" name="desc" defaultValue={servicio.desc} rows={4} />
+      <TextField label="Título" name="title" defaultValue={servicio.title} required placeholder="Ej: Transporte de maquinaria pesada" />
+      <TextArea label="Descripción" name="desc" defaultValue={servicio.desc} rows={4} placeholder="Ej: Traslado seguro de maquinaria pesada dentro y fuera de la provincia de Córdoba." />
 
       {/* Icon selector */}
       <div>
@@ -81,6 +81,7 @@ export default function ServicioForm({ servicio }: Props) {
         defaultValue={servicio.display_order}
         min={1}
         hint="Número menor = aparece primero."
+        placeholder="Ej: 1"
       />
 
       <Checkbox label="Publicado" name="published" defaultChecked={servicio.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />

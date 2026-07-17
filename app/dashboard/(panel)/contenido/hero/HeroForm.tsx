@@ -36,6 +36,7 @@ export default function HeroForm({ settings }: { settings: Record<string, unknow
         defaultValue={settings.subheadline as string}
         rows={3}
         hint="Párrafo descriptivo debajo del titular."
+        placeholder="Ej: Contamos con la flota y la experiencia para acompañar tus proyectos de izaje, montaje y transporte pesado."
       />
 
       <div className="grid grid-cols-2 gap-4">
@@ -86,6 +87,7 @@ export default function HeroForm({ settings }: { settings: Record<string, unknow
         min={0}
         max={100}
         hint="100 = look actual. Bajarlo aclara el degradé sobre el video/imagen del hero."
+        placeholder="Ej: 100"
       />
 
       <div className="flex justify-end pt-2">

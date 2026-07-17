@@ -4,6 +4,7 @@ const MIN_DURACION_MIN = 15
 
 export const eventoAgendaSchema = z.object({
   fecha:       z.string().min(1, 'La fecha es obligatoria'),
+  fecha_hasta: z.string().nullable().optional(),
   hora_inicio: z.string().min(1, 'La hora de inicio es obligatoria'),
   hora_fin:    z.string().nullable().optional(),
   grua_id:     z.string().uuid('Seleccioná una grúa'),
@@ -15,6 +16,9 @@ export const eventoAgendaSchema = z.object({
   const hoy = new Date().toISOString().slice(0, 10)
   if (data.fecha < hoy) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fecha'], message: 'La fecha no puede ser anterior a hoy' })
+  }
+  if (data.fecha_hasta && data.fecha_hasta < data.fecha) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fecha_hasta'], message: 'La fecha de fin no puede ser anterior a la fecha de inicio' })
   }
   if (data.hora_fin) {
     const [hi, mi] = data.hora_inicio.split(':').map(Number)

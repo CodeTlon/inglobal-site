@@ -82,6 +82,7 @@ export default function GaleriaForm({ item, entityId, action }: Props) {
           defaultValue={item?.display_order ?? 0}
           min={0}
           hint="Menor número aparece primero."
+          placeholder="Ej: 1"
         />
         <Checkbox label="Publicado" name="published" defaultChecked={item?.published ?? true} />
       </div>

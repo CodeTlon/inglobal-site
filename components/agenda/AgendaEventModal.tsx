@@ -23,6 +23,9 @@ export default function AgendaEventModal({ evento, onClose }: { evento: EventoAg
     day: 'numeric',
     month: 'long',
   })
+  const fechaHasta = evento.fecha_hasta
+    ? new Date(`${evento.fecha_hasta}T00:00:00`).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
+    : null
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
@@ -36,7 +39,10 @@ export default function AgendaEventModal({ evento, onClose }: { evento: EventoAg
               {formatEstado(getEstadoVisual(evento))}
             </span>
             <h2 className="font-headline font-bold text-lg text-zinc-900">{evento.grua?.nombre ?? 'Grúa'}</h2>
-            <p className="text-sm text-zinc-500 capitalize">{fecha}</p>
+            <p className="text-sm text-zinc-500 capitalize">
+              {fecha}
+              {fechaHasta && <> hasta el {fechaHasta}</>}
+            </p>
           </div>
           <button
             type="button"

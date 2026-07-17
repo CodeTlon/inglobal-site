@@ -42,7 +42,7 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         </div>
       )}
 
-      <TextField label="Título" name="title" defaultValue={trabajo?.title} required />
+      <TextField label="Título" name="title" defaultValue={trabajo?.title} required placeholder="Ej: Izaje de tanque en Planta Edesur" />
 
       <TextField
         label="Fecha del trabajo"
@@ -59,6 +59,7 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         defaultValue={trabajo?.excerpt ?? undefined}
         rows={2}
         hint="Se muestra en la lista de trabajos del cliente."
+        placeholder="Ej: Traslado e izaje de un tanque de 15.000 litros en la planta de Edesur."
       />
 
       <ImageUpload
@@ -69,6 +70,8 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         hint="Foto de la miniatura en el listado de trabajos del cliente."
         focalName="cover_image_focal"
         focalDefaultValue={trabajo?.cover_image_focal}
+        focalMobileName="cover_image_focal_mobile"
+        focalMobileDefaultValue={trabajo?.cover_image_focal_mobile}
       />
 
       <ImageUpload
@@ -79,6 +82,8 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         hint="Foto grande que va detrás del título en la página de detalle. Si no se carga, se usa la imagen de portada."
         focalName="banner_image_focal"
         focalDefaultValue={trabajo?.banner_image_focal}
+        focalMobileName="banner_image_focal_mobile"
+        focalMobileDefaultValue={trabajo?.banner_image_focal_mobile}
       />
 
       <TextField
@@ -86,6 +91,7 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         name="youtube_url"
         defaultValue={trabajo?.youtube_url ?? undefined}
         hint="Se muestra como video destacado en la página del trabajo."
+        placeholder="Ej: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       />
 
       <FileUpload
@@ -107,6 +113,7 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         defaultValue={trabajo?.display_order ?? 0}
         min={0}
         hint="Número menor = aparece primero en la lista del cliente."
+        placeholder="Ej: 1"
       />
 
       <Checkbox label="Publicado" name="published" defaultChecked={trabajo?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />

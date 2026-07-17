@@ -26,8 +26,10 @@ export interface Montaje {
   content:       string | null
   cover_image:   string | null
   cover_image_focal?: string | null
+  cover_image_focal_mobile?: string | null
   banner_image?: string | null
   banner_image_focal?: string | null
+  banner_image_focal_mobile?: string | null
   tags:          string[]
   display_order: number
   published:     boolean
@@ -41,6 +43,7 @@ export interface Cliente {
   name:        string
   logo:        string
   logo_focal?: string | null
+  logo_focal_mobile?: string | null
   bio:         string | null
   content:     string | null
   featured:    boolean
@@ -91,8 +94,10 @@ export interface Trabajo {
   fecha:         string | null
   attachment_url: string | null
   cover_image_focal?: string | null
+  cover_image_focal_mobile?: string | null
   banner_image?: string | null
   banner_image_focal?: string | null
+  banner_image_focal_mobile?: string | null
   display_order: number
   published:     boolean
   created_at:    string

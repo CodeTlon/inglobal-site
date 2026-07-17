@@ -3,7 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon, FileText } from 'lucide-react'
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
+import { resizeImageFile } from '@/lib/client-image-resize'
+import { uploadDirectToStorage } from '@/lib/client-upload'
+import { MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 import ConfirmDialog from './ConfirmDialog'
+
+function formatMB(bytes: number) {
+  return `${Math.round(bytes / (1024 * 1024))} MB`
+}
 
 // Shared class strings — keep dashboard styling in one place
 export const fieldLabel =
@@ -99,6 +106,7 @@ export function NumberField({
   hint,
   min,
   max,
+  placeholder,
 }: {
   label: string
   name: string
@@ -106,6 +114,7 @@ export function NumberField({
   hint?: string
   min?: number
   max?: number
+  placeholder?: string
 }) {
   return (
     <div>
@@ -119,6 +128,7 @@ export function NumberField({
         defaultValue={defaultValue ?? ''}
         min={min}
         max={max}
+        placeholder={placeholder}
         className={fieldInput}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
@@ -176,6 +186,8 @@ export function ImageUpload({
   hint,
   focalName,
   focalDefaultValue,
+  focalMobileName,
+  focalMobileDefaultValue,
 }: {
   label: string
   name: string
@@ -185,6 +197,9 @@ export function ImageUpload({
   /** Si se pasa, agrega un picker de foco: click sobre el preview elige qué parte de la imagen se prioriza al recortar. */
   focalName?: string
   focalDefaultValue?: string | null
+  /** Si se pasa (además de focalName), agrega un segundo foco para mobile — toggle Desktop/Mobile sobre el mismo preview. Vacío = usa el foco de desktop. */
+  focalMobileName?: string
+  focalMobileDefaultValue?: string | null
 }) {
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   // Valor real que viaja al formulario — a diferencia de `url` (preview, puede ser
@@ -195,14 +210,23 @@ export function ImageUpload({
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
+  const [focalMobile, setFocalMobile] = useState<string>(focalMobileDefaultValue ?? '')
+  const [focalMode, setFocalMode] = useState<'desktop' | 'mobile'>('desktop')
   const objectUrlRef = useRef<string | null>(null)
   const genRef = useRef(0)
+
+  // Foco que se está editando/mostrando según el toggle — en mobile, si nunca
+  // se customizó, arranca mostrando el mismo punto que desktop (después de
+  // hacer clic ahí queda guardado como propio, ver onPickFocal).
+  const activeFocal = focalMode === 'mobile' ? (focalMobile || focal) : focal
 
   function onPickFocal(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = Math.round(((e.clientX - rect.left) / rect.width) * 100)
     const y = Math.round(((e.clientY - rect.top) / rect.height) * 100)
-    setFocal(`${x}% ${y}%`)
+    const value = `${x}% ${y}%`
+    if (focalMode === 'mobile') setFocalMobile(value)
+    else setFocal(value)
   }
 
   useEffect(() => {
@@ -212,18 +236,25 @@ export function ImageUpload({
   }, [])
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const picked = e.target.files?.[0]
+    if (!picked) return
     // Contador de generación: si el usuario elige otro archivo antes de que
     // termine este upload, la respuesta de este pick queda obsoleta y no debe
     // pisar el preview del pick más nuevo.
     const myGen = ++genRef.current
     const previousUrl = url
-    const localPreview = URL.createObjectURL(file)
+    const localPreview = URL.createObjectURL(picked)
     objectUrlRef.current = localPreview
     setUrl(localPreview)
     setBusy(true)
     setErr(null)
+
+    // Resize en el navegador antes de subir — Vercel cappea el body de
+    // cualquier función serverless a 4.5MB sin importar next.config.mjs, así
+    // que una foto de celular real nunca llegaba a uploadMediaAction (ver
+    // lib/client-image-resize.ts).
+    const file = await resizeImageFile(picked)
+
     const fd = new FormData()
     fd.append('file', file)
     fd.append('folder', folder)
@@ -263,34 +294,63 @@ export function ImageUpload({
       {/* Hidden input carries URL to parent form on submit — nunca un blob: (ver committedUrl arriba) */}
       <input type="hidden" name={name} value={committedUrl} />
       {focalName && <input type="hidden" name={focalName} value={focal} />}
+      {focalMobileName && <input type="hidden" name={focalMobileName} value={focalMobile} />}
 
       <div className="flex flex-col sm:flex-row gap-3 items-stretch">
         {/* Preview thumbnail */}
-        <div
-          className={`relative flex-shrink-0 w-full sm:w-32 h-24 rounded-lg border border-zinc-200 overflow-hidden flex items-center justify-center bg-zinc-50 ${
-            focalName && url ? 'cursor-crosshair' : ''
-          }`}
-          onClick={focalName && url ? onPickFocal : undefined}
-        >
-          {url ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt=""
-                className="w-full h-full object-cover pointer-events-none"
-                style={focalName ? { objectPosition: focal } : undefined}
-              />
-              {focalName && (
-                <span
-                  className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                  style={{ left: focal.split(' ')[0], top: focal.split(' ')[1] }}
-                />
-              )}
-            </>
-          ) : (
-            <ImageIcon size={20} className="text-zinc-300" />
+        <div className="flex-shrink-0 w-full sm:w-32 flex flex-col gap-1.5">
+          {focalMobileName && url && (
+            <div className="flex gap-1 text-[10px] font-bold">
+              <button
+                type="button"
+                onClick={() => setFocalMode('desktop')}
+                className={`flex-1 px-2 py-1 rounded border transition-colors ${
+                  focalMode === 'desktop'
+                    ? 'bg-igb-yellow text-igb-on-yellow border-igb-yellow'
+                    : 'bg-white text-zinc-500 border-zinc-200'
+                }`}
+              >
+                Desktop
+              </button>
+              <button
+                type="button"
+                onClick={() => setFocalMode('mobile')}
+                className={`flex-1 px-2 py-1 rounded border transition-colors ${
+                  focalMode === 'mobile'
+                    ? 'bg-igb-yellow text-igb-on-yellow border-igb-yellow'
+                    : 'bg-white text-zinc-500 border-zinc-200'
+                }`}
+              >
+                Mobile
+              </button>
+            </div>
           )}
+          <div
+            className={`relative h-24 rounded-lg border border-zinc-200 overflow-hidden flex items-center justify-center bg-zinc-50 ${
+              focalName && url ? 'cursor-crosshair' : ''
+            }`}
+            onClick={focalName && url ? onPickFocal : undefined}
+          >
+            {url ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt=""
+                  className="w-full h-full object-cover pointer-events-none"
+                  style={focalName ? { objectPosition: activeFocal } : undefined}
+                />
+                {focalName && (
+                  <span
+                    className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    style={{ left: activeFocal.split(' ')[0], top: activeFocal.split(' ')[1] }}
+                  />
+                )}
+              </>
+            ) : (
+              <ImageIcon size={20} className="text-zinc-300" />
+            )}
+          </div>
         </div>
 
         {/* Controls */}
@@ -336,7 +396,11 @@ export function ImageUpload({
             )}
           </div>
           {err && <p className="text-xs text-red-500">{err}</p>}
-          {focalName && url && (
+          {focalMobileName && url ? (
+            <p className="text-zinc-400 text-xs">
+              Clic sobre la miniatura para elegir el foco en modo {focalMode === 'mobile' ? 'Mobile' : 'Desktop'}.
+            </p>
+          ) : focalName && url && (
             <p className="text-zinc-400 text-xs">Clic sobre la miniatura para elegir qué parte de la foto se prioriza al recortar.</p>
           )}
         </div>
@@ -395,6 +459,11 @@ export function VideoUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_VIDEO_BYTES) {
+      setErr(`El video no puede superar ${formatMB(MAX_VIDEO_BYTES)}.`)
+      e.target.value = ''
+      return
+    }
     const myGen = ++genRef.current
     const previousUrl = url
     const localPreview = URL.createObjectURL(file)
@@ -403,13 +472,13 @@ export function VideoUpload({
     setPreviewBroken(false)
     setBusy(true)
     setErr(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('folder', folder)
-    if (previousUrl) fd.append('oldUrl', previousUrl)
+    // Subida directa al bucket desde el navegador (no uploadMediaAction) —
+    // Vercel rechaza con un 413 crudo el body de cualquier función serverless
+    // que pase 4.5MB, sin importar el bodySizeLimit de next.config.mjs. Ver
+    // lib/client-upload.ts.
     let res: { url?: string; error?: string }
     try {
-      res = await uploadMediaAction(fd)
+      res = await uploadDirectToStorage(file, folder)
     } catch (uploadErr) {
       URL.revokeObjectURL(localPreview)
       if (myGen !== genRef.current) return
@@ -432,6 +501,7 @@ export function VideoUpload({
     if (res.url) {
       setUrl(res.url)
       setCommittedUrl(res.url)
+      if (previousUrl) deleteMediaAction(previousUrl)
     }
     e.target.value = ''
   }
@@ -551,19 +621,34 @@ export function FileUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_DOC_BYTES) {
+      setErr(`El documento no puede superar ${formatMB(MAX_DOC_BYTES)}.`)
+      e.target.value = ''
+      return
+    }
+    const previousUrl = url
     setBusy(true)
     setErr(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('folder', folder)
-    if (url) fd.append('oldUrl', url)
-    const res = await uploadMediaAction(fd)
+    // Subida directa al bucket (ver comentario en VideoUpload.onPick) — un PDF
+    // escaneado supera fácil los 4.5MB que Vercel permite por Server Action.
+    let res: { url?: string; error?: string }
+    try {
+      res = await uploadDirectToStorage(file, folder)
+    } catch (uploadErr) {
+      setBusy(false)
+      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      e.target.value = ''
+      return
+    }
     setBusy(false)
     if (res.error) {
       setErr(res.error)
       return
     }
-    if (res.url) setUrl(res.url)
+    if (res.url) {
+      setUrl(res.url)
+      if (previousUrl) deleteMediaAction(previousUrl)
+    }
     e.target.value = ''
   }
 
