@@ -3,7 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon, FileText } from 'lucide-react'
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
+import { resizeImageFile } from '@/lib/client-image-resize'
+import { uploadDirectToStorage } from '@/lib/client-upload'
+import { MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 import ConfirmDialog from './ConfirmDialog'
+
+function formatMB(bytes: number) {
+  return `${Math.round(bytes / (1024 * 1024))} MB`
+}
 
 // Shared class strings — keep dashboard styling in one place
 export const fieldLabel =
@@ -212,18 +219,25 @@ export function ImageUpload({
   }, [])
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const picked = e.target.files?.[0]
+    if (!picked) return
     // Contador de generación: si el usuario elige otro archivo antes de que
     // termine este upload, la respuesta de este pick queda obsoleta y no debe
     // pisar el preview del pick más nuevo.
     const myGen = ++genRef.current
     const previousUrl = url
-    const localPreview = URL.createObjectURL(file)
+    const localPreview = URL.createObjectURL(picked)
     objectUrlRef.current = localPreview
     setUrl(localPreview)
     setBusy(true)
     setErr(null)
+
+    // Resize en el navegador antes de subir — Vercel cappea el body de
+    // cualquier función serverless a 4.5MB sin importar next.config.mjs, así
+    // que una foto de celular real nunca llegaba a uploadMediaAction (ver
+    // lib/client-image-resize.ts).
+    const file = await resizeImageFile(picked)
+
     const fd = new FormData()
     fd.append('file', file)
     fd.append('folder', folder)
@@ -395,6 +409,11 @@ export function VideoUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_VIDEO_BYTES) {
+      setErr(`El video no puede superar ${formatMB(MAX_VIDEO_BYTES)}.`)
+      e.target.value = ''
+      return
+    }
     const myGen = ++genRef.current
     const previousUrl = url
     const localPreview = URL.createObjectURL(file)
@@ -403,13 +422,13 @@ export function VideoUpload({
     setPreviewBroken(false)
     setBusy(true)
     setErr(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('folder', folder)
-    if (previousUrl) fd.append('oldUrl', previousUrl)
+    // Subida directa al bucket desde el navegador (no uploadMediaAction) —
+    // Vercel rechaza con un 413 crudo el body de cualquier función serverless
+    // que pase 4.5MB, sin importar el bodySizeLimit de next.config.mjs. Ver
+    // lib/client-upload.ts.
     let res: { url?: string; error?: string }
     try {
-      res = await uploadMediaAction(fd)
+      res = await uploadDirectToStorage(file, folder)
     } catch (uploadErr) {
       URL.revokeObjectURL(localPreview)
       if (myGen !== genRef.current) return
@@ -432,6 +451,7 @@ export function VideoUpload({
     if (res.url) {
       setUrl(res.url)
       setCommittedUrl(res.url)
+      if (previousUrl) deleteMediaAction(previousUrl)
     }
     e.target.value = ''
   }
@@ -551,19 +571,34 @@ export function FileUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > MAX_DOC_BYTES) {
+      setErr(`El documento no puede superar ${formatMB(MAX_DOC_BYTES)}.`)
+      e.target.value = ''
+      return
+    }
+    const previousUrl = url
     setBusy(true)
     setErr(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('folder', folder)
-    if (url) fd.append('oldUrl', url)
-    const res = await uploadMediaAction(fd)
+    // Subida directa al bucket (ver comentario en VideoUpload.onPick) — un PDF
+    // escaneado supera fácil los 4.5MB que Vercel permite por Server Action.
+    let res: { url?: string; error?: string }
+    try {
+      res = await uploadDirectToStorage(file, folder)
+    } catch (uploadErr) {
+      setBusy(false)
+      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      e.target.value = ''
+      return
+    }
     setBusy(false)
     if (res.error) {
       setErr(res.error)
       return
     }
-    if (res.url) setUrl(res.url)
+    if (res.url) {
+      setUrl(res.url)
+      if (previousUrl) deleteMediaAction(previousUrl)
+    }
     e.target.value = ''
   }
 

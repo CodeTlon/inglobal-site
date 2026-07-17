@@ -22,7 +22,10 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok) {
+        // response.ok es true también para 206 (Partial Content) — lo que
+        // devuelve cualquier <video> al pedir un rango de bytes — y
+        // Cache.put() tira si se le pasa una respuesta 206.
+        if (response.ok && response.status !== 206) {
           const copy = response.clone()
           caches.open(CACHE).then((cache) => cache.put(request, copy))
         }

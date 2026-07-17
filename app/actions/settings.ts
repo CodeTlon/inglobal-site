@@ -5,6 +5,7 @@ import sharp from 'sharp'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { extractStoragePath } from '@/lib/storage'
 import { transcodeVideo } from '@/lib/video-transcode'
+import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 
 export type SaveState = { success?: boolean; error?: string } | undefined
 
@@ -86,10 +87,6 @@ export async function updateSiteSettings(
 // ─────────────────────────────────────────────────────────────
 // Upload de media al bucket de Storage
 // ─────────────────────────────────────────────────────────────
-
-const MAX_IMAGE_BYTES = 12 * 1024 * 1024  // 12 MB
-const MAX_VIDEO_BYTES = 20 * 1024 * 1024  // 20 MB (el server re-comprime, ver lib/video-transcode.ts)
-const MAX_DOC_BYTES   = 8 * 1024 * 1024   // 8 MB
 
 /**
  * Sube un archivo al bucket `media`.
