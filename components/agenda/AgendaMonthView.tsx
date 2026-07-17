@@ -1,5 +1,5 @@
 import type { EventoAgenda } from '@/lib/agenda'
-import { getMonthMatrix, estadoColorClasses, getEstadoVisual, toDateInput } from '@/lib/agenda-view'
+import { getMonthMatrix, estadoColorClasses, getEstadoVisual, toDateInput, addDays } from '@/lib/agenda-view'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
@@ -8,9 +8,14 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
   const weeks = getMonthMatrix(month)
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
-    const list = byDay.get(ev.fecha) ?? []
-    list.push(ev)
-    byDay.set(ev.fecha, list)
+    // Evento de varios días (fecha_hasta) — aparece en cada día de su rango,
+    // no solo en el día en que arrancó.
+    const finEv = ev.fecha_hasta ?? ev.fecha
+    for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(new Date(`${d}T00:00:00`), 1))) {
+      const list = byDay.get(d) ?? []
+      list.push(ev)
+      byDay.set(d, list)
+    }
   }
 
   return (

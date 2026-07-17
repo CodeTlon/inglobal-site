@@ -52,6 +52,9 @@ export default async function AgendaDashboardPage() {
             <div className="flex-shrink-0 w-16 text-center">
               <p className="text-xs font-bold text-zinc-400 uppercase">
                 {new Date(`${ev.fecha}T00:00:00`).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
+                {ev.fecha_hasta && (
+                  <> – {new Date(`${ev.fecha_hasta}T00:00:00`).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}</>
+                )}
               </p>
               <p className="text-sm font-headline font-bold text-zinc-900">{ev.hora_inicio.slice(0, 5)}</p>
             </div>

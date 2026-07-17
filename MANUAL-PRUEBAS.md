@@ -49,6 +49,14 @@ se construyen o tocan esas features.
 - [ ] Crear dos montajes (o clientes/servicios/trabajos del mismo cliente) con el mismo número de orden → el segundo se guarda con el siguiente valor libre, sin error y sin pisar al primero.
 - [ ] Editar un registro existente al mismo `display_order` que otro → se resuelve solo (no bloquea el guardado).
 
+## Agenda — solapamiento y eventos de varios días
+- [ ] Crear un evento con una grúa en un horario, luego crear otro con la MISMA grúa en un horario que se pisa (mismo día) → el segundo se rechaza con mensaje claro nombrando la grúa/fecha/horario en conflicto.
+- [ ] Igual que arriba pero con el mismo operario asignado en ambos eventos (grúas distintas) → también se rechaza.
+- [ ] Crear dos eventos con la misma grúa en horarios que NO se pisan (ej. 9-11 y 11-13 el mismo día) → ambos se guardan sin error.
+- [ ] Editar un evento existente sin cambiar nada → no se rechaza a sí mismo como conflicto.
+- [ ] Crear un evento con "Hasta" (varios días) con una grúa → crear otro evento con esa misma grúa en un día intermedio del rango → se rechaza.
+- [ ] Crear un evento de varios días → aparece repetido en cada día del rango en `/dashboard/agenda/calendario` y en `/agenda-tv` (no solo en el primer día).
+
 ## Agenda — catálogos y eventos
 - [ ] Crear una empresa sin completar "Contacto"/"Teléfono" → se guarda sin el error de Zod ("Invalid input: expected string, received null").
 - [ ] Crear un evento sin elegir grúa o empresa → mensaje "Seleccioná una grúa/empresa" (no el error genérico de Zod).

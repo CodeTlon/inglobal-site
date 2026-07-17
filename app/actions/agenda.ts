@@ -59,6 +59,7 @@ async function syncEventoOperarios(
 function parseEventoForm(formData: FormData) {
   return eventoAgendaSchema.safeParse({
     fecha:       formData.get('fecha'),
+    fecha_hasta: formData.get('fecha_hasta'),
     hora_inicio: formData.get('hora_inicio'),
     hora_fin:    formData.get('hora_fin'),
     grua_id:     formData.get('grua_id'),
@@ -67,6 +68,72 @@ function parseEventoForm(formData: FormData) {
     notas:       formData.get('notas'),
     estado:      formData.get('estado'),
   })
+}
+
+// ─── Validación de solapamiento (grúa/operario reservados dos veces) ──────────
+
+type EventoWindow = { fecha: string; fecha_hasta?: string | null; hora_inicio: string; hora_fin?: string | null }
+
+function formatFechaCorta(fecha: string): string {
+  const [y, m, d] = fecha.split('-')
+  return `${d}/${m}/${y}`
+}
+
+function rangosSeSolapan(a: EventoWindow, b: EventoWindow): boolean {
+  const finA = a.fecha_hasta ?? a.fecha
+  const finB = b.fecha_hasta ?? b.fecha
+  if (a.fecha > finB || b.fecha > finA) return false
+  const horaFinA = a.hora_fin ?? '23:59'
+  const horaFinB = b.hora_fin ?? '23:59'
+  return a.hora_inicio < horaFinB && b.hora_inicio < horaFinA
+}
+
+/**
+ * Busca choques de horario para la grúa y cada operario del evento nuevo/editado
+ * contra eventos ya cargados (mismo criterio: mismo recurso + rango de fecha+hora
+ * solapado). No corre en SQL (el solapamiento de rangos con NULLs es incómodo de
+ * expresar en un filtro de Supabase JS) — trae los eventos candidatos (ya
+ * acotados por grúa/operario) y compara en memoria, dataset chico para este caso de uso.
+ */
+async function buscarConflicto(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  ventana: EventoWindow,
+  gruaId: string,
+  operarioIds: string[],
+  excludeId?: string,
+): Promise<string | null> {
+  let gruaQuery = supabase
+    .from('eventos_agenda')
+    .select('id, fecha, fecha_hasta, hora_inicio, hora_fin')
+    .eq('grua_id', gruaId)
+    .neq('estado', 'cancelado')
+  if (excludeId) gruaQuery = gruaQuery.neq('id', excludeId)
+  const { data: eventosGrua } = await gruaQuery
+  for (const ev of eventosGrua ?? []) {
+    if (rangosSeSolapan(ventana, ev)) {
+      return `La grúa seleccionada ya está asignada el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
+    }
+  }
+
+  if (operarioIds.length > 0) {
+    const { data: filasOperarios } = await supabase
+      .from('eventos_operarios')
+      .select('evento_id, operario:operarios(nombre), evento:eventos_agenda(id, fecha, fecha_hasta, hora_inicio, hora_fin, estado)')
+      .in('operario_id', operarioIds)
+    for (const fila of filasOperarios ?? []) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ev = fila.evento as any
+      if (!ev || ev.estado === 'cancelado') continue
+      if (excludeId && ev.id === excludeId) continue
+      if (rangosSeSolapan(ventana, ev)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const nombreOperario = (fila.operario as any)?.nombre ?? 'Un operario'
+        return `${nombreOperario} ya está asignado el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
+      }
+    }
+  }
+
+  return null
 }
 
 // ─── Eventos ────────────────────────────────────────────────────────────────
@@ -78,6 +145,11 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 
     const { hora_fin, ...rest } = parsed.data
+    const operarioIds = parseOperarioIds(formData.get('operario_ids'))
+
+    const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds)
+    if (conflicto) return { error: conflicto }
+
     const { data, error } = await supabase
       .from('eventos_agenda')
       .insert({ ...rest, hora_fin: hora_fin || null })
@@ -86,7 +158,7 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
 
     if (error || !data) return { error: error?.message ?? 'No se pudo crear el evento.' }
 
-    const syncError = await syncEventoOperarios(supabase, data.id, parseOperarioIds(formData.get('operario_ids')))
+    const syncError = await syncEventoOperarios(supabase, data.id, operarioIds)
     if (syncError) return { error: syncError }
 
     revalidateEventos()
@@ -106,6 +178,11 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 
     const { hora_fin, ...rest } = parsed.data
+    const operarioIds = parseOperarioIds(formData.get('operario_ids'))
+
+    const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
+    if (conflicto) return { error: conflicto }
+
     const { error } = await supabase
       .from('eventos_agenda')
       .update({ ...rest, hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
@@ -113,7 +190,7 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
 
     if (error) return { error: error.message }
 
-    const syncError = await syncEventoOperarios(supabase, id, parseOperarioIds(formData.get('operario_ids')))
+    const syncError = await syncEventoOperarios(supabase, id, operarioIds)
     if (syncError) return { error: syncError }
 
     revalidateEventos()
