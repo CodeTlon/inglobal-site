@@ -49,6 +49,11 @@ se construyen o tocan esas features.
 - [ ] Crear dos montajes (o clientes/servicios/trabajos del mismo cliente) con el mismo número de orden → el segundo se guarda con el siguiente valor libre, sin error y sin pisar al primero.
 - [ ] Editar un registro existente al mismo `display_order` que otro → se resuelve solo (no bloquea el guardado).
 
+## Agenda — feedback de guardado en catálogos
+- [ ] Activar/desactivar una grúa/empresa/operario → el botón muestra un spinner mientras corre y no se puede volver a clickear hasta que termina.
+- [ ] Crear o editar una grúa/empresa/operario con éxito → aparece un banner verde "Cambios guardados correctamente" que desaparece solo a los 3s.
+- [ ] Borrar una grúa/empresa/operario → el botón de confirmación dice "Eliminando…" mientras corre; si falla (ej. tiene eventos asociados y la FK es RESTRICT), aparece el error en rojo en vez de fallar en silencio.
+
 ## Agenda — solapamiento y eventos de varios días
 - [ ] Crear un evento con una grúa en un horario, luego crear otro con la MISMA grúa en un horario que se pisa (mismo día) → el segundo se rechaza con mensaje claro nombrando la grúa/fecha/horario en conflicto.
 - [ ] Igual que arriba pero con el mismo operario asignado en ambos eventos (grúas distintas) → también se rechaza.
