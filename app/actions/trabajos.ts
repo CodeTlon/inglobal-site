@@ -56,8 +56,10 @@ function parse(formData: FormData) {
     fecha:         formData.get('fecha') || null,
     attachment_url: formData.get('attachment_url'),
     cover_image_focal: formData.get('cover_image_focal'),
+    cover_image_focal_mobile: formData.get('cover_image_focal_mobile'),
     banner_image:  formData.get('banner_image'),
     banner_image_focal: formData.get('banner_image_focal'),
+    banner_image_focal_mobile: formData.get('banner_image_focal_mobile'),
     display_order: formData.get('display_order'),
     published:     formData.get('published'),
   })

@@ -37,7 +37,7 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         </div>
       )}
 
-      <TextField label="Título" name="title" defaultValue={montaje?.title} required />
+      <TextField label="Título" name="title" defaultValue={montaje?.title} required placeholder="Ej: Izaje de tanque en Planta Edesur" />
 
       <TextArea
         label="Extracto (resumen)"
@@ -45,6 +45,7 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         defaultValue={montaje?.excerpt ?? undefined}
         rows={3}
         hint="Descripción corta que aparece en el listado."
+        placeholder="Ej: Traslado e izaje de un tanque de 15.000 litros en la planta de Edesur."
       />
 
       <div>
@@ -60,6 +61,8 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         hint="Foto de la miniatura en el listado de montajes. Aspect ratio 16:10 recomendado."
         focalName="cover_image_focal"
         focalDefaultValue={montaje?.cover_image_focal}
+        focalMobileName="cover_image_focal_mobile"
+        focalMobileDefaultValue={montaje?.cover_image_focal_mobile}
       />
 
       <ImageUpload
@@ -70,6 +73,8 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         hint="Foto grande que va detrás del título en la página de detalle. Si no se carga, se usa la imagen de portada."
         focalName="banner_image_focal"
         focalDefaultValue={montaje?.banner_image_focal}
+        focalMobileName="banner_image_focal_mobile"
+        focalMobileDefaultValue={montaje?.banner_image_focal_mobile}
       />
 
       <StringList

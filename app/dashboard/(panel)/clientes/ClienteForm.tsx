@@ -33,7 +33,7 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         </div>
       )}
 
-      <TextField label="Nombre" name="name" defaultValue={cliente?.name} required />
+      <TextField label="Nombre" name="name" defaultValue={cliente?.name} required placeholder="Ej: Constructora del Sur S.A." />
 
       <TextArea
         label="Bio (descripción corta)"
@@ -41,6 +41,7 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         defaultValue={cliente?.bio ?? undefined}
         rows={3}
         hint="Se muestra en el header de la página de detalle y como descripción."
+        placeholder="Ej: Empresa constructora con más de 20 años de trayectoria en Córdoba."
       />
 
       <TextArea
@@ -49,6 +50,7 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         defaultValue={cliente?.content ?? undefined}
         rows={6}
         hint="Texto de la página de detalle. Separar párrafos con una línea en blanco."
+        placeholder="Ej: Trabajamos junto a Constructora del Sur desde 2015, acompañando sus obras más importantes de la ciudad."
       />
 
       <ImageUpload
@@ -59,6 +61,8 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         hint="Logo de la empresa. PNG con fondo transparente recomendado. Máximo 12px de alto en uso."
         focalName="logo_focal"
         focalDefaultValue={cliente?.logo_focal}
+        focalMobileName="logo_focal_mobile"
+        focalMobileDefaultValue={cliente?.logo_focal_mobile}
       />
 
       <NumberField
@@ -67,6 +71,7 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         defaultValue={cliente?.work_rank}
         min={0}
         hint="Número mayor = aparece primero en el home y en /clientes."
+        placeholder="Ej: 10"
       />
 
       <Checkbox label="Publicado" name="published" defaultChecked={cliente?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />

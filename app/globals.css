@@ -101,6 +101,18 @@
   animation: igb-hero-zoom 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
+/* Foco de imagen distinto en mobile vs desktop — object-position no se puede
+   condicionar por breakpoint con una sola prop de React, así que el foco de
+   cada tamaño viaja como CSS custom property y el media query elige cuál usar. */
+.focal-responsive {
+  object-position: var(--focal-desktop, 50% 50%);
+}
+@media (max-width: 767px) {
+  .focal-responsive {
+    object-position: var(--focal-mobile, var(--focal-desktop, 50% 50%));
+  }
+}
+
 /* ─── MOBILE NAV SLIDE-DOWN ─────────────────────────────────────────── */
 
 .nav-mobile-menu {

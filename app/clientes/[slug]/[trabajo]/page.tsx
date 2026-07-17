@@ -57,6 +57,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
 
   const heroImage = trabajo.banner_image ?? trabajo.cover_image
   const heroImageFocal = trabajo.banner_image ? trabajo.banner_image_focal : trabajo.cover_image_focal
+  const heroImageFocalMobile = trabajo.banner_image ? trabajo.banner_image_focal_mobile : trabajo.cover_image_focal_mobile
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
   const ytId = parseYoutubeId(trabajo.youtube_url)
   const fechaFormateada = trabajo.fecha
@@ -81,8 +82,11 @@ export default async function TrabajoDetailPage({ params }: Props) {
             fill
             priority
             sizes="100vw"
-            className="object-cover hero-bg-zoom"
-            style={{ objectPosition: heroImageFocal ?? undefined }}
+            className="object-cover hero-bg-zoom focal-responsive"
+            style={{
+              '--focal-desktop': heroImageFocal ?? undefined,
+              '--focal-mobile': heroImageFocalMobile ?? undefined,
+            } as React.CSSProperties}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/85" />
           <div className="absolute bottom-0 left-0 right-0 pb-12">
