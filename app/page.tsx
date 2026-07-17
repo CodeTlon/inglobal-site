@@ -171,8 +171,8 @@ export default async function HomePage() {
 
       {/* ===== STATS (banner debajo del hero — separado para que el video se vea limpio) ===== */}
       {statsItems.length > 0 && (
-        <section className="bg-igb-on-surface py-10" data-animate="fade-up">
-          <div className="container-igb">
+        <section className="bg-igb-on-surface py-10">
+          <div className="container-igb" data-animate="fade-up">
             <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:justify-center md:gap-16">
               {statsItems.map((s) => (
                 <div key={s.label} className="group text-center md:text-left">

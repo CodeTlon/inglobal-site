@@ -13,6 +13,9 @@
   }
   body {
     @apply bg-igb-surface text-igb-on-surface font-body antialiased;
+    /* Red de seguridad: contenido rico (TipTap) puede traer texto sin cortes
+       (URLs largas, etc.) que desborda el viewport en mobile. */
+    overflow-x: hidden;
   }
 }
 
@@ -113,6 +116,16 @@
   }
 }
 
+/* Mismo criterio que .focal-responsive, para la opacidad del overlay de un banner. */
+.overlay-responsive {
+  opacity: var(--overlay-desktop, 1);
+}
+@media (max-width: 767px) {
+  .overlay-responsive {
+    opacity: var(--overlay-mobile, var(--overlay-desktop, 1));
+  }
+}
+
 /* ─── MOBILE NAV SLIDE-DOWN ─────────────────────────────────────────── */
 
 .nav-mobile-menu {
@@ -163,6 +176,7 @@
 
 .prose-igb {
   @apply text-igb-secondary text-lg leading-relaxed;
+  overflow-wrap: anywhere;
 }
 .prose-igb > * + * {
   margin-top: 1.25em;

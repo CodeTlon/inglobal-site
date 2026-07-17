@@ -14,6 +14,8 @@ export const trabajoSchema = z.object({
   banner_image:  z.string().optional(),
   banner_image_focal: z.string().nullable().optional(),
   banner_image_focal_mobile: z.string().nullable().optional(),
+  banner_overlay_opacity: z.coerce.number().int().min(0).max(100).default(100),
+  banner_overlay_opacity_mobile: z.coerce.number().int().min(0).max(100).nullable().optional(),
   display_order: z.coerce.number().int().min(0).default(0),
   published:     z.coerce.boolean().default(true),
 }).refine(

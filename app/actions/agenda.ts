@@ -108,7 +108,8 @@ async function buscarConflicto(
     .eq('grua_id', gruaId)
     .neq('estado', 'cancelado')
   if (excludeId) gruaQuery = gruaQuery.neq('id', excludeId)
-  const { data: eventosGrua } = await gruaQuery
+  const { data: eventosGrua, error: errorGrua } = await gruaQuery
+  if (errorGrua) throw new Error(`No se pudo verificar disponibilidad de la grúa: ${errorGrua.message}`)
   for (const ev of eventosGrua ?? []) {
     if (rangosSeSolapan(ventana, ev)) {
       return `La grúa seleccionada ya está asignada el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
@@ -116,10 +117,11 @@ async function buscarConflicto(
   }
 
   if (operarioIds.length > 0) {
-    const { data: filasOperarios } = await supabase
+    const { data: filasOperarios, error: errorOperarios } = await supabase
       .from('eventos_operarios')
       .select('evento_id, operario:operarios(nombre), evento:eventos_agenda(id, fecha, fecha_hasta, hora_inicio, hora_fin, estado)')
       .in('operario_id', operarioIds)
+    if (errorOperarios) throw new Error(`No se pudo verificar disponibilidad de los operarios: ${errorOperarios.message}`)
     for (const fila of filasOperarios ?? []) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ev = fila.evento as any

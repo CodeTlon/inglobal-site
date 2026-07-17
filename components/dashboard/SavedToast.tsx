@@ -24,11 +24,17 @@ export default function SavedToast() {
     const saved = searchParams.get('saved')
     if (!saved) return
     setMessage(MESSAGES[saved] ?? 'Guardado correctamente')
-    const params = new URLSearchParams(searchParams)
-    params.delete('saved')
-    const query = params.toString()
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
-    const timeout = setTimeout(() => setMessage(null), 3000)
+    // El router.replace de limpieza va DENTRO del timeout, no antes: si se
+    // dispara de entrada, cambia searchParams, re-dispara este mismo efecto
+    // (dependencia [searchParams]) y su cleanup cancela este setTimeout antes
+    // de que llegue a los 3s — el toast quedaba pegado para siempre.
+    const timeout = setTimeout(() => {
+      setMessage(null)
+      const params = new URLSearchParams(searchParams)
+      params.delete('saved')
+      const query = params.toString()
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+    }, 3000)
     return () => clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])

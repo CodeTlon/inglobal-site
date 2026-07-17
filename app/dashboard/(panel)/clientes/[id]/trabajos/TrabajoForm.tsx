@@ -86,6 +86,26 @@ export default function TrabajoForm({ clienteId, trabajo, entityId, action }: Pr
         focalMobileDefaultValue={trabajo?.banner_image_focal_mobile}
       />
 
+      <NumberField
+        label="Opacidad del overlay del banner — Desktop (%)"
+        name="banner_overlay_opacity"
+        defaultValue={trabajo?.banner_overlay_opacity ?? 100}
+        min={0}
+        max={100}
+        hint="100 = look actual. Bajarlo aclara el degradé negro sobre la foto del banner."
+        placeholder="Ej: 100"
+      />
+
+      <NumberField
+        label="Opacidad del overlay del banner — Mobile (%)"
+        name="banner_overlay_opacity_mobile"
+        defaultValue={trabajo?.banner_overlay_opacity_mobile ?? undefined}
+        min={0}
+        max={100}
+        hint="Opcional. Si se deja vacío, usa el mismo valor que Desktop."
+        placeholder="Ej: 100"
+      />
+
       <TextField
         label="Link de YouTube (opcional)"
         name="youtube_url"

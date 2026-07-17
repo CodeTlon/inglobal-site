@@ -5,7 +5,7 @@ import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon, 
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 import { resizeImageFile } from '@/lib/client-image-resize'
 import { uploadDirectToStorage } from '@/lib/client-upload'
-import { MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
+import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 import ConfirmDialog from './ConfirmDialog'
 
 function formatMB(bytes: number) {
@@ -238,6 +238,11 @@ export function ImageUpload({
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = e.target.files?.[0]
     if (!picked) return
+    if (picked.size > MAX_IMAGE_BYTES) {
+      setErr(`La imagen no puede superar ${formatMB(MAX_IMAGE_BYTES)}.`)
+      e.target.value = ''
+      return
+    }
     // Contador de generación: si el usuario elige otro archivo antes de que
     // termine este upload, la respuesta de este pick queda obsoleta y no debe
     // pisar el preview del pick más nuevo.
