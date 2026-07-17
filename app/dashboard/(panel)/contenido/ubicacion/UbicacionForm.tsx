@@ -30,6 +30,7 @@ export default function UbicacionForm({ settings }: { settings: Record<string, u
         defaultValue={settings.subheading as string}
         rows={3}
         hint="Texto de apoyo debajo del título."
+        placeholder="Ej: Visitanos en nuestro depósito o coordiná el retiro y traslado de tu equipo."
       />
 
       <div className="flex justify-end pt-2">

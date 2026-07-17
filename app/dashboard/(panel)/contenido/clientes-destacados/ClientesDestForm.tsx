@@ -24,7 +24,7 @@ export default function ClientesDestForm({ settings }: { settings: Record<string
 
       <TextField label="Label (etiqueta)" name="label" defaultValue={settings.label as string} placeholder="Confían en nosotros" />
       <TextField label="Título (h2)" name="heading" defaultValue={settings.heading as string} placeholder="Nuestros Clientes" />
-      <TextArea label="Subtítulo" name="subheading" defaultValue={settings.subheading as string} rows={3} />
+      <TextArea label="Subtítulo" name="subheading" defaultValue={settings.subheading as string} rows={3} placeholder="Ej: Empresas que confían en nuestra experiencia y flota para sus proyectos más exigentes." />
 
       <div className="flex justify-end pt-2">
         <SaveButton />

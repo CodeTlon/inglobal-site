@@ -22,6 +22,7 @@ interface FieldConfig {
   type?: string
   required?: boolean
   options?: { value: string; label: string }[]
+  placeholder?: string
 }
 
 interface Props {
@@ -54,6 +55,7 @@ function FieldInputs({ fields, values }: { fields: FieldConfig[]; values?: Recor
             type={f.type}
             required={f.required}
             defaultValue={values?.[f.name] !== undefined ? String(values[f.name]) : undefined}
+            placeholder={f.placeholder}
           />
         ),
       )}

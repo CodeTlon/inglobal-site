@@ -93,9 +93,9 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
         defaultValue={evento?.operarios.map((o) => o.id)}
       />
 
-      <TextField label="Ubicación" name="ubicacion" defaultValue={evento?.ubicacion ?? undefined} hint="Dirección o link de Google Maps." />
+      <TextField label="Ubicación" name="ubicacion" defaultValue={evento?.ubicacion ?? undefined} hint="Dirección o link de Google Maps." placeholder="Ej: Av. Colón 1234, Córdoba" />
 
-      <TextArea label="Notas" name="notas" defaultValue={evento?.notas ?? undefined} rows={3} />
+      <TextArea label="Notas" name="notas" defaultValue={evento?.notas ?? undefined} rows={3} placeholder="Ej: Coordinar acceso con el encargado de obra antes de las 14hs" />
 
       <SelectField label="Estado" name="estado" defaultValue={evento?.estado ?? 'programado'} options={ESTADOS} />
 

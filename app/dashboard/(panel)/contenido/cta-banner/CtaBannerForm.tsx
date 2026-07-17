@@ -23,7 +23,7 @@ export default function CtaBannerForm({ settings }: { settings: Record<string, u
       )}
 
       <TextField label="Título" name="heading" defaultValue={settings.heading as string} placeholder="Ingeniería aplicada a montajes complejos" />
-      <TextArea label="Subtítulo" name="subheading" defaultValue={settings.subheading as string} rows={3} />
+      <TextArea label="Subtítulo" name="subheading" defaultValue={settings.subheading as string} rows={3} placeholder="Ej: Más de 20 años acompañando obras e industrias de Córdoba con la flota adecuada para cada desafío." />
 
       <div className="grid grid-cols-2 gap-4">
         <TextField label="CTA primario" name="cta_primary" defaultValue={settings.cta_primary as string} placeholder="Solicitar Cotización" />
