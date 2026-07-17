@@ -31,12 +31,15 @@ async function uniqueSlug(supabase: ServerSupabase, base: string, excludeId?: st
   }
 }
 
+// StringList (Field.tsx) serializa el input oculto como JSON — no CSV.
 function parseTags(raw: string | undefined): string[] {
   if (!raw) return []
-  return raw
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean)
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((t): t is string => typeof t === 'string' && t.trim() !== '') : []
+  } catch {
+    return []
+  }
 }
 
 function revalidateMontajes() {
