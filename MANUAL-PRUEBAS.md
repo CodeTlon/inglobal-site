@@ -49,6 +49,12 @@ se construyen o tocan esas features.
 - [ ] Crear dos montajes (o clientes/servicios/trabajos del mismo cliente) con el mismo número de orden → el segundo se guarda con el siguiente valor libre, sin error y sin pisar al primero.
 - [ ] Editar un registro existente al mismo `display_order` que otro → se resuelve solo (no bloquea el guardado).
 
+## Agenda — calendario en mobile
+- [ ] Abrir `/dashboard/agenda/calendario` en un viewport angosto (375px) → se ve una lista de un solo día (no la grilla semanal con scroll horizontal), con navegación "día anterior/siguiente".
+- [ ] Click en un evento de la vista de día → abre el mismo modal de detalle que la vista semanal.
+- [ ] Agrandar la ventana a desktop (≥768px) → cambia a la grilla semanal de siempre, sin recargar la página raro (SSR con breakpoint CSS, no JS).
+- [ ] `AgendaKioskHeader` (topbar de calendario y `/agenda-tv`) no se corta ni desborda en 375px.
+
 ## Agenda — feedback de guardado en catálogos
 - [ ] Activar/desactivar una grúa/empresa/operario → el botón muestra un spinner mientras corre y no se puede volver a clickear hasta que termina.
 - [ ] Crear o editar una grúa/empresa/operario con éxito → aparece un banner verde "Cambios guardados correctamente" que desaparece solo a los 3s.
