@@ -4,8 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, FileText } from 'lucide-react'
 import { getCliente, getClientes, getTrabajo, getTrabajos } from '@/lib/content'
-import { youtubeEmbedUrl } from '@/lib/youtube'
+import { youtubeEmbedUrl, parseYoutubeId } from '@/lib/youtube'
 import { sanitizeHtml } from '@/lib/sanitize'
+import LazyYoutubeEmbed from '@/components/LazyYoutubeEmbed'
 
 interface Props {
   params: Promise<{ slug: string; trabajo: string }>
@@ -57,6 +58,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
   const heroImage = trabajo.banner_image ?? trabajo.cover_image
   const heroImageFocal = trabajo.banner_image ? trabajo.banner_image_focal : trabajo.cover_image_focal
   const ytEmbed = youtubeEmbedUrl(trabajo.youtube_url)
+  const ytId = parseYoutubeId(trabajo.youtube_url)
   const fechaFormateada = trabajo.fecha
     ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', {
         day: 'numeric',
@@ -137,16 +139,9 @@ export default async function TrabajoDetailPage({ params }: Props) {
             </p>
           )}
 
-          {ytEmbed && (
+          {ytEmbed && ytId && (
             <div className="relative w-full mb-10 rounded-xl overflow-hidden bg-black" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                src={ytEmbed}
-                title={trabajo.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                loading="lazy"
-                className="absolute inset-0 w-full h-full"
-              />
+              <LazyYoutubeEmbed embedUrl={ytEmbed} videoId={ytId} title={trabajo.title} />
             </div>
           )}
 

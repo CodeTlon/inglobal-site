@@ -72,7 +72,10 @@ export default function ContentEditor({
       TipTapImage,
       TipTapLink.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: 'Escribí el contenido del trabajo acá…' }),
-      Youtube.configure({ controls: true, nocookie: false }),
+      // loading="lazy" viaja al HTML exportado (getHTML()) y de ahí al público
+      // vía dangerouslySetInnerHTML — el navegador difiere la carga del iframe
+      // hasta que esté cerca del viewport, en vez de traerlo siempre de entrada.
+      Youtube.configure({ controls: true, nocookie: false, HTMLAttributes: { loading: 'lazy' } }),
       Video,
     ],
     content: value || '',
