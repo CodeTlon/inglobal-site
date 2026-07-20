@@ -60,6 +60,7 @@ export async function createServicio(
     const parsed = servicioSchema.omit({ slug: true }).safeParse({
       title:         formData.get('title'),
       desc:          formData.get('desc'),
+      excerpt:       formData.get('excerpt'),
       specs:         formData.get('specs'),
       img:           formData.get('img'),
       icon:          formData.get('icon'),
@@ -110,6 +111,7 @@ export async function updateServicio(
       slug:          formData.get('slug'),
       title:         formData.get('title'),
       desc:          formData.get('desc'),
+      excerpt:       formData.get('excerpt'),
       specs:         formData.get('specs'),
       img:           formData.get('img'),
       icon:          formData.get('icon'),

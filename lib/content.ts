@@ -58,6 +58,7 @@ export interface Servicio {
   slug:          string
   title:         string
   desc:          string
+  excerpt:       string
   specs:         string[]
   img:           string
   icon:          string

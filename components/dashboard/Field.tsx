@@ -71,6 +71,7 @@ export function TextArea({
   rows = 4,
   hint,
   placeholder,
+  maxLength,
 }: {
   label: string
   name: string
@@ -78,6 +79,7 @@ export function TextArea({
   rows?: number
   hint?: string
   placeholder?: string
+  maxLength?: number
 }) {
   return (
     <div>
@@ -90,6 +92,7 @@ export function TextArea({
         rows={rows}
         defaultValue={defaultValue ?? ''}
         placeholder={placeholder}
+        maxLength={maxLength}
         className={`${fieldInput} resize-none`}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}

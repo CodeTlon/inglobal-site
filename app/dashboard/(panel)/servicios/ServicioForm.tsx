@@ -37,7 +37,22 @@ export default function ServicioForm({ servicio, entityId, action }: Props) {
       )}
 
       <TextField label="Título" name="title" defaultValue={servicio?.title} required placeholder="Ej: Transporte de maquinaria pesada" />
-      <TextArea label="Descripción" name="desc" defaultValue={servicio?.desc} rows={4} placeholder="Ej: Traslado seguro de maquinaria pesada dentro y fuera de la provincia de Córdoba." />
+      <TextArea
+        label="Descripción corta (cards del home)"
+        name="excerpt"
+        defaultValue={servicio?.excerpt}
+        rows={2}
+        maxLength={80}
+        placeholder="Ej: Traslado seguro de maquinaria pesada a todo el país."
+        hint="Se muestra en la card de 'Qué hacemos' del home (2 líneas). Máximo 80 caracteres."
+      />
+      <TextArea
+        label="Descripción detallada (página de Servicios)"
+        name="desc"
+        defaultValue={servicio?.desc}
+        rows={4}
+        placeholder="Ej: Traslado seguro de maquinaria pesada dentro y fuera de la provincia de Córdoba."
+      />
 
       {/* Icon selector */}
       <div>

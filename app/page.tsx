@@ -238,12 +238,12 @@ export default async function HomePage() {
                     </div>
                   )}
 
-                  <h3 className="text-2xl font-headline font-bold text-igb-on-surface">
+                  <h3 className="text-2xl font-headline font-bold text-igb-on-surface leading-tight line-clamp-2 min-h-[3.75rem]">
                     {servicio.title}
                   </h3>
-                  {servicio.desc && (
+                  {servicio.excerpt && (
                     <p className="text-sm text-igb-secondary mt-2 line-clamp-2">
-                      {servicio.desc}
+                      {servicio.excerpt}
                     </p>
                   )}
                 </Link>
