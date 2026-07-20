@@ -44,6 +44,7 @@ export default async function ClienteTrabajosDashboardPage({ params }: Props) {
           <Link
             key={t.slug}
             href={`/dashboard/clientes/${cliente.slug}/trabajos/${t.id}`}
+            prefetch={false}
             className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
             <div className="flex-1 min-w-0">

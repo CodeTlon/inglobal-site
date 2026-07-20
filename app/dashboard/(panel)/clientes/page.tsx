@@ -27,6 +27,7 @@ export default async function ClientesDashboardPage() {
           <Link
             key={c.slug}
             href={`/dashboard/clientes/${c.slug}`}
+            prefetch={false}
             className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
             {/* Logo */}

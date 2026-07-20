@@ -32,6 +32,7 @@ export default async function ServiciosDashboardPage() {
             <Link
               key={s.slug}
               href={`/dashboard/servicios/${s.slug}`}
+              prefetch={false}
               className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
             >
               {/* Image or icon */}

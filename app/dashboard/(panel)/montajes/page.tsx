@@ -27,6 +27,7 @@ export default async function MontajesDashboardPage() {
           <Link
             key={m.slug}
             href={`/dashboard/montajes/${m.slug}`}
+            prefetch={false}
             className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
             {/* Cover thumbnail */}

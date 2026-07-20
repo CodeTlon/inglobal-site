@@ -85,6 +85,7 @@ function SidebarLink({
   return (
     <Link
       href={href}
+      prefetch={false}
       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-body font-medium transition-all ${
         active
           ? 'bg-igb-yellow/20 text-igb-yellow-dark'
