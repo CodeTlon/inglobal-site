@@ -2,17 +2,30 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
 
 export type ServicioState = { success?: boolean; error?: string } | undefined
 
+type ServerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>
+
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado.')
   return supabase
+}
+
+async function uniqueSlug(supabase: ServerSupabase, base: string) {
+  let slug = base
+  let n = 2
+  while (true) {
+    const { data } = await supabase.from('servicios').select('id').eq('slug', slug).limit(1)
+    if (!data || data.length === 0) return slug
+    slug = `${base}-${n++}`
+  }
 }
 
 // StringList (Field.tsx) serializa el input oculto como JSON — no texto
@@ -34,8 +47,54 @@ function revalidateServicios() {
 }
 
 /**
- * Actualiza un servicio existente (los 4 servicios son fijos — no hay create/delete).
- * formData: { id, slug, title, desc, specs (una por línea), img, icon, display_order, published }
+ * Crea un servicio nuevo. formData: { title, desc, specs, img, icon, display_order, published }
+ * (sin slug — se genera desde el título, mismo patrón que montajes/clientes).
+ */
+export async function createServicio(
+  prevState: unknown,
+  formData: FormData,
+): Promise<ServicioState> {
+  try {
+    const supabase = await requireUser()
+
+    const parsed = servicioSchema.omit({ slug: true }).safeParse({
+      title:         formData.get('title'),
+      desc:          formData.get('desc'),
+      specs:         formData.get('specs'),
+      img:           formData.get('img'),
+      icon:          formData.get('icon'),
+      display_order: formData.get('display_order'),
+      published:     formData.get('published'),
+    })
+
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    }
+
+    const { specs, title, ...rest } = parsed.data
+    const slug = await uniqueSlug(supabase, slugify(title, { lower: true, strict: true }))
+    rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order)
+
+    const { error } = await supabase.from('servicios').insert({
+      title,
+      slug,
+      ...rest,
+      specs: parseSpecs(specs),
+      updated_at: new Date().toISOString(),
+    })
+
+    if (error) return { error: error.message }
+
+    revalidateServicios()
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+  }
+  redirect('/dashboard/servicios?saved=created')
+}
+
+/**
+ * Actualiza un servicio existente.
+ * formData: { id, title, desc, specs (una por línea), img, icon, display_order, published }
  */
 export async function updateServicio(
   prevState: unknown,

@@ -1,7 +1,6 @@
 'use client'
 
 import { useFormState } from 'react-dom'
-import { updateServicio } from '@/app/actions/servicios'
 import {
   TextField,
   TextArea,
@@ -13,20 +12,22 @@ import {
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { Servicio } from '@/lib/content'
+import type { ServicioState } from '@/app/actions/servicios'
 
 interface Props {
-  servicio: Servicio
+  servicio?: Servicio
+  entityId?: string
+  action: (prevState: unknown, formData: FormData) => Promise<ServicioState>
 }
 
 const ICON_OPTIONS = ['ArrowUpToLine', 'HardHat', 'Move', 'Truck']
 
-export default function ServicioForm({ servicio }: Props) {
-  const [state, formAction] = useFormState(updateServicio, undefined)
+export default function ServicioForm({ servicio, entityId, action }: Props) {
+  const [state, formAction] = useFormState(action, undefined)
 
   return (
     <form action={formAction} className="space-y-6">
-      {/* Hidden ID — action reads formData.get('id') */}
-      <input type="hidden" name="id" value={servicio.id} />
+      {entityId && <input type="hidden" name="id" value={entityId} />}
 
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -35,8 +36,8 @@ export default function ServicioForm({ servicio }: Props) {
         </div>
       )}
 
-      <TextField label="Título" name="title" defaultValue={servicio.title} required placeholder="Ej: Transporte de maquinaria pesada" />
-      <TextArea label="Descripción" name="desc" defaultValue={servicio.desc} rows={4} placeholder="Ej: Traslado seguro de maquinaria pesada dentro y fuera de la provincia de Córdoba." />
+      <TextField label="Título" name="title" defaultValue={servicio?.title} required placeholder="Ej: Transporte de maquinaria pesada" />
+      <TextArea label="Descripción" name="desc" defaultValue={servicio?.desc} rows={4} placeholder="Ej: Traslado seguro de maquinaria pesada dentro y fuera de la provincia de Córdoba." />
 
       {/* Icon selector */}
       <div>
@@ -45,7 +46,7 @@ export default function ServicioForm({ servicio }: Props) {
         </label>
         <select
           name="icon"
-          defaultValue={servicio.icon}
+          defaultValue={servicio?.icon ?? ICON_OPTIONS[0]}
           className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors"
         >
           {ICON_OPTIONS.map((opt) => (
@@ -62,7 +63,7 @@ export default function ServicioForm({ servicio }: Props) {
       <StringList
         label="Especificaciones"
         name="specs"
-        defaultValue={Array.isArray(servicio.specs) ? servicio.specs : []}
+        defaultValue={Array.isArray(servicio?.specs) ? servicio.specs : []}
         placeholder="Ej: 3 a 200 Tn de capacidad"
         hint="Lista de características del servicio."
       />
@@ -70,7 +71,7 @@ export default function ServicioForm({ servicio }: Props) {
       <ImageUpload
         label="Imagen"
         name="img"
-        defaultValue={servicio.img}
+        defaultValue={servicio?.img}
         folder="servicios"
         hint="Imagen de portada del servicio. Aspect ratio 16:10 recomendado."
       />
@@ -78,13 +79,13 @@ export default function ServicioForm({ servicio }: Props) {
       <NumberField
         label="Orden de visualización"
         name="display_order"
-        defaultValue={servicio.display_order}
+        defaultValue={servicio?.display_order}
         min={1}
         hint="Número menor = aparece primero."
         placeholder="Ej: 1"
       />
 
-      <Checkbox label="Publicado" name="published" defaultChecked={servicio.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
+      <Checkbox label="Publicado" name="published" defaultChecked={servicio?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
 
       <div className="flex justify-end pt-2">
         <SaveButton />

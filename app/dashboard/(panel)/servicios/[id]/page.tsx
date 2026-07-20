@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getServicios } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
 import ServicioForm from '../ServicioForm'
+import { updateServicio } from '@/app/actions/servicios'
 import { ArrowLeft } from 'lucide-react'
 
 interface Props {
@@ -33,7 +34,7 @@ export default async function ServicioEditPage({ params }: Props) {
       />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <ServicioForm servicio={servicio} />
+        <ServicioForm servicio={servicio} entityId={servicio.id} action={updateServicio} />
       </div>
     </div>
   )

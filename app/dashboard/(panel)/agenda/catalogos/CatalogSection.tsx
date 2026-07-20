@@ -166,6 +166,7 @@ export default function CatalogSection({ title, items, fields, createAction, upd
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleteState, setDeleteState] = useState<{ success?: boolean } | null>(null)
 
   async function handleConfirmDelete() {
     if (!pendingDelete || deleting) return
@@ -177,6 +178,7 @@ export default function CatalogSection({ title, items, fields, createAction, upd
     setDeleting(false)
     setPendingDelete(null)
     if (res?.error) setDeleteError(res.error)
+    else setDeleteState({ success: true })
   }
 
   return (
@@ -204,6 +206,7 @@ export default function CatalogSection({ title, items, fields, createAction, upd
         </div>
       )}
       <InlineSavedBanner trigger={createState} />
+      <InlineSavedBanner trigger={deleteState} />
 
       <form action={createFormAction} className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
         <FieldInputs fields={fields} />

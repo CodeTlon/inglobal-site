@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getServicios } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
-import { ChevronRight, ArrowUpToLine, HardHat, Move, Truck, type LucideIcon } from 'lucide-react'
+import { ChevronRight, ArrowUpToLine, HardHat, Move, Truck, Plus, type LucideIcon } from 'lucide-react'
 
 const ICON_MAP: Record<string, LucideIcon> = { ArrowUpToLine, HardHat, Move, Truck }
 
@@ -13,7 +13,15 @@ export default async function ServiciosDashboardPage() {
     <div className="max-w-3xl">
       <PageHeader
         title="Servicios"
-        description="Los 4 servicios del sitio. Hacé clic en uno para editar su contenido e imagen."
+        description="Hacé clic en uno para editar su contenido e imagen."
+        actions={
+          <Link
+            href="/dashboard/servicios/nuevo"
+            className="inline-flex items-center gap-2 bg-igb-yellow text-igb-on-yellow px-4 py-2.5 rounded-md font-headline font-bold text-sm hover:brightness-95 transition-all"
+          >
+            <Plus size={16} /> Nuevo servicio
+          </Link>
+        }
       />
 
       <div className="space-y-3">
