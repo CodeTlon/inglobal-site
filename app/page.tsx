@@ -171,19 +171,24 @@ export default async function HomePage() {
 
       {/* ===== STATS (banner debajo del hero — separado para que el video se vea limpio) ===== */}
       {statsItems.length > 0 && (
-        <section className="bg-igb-on-surface py-10">
+        <section className="bg-igb-surface border-y border-igb-outline/50 py-10">
           <div className="container-igb" data-animate="fade-up">
             <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:justify-center md:gap-16">
-              {statsItems.map((s) => (
-                <div key={s.label} className="group text-center md:text-left">
-                  <p className="text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold text-white tracking-tight group-hover:text-igb-yellow transition-colors leading-none">
-                    {s.number}
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] md:text-sm text-zinc-400 mt-2 font-bold uppercase tracking-wider leading-snug">
-                    {s.label}
-                  </p>
-                </div>
-              ))}
+              {statsItems.map((s, i) => {
+                const accent = ['text-igb-yellow-dark', 'text-igb-navy', 'text-igb-on-surface'][i % 3]
+                return (
+                  <div key={s.label} className="group text-center md:text-left">
+                    <p
+                      className={`text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold ${accent} tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none`}
+                    >
+                      {s.number}
+                    </p>
+                    <p className="text-[10px] sm:text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
+                      {s.label}
+                    </p>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </section>
