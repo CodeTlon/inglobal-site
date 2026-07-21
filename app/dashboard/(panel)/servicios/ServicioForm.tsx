@@ -36,7 +36,7 @@ export default function ServicioForm({ servicio, entityId, action }: Props) {
         </div>
       )}
 
-      <TextField label="Título" name="title" defaultValue={servicio?.title} required placeholder="Ej: Transporte de maquinaria pesada" />
+      <TextField label="Título" name="title" defaultValue={servicio?.title} required maxLength={60} placeholder="Ej: Transporte de maquinaria pesada" />
       <TextArea
         label="Descripción corta (cards del home)"
         name="excerpt"

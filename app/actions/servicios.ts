@@ -6,6 +6,7 @@ import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
+import { removeMediaUrls } from '@/lib/storage'
 
 export type ServicioState = { success?: boolean; error?: string } | undefined
 
@@ -26,6 +27,13 @@ async function uniqueSlug(supabase: ServerSupabase, base: string) {
     if (!data || data.length === 0) return slug
     slug = `${base}-${n++}`
   }
+}
+
+async function titleExists(supabase: ServerSupabase, title: string, excludeId?: string) {
+  let query = supabase.from('servicios').select('id').ilike('title', title)
+  if (excludeId) query = query.neq('id', excludeId)
+  const { data } = await query.limit(1)
+  return !!data && data.length > 0
 }
 
 // StringList (Field.tsx) serializa el input oculto como JSON — no texto
@@ -73,6 +81,11 @@ export async function createServicio(
     }
 
     const { specs, title, ...rest } = parsed.data
+
+    if (await titleExists(supabase, title)) {
+      return { error: 'Ya existe un servicio con ese título.' }
+    }
+
     const slug = await uniqueSlug(supabase, slugify(title, { lower: true, strict: true }))
     rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order)
 
@@ -107,8 +120,7 @@ export async function updateServicio(
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de servicio requerido.' }
 
-    const parsed = servicioSchema.safeParse({
-      slug:          formData.get('slug'),
+    const parsed = servicioSchema.omit({ slug: true }).safeParse({
       title:         formData.get('title'),
       desc:          formData.get('desc'),
       excerpt:       formData.get('excerpt'),
@@ -124,6 +136,11 @@ export async function updateServicio(
     }
 
     const { specs, ...rest } = parsed.data
+
+    if (await titleExists(supabase, rest.title, id)) {
+      return { error: 'Ya existe un servicio con ese título.' }
+    }
+
     rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order, { excludeId: id })
 
     const { error } = await supabase
@@ -138,6 +155,31 @@ export async function updateServicio(
     return { error: e instanceof Error ? e.message : 'Error desconocido.' }
   }
   redirect('/dashboard/servicios?saved=updated')
+}
+
+export async function deleteServicio(
+  prevState: unknown,
+  formData: FormData,
+): Promise<ServicioState> {
+  try {
+    const supabase = await requireUser()
+
+    const id = String(formData.get('id') ?? '').trim()
+    if (!id) return { error: 'ID de servicio requerido.' }
+
+    const { data: existing } = await supabase.from('servicios').select('img').eq('id', id).single()
+
+    const { error } = await supabase.from('servicios').delete().eq('id', id)
+
+    if (error) return { error: error.message }
+
+    if (existing) await removeMediaUrls(supabase, [existing.img])
+
+    revalidateServicios()
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+  }
+  redirect('/dashboard/servicios?saved=deleted')
 }
 
 /**

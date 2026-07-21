@@ -30,6 +30,7 @@ export function TextField({
   placeholder,
   min,
   max,
+  maxLength,
 }: {
   label: string
   name: string
@@ -40,6 +41,7 @@ export function TextField({
   placeholder?: string
   min?: string
   max?: string
+  maxLength?: number
 }) {
   return (
     <div>
@@ -55,6 +57,7 @@ export function TextField({
         placeholder={placeholder}
         min={min}
         max={max}
+        maxLength={maxLength}
         className={fieldInput}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}

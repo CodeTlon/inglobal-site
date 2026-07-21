@@ -112,7 +112,7 @@ export default async function ServiciosPage() {
                 {/* Text column */}
                 <div className={`lg:col-span-5 ${isEven ? 'lg:order-1' : ''}`}>
                   <h2
-                    className="text-4xl font-headline font-bold text-slate-900 mb-6 tracking-tight"
+                    className="text-4xl font-headline font-bold text-slate-900 mb-6 tracking-tight line-clamp-2"
                     data-animate="fade-up"
                   >
                     {service.title}
