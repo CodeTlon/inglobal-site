@@ -5,6 +5,7 @@ import { useFormState } from 'react-dom'
 import {
   TextField,
   TextArea,
+  NumberField,
   ImageUpload,
   StringList,
   Checkbox,
@@ -83,6 +84,15 @@ export default function MontajeForm({ montaje, entityId, action }: Props) {
         defaultValue={montaje?.tags ?? []}
         placeholder="Ej: Industrial"
         hint="Etiquetas que se muestran debajo del título en el listado y en la página de detalle."
+      />
+
+      <NumberField
+        label="Orden de visualización"
+        name="display_order"
+        defaultValue={montaje?.display_order}
+        min={1}
+        hint="Número menor = aparece primero."
+        placeholder="Ej: 1"
       />
 
       <Checkbox label="Publicado" name="published" defaultChecked={montaje?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
