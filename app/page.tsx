@@ -118,7 +118,7 @@ export default async function HomePage() {
     <>
       {/* ===== HERO ===== */}
       <section
-        className="relative min-h-screen flex items-center overflow-hidden bg-igb-surface"
+        className="relative min-h-screen flex items-center bg-igb-surface"
         id="inicio"
       >
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -138,7 +138,7 @@ export default async function HomePage() {
 
         <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
           <div className="max-w-2xl">
-            <h1 className="heading-hero mb-6 text-zinc-900 hero-anim hero-anim-d1 line-clamp-4">
+            <h1 className="heading-hero mb-6 text-zinc-900 hero-anim hero-anim-d1">
               {heroHeadline.split('seguridad').length > 1 ? (
                 <>
                   {heroHeadline.split('seguridad')[0]}
