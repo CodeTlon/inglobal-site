@@ -81,16 +81,19 @@ function CatalogRow({
   const [updateState, updateFormAction] = useFormState(updateAction ?? (async () => undefined), undefined)
   const [toggling, setToggling] = useState(false)
   const [toggleError, setToggleError] = useState<string | null>(null)
+  const [toggleWarning, setToggleWarning] = useState<string | null>(null)
 
   async function handleToggle() {
     setToggling(true)
     setToggleError(null)
+    setToggleWarning(null)
     const fd = new FormData()
     fd.append('id', item.id)
     fd.append('activo', String(item.activo))
     const res = await toggleAction(undefined, fd)
     setToggling(false)
     if (res?.error) setToggleError(res.error)
+    else if (res?.warning) setToggleWarning(res.warning)
   }
 
   if (editing && updateAction) {
@@ -127,6 +130,7 @@ function CatalogRow({
         <p className={`text-sm font-bold truncate ${item.activo ? 'text-zinc-900' : 'text-zinc-400 line-through'}`}>{item.nombre}</p>
         {item.subtitle && <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>}
         {toggleError && <p className="text-xs text-red-500 truncate">{toggleError}</p>}
+        {toggleWarning && <p className="text-xs text-amber-600 truncate">{toggleWarning}</p>}
       </div>
       <button
         type="button"

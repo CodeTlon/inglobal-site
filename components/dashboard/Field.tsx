@@ -31,6 +31,7 @@ export function TextField({
   min,
   max,
   maxLength,
+  onChange,
 }: {
   label: string
   name: string
@@ -42,6 +43,7 @@ export function TextField({
   min?: string
   max?: string
   maxLength?: number
+  onChange?: (value: string) => void
 }) {
   return (
     <div>
@@ -58,6 +60,7 @@ export function TextField({
         min={min}
         max={max}
         maxLength={maxLength}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         className={fieldInput}
       />
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
@@ -155,7 +158,7 @@ export function SelectField({
   label: string
   name: string
   defaultValue?: number | string
-  options: { value: number | string; label: string }[]
+  options: { value: number | string; label: string; disabled?: boolean }[]
   hint?: string
   placeholder?: string
 }) {
@@ -167,7 +170,7 @@ export function SelectField({
       <select id={name} name={name} defaultValue={defaultValue ?? ''} className={fieldInput}>
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} disabled={opt.disabled}>
             {opt.label}
           </option>
         ))}
@@ -795,7 +798,7 @@ export function CheckboxGroup({
 }: {
   label: string
   name: string
-  options: { value: string; label: string }[]
+  options: { value: string; label: string; disabled?: boolean }[]
   defaultValue?: string[]
   hint?: string
 }) {
@@ -814,8 +817,9 @@ export function CheckboxGroup({
           <button
             key={opt.value}
             type="button"
+            disabled={opt.disabled}
             onClick={() => toggle(opt.value)}
-            className={`px-3 py-1.5 rounded-md text-xs font-bold border transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-bold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               selected.includes(opt.value)
                 ? 'bg-igb-yellow text-igb-on-yellow border-igb-yellow'
                 : 'bg-white text-zinc-500 border-zinc-200 hover:border-igb-yellow-dark/40'

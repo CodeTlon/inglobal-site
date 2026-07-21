@@ -1,6 +1,18 @@
 import { z } from 'zod'
 
 const MIN_DURACION_MIN = 15
+const TELEFONO_REGEX = /^[\d\s()+-]+$/
+
+export const ESTADOS_EVENTO = ['programado', 'en_curso', 'finalizado', 'cancelado'] as const
+export type EstadoEvento = (typeof ESTADOS_EVENTO)[number]
+
+/** Transiciones de estado permitidas para un evento — no se puede volver hacia atrás. */
+export const TRANSICIONES_VALIDAS: Record<EstadoEvento, EstadoEvento[]> = {
+  programado: ['en_curso', 'cancelado'],
+  en_curso:   ['finalizado', 'cancelado'],
+  finalizado: [],
+  cancelado:  [],
+}
 
 export const eventoAgendaSchema = z.object({
   fecha:       z.string().min(1, 'La fecha es obligatoria'),
@@ -11,7 +23,7 @@ export const eventoAgendaSchema = z.object({
   empresa_id:  z.string().uuid('Seleccioná una empresa'),
   ubicacion:   z.string().nullable().optional(),
   notas:       z.string().nullable().optional(),
-  estado:      z.enum(['programado', 'en_curso', 'finalizado', 'cancelado']).default('programado'),
+  estado:      z.enum(ESTADOS_EVENTO).default('programado'),
 }).superRefine((data, ctx) => {
   const hoy = new Date().toISOString().slice(0, 10)
   if (data.fecha < hoy) {
@@ -43,11 +55,11 @@ export const gruaSchema = z.object({
 export const empresaAgendaSchema = z.object({
   nombre:   z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   contacto: z.string().min(1, 'El contacto es obligatorio'),
-  telefono: z.string().min(1, 'El teléfono es obligatorio'),
+  telefono: z.string().min(1, 'El teléfono es obligatorio').regex(TELEFONO_REGEX, 'Teléfono inválido'),
   notas:    z.string().nullable().optional(),
 })
 
 export const operarioSchema = z.object({
   nombre:   z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  telefono: z.string().min(1, 'El teléfono es obligatorio'),
+  telefono: z.string().min(1, 'El teléfono es obligatorio').regex(TELEFONO_REGEX, 'Teléfono inválido'),
 })
