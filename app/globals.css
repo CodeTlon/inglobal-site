@@ -33,7 +33,13 @@
     @apply text-4xl md:text-5xl font-headline font-extrabold text-igb-on-surface tracking-tight leading-tight;
   }
   .heading-hero {
-    @apply text-5xl md:text-6xl lg:text-7xl font-headline font-extrabold text-igb-on-surface tracking-tighter leading-[1.05];
+    /* !leading-[1.05]: text-6xl/text-7xl de Tailwind traen su propio line-height
+       por defecto (1) que pisa el leading-[1.05] en los breakpoints md/lg si no
+       se fuerza — terminaba en un line-height real de 1.0, más apretado todavía.
+       pt-[0.2em] evita que el ascendente de la primera línea se corte contra el
+       overflow:hidden de line-clamp: Manrope Extrabold necesita más alto de línea
+       del que da 1.05 (deficit real medido con canvas.measureText). */
+    @apply text-5xl md:text-6xl lg:text-7xl font-headline font-extrabold text-igb-on-surface tracking-tighter !leading-[1.05] pt-[0.2em];
   }
   .text-body-lg {
     @apply text-lg text-igb-secondary font-light leading-relaxed;
