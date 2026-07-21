@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 import { TextField, TextArea, SelectField, CheckboxGroup } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { EventoAgenda, Grua, EmpresaAgenda, Operario } from '@/lib/agenda'
-import type { AgendaState } from '@/app/actions/agenda'
+import { getRecursosOcupados, type AgendaState } from '@/app/actions/agenda'
 
 const ESTADOS = [
   { value: 'programado', label: 'Programado' },
@@ -35,6 +35,26 @@ interface Props {
 export default function EventoForm({ evento, gruas, empresas, operarios, action }: Props) {
   const [state, formAction] = useFormState(action, undefined)
   const [clientError, setClientError] = useState<string | null>(null)
+
+  const [fecha, setFecha] = useState(evento?.fecha ?? '')
+  const [fechaHasta, setFechaHasta] = useState(evento?.fecha_hasta ?? '')
+  const [horaInicio, setHoraInicio] = useState(evento?.hora_inicio?.slice(0, 5) ?? '')
+  const [horaFin, setHoraFin] = useState(evento?.hora_fin?.slice(0, 5) ?? '')
+  const [ocupados, setOcupados] = useState<{ gruaIds: string[]; operarioIds: string[] }>({ gruaIds: [], operarioIds: [] })
+
+  useEffect(() => {
+    if (!fecha || !horaInicio) {
+      setOcupados({ gruaIds: [], operarioIds: [] })
+      return
+    }
+    let cancelado = false
+    getRecursosOcupados(fecha, fechaHasta || null, horaInicio, horaFin || null, evento?.id).then((res) => {
+      if (!cancelado) setOcupados(res)
+    })
+    return () => {
+      cancelado = true
+    }
+  }, [fecha, fechaHasta, horaInicio, horaFin, evento?.id])
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(e.currentTarget)
@@ -71,7 +91,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <TextField label="Fecha" name="fecha" type="date" defaultValue={evento?.fecha} required min={FECHA_MIN} max={FECHA_MAX} />
+        <TextField label="Fecha" name="fecha" type="date" defaultValue={evento?.fecha} required min={FECHA_MIN} max={FECHA_MAX} onChange={setFecha} />
         <TextField
           label="Hasta (opcional)"
           name="fecha_hasta"
@@ -80,12 +100,13 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
           min={FECHA_MIN}
           max={FECHA_MAX}
           hint="Completar solo si el trabajo dura varios días seguidos con la misma grúa/operarios."
+          onChange={setFechaHasta}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <TextField label="Hora inicio" name="hora_inicio" type="time" defaultValue={evento?.hora_inicio} required />
-        <TextField label="Hora fin" name="hora_fin" type="time" defaultValue={evento?.hora_fin ?? undefined} />
+        <TextField label="Hora inicio" name="hora_inicio" type="time" defaultValue={evento?.hora_inicio} required onChange={setHoraInicio} />
+        <TextField label="Hora fin" name="hora_fin" type="time" defaultValue={evento?.hora_fin ?? undefined} onChange={setHoraFin} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -93,7 +114,11 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
           label="Grúa"
           name="grua_id"
           defaultValue={evento?.grua_id}
-          options={gruas.map((g) => ({ value: g.id, label: g.nombre }))}
+          options={gruas.map((g) => ({
+            value: g.id,
+            label: ocupados.gruaIds.includes(g.id) ? `${g.nombre} (ocupada en ese horario)` : g.nombre,
+            disabled: ocupados.gruaIds.includes(g.id),
+          }))}
           placeholder="Seleccioná una grúa"
         />
         <SelectField
@@ -108,7 +133,11 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
       <CheckboxGroup
         label="Operarios asignados"
         name="operario_ids"
-        options={operarios.map((o) => ({ value: o.id, label: o.nombre }))}
+        options={operarios.map((o) => ({
+          value: o.id,
+          label: ocupados.operarioIds.includes(o.id) ? `${o.nombre} (ocupado)` : o.nombre,
+          disabled: ocupados.operarioIds.includes(o.id),
+        }))}
         defaultValue={evento?.operarios.map((o) => o.id)}
       />
 

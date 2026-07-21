@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { getServicios } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
 import ServicioForm from '../ServicioForm'
-import { updateServicio } from '@/app/actions/servicios'
+import { updateServicio, deleteServicio } from '@/app/actions/servicios'
+import DeleteButton from '@/components/dashboard/DeleteButton'
 import { ArrowLeft } from 'lucide-react'
 
 interface Props {
@@ -16,6 +17,11 @@ export default async function ServicioEditPage({ params }: Props) {
   const servicio = servicios.find((s) => s.slug === id)
 
   if (!servicio) notFound()
+
+  async function handleDelete(formData: FormData) {
+    'use server'
+    await deleteServicio(undefined, formData)
+  }
 
   return (
     <div className="max-w-4xl">
@@ -31,6 +37,12 @@ export default async function ServicioEditPage({ params }: Props) {
       <PageHeader
         title={`Editar: ${servicio.title}`}
         description={`Slug: ${servicio.slug}`}
+        actions={
+          <form action={handleDelete}>
+            <input type="hidden" name="id" value={servicio.id} />
+            <DeleteButton confirmMessage={`¿Eliminar "${servicio.title}"? Esta acción no se puede deshacer.`} />
+          </form>
+        }
       />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">

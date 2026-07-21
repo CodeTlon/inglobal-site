@@ -4,7 +4,7 @@ export const montajeSchema = z.object({
   title:         z.string().min(3, 'El título debe tener al menos 3 caracteres'),
   excerpt:       z.string().optional(),
   content:       z.string().optional(),
-  cover_image:   z.string().optional(),
+  cover_image:   z.string().min(1, 'La imagen de portada es obligatoria'),
   cover_image_focal: z.string().nullable().optional(),
   cover_image_focal_mobile: z.string().nullable().optional(),
   banner_image:  z.string().optional(),
