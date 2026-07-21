@@ -29,10 +29,16 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
   quienes_somos: {
     label:        'Quiénes Somos',
     heading:      'Grúas InGlobal S.R.L.',
+    subheading:   'Más de 40 años acompañando a la industria argentina con soluciones de elevación y logística pesada.',
     company_name: 'Inglobal',
     description1: 'Somos Inglobal, una empresa líder en movimientos especiales pesados y montajes industriales. Como continuadores de una empresa familiar con más de 40 años de trayectoria, combinamos experiencia técnica con un compromiso inquebrantable hacia nuestros clientes.',
     description2: 'Ofrecemos el alquiler de grúas, hidrogrúas, transporte y maquinaria pesada en todo el país. Nos respaldan operadores y equipos certificados, garantizando que cada operación cumpla con los más altos estándares de seguridad y eficiencia.',
     image:        'igb-2',
+    features: [
+      'Operadores y equipos certificados en todo el país',
+      'Rapidez, seguridad, costo y calidad como diferencial',
+      'Nuestros clientes nos eligen una y otra vez',
+    ],
   },
   que_hacemos: {
     label:      'Excelencia Operativa',

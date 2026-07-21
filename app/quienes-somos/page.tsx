@@ -41,11 +41,14 @@ export default async function QuienesSomosPage() {
     (settings.description2 as string) ||
     'Ofrecemos el alquiler de grúas, hidrogrúas, transporte y maquinaria pesada en todo el país. Nos respaldan operadores y equipos certificados, garantizando que cada operación cumpla con los más altos estándares de seguridad y eficiencia.'
   const imageUrl = (settings.image as string) || ''
+  const subheading =
+    (settings.subheading as string) ||
+    'Más de 40 años acompañando a la industria argentina con soluciones de elevación y logística pesada.'
 
   const features = Array.isArray(settings.features)
-    ? (settings.features as { icon?: string; text: string }[]).map((f, i) => ({
+    ? (settings.features as string[]).map((text, i) => ({
         icon: defaultFeatures[i]?.icon ?? CheckCircle,
-        text: f.text,
+        text,
       }))
     : defaultFeatures
 
@@ -72,7 +75,7 @@ export default async function QuienesSomosPage() {
             data-animate="fade-up"
             data-delay="200"
           >
-            Más de 40 años acompañando a la industria argentina con soluciones de elevación y logística pesada.
+            {subheading}
           </p>
         </div>
       </section>

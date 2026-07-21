@@ -2,7 +2,7 @@
 
 import { useFormState } from 'react-dom'
 import { updateSiteSettings } from '@/app/actions/settings'
-import { TextField, TextArea, ImageUpload } from '@/components/dashboard/Field'
+import { TextField, TextArea, ImageUpload, StringList } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
@@ -24,6 +24,14 @@ export default function QuienesSomosForm({ settings }: { settings: Record<string
 
       <TextField label="Label (etiqueta)" name="label" defaultValue={settings.label as string} placeholder="Quiénes Somos" />
       <TextField label="Título (h1)" name="heading" defaultValue={settings.heading as string} placeholder="Grúas InGlobal S.R.L." />
+      <TextArea
+        label="Subtítulo (debajo del título)"
+        name="subheading"
+        defaultValue={settings.subheading as string}
+        rows={2}
+        hint="Párrafo corto debajo del H1, en la cabecera de la página."
+        placeholder="Ej: Más de 40 años acompañando a la industria argentina con soluciones de elevación y logística pesada."
+      />
       <TextField label="Nombre empresa" name="company_name" defaultValue={settings.company_name as string} placeholder="Inglobal" />
 
       <TextArea
@@ -49,6 +57,14 @@ export default function QuienesSomosForm({ settings }: { settings: Record<string
         defaultValue={settings.image as string | null}
         folder="quienes-somos"
         hint="Foto grande que acompaña el texto. Aspect ratio 4:3 recomendado."
+      />
+
+      <StringList
+        label="Puntos destacados (con ícono)"
+        name="features"
+        defaultValue={Array.isArray(settings.features) ? (settings.features as string[]) : []}
+        placeholder="Ej: Operadores y equipos certificados en todo el país"
+        hint="Se muestran con un ícono debajo del texto. Máximo 3 (los íconos son fijos)."
       />
 
       <div className="flex justify-end pt-2">

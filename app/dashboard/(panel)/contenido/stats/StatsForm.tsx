@@ -35,7 +35,7 @@ export default function StatsForm({ settings }: { settings: Record<string, unkno
         label="Indicadores"
         name="items"
         defaultValue={items}
-        hint="Número (izq) + etiqueta (der). Recomendado: máximo 3 stats."
+        hint="Número (izq) + etiqueta (der). Máximo 5 — un stat con un solo campo completo no se guarda."
       />
 
       <div className="flex justify-end pt-2">

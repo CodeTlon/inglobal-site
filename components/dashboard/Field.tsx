@@ -871,6 +871,22 @@ export function Checkbox({
 
 type StatItem = { number: string; label: string }
 
+const MAX_STATS = 5
+
+/** Solo se guardan stats con ambos campos completos, sin labels duplicados (case-insensitive). */
+function serializeStats(items: StatItem[]): StatItem[] {
+  const vistos = new Set<string>()
+  return items
+    .filter((s) => s.number.trim() && s.label.trim())
+    .filter((s) => {
+      const key = s.label.trim().toLowerCase()
+      if (vistos.has(key)) return false
+      vistos.add(key)
+      return true
+    })
+    .slice(0, MAX_STATS)
+}
+
 export function StatsList({
   label,
   name,
@@ -893,50 +909,63 @@ export function StatsList({
     setItems(items.map((it, idx) => (idx === i ? { ...it, [key]: val } : it)))
   }
 
+  const duplicada = (label: string, idx: number) =>
+    label.trim() !== '' &&
+    items.some((it, i) => i !== idx && it.label.trim().toLowerCase() === label.trim().toLowerCase())
+
   return (
     <div>
       <label className={fieldLabel}>{label}</label>
       <input
         type="hidden"
         name={name}
-        value={JSON.stringify(items.filter((s) => s.number.trim() || s.label.trim()))}
+        value={JSON.stringify(serializeStats(items))}
       />
       <div className="space-y-3">
         {items.map((it, i) => (
-          <div key={i} className="flex gap-2 items-start">
-            <div className="flex-1 grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                value={it.number}
-                onChange={(e) => update(i, 'number', e.target.value)}
-                placeholder="Número (ej: 40+)"
-                className={fieldInput}
-              />
-              <input
-                type="text"
-                value={it.label}
-                onChange={(e) => update(i, 'label', e.target.value)}
-                placeholder="Etiqueta (ej: Años de experiencia)"
-                className={fieldInput}
-              />
+          <div key={i}>
+            <div className="flex gap-2 items-start">
+              <div className="flex-1 grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={it.number}
+                  onChange={(e) => update(i, 'number', e.target.value)}
+                  placeholder="Número (ej: 40+)"
+                  className={fieldInput}
+                />
+                <input
+                  type="text"
+                  value={it.label}
+                  onChange={(e) => update(i, 'label', e.target.value)}
+                  placeholder="Etiqueta (ej: Años de experiencia)"
+                  className={`${fieldInput} ${duplicada(it.label, i) ? 'border-red-400' : ''}`}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setPendingRemove(i)}
+                className="mt-0.5 px-3 py-2.5 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
+                aria-label="Quitar"
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setPendingRemove(i)}
-              className="mt-0.5 px-3 py-2.5 rounded-md text-zinc-400 hover:text-red-500 border border-zinc-200 transition-colors"
-              aria-label="Quitar"
-            >
-              <Trash2 size={14} />
-            </button>
+            {duplicada(it.label, i) && (
+              <p className="text-red-500 text-xs mt-1">Etiqueta duplicada — no se guardará dos veces.</p>
+            )}
+            {(!it.number.trim() !== !it.label.trim()) && (
+              <p className="text-amber-600 text-xs mt-1">Faltan ambos campos — este stat no se guardará.</p>
+            )}
           </div>
         ))}
       </div>
       <button
         type="button"
+        disabled={items.length >= MAX_STATS}
         onClick={() => setItems([...items, { number: '', label: '' }])}
-        className="mt-2 inline-flex items-center gap-2 text-xs text-igb-yellow-dark hover:text-igb-on-surface transition-colors font-bold"
+        className="mt-2 inline-flex items-center gap-2 text-xs text-igb-yellow-dark hover:text-igb-on-surface transition-colors font-bold disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-igb-yellow-dark"
       >
-        <Plus size={14} /> Agregar stat
+        <Plus size={14} /> Agregar stat {items.length >= MAX_STATS ? `(máximo ${MAX_STATS})` : ''}
       </button>
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
       <ConfirmDialog
