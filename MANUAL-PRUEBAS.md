@@ -175,3 +175,10 @@ se construyen o tocan esas features.
 ## Formulario de contacto público
 - [ ] Enviar el formulario con datos válidos → llega el email a `COMPANY_EMAIL` vía Resend.
 - [ ] Enviar con campos faltantes → validación Zod bloquea antes de llamar a Resend.
+
+## Mensajes de error humanizados + Agenda: operarios obligatorios/activos
+- [ ] Forzar un error de duplicado (ej. crear una grúa con la misma patente dos veces, o un usuario con un email ya registrado) → el mensaje que aparece es en castellano y entendible ("Ya existe un registro con ese valor." / "Ya existe un usuario con ese email."), nunca el texto crudo de Postgres/Supabase (nada de `duplicate key value violates...`, códigos `23505`, etc.).
+- [ ] Editar cualquier campo numérico oculto por debajo del schema (difícil de forzar desde la UI normal, pero si algún form numérico llega a fallar la validación) → el mensaje de error está en castellano, no en inglés tipo "Number must be greater than or equal to 0".
+- [ ] Crear un evento nuevo en `/dashboard/agenda/nuevo` sin tildar ningún operario → bloqueado antes de enviar (mensaje "Asigná al menos un operario al evento."), y también si se llega a enviar igual (validación server-side redundante).
+- [ ] Con un evento existente, ir a Catálogos → Operarios y desactivar a un operario que esté asignado a ese evento. Volver a editar el evento y guardar sin tocar nada → debe rechazar el guardado ("... está inactivo/a. Sacalo del evento o reactivalo desde Catálogos.") en vez de guardar igual con el operario inactivo.
+- [ ] Ese mismo operario inactivo ya no debe aparecer como opción tildable en el `CheckboxGroup` de "Operarios asignados" al crear un evento nuevo.
