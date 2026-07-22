@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 import { trabajoSchema } from '@/lib/validations/trabajo'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -96,11 +97,11 @@ export async function createTrabajo(
       updated_at: new Date().toISOString(),
     })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     clienteSlug = await revalidateTrabajos(supabase, cliente_id)
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos?saved=created` : '/dashboard/clientes?saved=created')
 }
@@ -140,11 +141,11 @@ export async function updateTrabajo(
       .update({ cliente_id, title, slug, ...rest, updated_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     clienteSlug = await revalidateTrabajos(supabase, cliente_id)
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos?saved=updated` : '/dashboard/clientes?saved=updated')
 }
@@ -163,14 +164,14 @@ export async function deleteTrabajo(
     const { data: existing } = await supabase.from('trabajos').select('cliente_id, cover_image, banner_image, attachment_url').eq('id', id).single()
 
     const { error } = await supabase.from('trabajos').delete().eq('id', id)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     if (existing) {
       await removeMediaUrls(supabase, [existing.cover_image, existing.banner_image, existing.attachment_url])
       clienteSlug = await revalidateTrabajos(supabase, existing.cliente_id)
     }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(clienteSlug ? `/dashboard/clientes/${clienteSlug}/trabajos?saved=deleted` : '/dashboard/clientes?saved=deleted')
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 import { montajeSchema } from '@/lib/validations/montaje'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -86,11 +87,11 @@ export async function createMontaje(
       updated_at: new Date().toISOString(),
     })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateMontajes()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=created`)
 }
@@ -138,11 +139,11 @@ export async function updateMontaje(
       .update({ title, slug, ...rest, tags: parseTags(tags), updated_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateMontajes()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=updated`)
 }
@@ -161,13 +162,13 @@ export async function deleteMontaje(
 
     const { error } = await supabase.from('montajes').delete().eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     if (existing) await removeMediaUrls(supabase, [existing.cover_image, existing.banner_image])
 
     revalidateMontajes()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=deleted`)
 }

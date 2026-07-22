@@ -16,6 +16,7 @@ import { resizeImageFile } from '@/lib/client-image-resize'
 import { uploadDirectToStorage } from '@/lib/client-upload'
 import { MAX_VIDEO_BYTES } from '@/lib/upload-limits'
 import { parseYoutubeId } from '@/lib/youtube'
+import { friendlyError } from '@/lib/friendly-error'
 import {
   Upload,
   Loader2,
@@ -129,7 +130,7 @@ export default function ContentEditor({
       res = await uploadDirectToStorage(file, 'trabajos/content')
     } catch (uploadErr) {
       setVideoBusy(false)
-      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el video.')
+      setErr(friendlyError(uploadErr, 'Error al subir el video. Intentá de nuevo.'))
       e.target.value = ''
       return
     }

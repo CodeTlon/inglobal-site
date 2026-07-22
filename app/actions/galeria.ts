@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 import { galeriaSchema } from '@/lib/validations/galeria'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -55,11 +56,11 @@ export async function createGaleriaItem(
       updated_at: new Date().toISOString(),
     })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateGaleria()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=created`)
 }
@@ -86,11 +87,11 @@ export async function updateGaleriaItem(
       .update({ ...parsed.data, display_order, updated_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateGaleria()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=updated`)
 }
@@ -109,13 +110,13 @@ export async function deleteGaleriaItem(
 
     const { error } = await supabase.from('galeria').delete().eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     if (existing) await removeMediaUrls(supabase, [existing.imagen])
 
     revalidateGaleria()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=deleted`)
 }

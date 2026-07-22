@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 
 export type AuthState = { error?: string } | undefined
 
@@ -57,7 +58,7 @@ export async function changePassword(prevState: unknown, formData: FormData): Pr
     data: { must_change_password: false },
   })
 
-  if (error) return { error: error.message }
+  if (error) return { error: friendlyError(error, 'No se pudo cambiar la contraseña. Intentá de nuevo.') }
 
   redirect('/dashboard')
 }

@@ -8,7 +8,7 @@ export const clienteSchema = z.object({
   bio:       z.string().optional(),
   content:   z.string().optional(),
   featured:  z.coerce.boolean().default(true),
-  work_rank: z.coerce.number().int().min(0).max(1000).default(10),
+  work_rank: z.coerce.number().int('El orden debe ser un número entero').min(0, 'El orden no puede ser negativo').max(1000, 'El orden máximo es 1000').default(10),
   published: z.coerce.boolean().default(true),
 })
 
