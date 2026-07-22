@@ -41,10 +41,10 @@ export default function ServicioForm({ servicio, entityId, action }: Props) {
         label="Descripción corta (cards del home)"
         name="excerpt"
         defaultValue={servicio?.excerpt}
-        rows={2}
-        maxLength={80}
+        rows={3}
+        maxLength={130}
         placeholder="Ej: Traslado seguro de maquinaria pesada a todo el país."
-        hint="Se muestra en la card de 'Qué hacemos' del home (2 líneas). Máximo 80 caracteres."
+        hint="Se muestra en la card de 'Qué hacemos' del home. Máximo 130 caracteres — terminá en una oración completa, no a mitad de palabra."
       />
       <TextArea
         label="Descripción detallada (página de Servicios)"
