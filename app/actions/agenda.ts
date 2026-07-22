@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 import {
   eventoAgendaSchema,
   gruaSchema,
@@ -51,18 +52,43 @@ function parseOperarioIds(raw: FormDataEntryValue | null): string[] {
   }
 }
 
+/**
+ * Un evento sin operarios asignados no se puede ejecutar en la práctica, y un
+ * operario inactivo (de baja) no puede quedar asignado a un evento nuevo/editado
+ * aunque su ID ya estuviera guardado de antes. Se valida acá (no en el schema Zod)
+ * porque requiere ir a la base a chequear `activo`.
+ */
+async function validarOperarios(supabase: SupabaseServer, operarioIds: string[]): Promise<string | null> {
+  if (operarioIds.length === 0) return 'Asigná al menos un operario al evento.'
+
+  const { data, error } = await supabase.from('operarios').select('id, nombre, activo').in('id', operarioIds)
+  if (error) return friendlyError(error)
+
+  const encontrados = new Map((data ?? []).map((o) => [o.id, o]))
+  const inactivos: string[] = []
+  for (const id of operarioIds) {
+    const operario = encontrados.get(id)
+    if (!operario) return 'Uno de los operarios seleccionados ya no existe. Volvé a seleccionar los operarios.'
+    if (!operario.activo) inactivos.push(operario.nombre)
+  }
+  if (inactivos.length > 0) {
+    return `${inactivos.join(', ')} ${inactivos.length > 1 ? 'están' : 'está'} inactivo/a. Sacalo del evento o reactivalo desde Catálogos.`
+  }
+  return null
+}
+
 async function syncEventoOperarios(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   eventoId: string,
   operarioIds: string[],
 ): Promise<string | null> {
   const { error: delError } = await supabase.from('eventos_operarios').delete().eq('evento_id', eventoId)
-  if (delError) return delError.message
+  if (delError) return friendlyError(delError)
   if (operarioIds.length === 0) return null
   const { error: insError } = await supabase
     .from('eventos_operarios')
     .insert(operarioIds.map((operario_id) => ({ evento_id: eventoId, operario_id })))
-  return insError?.message ?? null
+  return insError ? friendlyError(insError) : null
 }
 
 function parseEventoForm(formData: FormData) {
@@ -118,7 +144,7 @@ async function buscarConflicto(
     .neq('estado', 'cancelado')
   if (excludeId) gruaQuery = gruaQuery.neq('id', excludeId)
   const { data: eventosGrua, error: errorGrua } = await gruaQuery
-  if (errorGrua) throw new Error(`No se pudo verificar disponibilidad de la grúa: ${errorGrua.message}`)
+  if (errorGrua) throw new Error(`No se pudo verificar disponibilidad de la grúa: ${friendlyError(errorGrua)}`)
   for (const ev of eventosGrua ?? []) {
     if (rangosSeSolapan(ventana, ev)) {
       return `La grúa seleccionada ya está asignada el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
@@ -130,7 +156,7 @@ async function buscarConflicto(
       .from('eventos_operarios')
       .select('evento_id, operario:operarios(nombre), evento:eventos_agenda(id, fecha, fecha_hasta, hora_inicio, hora_fin, estado)')
       .in('operario_id', operarioIds)
-    if (errorOperarios) throw new Error(`No se pudo verificar disponibilidad de los operarios: ${errorOperarios.message}`)
+    if (errorOperarios) throw new Error(`No se pudo verificar disponibilidad de los operarios: ${friendlyError(errorOperarios)}`)
     for (const fila of filasOperarios ?? []) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ev = fila.evento as any
@@ -254,6 +280,9 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
     const { hora_fin, ...rest } = parsed.data
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
 
+    const errorOperarios = await validarOperarios(supabase, operarioIds)
+    if (errorOperarios) return { error: errorOperarios }
+
     const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds)
     if (conflicto) return { error: conflicto }
 
@@ -263,14 +292,14 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
       .select('id')
       .single()
 
-    if (error || !data) return { error: error?.message ?? 'No se pudo crear el evento.' }
+    if (error || !data) return { error: error ? friendlyError(error) : 'No se pudo crear el evento.' }
 
     const syncError = await syncEventoOperarios(supabase, data.id, operarioIds)
     if (syncError) return { error: syncError }
 
     revalidateEventos()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect('/dashboard/agenda?saved=created')
 }
@@ -291,6 +320,9 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
 
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
 
+    const errorOperarios = await validarOperarios(supabase, operarioIds)
+    if (errorOperarios) return { error: errorOperarios }
+
     const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
     if (conflicto) return { error: conflicto }
 
@@ -299,14 +331,14 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
       .update({ ...rest, hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     const syncError = await syncEventoOperarios(supabase, id, operarioIds)
     if (syncError) return { error: syncError }
 
     revalidateEventos()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect('/dashboard/agenda?saved=updated')
 }
@@ -318,11 +350,11 @@ export async function deleteEvento(prevState: unknown, formData: FormData): Prom
     if (!id) return { error: 'ID de evento requerido.' }
 
     const { error } = await supabase.from('eventos_agenda').delete().eq('id', id)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateEventos()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect('/dashboard/agenda?saved=deleted')
 }
@@ -370,11 +402,11 @@ async function catalogToggle(table: CatalogTable, formData: FormData): Promise<A
     }
 
     const { error } = await supabase.from(table).update({ activo: !activo }).eq('id', id)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true, warning }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 
@@ -383,11 +415,11 @@ async function catalogDelete(table: CatalogTable, formData: FormData): Promise<A
     const supabase = await requireUser()
     const id = String(formData.get('id') ?? '').trim()
     const { error } = await supabase.from(table).delete().eq('id', id)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 
@@ -426,11 +458,11 @@ export async function createGrua(prevState: unknown, formData: FormData): Promis
     const duplicado = await gruaDuplicada(supabase, parsed.data.nombre, parsed.data.patente)
     if (duplicado) return { error: duplicado }
     const { error } = await supabase.from('gruas').insert(parsed.data)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 export async function updateGrua(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -443,11 +475,11 @@ export async function updateGrua(prevState: unknown, formData: FormData): Promis
     const duplicado = await gruaDuplicada(supabase, parsed.data.nombre, parsed.data.patente, id)
     if (duplicado) return { error: duplicado }
     const { error } = await supabase.from('gruas').update(parsed.data).eq('id', id)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 export async function toggleGrua(prevState: unknown, formData: FormData) {
@@ -470,11 +502,11 @@ export async function createEmpresaAgenda(prevState: unknown, formData: FormData
     const { data: existente } = await supabase.from('empresas_agenda').select('id').ilike('nombre', parsed.data.nombre).limit(1)
     if (existente && existente.length > 0) return { error: 'Ya existe una empresa con ese nombre.' }
     const { error } = await supabase.from('empresas_agenda').insert(parsed.data)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 export async function toggleEmpresaAgenda(prevState: unknown, formData: FormData) {
@@ -493,11 +525,11 @@ export async function createOperario(prevState: unknown, formData: FormData): Pr
     })
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     const { error } = await supabase.from('operarios').insert(parsed.data)
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 export async function toggleOperario(prevState: unknown, formData: FormData) {
