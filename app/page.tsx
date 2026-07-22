@@ -131,7 +131,7 @@ export default async function HomePage() {
             className="object-cover object-[70%_center] md:object-center"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-b from-igb-surface/85 via-igb-surface/35 to-transparent md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
+            className="absolute inset-0 bg-gradient-to-b from-igb-surface/95 via-igb-surface/60 to-igb-surface/15 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
             style={{ opacity: heroOverlayOpacity }}
           />
         </div>
@@ -242,7 +242,7 @@ export default async function HomePage() {
                     {servicio.title}
                   </h3>
                   {servicio.excerpt && (
-                    <p className="text-sm text-igb-secondary mt-2 line-clamp-2">
+                    <p className="text-sm text-igb-secondary mt-2 leading-relaxed">
                       {servicio.excerpt}
                     </p>
                   )}
