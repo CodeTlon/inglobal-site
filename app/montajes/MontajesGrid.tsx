@@ -60,17 +60,6 @@ export default function MontajesGrid({ montajes }: { montajes: Montaje[] }) {
                 <p className="text-zinc-500 text-lg leading-relaxed mb-8">
                   {montaje.excerpt}
                 </p>
-
-                <div className="flex flex-wrap gap-2 mt-auto">
-                  {montaje.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 border border-zinc-200 px-3 py-1 rounded-md transition-colors duration-200 group-hover:border-igb-yellow/40 group-hover:text-igb-yellow-dark"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
               </div>
             </Link>
           )

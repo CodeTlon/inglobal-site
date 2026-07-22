@@ -10,12 +10,14 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* clip (no hidden) para no romper position: sticky */
+    overflow-x: clip;
   }
   body {
     @apply bg-igb-surface text-igb-on-surface font-body antialiased;
     /* Red de seguridad: contenido rico (TipTap) puede traer texto sin cortes
        (URLs largas, etc.) que desborda el viewport en mobile. */
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 
