@@ -131,7 +131,7 @@ export default async function HomePage() {
             className="object-cover object-[70%_center] md:object-center"
           />
           <div
-            className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
+            className="absolute inset-0 bg-gradient-to-b from-igb-surface/85 via-igb-surface/35 to-transparent md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
             style={{ opacity: heroOverlayOpacity }}
           />
         </div>
@@ -150,7 +150,7 @@ export default async function HomePage() {
               )}
             </h1>
 
-            <p className="text-igb-secondary text-lg md:text-xl mb-10 max-w-lg leading-relaxed font-medium hero-anim hero-anim-d2">
+            <p className="hidden md:block text-igb-secondary text-lg md:text-xl mb-10 max-w-lg leading-relaxed font-medium hero-anim hero-anim-d2">
               {heroSubheadline}
             </p>
 
