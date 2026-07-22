@@ -6,6 +6,7 @@ import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 import { resizeImageFile } from '@/lib/client-image-resize'
 import { uploadDirectToStorage } from '@/lib/client-upload'
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
+import { friendlyError } from '@/lib/friendly-error'
 import ConfirmDialog from './ConfirmDialog'
 
 function formatMB(bytes: number) {
@@ -281,7 +282,7 @@ export function ImageUpload({
       if (myGen !== genRef.current) return
       setBusy(false)
       objectUrlRef.current = null
-      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      setErr(friendlyError(uploadErr, 'Error al subir el archivo. Intentá de nuevo.'))
       setUrl(previousUrl)
       e.target.value = ''
       return
@@ -498,7 +499,7 @@ export function VideoUpload({
       if (myGen !== genRef.current) return
       setBusy(false)
       objectUrlRef.current = null
-      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      setErr(friendlyError(uploadErr, 'Error al subir el archivo. Intentá de nuevo.'))
       setUrl(previousUrl)
       e.target.value = ''
       return
@@ -650,7 +651,7 @@ export function FileUpload({
       res = await uploadDirectToStorage(file, folder)
     } catch (uploadErr) {
       setBusy(false)
-      setErr(uploadErr instanceof Error ? uploadErr.message : 'Error al subir el archivo.')
+      setErr(friendlyError(uploadErr, 'Error al subir el archivo. Intentá de nuevo.'))
       e.target.value = ''
       return
     }

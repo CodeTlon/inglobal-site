@@ -11,7 +11,7 @@ export const montajeSchema = z.object({
   banner_image_focal: z.string().nullable().optional(),
   banner_image_focal_mobile: z.string().nullable().optional(),
   tags:          z.string().optional(), // JSON array (StringList) en el form; se parsea en la action
-  display_order: z.coerce.number().int().min(0).default(0),
+  display_order: z.coerce.number().int('El orden debe ser un número entero').min(0, 'El orden no puede ser negativo').default(0),
   published:     z.coerce.boolean().default(true),
 })
 

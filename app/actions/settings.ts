@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 import { extractStoragePath } from '@/lib/storage'
 import { transcodeVideo } from '@/lib/video-transcode'
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
@@ -73,14 +74,14 @@ export async function updateSiteSettings(
       .from('site_settings')
       .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error, 'No se pudo guardar. Intentá de nuevo.') }
 
     const paths = SETTING_PATHS[key] ?? ['/']
     for (const p of paths) revalidatePath(p)
 
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e, 'No se pudo guardar. Intentá de nuevo.') }
   }
 }
 
@@ -161,12 +162,12 @@ export async function uploadMediaAction(
     const { error: upErr } = await supabase.storage
       .from('media')
       .upload(path, buf, { contentType, upsert: false })
-    if (upErr) return { error: upErr.message }
+    if (upErr) return { error: friendlyError(upErr, 'No se pudo subir el archivo. Intentá de nuevo.') }
 
     const { data } = supabase.storage.from('media').getPublicUrl(path)
     return { url: data.publicUrl }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e, 'No se pudo subir el archivo. Intentá de nuevo.') }
   }
 }
 
@@ -177,9 +178,9 @@ export async function deleteMediaAction(url: string): Promise<{ error?: string }
     const path = extractStoragePath(url)
     if (!path) return {}
     const { error } = await supabase.storage.from('media').remove([path])
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error, 'No se pudo eliminar el archivo.') }
     return {}
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e, 'No se pudo eliminar el archivo.') }
   }
 }

@@ -1,4 +1,5 @@
 import { createSupabaseBrowserClient } from '@/lib/supabase'
+import { friendlyError } from '@/lib/friendly-error'
 
 /**
  * Sube un archivo directo al bucket `media` desde el navegador (bypass del
@@ -19,7 +20,7 @@ export async function uploadDirectToStorage(
   const { error } = await supabase.storage
     .from('media')
     .upload(path, file, { contentType: file.type || undefined, upsert: false })
-  if (error) return { error: error.message }
+  if (error) return { error: friendlyError(error, 'No se pudo subir el archivo. Intentá de nuevo.') }
 
   const { data } = supabase.storage.from('media').getPublicUrl(path)
   return { url: data.publicUrl }

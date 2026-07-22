@@ -76,6 +76,19 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
         return
       }
     }
+    const operarioIdsRaw = formData.get('operario_ids') as string | null
+    let operarioIds: unknown[] = []
+    try {
+      operarioIds = operarioIdsRaw ? JSON.parse(operarioIdsRaw) : []
+    } catch {
+      operarioIds = []
+    }
+    if (!Array.isArray(operarioIds) || operarioIds.length === 0) {
+      e.preventDefault()
+      setClientError('Asigná al menos un operario al evento.')
+      return
+    }
+
     setClientError(null)
   }
 
@@ -139,6 +152,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
           disabled: ocupados.operarioIds.includes(o.id),
         }))}
         defaultValue={evento?.operarios.map((o) => o.id)}
+        hint="Obligatorio: asigná al menos un operario. Solo se listan operarios activos."
       />
 
       <TextField label="Ubicación" name="ubicacion" defaultValue={evento?.ubicacion ?? undefined} hint="Dirección o link de Google Maps." placeholder="Ej: Av. Colón 1234, Córdoba" />

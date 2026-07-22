@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 
 export type UserActionState = { success?: boolean; error?: string } | undefined
 
@@ -38,12 +39,12 @@ export async function createAdminUser(
       user_metadata: { must_change_password: true },
     })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidatePath('/dashboard/usuarios')
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }
 
@@ -71,11 +72,11 @@ export async function resetAdminPassword(
       user_metadata: { must_change_password: true },
     })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidatePath('/dashboard/usuarios')
     return { success: true }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
 }

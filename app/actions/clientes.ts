@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import slugify from 'slugify'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { friendlyError } from '@/lib/friendly-error'
 import { clienteSchema } from '@/lib/validations/cliente'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -71,11 +72,11 @@ export async function createCliente(
       updated_at: new Date().toISOString(),
     })
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateClientes()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=created`)
 }
@@ -118,11 +119,11 @@ export async function updateCliente(
       .update({ ...parsed.data, slug, work_rank, updated_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     revalidateClientes()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=updated`)
 }
@@ -141,13 +142,13 @@ export async function deleteCliente(
 
     const { error } = await supabase.from('clientes').delete().eq('id', id)
 
-    if (error) return { error: error.message }
+    if (error) return { error: friendlyError(error) }
 
     if (existing) await removeMediaUrls(supabase, [existing.logo])
 
     revalidateClientes()
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Error desconocido.' }
+    return { error: friendlyError(e) }
   }
   redirect(`${LIST_PATH}?saved=deleted`)
 }
