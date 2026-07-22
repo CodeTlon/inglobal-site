@@ -1,41 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grúas InGlobal
 
-## Getting Started
+Sitio institucional de **Grúas InGlobal S.R.L.** (alquiler de grúas y montajes industriales, Córdoba, AR). Reescritura de un sitio PHP legacy a Next.js, con **dashboard CMS** para editar casi todo el contenido sin tocar código.
 
-First, run the development server:
+## Stack
+
+- **Next.js 15.5** (App Router) + TypeScript + **Tailwind CSS**
+- **Supabase** (PostgreSQL + RLS + Auth + Storage bucket `media`)
+- **Resend** (formulario de contacto) · Zod + Server Actions
+- **Playwright** (E2E, puerto dedicado 3310) · Deploy en **Vercel**
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # completar credenciales Supabase + Resend
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev              # Dev server
+npm run build             # Build de producción (corre optimize:images en prebuild)
+npm run start              # Serve del build
+npm run lint               # ESLint
+npm run optimize:images    # Regenera public/images/opt/ (AVIF+WebP, idempotente)
+npx playwright test        # Tests E2E (puerto 3310)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variables de entorno
 
-## Learn More
+Ver `.env.example`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM_NAME`, `RESEND_FROM_EMAIL`, `COMPANY_EMAIL`.
 
-To learn more about Next.js, take a look at the following resources:
+## Estructura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `app/` — sitio público (home, quiénes-somos, servicios, montajes + `[slug]`, clientes + `[slug]`, contacto, galería)
+- `app/dashboard/` — login + CMS admin (`site_settings`, montajes, clientes, servicios)
+- `lib/content.ts` — fetchers con fallbacks tipados (fuente de datos de las páginas públicas)
+- `app/actions/` — Server Actions (mutaciones del dashboard + contacto)
+- `middleware.ts` — auth gate de `/dashboard/**`
+- `supabase/migrations/` — migraciones SQL (001–006)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ver [`ARCHITECTURE.md`](./ARCHITECTURE.md) para el mapa de dónde tocar cada cosa.
 
-## Deploy on Vercel
+## Mantenimiento
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Modelo de sesión de CodeTlon:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/cambio "<tema>"` — abre una rama de trabajo desde `main`. Cada cambio commitea ahí.
+- `/cerrar` — build + actualiza este Changelog + mergea a `main` + tag SemVer.
+
+Contexto de proyecto en `.claude/CLAUDE.md` + `ARCHITECTURE.md`. Checklist manual de testing en `MANUAL-PRUEBAS.md`. Bitácora de bugs no obvios en `.claude/ERRORES.md`.
 
 ## Licencia
 
 © 2026 CodeTlon. Todos los derechos reservados. Software propietario del cliente/CodeTlon.
 Prohibida su copia, redistribución o reuso sin autorización escrita. Ver [LICENSE](./LICENSE).
+
+## Changelog
+
+| Versión | Fecha | Cambio |
+|---------|-------|--------|
+| — (rama `fix/reporte-bugs-post-uso-real-parte4`, en `dev`) | 2026-07-21 | **Ronda de fixes post-uso real, parte 4 (reporte de bugs del cliente)**: paginación de clientes ya no dejaba invisibles los items al cambiar de página (dependían de `ScrollReveal`, que no vuelve a correr en paginación client-side). Editar cualquier servicio tiraba error (`slug`/`excerpt` faltaban en el parse de `updateServicio`) — corregido; agregado botón eliminar servicio (no existía); título de servicio limitado a 60 caracteres + `line-clamp` para no superponerse con la imagen; bloqueo de títulos duplicados. Titular del Hero ya no se corta invisible con texto largo (`maxLength` + `line-clamp-3`). Montajes: imagen de portada pasa a obligatoria (antes inconsistente con Servicios); expuesto el campo de orden de visualización que ya existía en la DB pero no en el form (se reseteaba solo en cada guardado). Agenda: bloqueo de grúas/empresas duplicadas (nombre/patente), teléfono valida formato numérico, flujo de estados de eventos ya no permite volver atrás (`en_curso`/`finalizado` → `programado`), evento `finalizado`/`cancelado` no editable y `en_curso` solo permite cambiar el estado, grúas/operarios ocupados se marcan deshabilitados al crear/editar evento, no se puede inactivar un recurso en uso en un evento en curso (aviso si es solo "programado"). Quiénes Somos: subtítulo de la cabecera y los 3 puntos destacados pasan a editables (antes hardcodeados). Stats: máximo 5, sin pares incompletos ni etiquetas duplicadas. |
+| — (rama `fix/correctness-baja`, en `dev`) | 2026-07-17 | **Ronda de fixes post-uso real, parte 2** (9 fases sobre una tanda grande de bugs/pedidos reales): uploads que fallaban/colgaban con archivos reales — causa real es que Vercel cappea el body de cualquier función serverless a 4.5MB (no el `bodySizeLimit` de Next), fix con resize de imágenes en el navegador antes de subir y video/PDF directo del navegador al bucket. `tags` de montajes y `specs` de servicios se guardaban corrompidos (mismatch JSON vs CSV entre `StringList` y el parser del server). Error de consola del Service Worker con respuestas 206 de video. YouTube pasa a cargar con click (era el 66% del peso de página según un HAR real, no las imágenes). Listas visibles en el editor de texto rico, stats del hero a un banner propio debajo, banners menos recortados, navbar oculto hasta hacer scroll en trabajos. Placeholders de ejemplo en ~32 campos del dashboard. Foco de imagen (focal point) distinto para mobile y desktop en portadas/banners/logo (migración `017`). Agenda: validación de solapamiento de grúa/operarios entre eventos + reservas de varios días seguidos (migración `018`), feedback de guardado en catálogos (antes silencioso, parecía colgado), vista de un día para el calendario en mobile (antes grilla semanal con scroll horizontal). |
+| — (rama `fix/ux-varios-post-uso`, en `dev`) | 2026-07-13 | **Ronda de fixes post-uso real (sitio + dashboard)**: etiqueta de cliente en `/clientes/[slug]/[trabajo]` pasa de pill navy a texto en cursiva sin fondo; nuevo bloque de cierre al final de cada trabajo (logo del cliente + su bio corta, si tiene). Home "Qué Hacemos": foto más grande y `servicio.desc` como subtítulo debajo del título. Estado de eventos en el listado de Agenda ahora se muestra con mayúscula inicial. `/dashboard/agenda/calendario` rediseñado a tema claro (blanco/azul/amarillo) con click en cada evento para ver su detalle en un modal (`/agenda-tv` sin cambios, sigue oscura por diseño). Textareas del dashboard ya no se pueden redimensionar. Fix de causa raíz: `ImageUpload`/`VideoUpload` podían persistir un `blob:` local si se guardaba el form a mitad de una subida (causante de "se clava" al subir fotos/videos y de previews rotos) — el valor que viaja al form ahora nunca es un blob. Las 10 páginas de `contenido/*` ganan un link "Volver al panel" (antes ninguna lo tenía). Banner de guardado de `contenido/*` ahora se autodestruye a los 3s (antes quedaba fijo para siempre); el toast de crear/editar/borrar (`SavedToast`) muestra un mensaje distinto según la acción en vez de siempre "Guardado correctamente". |
+| — (rama `feat/agenda-validaciones-calendario-video`, en `dev`) | 2026-07-13 | **Fase 12/12 de la ronda 2 post-QA — pipeline de video (parcial, deploy sigue en Vercel)**: nuevo `lib/video-transcode.ts` re-encodea video server-side (H.264 CRF 20, sin audio, tope 1920px) al subirlo desde el dashboard, con el mismo guard defensivo que el script de build — si el runtime no tiene `ffmpeg` (Vercel, hoy) sube el archivo tal cual, sin romper nada; queda inerte hasta que el deploy pase a Coolify. Límite de subida de video baja de 50MB a 20MB. Hero: `HeroForm.tsx` suma el campo para `video_url_mobile` (el público ya lo soportaba, faltaba el form), focal point de video y opacidad de overlay ajustable (default 100 = igual que antes). `ContentEditor` gana un botón "Video propio" (nodo TipTap corto para `<video>`, no YouTube) con el mismo pipeline y contención CSS. **Plan completo de 5 fases (8-12) terminado.** |
+| — (rama `feat/agenda-validaciones-calendario-video`, en `dev`) | 2026-07-13 | **Fase 11/12 de la ronda 2 post-QA — rediseño del calendario**: el listado agrupado Hoy/Mañana/Semana/Próximamente se reemplaza por dos vistas en CSS Grid puro — `AgendaWeekView` (grilla semanal, franjas de 30min 7-19hs, en `/dashboard/agenda/calendario`, navegación por semana vía `?week=`) y `AgendaMonthView` (grilla mensual clásica en `/agenda-tv`). Estado "Finalizado" ahora se deriva visualmente en cada render (`getEstadoVisual`, sin cron ni escritura) para eventos "Programado" cuya hora de fin ya pasó. Ambas vistas pasan a un chrome propio sin sidebar del panel. |
+| — (rama `feat/agenda-validaciones-calendario-video`, en `dev`) | 2026-07-13 | **Fase 10/12 de la ronda 2 post-QA — Agenda: validaciones**: contacto/teléfono de empresa pasan a obligatorios. Eventos ya no aceptan fecha pasada ni `hora_fin` a menos de 15 minutos de `hora_inicio` (validado client y server-side). Trabajos ya no aceptan fecha futura. Fix: el link "Agenda de Grúas" del sidebar ya no se marcaba activo en `/calendario`/`/catalogos`. |
+| — (rama `feat/dashboard-ux-fase9`, en `dev`) | 2026-07-13 | **Fase 9/12 de la ronda 2 post-QA — UX del dashboard**: editor de texto rico (`ContentEditorBoundary.tsx`) ya no rompe todo el form si el contenido legacy le falla a TipTap al parsear, cae a un textarea plano. Race condition corregida en preview de `ImageUpload`/`VideoUpload` al cambiar de archivo rápido. Formularios del panel más anchos (`max-w-2xl` → `max-w-4xl` en 22 páginas) y el embed de YouTube del editor ya no desborda. Slug automático en montajes y clientes (antes manual, ahora igual que trabajos). Accesos rápidos del panel pasan de texto libre a checklist predefinido (`QUICKLINK_CANDIDATES`). "Cambiar contraseña" se mueve del topbar a `/dashboard/usuarios`. Scrollbar delgada acorde a los tokens del sitio. Toast de confirmación (`SavedToast.tsx`) al guardar/borrar en los CRUD que redirigen. |
+| — (rama `feat/contenido-publico-fase8`, en `dev`) | 2026-07-13 | **Fase 8/12 de la ronda 2 post-QA — contenido público**: sección "Qué Hacemos" del home recortada a solo foto+título (tags fuera, título más grande). Navbar oscuro pasa de negro genérico (`zinc-950`) a `zinc-900` para matchear el tono real del hero de `/montajes/[slug]`; `/clientes/[slug]/[trabajo]` deja de usar navbar oscuro (siempre claro), para distinguirse de montajes — refuerzo con un badge de cliente en navy (antes yellow, igual que montajes) en el detalle de trabajo. Logo de cliente sacado de `/clientes/[slug]` (ahora es pura historia + lista de trabajos) y sumado como apartado propio en el detalle de cada trabajo. Nueva columna `banner_image`/`banner_image_focal` en `montajes` y `trabajos` (migración `016`) — separa la miniatura del listado (`cover_image`) de la foto grande del detalle (`banner_image`, con fallback a `cover_image`); overlay del hero de trabajo un escalón más oscuro. Plan completo de 5 fases (8-12) en curso, resto pendiente. |
+| — (rama `feat/auth-cambio-password`, en `dev`) | 2026-07-12 | **Fase 7/7 de fixes post-QA — auth**: alta de usuarios y reset de contraseña (`app/actions/users.ts`) ahora setean `user_metadata.must_change_password: true` — `middleware.ts` fuerza el redirect a `/dashboard/cambiar-password` en cualquier ruta de `/dashboard/**` hasta que se cambie (sin loop: la propia ruta queda excluida del check). Nueva `changePassword` en `app/actions/auth.ts` (bajo el mismo route group `(auth)` que login, con la imagen a la izquierda de la Fase 5) — sirve tanto para el gate obligatorio como para cambio voluntario en cualquier momento, vía link nuevo en el topbar del panel. **Plan de 7 fases post-QA completo.** |
+| — (rama `feat/trabajos-fecha-pdf-focal-point-spanpicker`, en `dev`) | 2026-07-12 | **Fase 6 de fixes post-QA — features nuevas de contenido**: campo `fecha` en trabajos (migración `011`, se muestra en el detalle público). Adjunto PDF opcional en trabajos (migración `012`, columna `attachment_url`, nuevo `FileUpload` en `Field.tsx`, límite 8MB, link de descarga en el público). Focal point de imágenes — nuevo prop `focalName`/`focalDefaultValue` en `ImageUpload` (click sobre el preview elige qué parte de la foto se prioriza al recortar, vía `objectPosition`), acotado a `cover_image` de montajes/trabajos y `logo` de clientes (migraciones `013`/`014`/`015`, columnas `*_focal` opcionales). Selector visual de filas/columnas en Galería — nuevo `components/dashboard/SpanPicker.tsx` (grilla de cuadraditos clickeable) reemplaza los 4 `<select>` de texto en `GaleriaForm.tsx`, mismo contrato de datos (`col_span_*`/`row_span_*`), sin tocar `app/actions/galeria.ts`. Migraciones 011-015 aplicadas a dev vía `db-sync-dev.mjs --yes`. |
+| — (rama `feat/dashboard-misc-titulo-accesos-login`, en `dev`) | 2026-07-12 | **Fase 5 de fixes post-QA — dashboard misceláneos + fix crítico de guardado**: descubierto y corregido un bug preexistente que impedía guardar CUALQUIER form de "Contenido" (Hero/Footer/Stats/Quiénes Somos/Qué Hacemos/CTA Banner/Clientes Destacados/Ubicación/Contacto) — `updateSiteSettings` esperaba un campo `value` con JSON que ningún form mandaba nunca (cada uno manda sus campos individuales). Ahora arma el objeto a partir de todos los campos del FormData (los que vienen como `[...]`/`{...}` se parsean como JSON, el resto queda como texto). De paso se normalizó `stats` (antes guardado como array crudo en DB pero leído como `{items:[...]}` por los forms — inconsistencia que hacía que el home SIEMPRE mostrara los 3 stats hardcodeados sin importar lo editado). Además: título del panel corregido a "Grúas InGlobal S.R.L." (sin "— CMS"), accesos rápidos del home del panel ahora editables desde `/dashboard/contenido/accesos-rapidos` (nueva key `dashboard_quicklinks` en `site_settings`, nuevo `LinkList` en `Field.tsx`) con mejor estilo visual (cards con ícono en vez de botones planos), login del dashboard con imagen a la izquierda en desktop (50vw x 100vh, `Picture` con `igb-5` de placeholder). |
+| — (rama `style/sitio-publico-navbar-hero-blog`, en `dev`) | 2026-07-12 | **Fase 4 de fixes post-QA — estilos del sitio público**: `Navbar` detecta si la página tiene un `[data-navbar="dark"]` (marcado en el hero de `/montajes/[slug]` y de `/clientes/[slug]/[trabajo]` con cover) y mientras no se hizo scroll se pinta oscuro con el logo claro del Footer, en vez del blanco translúcido que se veía gris sobre fondos oscuros. Logo de cliente en `/clientes/[slug]` ahora va sobre una card blanca con sombra (antes directo sobre el fondo gris, sin contraste). `.prose-igb img` deja de forzar `width:100%` (estiraba/pixelaba imágenes chicas y desbordaba las muy verticales) — ahora respeta el tamaño natural con `max-width`/`max-height`. Sección "Qué Hacemos" del home recortada a foto+título+tags (se sacó el ícono circular y la descripción larga; los tags ahora muestran todos los `specs`, no solo el primero). Sacado el botón flotante de WhatsApp (componente + CSS del pulse ring borrados). Test E2E de WhatsApp eliminado (`tests/e2e/inglobal.spec.ts`), resto de la suite 24/24 OK. |
+| — (rama `feat/agenda-catalogos-vista-jefes`, en `dev`) | 2026-07-11 | **Fase 3 de fixes post-QA — Agenda**: edición de grúas (antes solo alta/toggle/borrado) vía modo inline en Catálogos. Nueva columna `gruas.tipo` (migración `010`, enum Grúa/Hidrogrúa/Camión/Otro) porque el catálogo no son solo grúas de torre. Label "Contacto" → "Persona de contacto" en empresas. `TextField` gana `min`/`max` para el date picker de eventos (rango hoy-7 días a hoy+6 meses, validación nativa del navegador, sin check server-side). Nueva vista de solo lectura `/dashboard/agenda/calendario` (mismo listado agrupado Hoy/Mañana/Semana/Próximamente que `/agenda-tv`, extraído a `components/agenda/AgendaReadOnlyView.tsx` para no duplicar la lógica) — separa la vista de consulta para jefes de la vista de carga/edición (`/dashboard/agenda`), sin roles nuevos. |
+| — (rama `fix/ux-forms-dashboard`, en `dev`) | 2026-07-11 | **Fase 2 de fixes post-QA — UX de formularios**: crear/editar/borrar montajes, clientes, servicios, trabajos, galería y eventos de agenda ahora redirige a la página base (listado) al terminar con éxito, en vez de quedarse en el form con un banner verde (el error sigue mostrando banner rojo sin navegar, sin perder lo tipeado). Nuevo `ConfirmDialog` (modal propio del sitio) reemplaza `window.confirm` en todos los borrados (`DeleteButton` + catálogos de Agenda). `ImageUpload`/`VideoUpload` muestran preview optimista (`URL.createObjectURL`) apenas se elige el archivo, en vez de recién al terminar de subir. |
+| — (rama `fix/integridad-datos-storage-agenda`, en `dev`) | 2026-07-11 | **Fase 1 de fixes post-QA — integridad de datos**: los botones "Quitar" de `ImageUpload`/`VideoUpload` y los `delete*` de montajes/clientes/trabajos/galería ahora borran también el archivo del bucket `media` (antes quedaba huérfano en Storage). Bug de Agenda "Invalid input: expected string, received null" resuelto: los campos opcionales de los 4 schemas (`grua`/`empresa`/`operario`/`evento`) pasan a `.nullable()`, y `SelectField` ahora soporta un placeholder para que un `<select>` sin opciones no omita el campo del FormData. Patente/capacidad de grúa y teléfono de operario pasan a obligatorios. `display_order`/`work_rank` ya no se pisan entre registros: si el valor entra duplicado, se autoincrementa al siguiente libre (`lib/ordering.ts`, scope por `cliente_id` en trabajos). |
+| — (rama `chore/security-headers-loading-states`, sesión abierta) | 2026-07-11 | **Seguridad + progressive loading**: headers de seguridad en `next.config.mjs` (`X-Frame-Options: DENY`, HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`). Auditoría de RLS sobre las 9 migraciones — sin gaps (todas las tablas de contenido tienen policy de lectura pública + escritura `authenticated`; `agenda` es `authenticated`-only, sin policy pública, como corresponde a data operativa privada). Sin `app/api/**` route handlers en este proyecto — CORS no aplica (mutaciones van por Server Actions, same-origin). Progressive loading: `Skeleton` (shadcn, adaptado a los tokens `igb-*` del proyecto) + `loading.tsx` por sección top-level del panel (agenda/clientes/contenido/galería/montajes/servicios/usuarios). Error boundaries branded: `app/error.tsx` (público), `app/dashboard/(panel)/error.tsx` (panel), `app/global-error.tsx` (root layout). |
+| v1.1.0 | 2026-07-04 | **Fase 1 — Reestructura + Dashboard CMS**: home reordenado (Hero con video → Qué Hacemos → resto), "Quiénes Somos" a página propia, Montajes y Clientes Destacados con detalle tipo blog por slug (Clientes ordenado por `work_rank`), dashboard admin completo (contenido/montajes/clientes/servicios, Supabase Auth). Fix: unificación de claves `site_settings` entre seed/fallback/frontend. Fix: puerto dedicado en Playwright (3310) — corrige 12 falsos positivos por colisión con otro proyecto en :3000. Documentación de mantenimiento completada (`ARCHITECTURE.md`, `MANUAL-PRUEBAS.md`, `.claude/ERRORES.md`, `/cambio`+`/cerrar`). |
+| v1.0.0 | 2026-06-19 | Entrega inicial: migración PHP → Next.js 15.5.19, pipeline de imágenes AVIF/WebP, formulario de contacto (Resend), 25/25 E2E, 0 HIGH vulns. |

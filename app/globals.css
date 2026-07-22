@@ -10,12 +10,13 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* Evita scroll horizontal por el estado inicial de los reveals (translateX).
-       clip (no hidden) para no romper position: sticky. */
+    /* clip (no hidden) para no romper position: sticky */
     overflow-x: clip;
   }
   body {
     @apply bg-igb-surface text-igb-on-surface font-body antialiased;
+    /* Red de seguridad: contenido rico (TipTap) puede traer texto sin cortes
+       (URLs largas, etc.) que desborda el viewport en mobile. */
     overflow-x: clip;
   }
 }
@@ -34,7 +35,13 @@
     @apply text-4xl md:text-5xl font-headline font-extrabold text-igb-on-surface tracking-tight leading-tight;
   }
   .heading-hero {
-    @apply text-5xl md:text-6xl lg:text-7xl font-headline font-extrabold text-igb-on-surface tracking-tighter leading-[1.05];
+    /* !leading-[1.05]: text-6xl/text-7xl de Tailwind traen su propio line-height
+       por defecto (1) que pisa el leading-[1.05] en los breakpoints md/lg si no
+       se fuerza — terminaba en un line-height real de 1.0, más apretado todavía.
+       pt-[0.2em] evita que el ascendente de la primera línea se corte contra el
+       overflow:hidden de line-clamp: Manrope Extrabold necesita más alto de línea
+       del que da 1.05 (deficit real medido con canvas.measureText). */
+    @apply text-5xl md:text-6xl lg:text-7xl font-headline font-extrabold text-igb-on-surface tracking-tighter !leading-[1.05] pt-[0.2em];
   }
   .text-body-lg {
     @apply text-lg text-igb-secondary font-light leading-relaxed;
@@ -80,17 +87,12 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Hero background slow zoom */
+/* Hero background slow zoom — scale bajo a propósito: fotos horizontales ya
+   se recortan por el aspect-ratio del contenedor, un scale más agresivo acá
+   sumaba recorte encima. */
 @keyframes igb-hero-zoom {
-  from { transform: scale(1.06); }
+  from { transform: scale(1.03); }
   to   { transform: scale(1); }
-}
-
-/* WhatsApp floating pulse ring */
-@keyframes igb-pulse-ring {
-  0%   { transform: scale(1);   opacity: 0.65; }
-  75%  { transform: scale(1.6); opacity: 0; }
-  100% { transform: scale(1.6); opacity: 0; }
 }
 
 /* ─── HERO ENTRY ANIMATIONS ─────────────────────────────────────────── */
@@ -110,16 +112,32 @@
   animation: igb-hero-zoom 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
+/* Foco de imagen distinto en mobile vs desktop — object-position no se puede
+   condicionar por breakpoint con una sola prop de React, así que el foco de
+   cada tamaño viaja como CSS custom property y el media query elige cuál usar. */
+.focal-responsive {
+  object-position: var(--focal-desktop, 50% 50%);
+}
+@media (max-width: 767px) {
+  .focal-responsive {
+    object-position: var(--focal-mobile, var(--focal-desktop, 50% 50%));
+  }
+}
+
+/* Mismo criterio que .focal-responsive, para la opacidad del overlay de un banner. */
+.overlay-responsive {
+  opacity: var(--overlay-desktop, 1);
+}
+@media (max-width: 767px) {
+  .overlay-responsive {
+    opacity: var(--overlay-mobile, var(--overlay-desktop, 1));
+  }
+}
+
 /* ─── MOBILE NAV SLIDE-DOWN ─────────────────────────────────────────── */
 
 .nav-mobile-menu {
   animation: igb-slide-down 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* ─── WHATSAPP PULSE RING ────────────────────────────────────────────── */
-
-.whatsapp-pulse-ring {
-  animation: igb-pulse-ring 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
 /* ─── SCROLL REVEAL SYSTEM ──────────────────────────────────────────── */
@@ -129,20 +147,25 @@
 .js-ready [data-animate] {
   opacity: 0;
   transform: translateY(26px);
+  filter: blur(0);
   transition:
     opacity  0.65s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    filter    0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .js-ready [data-animate="from-left"]  { transform: translateX(-36px); }
 .js-ready [data-animate="from-right"] { transform: translateX(36px); }
 .js-ready [data-animate="scale"]      { transform: scale(0.91); opacity: 0; }
 .js-ready [data-animate="fade-up"]    { transform: translateY(26px); }
+/* Headline treatment — fade + blur-to-sharp, a touch more premium than plain fade-up */
+.js-ready [data-animate="blur-up"]    { transform: translateY(22px); filter: blur(10px); }
 
 /* Revealed state */
 .js-ready [data-animate][data-visible] {
   opacity: 1;
   transform: none;
+  filter: blur(0);
 }
 
 /* Stagger delays — scoped so they only affect animate elements */
@@ -157,6 +180,131 @@
 .js-ready [data-animate][data-delay="450"] { transition-delay: 450ms; }
 .js-ready [data-animate][data-delay="500"] { transition-delay: 500ms; }
 
+/* ─── PROSE (contenido rico de trabajos, TipTap) ─────────────────────── */
+
+.prose-igb {
+  @apply text-igb-secondary text-lg leading-relaxed;
+  overflow-wrap: anywhere;
+}
+.prose-igb > * + * {
+  margin-top: 1.25em;
+}
+.prose-igb h2 {
+  @apply font-headline font-extrabold text-2xl md:text-3xl text-igb-on-surface tracking-tight;
+  margin-top: 1.75em;
+}
+.prose-igb h3 {
+  @apply font-headline font-bold text-xl text-igb-on-surface;
+  margin-top: 1.5em;
+}
+.prose-igb a {
+  @apply text-igb-yellow-dark font-semibold underline underline-offset-2;
+}
+.prose-igb ul {
+  @apply list-disc pl-6 space-y-1;
+}
+.prose-igb ol {
+  @apply list-decimal pl-6 space-y-1;
+}
+.prose-igb blockquote {
+  @apply border-l-4 border-igb-yellow pl-5 italic text-igb-on-surface;
+}
+.prose-igb strong {
+  @apply font-bold text-igb-on-surface;
+}
+.prose-igb hr {
+  @apply border-zinc-200 my-10;
+}
+.prose-igb img {
+  @apply rounded-xl mx-auto block;
+  max-width: 100%;
+  max-height: 32rem;
+  width: auto;
+  height: auto;
+}
+.prose-igb [data-youtube-video] {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+.prose-igb [data-youtube-video] iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.prose-igb video {
+  @apply rounded-xl mx-auto block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mismo criterio que .prose-igb, para el editor TipTap del dashboard
+   (ContentEditor.tsx) — el nodo de YouTube trae 640x480 fijo por defecto
+   y desborda el ancho angosto del form si no se lo contiene. */
+.tiptap-editor [data-youtube-video] {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.tiptap-editor [data-youtube-video] iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tiptap-editor ul {
+  @apply list-disc pl-6 space-y-1;
+}
+.tiptap-editor ol {
+  @apply list-decimal pl-6 space-y-1;
+}
+.tiptap-editor img {
+  max-width: 100%;
+  height: auto;
+}
+.tiptap-editor video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+/* ─── SCROLLBAR DEL PANEL (dashboard) ──────────────────────────────────── */
+/* Scrollbar delgada, acorde a los tokens del sitio en vez de la nativa del navegador. */
+.dashboard-scroll-light {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.igb-outline') transparent;
+}
+.dashboard-scroll-light::-webkit-scrollbar {
+  width: 8px;
+}
+.dashboard-scroll-light::-webkit-scrollbar-thumb {
+  background-color: theme('colors.igb-outline');
+  border-radius: 9999px;
+}
+.dashboard-scroll-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-scroll-dark {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.slate.700') transparent;
+}
+.dashboard-scroll-dark::-webkit-scrollbar {
+  width: 8px;
+}
+.dashboard-scroll-dark::-webkit-scrollbar-thumb {
+  background-color: theme('colors.slate.700');
+  border-radius: 9999px;
+}
+.dashboard-scroll-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* ─── REDUCED MOTION ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   /* Scroll reveals: show immediately */
@@ -164,6 +312,7 @@
   .js-ready [data-animate][data-visible] {
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
     transition: none !important;
   }
   .js-ready [data-animate][data-delay] {
@@ -176,12 +325,6 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
-  }
-
-  /* WhatsApp pulse: disable */
-  .whatsapp-pulse-ring {
-    animation: none !important;
-    opacity: 0 !important;
   }
 
   /* Nav slide: disable */

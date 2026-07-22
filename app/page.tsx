@@ -1,261 +1,254 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Picture from '@/components/Picture'
+import HeroVideo from '@/components/HeroVideo'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
-import {
-  CheckCircle,
-  Zap,
-  Users,
-  Truck,
-  ArrowUpToLine,
-  HardHat,
-  Move,
-} from 'lucide-react'
+import { getSiteSettings, getServicios, getClientes } from '@/lib/content'
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
-
-const stats = [
-  { number: '40+', label: 'Años de experiencia' },
-  { number: '200', label: 'Toneladas de capacidad' },
-  { number: '100m', label: 'Altura máxima' },
-]
-
-const services = [
-  {
-    id: 'gruas-telescopicas',
-    icon: ArrowUpToLine,
-    title: 'Grúas Telescópicas',
-    desc: 'Equipos de alta performance para elevación y movimiento de cargas pesadas en obras industriales.',
-    specs: 'Izajes de alta complejidad',
-  },
-  {
-    id: 'hidrogruas',
-    icon: HardHat,
-    title: 'Hidrogrúas',
-    desc: 'Hidrogrúas montadas con barquilla para trabajos en altura y montajes especiales.',
-    specs: 'Con barquilla incluida',
-  },
-  {
-    id: 'movimientos-pesados',
-    icon: Move,
-    title: 'Movimientos Pesados',
-    desc: 'Trabajos especiales de movimiento y posicionamiento de estructuras de gran envergadura.',
-    specs: 'Trabajos a medida',
-  },
-  {
-    id: 'traslados',
-    icon: Truck,
-    title: 'Traslados con Carretones',
-    desc: 'Transporte de maquinarias y estructuras pesadas con carretones especializados a todo el país.',
-    specs: 'Cobertura nacional',
-  },
-]
-
+// ─── Static gallery (not in CMS scope) ───────────────────────────────────────
 const galleryItems = [
   {
     src: '/images/igb-1.webp',
     alt: 'Grúa telescópica en operación',
     span: 'md:col-span-2 md:row-span-2',
-    label: 'Izaje Industrial'
+    label: 'Izaje Industrial',
   },
   {
     src: '/images/igb-5.webp',
     alt: 'Grúas en planta industrial',
     span: 'md:col-span-1 md:row-span-1',
-    label: 'Planta Industrial'
+    label: 'Planta Industrial',
   },
   {
     src: '/images/igb-7.webp',
     alt: 'Montaje industrial con plataforma',
     span: 'md:col-span-1 md:row-span-1',
-    label: 'Montaje Especial'
+    label: 'Montaje Especial',
   },
   {
     src: '/images/igb-9.webp',
     alt: 'Izaje de tanque industrial al atardecer',
     span: 'md:col-span-1 md:row-span-1',
-    label: 'Petroquímica'
+    label: 'Petroquímica',
   },
   {
     src: '/images/igb-10.webp',
     alt: 'Operaciones logísticas de maquinaria pesada',
     span: 'md:col-span-1 md:row-span-1',
-    label: 'Logística Pesada'
-  }
+    label: 'Logística Pesada',
+  },
 ]
 
-const clients = [
-  { name: 'Aguas Cordobesas', logo: '/images/logos/AGUASCORDOBESAS-logo.png' },
-  { name: 'Bunge', logo: '/images/logos/BUNGE-logo.png' },
-  { name: 'Coca-Cola', logo: '/images/logos/COCACOLA-logo.png' },
-  { name: 'Electro Ingeniería', logo: '/images/logos/ELECTROINGENIERIA-logo.png' },
-  { name: 'EPEC', logo: '/images/logos/EPEC-logo.png' },
-  { name: 'Holcim', logo: '/images/logos/HOLCIM-logo.png' },
-  { name: 'Roggio', logo: '/images/logos/ROGGIO-logo.png' },
-  { name: 'Grupo Edisur', logo: '/images/logos/GRUPOEDISUR-logo.png' },
-  { name: 'Grupo Proaco', logo: '/images/logos/GRUPOPROACO-logo.png' },
-  { name: 'Porta', logo: '/images/logos/PORTA-logo.png' },
-]
-
-const features = [
-  { icon: CheckCircle, text: 'Operadores y equipos certificados en todo el país' },
-  { icon: Zap, text: 'Rapidez, seguridad, costo y calidad como diferencial' },
-  { icon: Users, text: 'Nuestros clientes nos eligen una y otra vez' },
+// ─── Default stats (fallback before DB is populated) ─────────────────────────
+const defaultStats = [
+  { number: '40+', label: 'Años de experiencia' },
+  { number: '200t', label: 'Toneladas de capacidad' },
+  { number: '100m', label: 'Altura máxima' },
 ]
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [heroSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, servicios, clientes] =
+    await Promise.all([
+      getSiteSettings('hero'),
+      getSiteSettings('stats'),
+      getSiteSettings('que_hacemos'),
+      getSiteSettings('cta_banner'),
+      getSiteSettings('clientes_destacados'),
+      getSiteSettings('ubicacion'),
+      getServicios(),
+      getClientes(),
+    ])
+
+  // Hero
+  const heroHeadline =
+    (heroSettings.headline as string) ||
+    'Elevando tus proyectos con seguridad y precisión.'
+  const heroSubheadline =
+    (heroSettings.subheadline as string) ||
+    'Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.'
+  const heroCtaPrimary = (heroSettings.cta_primary as string) || 'Solicitar Presupuesto'
+  const heroCtaSecondary = (heroSettings.cta_secondary as string) || 'Ver Servicios'
+  const heroVideoUrl = (heroSettings.video_url as string | null | undefined) || null
+  const heroVideoUrlMobile = (heroSettings.video_url_mobile as string | null | undefined) || null
+  const heroVideoFocal = (heroSettings.video_focal as string | null | undefined) || null
+  const heroFallbackImage = (heroSettings.fallback_image as string) || 'igb-3'
+  // default 100 = comportamiento idéntico al fijo de antes (los alphas ya están en las clases bg-igb-surface/90 etc.)
+  const heroOverlayOpacity = Number(heroSettings.overlay_opacity ?? 100) / 100
+
+  // Stats
+  const statsItems: { number: string; label: string }[] = Array.isArray(statsSettings.items)
+    ? (statsSettings.items as { number: string; label: string }[])
+    : defaultStats
+
+  // Qué Hacemos
+  const qhLabel = (queHacemosSettings.label as string) || 'Excelencia Operativa'
+  const qhHeading = (queHacemosSettings.heading as string) || 'Ingeniería en Movimiento'
+  const qhSubheading =
+    (queHacemosSettings.subheading as string) ||
+    'Ofrecemos el alquiler de diferentes equipos para dar solución a las necesidades de nuestros clientes.'
+
+  // CTA banner
+  const ctaHeading =
+    (ctaBannerSettings.heading as string) ||
+    'Ingeniería aplicada a montajes complejos'
+  const ctaSubheading =
+    (ctaBannerSettings.subheading as string) ||
+    'Soluciones logísticas y de izaje para los desafíos más exigentes de la industria.'
+  const ctaPrimary = (ctaBannerSettings.cta_primary as string) || 'Solicitar Cotización'
+  const ctaSecondary = (ctaBannerSettings.cta_secondary as string) || 'Ver Montajes'
+  const ctaBgImage = (ctaBannerSettings.background_image as string) || 'igb-10'
+
+  // Clientes destacados
+  const cdLabel = (clientesDestSettings.label as string) || 'Confían en nosotros'
+  const cdHeading = (clientesDestSettings.heading as string) || 'Nuestros Clientes'
+  const cdSubheading =
+    (clientesDestSettings.subheading as string) ||
+    'Empresas líderes que avalan nuestro compromiso y responsabilidad.'
+
+  // Ubicación
+  const ubicLabel = (ubicacionSettings.label as string) || 'Dónde Encontrarnos'
+  const ubicHeading = (ubicacionSettings.heading as string) || 'Nuestra Ubicación'
+  const ubicSubheading =
+    (ubicacionSettings.subheading as string) ||
+    'Acercate a nuestras oficinas o contactanos para planificar tu próximo movimiento.'
+
   return (
     <>
       {/* ===== HERO ===== */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-igb-surface" id="inicio">
-        {/* Background image with slow zoom-in effect */}
+      <section
+        className="relative min-h-screen flex items-center bg-igb-surface"
+        id="inicio"
+      >
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <Picture
-            src="igb-3"
-            alt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[70%_center] md:object-center hero-bg-zoom"
+          <HeroVideo
+            videoUrl={heroVideoUrl}
+            mobileVideoUrl={heroVideoUrlMobile}
+            videoFocal={heroVideoFocal}
+            fallbackImageSrc={heroFallbackImage}
+            fallbackImageAlt="Grúas InGlobal — Traslado de maquinaria pesada en Córdoba"
+            className="object-cover object-[70%_center] md:object-center"
           />
-          <div className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent" />
+          <div
+            className="absolute inset-0 bg-igb-surface/90 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
+            style={{ opacity: heroOverlayOpacity }}
+          />
         </div>
 
         <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
           <div className="max-w-2xl">
-            {/* Hero text — direct keyframe animations (above the fold) */}
             <h1 className="heading-hero mb-6 text-zinc-900 hero-anim hero-anim-d1">
-              Elevando tus proyectos con{' '}
-              <span className="text-igb-yellow-dark">seguridad</span>{' '}
-              y precisión.
+              {heroHeadline.split('seguridad').length > 1 ? (
+                <>
+                  {heroHeadline.split('seguridad')[0]}
+                  <span className="text-igb-yellow-dark">seguridad</span>
+                  {heroHeadline.split('seguridad')[1]}
+                </>
+              ) : (
+                heroHeadline
+              )}
             </h1>
 
             <p className="text-igb-secondary text-lg md:text-xl mb-10 max-w-lg leading-relaxed font-medium hero-anim hero-anim-d2">
-              Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.
+              {heroSubheadline}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 hero-anim hero-anim-d3">
               <Link href="/contacto" className="btn-primary text-center">
-                Solicitar Presupuesto
+                {heroCtaPrimary}
               </Link>
-              <Link href="/servicios" className="btn-outline text-center bg-white/50 backdrop-blur-sm sm:bg-transparent">
-                Ver Servicios
+              <Link
+                href="/servicios"
+                className="btn-outline text-center bg-white/50 backdrop-blur-sm sm:bg-transparent hidden md:inline-flex md:items-center md:justify-center"
+              >
+                {heroCtaSecondary}
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Stats — 3 items, 3 cols on mobile, flex-wrap on md+ */}
-            <div className="mt-14 pt-10 border-t border-igb-outline/30 hero-anim hero-anim-d4">
-              <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:gap-8">
-                {stats.map((s) => (
-                  <div key={s.label} className="group">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold text-zinc-900 tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none">
+      {/* ===== STATS (banner debajo del hero — separado para que el video se vea limpio) ===== */}
+      {statsItems.length > 0 && (
+        <section className="bg-igb-surface border-y border-igb-outline/50 py-10">
+          <div className="container-igb" data-animate="fade-up">
+            <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:justify-center md:gap-16">
+              {statsItems.map((s, i) => {
+                const accent = ['text-igb-yellow-dark', 'text-igb-navy', 'text-igb-on-surface'][i % 3]
+                return (
+                  <div key={s.label} className="group text-center md:text-left">
+                    <p
+                      className={`text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold ${accent} tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none`}
+                    >
                       {s.number}
                     </p>
                     <p className="text-[10px] sm:text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
                       {s.label}
                     </p>
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* ===== ABOUT ===== */}
-      <section className="section-pad bg-igb-surface" id="about">
-        <div className="container-igb">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Image slides in from the left */}
-            <div
-              className="relative"
-              data-animate="from-right"
-            >
-              <Picture
-                src="igb-2"
-                alt="Equipo de Grúas InGlobal trabajando en altura"
-                width={620}
-                height={480}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="rounded-xl object-cover w-full aspect-[4/3]"
-              />
-            </div>
-
-            {/* Text content staggered */}
-            <div>
-              <span className="label-tag" data-animate="fade-up">Quiénes Somos</span>
-              <h2 className="heading-display mb-6" data-animate="fade-up" data-delay="100">
-                Grúas InGlobal <span className="text-igb-yellow-dark">S.R.L.</span>
-              </h2>
-              <div
-                className="space-y-4 text-igb-secondary leading-relaxed"
-                data-animate="fade-up"
-                data-delay="200"
-              >
-                <p>
-                  Somos <strong className="text-igb-on-surface">Inglobal</strong>, una empresa líder en movimientos especiales pesados y montajes industriales. Como continuadores de una empresa familiar con más de <strong className="text-igb-on-surface">40 años de trayectoria</strong>, combinamos experiencia técnica con un compromiso inquebrantable hacia nuestros clientes.
-                </p>
-                <p>
-                  Ofrecemos el alquiler de grúas, hidrogrúas, transporte y maquinaria pesada en todo el país. Nos respaldan <strong className="text-igb-on-surface">operadores y equipos certificados</strong>, garantizando que cada operación cumpla con los más altos estándares de seguridad y eficiencia.
-                </p>
-              </div>
-
-              <ul
-                className="mt-8 space-y-4"
-                data-animate="fade-up"
-                data-delay="300"
-              >
-                {features.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-igb-yellow-dark flex-shrink-0" />
-                    <span className="text-igb-on-surface/80 text-sm">{text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SERVICES PREVIEW ===== */}
+      {/* ===== QUÉ HACEMOS (Servicios preview) ===== */}
       <section className="section-pad bg-igb-surface-low" id="servicios-preview">
         <div className="container-igb">
           <div className="mb-16" data-animate="fade-up">
-            <span className="label-tag">Excelencia Operativa</span>
-            <h2 className="heading-display">Ingeniería en Movimiento</h2>
+            <span className="label-tag">{qhLabel}</span>
+            <h2 className="heading-display">{qhHeading}</h2>
             <p className="text-body-lg mt-4 max-w-xl">
-              Ofrecemos el alquiler de diferentes equipos para dar solución a las necesidades de nuestros clientes.
+              {qhSubheading}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map(({ id, icon: Icon, title, desc, specs }) => (
-              <div
-                key={id}
-                className="card-igb group flex flex-col h-full"
-                data-animate="fade-up"
-              >
-                <div className="w-12 h-12 bg-igb-yellow/20 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110">
-                  <Icon className="w-6 h-6 text-igb-yellow-dark" />
-                </div>
+            {servicios.map((servicio) => {
+              const isRemoteImg = servicio.img?.startsWith('http')
+              return (
+                <Link
+                  key={servicio.slug}
+                  href={`/servicios?servicio=${servicio.slug}`}
+                  className="card-igb group flex flex-col h-full cursor-pointer"
+                  data-animate="fade-up"
+                >
+                  {/* Service image */}
+                  {servicio.img && (
+                    <div className="relative overflow-hidden rounded-lg mb-5 aspect-[4/3]">
+                      {isRemoteImg ? (
+                        <Image
+                          src={servicio.img}
+                          alt={servicio.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <Picture
+                          src={servicio.img}
+                          alt={servicio.title}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
+                    </div>
+                  )}
 
-                <h3 className="text-lg font-headline font-bold mb-3 text-igb-on-surface">
-                  {title}
-                </h3>
-
-                <p className="text-igb-secondary text-sm leading-relaxed mb-6 flex-grow">
-                  {desc}
-                </p>
-
-                <div className="mt-auto pt-4 border-t border-slate-200/10">
-                  <span className="text-xs font-bold text-igb-yellow-dark tracking-wide uppercase block">
-                    {specs}
-                  </span>
-                </div>
-              </div>
-            ))}
+                  <h3 className="text-2xl font-headline font-bold text-igb-on-surface leading-tight line-clamp-2 min-h-[3.75rem]">
+                    {servicio.title}
+                  </h3>
+                  {servicio.excerpt && (
+                    <p className="text-sm text-igb-secondary mt-2 line-clamp-2">
+                      {servicio.excerpt}
+                    </p>
+                  )}
+                </Link>
+              )
+            })}
           </div>
 
           <div className="mt-12 text-center" data-animate="fade-up" data-delay="150">
@@ -269,13 +262,23 @@ export default function HomePage() {
       {/* ===== CTA BANNER ===== */}
       <section className="relative py-24 md:py-32 overflow-hidden bg-slate-950">
         <div className="absolute inset-0 z-0">
-          <Picture
-            src="igb-10"
-            alt="Montaje de maquinaria pesada en industria"
-            fill
-            sizes="100vw"
-            className="object-cover object-center opacity-30"
-          />
+          {ctaBgImage.startsWith('http') ? (
+            <Image
+              src={ctaBgImage}
+              alt="Montaje de maquinaria pesada en industria"
+              fill
+              sizes="100vw"
+              className="object-cover object-center opacity-30"
+            />
+          ) : (
+            <Picture
+              src={ctaBgImage}
+              alt="Montaje de maquinaria pesada en industria"
+              fill
+              sizes="100vw"
+              className="object-cover object-center opacity-30"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent" />
         </div>
 
@@ -285,22 +288,21 @@ export default function HomePage() {
               className="text-4xl md:text-5xl font-headline font-extrabold text-white tracking-tight leading-tight mb-6"
               data-animate="fade-up"
             >
-              Ingeniería aplicada a<br className="hidden sm:block" /> montajes complejos
+              {ctaHeading}
             </h2>
             <p
               className="text-slate-300 text-lg md:text-xl leading-relaxed mb-10"
               data-animate="fade-up"
               data-delay="150"
             >
-              Soluciones logísticas y de izaje para los desafíos más exigentes de la industria.
-
+              {ctaSubheading}
             </p>
             <div className="flex flex-wrap gap-4" data-animate="fade-up" data-delay="300">
               <Link href="/contacto" className="btn-primary">
-                Solicitar Cotización
+                {ctaPrimary}
               </Link>
               <Link href="/montajes" className="btn-outline-white">
-                Ver Montajes
+                {ctaSecondary}
               </Link>
             </div>
           </div>
@@ -310,7 +312,10 @@ export default function HomePage() {
       {/* ===== GALLERY BENTO ===== */}
       <section className="section-pad bg-igb-surface" id="galeria-preview">
         <div className="container-igb">
-          <div className="flex flex-col items-start gap-6 mb-14 lg:flex-row lg:justify-between lg:items-end" data-animate="fade-up">
+          <div
+            className="flex flex-col items-start gap-6 mb-14 lg:flex-row lg:justify-between lg:items-end"
+            data-animate="fade-up"
+          >
             <div>
               <span className="label-tag">Nuestro Trabajo</span>
               <h2 className="heading-display">Proyectos que nos definen</h2>
@@ -326,7 +331,6 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Bento grid — all items reveal together with their section */}
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[600px]">
             {galleryItems.map((item, i) => (
               <div
@@ -357,28 +361,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== CLIENTS ===== */}
+      {/* ===== CLIENTES DESTACADOS ===== */}
       <section className="section-pad bg-igb-surface-low" id="clientes-preview">
         <div className="container-igb">
           <div className="text-center mb-14" data-animate="fade-up">
-            <span className="label-tag text-center flex justify-center">Confían en nosotros</span>
-            <h2 className="heading-display">Nuestros Clientes</h2>
-            <p className="text-body-lg mt-3 max-w-xl mx-auto">
-              Empresas líderes que avalan nuestro compromiso y responsabilidad.
-            </p>
+            <span className="label-tag text-center flex justify-center">{cdLabel}</span>
+            <h2 className="heading-display">{cdHeading}</h2>
+            <p className="text-body-lg mt-3 max-w-xl mx-auto">{cdSubheading}</p>
           </div>
 
-          {/* 10 logos → grid divides cleanly: 2 cols mobile, 5 cols md+ */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center">
-            {clients.map((client) => (
-              <div
-                key={client.name}
+            {clientes.map((cliente) => (
+              <Link
+                key={cliente.slug}
+                href={`/clientes/${cliente.slug}`}
                 className="bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-sm grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:shadow-md transition-all duration-300 group"
                 data-animate="scale"
               >
                 <Image
-                  src={client.logo}
-                  alt={`Logo ${client.name}`}
+                  src={cliente.logo}
+                  alt={`Logo ${cliente.name}`}
                   width={140}
                   height={60}
                   sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 15vw"
@@ -386,7 +388,7 @@ export default function HomePage() {
                   loading="lazy"
                   className="object-contain h-full w-full max-h-12 transition-transform duration-300 group-hover:scale-105"
                 />
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -402,11 +404,9 @@ export default function HomePage() {
       <section className="section-pad bg-igb-surface" id="ubicacion">
         <div className="container-igb">
           <div className="text-center mb-12" data-animate="fade-up">
-            <span className="label-tag flex justify-center">Dónde Encontrarnos</span>
-            <h2 className="heading-display">Nuestra Ubicación</h2>
-            <p className="text-body-lg mt-3 max-w-xl mx-auto">
-              Acercate a nuestras oficinas o contactanos para planificar tu próximo movimiento.
-            </p>
+            <span className="label-tag flex justify-center">{ubicLabel}</span>
+            <h2 className="heading-display">{ubicHeading}</h2>
+            <p className="text-body-lg mt-3 max-w-xl mx-auto">{ubicSubheading}</p>
           </div>
 
           <div className="rounded-xl overflow-hidden shadow-igb" data-animate="fade-up" data-delay="150">

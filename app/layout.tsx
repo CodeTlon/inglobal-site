@@ -4,7 +4,8 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
-import WhatsAppButton from '@/components/WhatsAppButton'
+import RegisterSW from '@/components/RegisterSW'
+import OfflineBanner from '@/components/OfflineBanner'
 import { SITE_URL } from '@/lib/site'
 
 const manrope = Manrope({
@@ -24,10 +25,10 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#f5d100',
 }
 
-const OG_DESCRIPTION =
-  'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.'
+const OG_DESCRIPTION = 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -58,6 +59,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Agenda IGB',
   },
 }
 
@@ -95,11 +102,12 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <OfflineBanner />
+        <RegisterSW />
         <ScrollReveal />
         <Navbar />
         <main>{children}</main>
         <Footer />
-        <WhatsAppButton />
       </body>
     </html>
   )

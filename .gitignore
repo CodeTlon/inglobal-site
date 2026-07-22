@@ -42,9 +42,11 @@ next-env.d.ts
 lighthouse-report.json
 www.gruasinglobal.com-*.html
 
-# Playwright artifacts
-playwright-report/
-test-results/
+# playwright
+/playwright-report/
+/test-results/
 
-# Capturas de comparativa (pesadas, regenerables)
-docs/comparativa/*.png
+# videos crudos sin optimizar (pesan cualquier cosa) — solo se commitea
+# el output de `npm run optimize:video` en public/videos/opt/
+/public/videos/*
+!/public/videos/opt/
