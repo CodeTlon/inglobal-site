@@ -53,22 +53,9 @@ export default async function MontajeDetailPage({ params }: Props) {
       {/* Hero header con imagen de portada */}
       <section className="relative pt-40 pb-0 bg-zinc-900" data-navbar="dark">
         <div className="container-igb pb-12">
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-6" data-animate="fade-up">
-            {montaje.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[10px] uppercase tracking-widest font-bold text-igb-yellow border border-igb-yellow/40 px-3 py-1 rounded-md"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
           <h1
             className="text-4xl md:text-5xl lg:text-6xl font-headline font-extrabold text-white tracking-tight mb-6 max-w-3xl"
             data-animate="blur-up"
-            data-delay="100"
           >
             {montaje.title}
           </h1>
@@ -76,7 +63,7 @@ export default async function MontajeDetailPage({ params }: Props) {
           <p
             className="text-xl text-slate-400 max-w-2xl leading-relaxed"
             data-animate="fade-up"
-            data-delay="200"
+            data-delay="100"
           >
             {montaje.excerpt}
           </p>

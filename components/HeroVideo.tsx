@@ -53,6 +53,14 @@ export default function HeroVideo({
   }, [videoUrl, mobileVideoUrl])
 
   const isRemote = fallbackImageSrc.startsWith('http')
+  // ponytail: convención de optimize-video.mjs (<name>.mp4 + <name>-poster.jpg). Solo aplica
+  // a videos locales pre-generados (/videos/opt/...) — un video subido por Storage no tiene poster
+  // y cae a undefined (mismo comportamiento de antes, sin 404 nuevo).
+  const videoPoster = activeVideoUrl?.startsWith('/videos/')
+    ? activeVideoUrl.replace(/\.mp4$/, '-poster.jpg')
+    : isRemote
+      ? fallbackImageSrc
+      : undefined
 
   return (
     <>
@@ -64,7 +72,7 @@ export default function HeroVideo({
           muted
           loop
           playsInline
-          poster={isRemote ? fallbackImageSrc : undefined}
+          poster={videoPoster}
           className={`absolute inset-0 w-full h-full ${className}`}
           style={videoFocal ? { objectPosition: videoFocal } : undefined}
         >

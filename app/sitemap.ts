@@ -1,7 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getMontajes, getClientes } from '@/lib/content'
-
-const BASE_URL = 'https://gruasinglobal.com'
+import { SITE_URL as BASE_URL } from '@/lib/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
