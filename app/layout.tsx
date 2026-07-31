@@ -48,14 +48,13 @@ export const metadata: Metadata = {
     siteName: 'Grúas InGlobal S.R.L.',
     title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
     description: OG_DESCRIPTION,
-    // ponytail: reusa el hero ya optimizado. Si querés preview social a medida, un 1200x630 dedicado lo reemplaza.
-    images: [{ url: '/images/opt/igb-3-lg.webp', width: 1920, height: 1440, alt: 'Grúas InGlobal en operación' }],
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'Grúas InGlobal en operación de montaje' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
     description: OG_DESCRIPTION,
-    images: ['/images/opt/igb-3-lg.webp'],
+    images: ['/images/og-image.jpg'],
   },
   icons: {
     icon: '/favicon.ico',
