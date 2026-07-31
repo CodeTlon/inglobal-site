@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next'
-import { headers } from 'next/headers'
 import { Manrope, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
@@ -31,52 +30,41 @@ export const viewport: Viewport = {
 
 const OG_DESCRIPTION = 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina.'
 
-// ponytail: og:image necesita ser absoluta y alcanzable por crawlers externos.
-// SITE_URL (gruasinglobal.com) todavia sirve el sitio Duda viejo, no este build —
-// generateMetadata lee el host real de la request (preview de Vercel hoy, el
-// dominio final el dia del cutover) en vez de asumir SITE_URL siempre resuelve.
-export async function generateMetadata(): Promise<Metadata> {
-  const h = await headers()
-  const host = h.get('x-forwarded-host') ?? h.get('host') ?? new URL(SITE_URL).host
-  const proto = h.get('x-forwarded-proto') ?? 'https'
-  const siteUrl = `${proto}://${host}`
-
-  return {
-    metadataBase: new URL(siteUrl),
-    title: {
-      default: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
-      template: '%s | Grúas InGlobal S.R.L.',
-    },
-    description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
-    keywords: ['grúas Córdoba', 'alquiler grúas', 'hidrogrúas', 'movimientos pesados', 'montajes industriales', 'grúas telescópicas', 'InGlobal'],
-    authors: [{ name: 'CodeTlon' }],
-    alternates: { canonical: '/' },
-    robots: { index: true, follow: true },
-    openGraph: {
-      type: 'website',
-      locale: 'es_AR',
-      url: siteUrl,
-      siteName: 'Grúas InGlobal S.R.L.',
-      title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
-      description: OG_DESCRIPTION,
-      images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'Grúas InGlobal en operación de montaje' }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
-      description: OG_DESCRIPTION,
-      images: ['/images/og-image.jpg'],
-    },
-    icons: {
-      icon: '/favicon.ico',
-      apple: '/icons/apple-touch-icon.png',
-    },
-    appleWebApp: {
-      capable: true,
-      statusBarStyle: 'default',
-      title: 'Agenda IGB',
-    },
-  }
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
+    template: '%s | Grúas InGlobal S.R.L.',
+  },
+  description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
+  keywords: ['grúas Córdoba', 'alquiler grúas', 'hidrogrúas', 'movimientos pesados', 'montajes industriales', 'grúas telescópicas', 'InGlobal'],
+  authors: [{ name: 'CodeTlon' }],
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: 'website',
+    locale: 'es_AR',
+    url: SITE_URL,
+    siteName: 'Grúas InGlobal S.R.L.',
+    title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
+    description: OG_DESCRIPTION,
+    images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'Grúas InGlobal en operación de montaje' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
+    description: OG_DESCRIPTION,
+    images: ['/images/og-image.jpg'],
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Agenda IGB',
+  },
 }
 
 export default function RootLayout({
