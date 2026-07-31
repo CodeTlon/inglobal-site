@@ -38,5 +38,9 @@
   "igb-9": {
     "width": 960,
     "height": 1280
+  },
+  "og-image": {
+    "width": 1200,
+    "height": 630
   }
 }
