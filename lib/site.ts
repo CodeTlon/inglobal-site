@@ -1,11 +1,11 @@
-// Dominio canónico. En preview de Vercel (VERCEL_ENV !== 'production') usa la URL
-// real del deployment (VERCEL_URL, la inyecta Vercel solo) — evita que og:image
-// apunte a gruasinglobal.com (el sitio viejo, todavia no es este build) mientras
-// no se hizo el cutover de dominio. Sin headers()/cookies(): sigue siendo estatico
-// en build time, no tira la ruta a render dinamico.
-const previewUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined
+// Dominio canónico. gruasinglobal.com todavía sirve el sitio viejo (Duda), no
+// este build — incluso el deploy de producción de Vercel (rama main, VERCEL_ENV
+// === 'production') corre en su alias *.vercel.app hasta que se haga el cutover
+// de DNS. VERCEL_URL (la inyecta Vercel solo, en todo deployment) siempre apunta
+// al alias que SÍ está sirviendo este build, así que gana por default. El día del
+// cutover: setear NEXT_PUBLIC_SITE_URL=https://gruasinglobal.com en el entorno
+// Production de Vercel — ese override gana siempre. Sin headers()/cookies(): sigue
+// siendo estático en build time, no tira la ruta a render dinámico.
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_ENV === 'production' ? 'https://gruasinglobal.com' : previewUrl) ??
-  'https://gruasinglobal.com'
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? vercelUrl ?? 'https://gruasinglobal.com'
