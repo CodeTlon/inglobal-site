@@ -8,45 +8,15 @@ import { friendlyError } from '@/lib/friendly-error'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
 import { removeMediaUrls } from '@/lib/storage'
+import { uniqueSlug, titleExists, parseSpecs } from '@/lib/servicios-business'
 
 export type ServicioState = { success?: boolean; error?: string } | undefined
-
-type ServerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado.')
   return supabase
-}
-
-async function uniqueSlug(supabase: ServerSupabase, base: string) {
-  let slug = base
-  let n = 2
-  while (true) {
-    const { data } = await supabase.from('servicios').select('id').eq('slug', slug).limit(1)
-    if (!data || data.length === 0) return slug
-    slug = `${base}-${n++}`
-  }
-}
-
-async function titleExists(supabase: ServerSupabase, title: string, excludeId?: string) {
-  let query = supabase.from('servicios').select('id').ilike('title', title)
-  if (excludeId) query = query.neq('id', excludeId)
-  const { data } = await query.limit(1)
-  return !!data && data.length > 0
-}
-
-// StringList (Field.tsx) serializa el input oculto como JSON — no texto
-// separado por saltos de línea.
-function parseSpecs(raw: string | undefined): string[] {
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed.filter((s): s is string => typeof s === 'string' && s.trim() !== '') : []
-  } catch {
-    return []
-  }
 }
 
 function revalidateServicios() {

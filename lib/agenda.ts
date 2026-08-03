@@ -3,11 +3,21 @@
  *
  * A diferencia de lib/content.ts (contenido público, cliente anon + fallback estático),
  * estas tablas son 100% privadas (RLS solo `authenticated`, sin policy pública) — se leen
- * SIEMPRE con el cliente de servidor (cookies de sesión), nunca con el cliente anon, y sin
- * fallback: si no hay sesión, Supabase devuelve vacío/error por RLS.
+ * SIEMPRE con un cliente autenticado, nunca con el cliente anon, y sin fallback: si no hay
+ * sesión, Supabase devuelve vacío/error por RLS.
+ *
+ * Cada getter acepta un `supabase` opcional al final — por defecto usa el cliente
+ * cookie-based (Server Components/Actions del dashboard web); los Route Handlers de
+ * app/api/agenda/** le pasan el cliente Bearer-based (lib/supabase-api.ts) para que la
+ * app mobile lea exactamente los mismos datos con el mismo RLS, sin duplicar queries.
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+
+async function resolveClient(supabase?: SupabaseClient) {
+  return supabase ?? (await createSupabaseServerClient())
+}
 
 export interface Grua {
   id: string
@@ -55,27 +65,27 @@ export interface EventoAgenda {
   operarios: { id: string; nombre: string }[]
 }
 
-export async function getGruas({ includeInactive = false } = {}): Promise<Grua[]> {
-  const supabase = await createSupabaseServerClient()
-  let query = supabase.from('gruas').select('*')
+export async function getGruas({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<Grua[]> {
+  const client = await resolveClient(supabase)
+  let query = client.from('gruas').select('*')
   if (!includeInactive) query = query.eq('activo', true)
   const { data, error } = await query.order('nombre', { ascending: true })
   if (error || !data) return []
   return data as Grua[]
 }
 
-export async function getEmpresasAgenda({ includeInactive = false } = {}): Promise<EmpresaAgenda[]> {
-  const supabase = await createSupabaseServerClient()
-  let query = supabase.from('empresas_agenda').select('*')
+export async function getEmpresasAgenda({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<EmpresaAgenda[]> {
+  const client = await resolveClient(supabase)
+  let query = client.from('empresas_agenda').select('*')
   if (!includeInactive) query = query.eq('activo', true)
   const { data, error } = await query.order('nombre', { ascending: true })
   if (error || !data) return []
   return data as EmpresaAgenda[]
 }
 
-export async function getOperarios({ includeInactive = false } = {}): Promise<Operario[]> {
-  const supabase = await createSupabaseServerClient()
-  let query = supabase.from('operarios').select('*')
+export async function getOperarios({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<Operario[]> {
+  const client = await resolveClient(supabase)
+  let query = client.from('operarios').select('*')
   if (!includeInactive) query = query.eq('activo', true)
   const { data, error } = await query.order('nombre', { ascending: true })
   if (error || !data) return []
@@ -99,9 +109,12 @@ function mapEvento(row: any): EventoAgenda {
  * rango se solapa con la ventana pedida, no sólo si empieza adentro (si no, un
  * evento que arrancó antes de `desde` pero sigue vigente desaparecía de la vista).
  */
-export async function getEventosAgenda({ desde, hasta }: { desde?: string; hasta?: string } = {}): Promise<EventoAgenda[]> {
-  const supabase = await createSupabaseServerClient()
-  let query = supabase.from('eventos_agenda').select(EVENTO_SELECT)
+export async function getEventosAgenda(
+  { desde, hasta }: { desde?: string; hasta?: string } = {},
+  supabase?: SupabaseClient,
+): Promise<EventoAgenda[]> {
+  const client = await resolveClient(supabase)
+  let query = client.from('eventos_agenda').select(EVENTO_SELECT)
   if (hasta) query = query.lte('fecha', hasta)
   if (desde) query = query.or(`fecha_hasta.gte.${desde},and(fecha_hasta.is.null,fecha.gte.${desde})`)
   const { data, error } = await query
@@ -111,9 +124,9 @@ export async function getEventosAgenda({ desde, hasta }: { desde?: string; hasta
   return data.map(mapEvento)
 }
 
-export async function getEventoAgendaById(id: string): Promise<EventoAgenda | null> {
-  const supabase = await createSupabaseServerClient()
-  const { data, error } = await supabase
+export async function getEventoAgendaById(id: string, supabase?: SupabaseClient): Promise<EventoAgenda | null> {
+  const client = await resolveClient(supabase)
+  const { data, error } = await client
     .from('eventos_agenda')
     .select(EVENTO_SELECT)
     .eq('id', id)

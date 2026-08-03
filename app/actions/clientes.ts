@@ -8,28 +8,16 @@ import { friendlyError } from '@/lib/friendly-error'
 import { clienteSchema } from '@/lib/validations/cliente'
 import { removeMediaUrls } from '@/lib/storage'
 import { nextFreeOrder } from '@/lib/ordering'
+import { uniqueSlug } from '@/lib/clientes-business'
 
 export type ClienteState = { success?: boolean; error?: string } | undefined
 const LIST_PATH = '/dashboard/clientes'
-
-type ServerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>
 
 async function requireUser() {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado.')
   return supabase
-}
-
-async function uniqueSlug(supabase: ServerSupabase, base: string, excludeId?: string) {
-  let slug = base
-  let n = 2
-  while (true) {
-    const { data } = await supabase.from('clientes').select('id').eq('slug', slug).limit(1)
-    if (!data || data.length === 0) return slug
-    if (excludeId && data[0].id === excludeId) return slug
-    slug = `${base}-${n++}`
-  }
 }
 
 function revalidateClientes() {

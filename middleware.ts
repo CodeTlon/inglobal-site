@@ -31,9 +31,12 @@ export async function middleware(request: NextRequest) {
   const isAgendaTv = path.startsWith('/agenda-tv')
   const isLogin = path === '/dashboard/login'
   const isCambiarPassword = path === '/dashboard/cambiar-password'
+  // Pantalla de emparejamiento QR: es precisamente la ruta para una TV SIN sesión
+  // todavía (ver app/agenda-tv/pair/page.tsx) — no puede exigir login como el resto.
+  const isAgendaTvPair = path === '/agenda-tv/pair'
 
   // Sin sesión en rutas protegidas (dashboard + TV de agenda) → redirigir al login
-  if ((isDashboard || isAgendaTv) && !isLogin && !user) {
+  if ((isDashboard || isAgendaTv) && !isLogin && !isAgendaTvPair && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard/login'
     url.searchParams.set('next', path)
