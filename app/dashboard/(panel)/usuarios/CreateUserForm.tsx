@@ -48,6 +48,13 @@ export default function CreateUserForm() {
           <label htmlFor="password" className={fieldLabel}>Contraseña</label>
           <input id="password" name="password" type="password" required minLength={6} placeholder="mín. 6 caracteres" className={fieldInput} />
         </div>
+        <div>
+          <label htmlFor="role" className={fieldLabel}>Rol</label>
+          <select id="role" name="role" defaultValue="admin" className={fieldInput}>
+            <option value="admin">Admin (acceso total al panel)</option>
+            <option value="trabajador">Trabajador (solo agenda, en la app)</option>
+          </select>
+        </div>
       </div>
 
       <SubmitButton />

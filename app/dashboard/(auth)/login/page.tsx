@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 import { useFormState, useFormStatus } from 'react-dom'
 import { signIn } from '@/app/actions/auth'
 import { Loader2, LogIn, AlertCircle } from 'lucide-react'
@@ -25,6 +26,7 @@ function SubmitButton() {
 
 export default function LoginPage() {
   const [state, action] = useFormState(signIn, null)
+  const sinAcceso = useSearchParams().get('sin_acceso') === '1'
 
   return (
     <div className="w-full max-w-sm">
@@ -52,6 +54,14 @@ export default function LoginPage() {
           <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <p className="text-red-700 text-sm">{state.error}</p>
+          </div>
+        )}
+        {!state?.error && sinAcceso && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <p className="text-amber-700 text-sm">
+              Tu cuenta es de trabajador: el calendario se usa desde la app InGlobal Agenda, no desde este panel.
+            </p>
           </div>
         )}
 

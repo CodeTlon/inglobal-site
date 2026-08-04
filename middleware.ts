@@ -60,6 +60,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Rol "trabajador": su acceso es la app mobile (solo agenda). El panel web
+  // completo (clientes, servicios, usuarios, etc.) queda reservado a admin.
+  // isCambiarPassword queda afuera del bloqueo: es la única pantalla del panel
+  // que un trabajador puede necesitar (contraseña temporal en el primer ingreso).
+  // Cierra la sesión web acá mismo — si solo redirigiéramos a /dashboard/login
+  // seguiría autenticado y la regla de arriba lo volvería a mandar a /dashboard.
+  const isTrabajador = user?.app_metadata?.role === 'trabajador'
+  if (isDashboard && !isLogin && !isCambiarPassword && isTrabajador) {
+    await supabase.auth.signOut()
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard/login'
+    url.search = ''
+    url.searchParams.set('sin_acceso', '1')
+    return NextResponse.redirect(url)
+  }
+
   return response
 }
 

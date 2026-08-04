@@ -44,7 +44,18 @@ export default async function UsuariosPage() {
             {users.map((u) => (
               <div key={u.id} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <p className="text-sm font-bold text-zinc-900">{u.email}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-zinc-900">{u.email}</p>
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                        u.app_metadata?.role === 'trabajador'
+                          ? 'bg-zinc-100 text-zinc-500'
+                          : 'bg-igb-yellow/15 text-igb-yellow-dark'
+                      }`}
+                    >
+                      {u.app_metadata?.role === 'trabajador' ? 'Trabajador' : 'Admin'}
+                    </span>
+                  </div>
                   <p className="text-xs text-zinc-400">
                     Último ingreso: {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('es-AR') : 'nunca'}
                   </p>
