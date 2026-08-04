@@ -188,7 +188,7 @@ async function catalogToggle(table: CatalogTable, formData: FormData): Promise<A
     const result = await catalogToggleBusiness(supabase, table, id, activo)
     if (result.error) return { error: result.error }
     revalidateCatalogos()
-    return { success: true, warning: result.warning }
+    return { success: true }
   } catch (e) {
     return { error: friendlyError(e) }
   }

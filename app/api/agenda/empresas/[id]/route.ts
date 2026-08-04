@@ -17,7 +17,7 @@ export async function PATCH(request: Request, { params }: Params) {
   if (Object.keys(body).length === 1 && typeof body.activo === 'boolean') {
     const result = await catalogToggle(supabase, 'empresas_agenda', id, body.activo)
     if (result.error) return apiError(result.error, 409)
-    return apiData({ id, warning: result.warning })
+    return apiData({ id })
   }
 
   const parsed = empresaAgendaSchema.safeParse(body)

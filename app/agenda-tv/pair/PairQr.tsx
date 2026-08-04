@@ -8,6 +8,11 @@ const POLL_MS = 1500
 export default function PairQr() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [status, setStatus] = useState<'loading' | 'pending' | 'error'>('loading')
+  // ponytail: el fallo real queda en el log del server (route.ts ya loggea la causa);
+  // acá solo mostramos que falló para que no parezca que la página "se recargó sola".
+  const [exchangeFailed, setExchangeFailed] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('error'),
+  )
   const tokenRef = useRef<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -77,6 +82,11 @@ export default function PairQr() {
       <p className="text-slate-300 text-center max-w-sm">
         Abrí la app InGlobal Agenda en tu celular, tocá &quot;Vincular TV&quot; y escaneá este código.
       </p>
+      {exchangeFailed && (
+        <p className="text-red-400 text-center max-w-sm">
+          La vinculación falló al confirmar la sesión. Probá de nuevo con el código nuevo — si sigue fallando, hay más detalle en el log del servidor.
+        </p>
+      )}
     </div>
   )
 }

@@ -249,32 +249,31 @@ export async function estadosDeEventosDelRecurso(
 
 /**
  * Alterna activo/inactivo de un recurso de catálogo. `activo` es el valor ACTUAL
- * (se pasa lo que se está por invertir) — si se está inactivando, chequea que no
- * participe de un evento en_curso (bloquea) y avisa si tiene eventos programados
- * (warning, no bloquea).
+ * (se pasa lo que se está por invertir) — si se está inactivando y participa de
+ * un evento en_curso O programado, bloquea (409). Requisito: un recurso ya
+ * asignado a algo, en curso o a futuro, no se puede dar de baja.
  */
 export async function catalogToggle(
   supabase: SupabaseClient,
   table: CatalogTable,
   id: string,
   activo: boolean,
-): Promise<{ error?: string; warning?: string }> {
-  let warning: string | undefined
+): Promise<{ error?: string }> {
   if (activo) {
-    // Se está por INACTIVAR — chequear que no participe de un evento en curso.
+    // Se está por INACTIVAR — chequear que no participe de un evento activo.
     const estados = await estadosDeEventosDelRecurso(supabase, table, id)
     if (estados.includes('en_curso')) {
       return { error: 'No se puede inactivar: está participando en un evento en curso.' }
     }
     const programados = estados.filter((e) => e === 'programado').length
     if (programados > 0) {
-      warning = `Atención: tiene ${programados} evento(s) programado(s) que todavía lo/la usan.`
+      return { error: `No se puede inactivar: tiene ${programados} evento(s) programado(s) asignado(s).` }
     }
   }
 
   const { error } = await supabase.from(table).update({ activo: !activo }).eq('id', id)
   if (error) return { error: friendlyError(error) }
-  return { warning }
+  return {}
 }
 
 export async function catalogDelete(

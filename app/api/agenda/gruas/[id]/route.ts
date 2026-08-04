@@ -18,7 +18,7 @@ export async function PATCH(request: Request, { params }: Params) {
   if (Object.keys(body).length === 1 && typeof body.activo === 'boolean') {
     const result = await catalogToggle(supabase, 'gruas', id, body.activo)
     if (result.error) return apiError(result.error, 409)
-    return apiData({ id, warning: result.warning }, 200)
+    return apiData({ id }, 200)
   }
 
   const parsed = gruaSchema.safeParse(body)

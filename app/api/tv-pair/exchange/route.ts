@@ -15,17 +15,30 @@ export async function GET(request: Request) {
   if (!token) return NextResponse.redirect(failUrl)
 
   const admin = createSupabaseAdminClient()
-  const { data: pairing } = await admin.from('tv_pairing_codes').select('*').eq('token', token).single()
-  if (!pairing || pairing.status !== 'approved' || !pairing.approved_by) return NextResponse.redirect(failUrl)
-  if (new Date(pairing.expires_at) < new Date()) return NextResponse.redirect(failUrl)
+  const { data: pairing, error: pairingError } = await admin.from('tv_pairing_codes').select('*').eq('token', token).single()
+  if (pairingError) console.error('[tv-pair/exchange] lookup falló:', pairingError.message)
+  if (!pairing || pairing.status !== 'approved' || !pairing.approved_by) {
+    console.error('[tv-pair/exchange] pairing no aprobado:', pairing?.status ?? 'no existe')
+    return NextResponse.redirect(failUrl)
+  }
+  if (new Date(pairing.expires_at) < new Date()) {
+    console.error('[tv-pair/exchange] token expirado')
+    return NextResponse.redirect(failUrl)
+  }
 
-  const { data: userData } = await admin.auth.admin.getUserById(pairing.approved_by)
+  const { data: userData, error: userError } = await admin.auth.admin.getUserById(pairing.approved_by)
   const email = userData?.user?.email
-  if (!email) return NextResponse.redirect(failUrl)
+  if (!email) {
+    console.error('[tv-pair/exchange] no se encontró el email del usuario:', userError?.message)
+    return NextResponse.redirect(failUrl)
+  }
 
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({ type: 'magiclink', email })
   const hashedToken = linkData?.properties?.hashed_token
-  if (linkError || !hashedToken) return NextResponse.redirect(failUrl)
+  if (linkError || !hashedToken) {
+    console.error('[tv-pair/exchange] generateLink falló:', linkError?.message)
+    return NextResponse.redirect(failUrl)
+  }
 
   const response = NextResponse.redirect(new URL('/agenda-tv', request.url))
   const cookieStore = await cookies()
@@ -43,9 +56,11 @@ export async function GET(request: Request) {
   const { error: verifyError } = await supabase.auth.verifyOtp({
     type: 'magiclink',
     token_hash: hashedToken,
-    email,
   })
-  if (verifyError) return NextResponse.redirect(failUrl)
+  if (verifyError) {
+    console.error('[tv-pair/exchange] verifyOtp falló:', verifyError.message)
+    return NextResponse.redirect(failUrl)
+  }
 
   await admin.from('tv_pairing_codes').update({ status: 'consumed' }).eq('token', token)
 

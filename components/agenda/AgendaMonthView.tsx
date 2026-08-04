@@ -1,10 +1,19 @@
+'use client'
+
+import { useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getMonthMatrix, estadoColorClasses, getEstadoVisual, toDateInput, addDays } from '@/lib/agenda-view'
+import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays } from '@/lib/agenda-view'
+import AgendaEventModal from './AgendaEventModal'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
-/** Grilla mensual clásica (semanas x días) — cada celda muestra cantidad + primeros eventos. Pensada para verse a distancia (kiosco TV), sin interacción. */
+/**
+ * Grilla mensual clásica (semanas x días) — cada celda muestra cantidad + primeros eventos.
+ * Tema claro, igual que AgendaWeekView, para que la TV no desentone del resto del sitio.
+ * Click en un evento abre su detalle en AgendaEventModal (mismo componente que la vista semanal).
+ */
 export default function AgendaMonthView({ eventos, month }: { eventos: EventoAgenda[]; month: Date }) {
+  const [selected, setSelected] = useState<EventoAgenda | null>(null)
   const weeks = getMonthMatrix(month)
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
@@ -21,7 +30,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
   return (
     <div className="grid grid-cols-7 gap-1.5">
       {DIA_LABEL.map((d) => (
-        <div key={d} className="text-center text-sm uppercase tracking-widest text-slate-400 pb-2">
+        <div key={d} className="text-center text-sm uppercase tracking-widest text-zinc-400 pb-2">
           {d}
         </div>
       ))}
@@ -34,30 +43,35 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
           return (
             <div
               key={key}
-              className={`min-h-[140px] rounded-lg border border-white/10 p-2.5 ${
-                isCurrentMonth ? 'bg-white/5' : 'bg-transparent opacity-40'
+              className={`min-h-[140px] rounded-lg border border-zinc-200 p-2.5 ${
+                isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'
               }`}
             >
-              <p className="text-xl font-bold text-white mb-1.5">{day.getDate()}</p>
+              <p className="text-xl font-bold text-zinc-900 mb-1.5">{day.getDate()}</p>
               {dayEventos.length > 0 && (
-                <p className="text-sm text-igb-yellow font-bold mb-1.5">
+                <p className="text-sm text-igb-yellow-dark font-bold mb-1.5">
                   {dayEventos.length} evento{dayEventos.length > 1 ? 's' : ''}
                 </p>
               )}
               <div className="space-y-1">
                 {dayEventos.slice(0, 3).map((ev) => (
-                  <p
+                  <button
                     key={ev.id}
-                    className={`text-sm font-semibold truncate rounded px-1.5 py-0.5 border ${estadoColorClasses(getEstadoVisual(ev))}`}
+                    type="button"
+                    onClick={() => setSelected(ev)}
+                    title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
+                    className={`w-full text-sm font-semibold truncate rounded px-1.5 py-0.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
-                  </p>
+                  </button>
                 ))}
               </div>
             </div>
           )
         }),
       )}
+
+      <AgendaEventModal evento={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }
