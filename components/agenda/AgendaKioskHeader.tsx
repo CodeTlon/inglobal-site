@@ -43,12 +43,23 @@ export default function AgendaKioskHeader({
           ← Volver
         </Link>
       )}
-      <span className={`ml-auto text-xs sm:text-sm text-right whitespace-nowrap ${isLight ? 'text-zinc-400' : 'text-slate-400'}`}>
-        <span className="hidden sm:inline">
-          {now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-          {' · '}
+      <span className="ml-auto flex items-center gap-3">
+        {!isLight && (
+          <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+            En vivo
+          </span>
+        )}
+        <span className={`text-xs sm:text-sm text-right whitespace-nowrap ${isLight ? 'text-zinc-400' : 'text-slate-400'}`}>
+          <span className="hidden sm:inline">
+            {now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+            {' · '}
+          </span>
+          {now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
         </span>
-        {now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
       </span>
     </header>
   )

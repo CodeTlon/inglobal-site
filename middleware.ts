@@ -35,11 +35,16 @@ export async function middleware(request: NextRequest) {
   // todavía (ver app/agenda-tv/pair/page.tsx) — no puede exigir login como el resto.
   const isAgendaTvPair = path === '/agenda-tv/pair'
 
-  // Sin sesión en rutas protegidas (dashboard + TV de agenda) → redirigir al login
+  // Sin sesión en rutas protegidas → redirigir al login (dashboard) o al QR de
+  // emparejamiento (TV: no tiene teclado, no puede completar un login normal).
   if ((isDashboard || isAgendaTv) && !isLogin && !isAgendaTvPair && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard/login'
-    url.searchParams.set('next', path)
+    if (isAgendaTv) {
+      url.pathname = '/agenda-tv/pair'
+    } else {
+      url.pathname = '/dashboard/login'
+      url.searchParams.set('next', path)
+    }
     return NextResponse.redirect(url)
   }
 
