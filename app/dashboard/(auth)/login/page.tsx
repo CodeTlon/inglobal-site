@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useFormState, useFormStatus } from 'react-dom'
@@ -25,6 +26,14 @@ function SubmitButton() {
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
   const [state, action] = useFormState(signIn, null)
   const sinAcceso = useSearchParams().get('sin_acceso') === '1'
 
