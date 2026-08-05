@@ -265,9 +265,9 @@ export async function catalogToggle(
     if (estados.includes('en_curso')) {
       return { error: 'No se puede inactivar: está participando en un evento en curso.' }
     }
-    const programados = estados.filter((e) => e === 'programado').length
+    const programados = estados.filter((e) => e === 'programado' || e === 'reserva').length
     if (programados > 0) {
-      return { error: `No se puede inactivar: tiene ${programados} evento(s) programado(s) asignado(s).` }
+      return { error: `No se puede inactivar: tiene ${programados} evento(s) programado(s) o reservado(s) asignado(s).` }
     }
   }
 

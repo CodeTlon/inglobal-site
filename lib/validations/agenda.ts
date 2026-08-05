@@ -3,11 +3,12 @@ import { z } from 'zod'
 const MIN_DURACION_MIN = 15
 const TELEFONO_REGEX = /^[\d\s()+-]+$/
 
-export const ESTADOS_EVENTO = ['programado', 'en_curso', 'finalizado', 'cancelado'] as const
+export const ESTADOS_EVENTO = ['reserva', 'programado', 'en_curso', 'finalizado', 'cancelado'] as const
 export type EstadoEvento = (typeof ESTADOS_EVENTO)[number]
 
 /** Transiciones de estado permitidas para un evento — no se puede volver hacia atrás. */
 export const TRANSICIONES_VALIDAS: Record<EstadoEvento, EstadoEvento[]> = {
+  reserva:    ['programado', 'cancelado'],
   programado: ['en_curso', 'cancelado'],
   en_curso:   ['finalizado', 'cancelado'],
   finalizado: [],
