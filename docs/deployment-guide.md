@@ -1,12 +1,17 @@
 # Deployment Guide — Grúas InGlobal S.R.L.
 
-## Resumen del deploy
+## Estado actual (verificado 2026-08-05)
 
-| Servicio | Plataforma | URL |
+| Servicio | Plataforma | URL real |
 |---|---|---|
-| Frontend | Vercel | gruasinglobal.com (por configurar) |
-| Base de datos | Supabase | supabase.com |
+| Frontend + API + Agenda | Vercel | **https://inglobal-site-theta.vercel.app** (alias de producción) |
+| `gruasinglobal.com` | — | Apunta a **otro sitio** (marketing, GoDaddy Website Builder / `cdn-website.com`), NO a este proyecto. El PASO 4 de esta guía (dominio personalizado) nunca se completó. |
+| Base de datos | Supabase | mismo proyecto que usa la mobile app (`inglobal-agenda-app`) |
 | Email | Resend | resend.com |
+
+**⚠️ No hay integración Git↔Vercel conectada.** Un push a `main` en GitHub **no** dispara un deploy — se verificó directamente (bundle sin cambios varios minutos después de un push). Ver "Actualizaciones futuras" al final: el deploy es manual, `vercel --prod`.
+
+Para conectarlo de una vez (recomendado): Vercel dashboard → proyecto `inglobal-site` → Settings → Git → Connect Repository → `CodeTlon/inglobal-site`, rama `main`. Después de eso sí, cada push deployaría solo.
 
 ---
 
@@ -71,7 +76,7 @@ COMPANY_EMAIL                  = info@gruasinglobal.com
 ### 3.3 Deploy
 1. Hacer clic en **Deploy**
 2. Vercel hará el build automáticamente
-3. URL temporal: `inglobal-site.vercel.app`
+3. URL real de producción (alias fijo del proyecto): `inglobal-site-theta.vercel.app` — no `inglobal-site.vercel.app`, ese es otro proyecto/deployment viejo que no tiene el código actual.
 
 ---
 
@@ -111,14 +116,20 @@ Agregar los registros DNS que Vercel indica:
 
 ## Actualizaciones futuras
 
-Cualquier push a `main` triggerea un re-deploy automático en Vercel.
+**Hoy no hay integración Git↔Vercel** (ver "Estado actual" arriba) — el push a `main` no alcanza, hay que deployar a mano:
 
 ```bash
-# Flujo estándar
-git checkout dev
-git checkout -b feature/nueva-funcionalidad
-# ... hacer cambios ...
-git push origin feature/nueva-funcionalidad
-# → Crear PR a dev
-# → Hacer merge dev → main para deploy a producción
+git push origin main        # sigue siendo necesario para no perder el historial
+npx vercel --prod            # esto es lo que realmente actualiza producción
 ```
+
+`vercel` ya queda autenticado y linkeado al proyecto (`.vercel/project.json`) después del primer `vercel link` — no hace falta repetirlo salvo en una máquina nueva.
+
+Si en algún momento se conecta la integración Git (ver arriba), este paso manual deja de hacer falta y alcanza con el push.
+
+### Route cache — cuidado con páginas sin `force-dynamic`
+Una página sin `export const dynamic = 'force-dynamic'` puede quedar servida desde el Full Route Cache de Next/Vercel **incluso después de un deploy nuevo** — pasó con `/agenda-tv/pair`, el HTML viejo se siguió sirviendo varios minutos post-deploy hasta que se le agregó `force-dynamic`. Cualquier página que dependa de datos que cambian en tiempo real (o de código que se está iterando activamente) necesita ese flag explícito.
+
+## Agenda de Grúas (mobile + TV)
+
+El módulo de agenda (`/agenda-tv`, `/dashboard/agenda`, `/api/agenda/*`, `/api/tv-pair/*`) es el backend de la app mobile `inglobal-agenda-app` (Expo/React Native, repo separado). Esa app tiene su propia documentación de deploy (EAS Build/Update, bundle IDs, roadmap a las tiendas) en `docs/deployment.md` de ese repo — no duplicado acá.
