@@ -50,3 +50,4 @@ www.gruasinglobal.com-*.html
 # el output de `npm run optimize:video` en public/videos/opt/
 /public/videos/*
 !/public/videos/opt/
+.env*
