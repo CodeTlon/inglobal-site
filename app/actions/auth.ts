@@ -2,9 +2,17 @@
 
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { emailExistsInAuth } from '@/lib/auth-email'
 import { friendlyError } from '@/lib/friendly-error'
 
-export type AuthState = { error?: string } | undefined
+export type AuthState = { error?: string; clearEmail?: boolean } | undefined
+
+/**
+ * Único mensaje de login fallido. Es deliberadamente el mismo tanto si el email
+ * no existe como si la contraseña está mal: si el texto variara, cualquiera
+ * podría enumerar qué cuentas existen probando emails contra el login.
+ */
+const LOGIN_ERROR = 'Credenciales incorrectas. Verificá tu email y contraseña.'
 
 /**
  * Iniciar sesión con email y contraseña.
@@ -24,7 +32,13 @@ export async function signIn(prevState: unknown, formData: FormData): Promise<Au
 
   if (error) {
     console.error('signIn error:', error.message)
-    return { error: 'Credenciales incorrectas. Verificá tu email y contraseña.' }
+    // El texto del error NO cambia; lo único que cambia es si el form conserva
+    // el email tipeado (contraseña equivocada → se conserva para reintentar) o
+    // lo limpia (ese email no tiene cuenta → no sirve reintentar con él).
+    // Si no se pudo verificar (`null`), se conserva: nunca hacerle perder el
+    // dato al usuario por un error nuestro.
+    const exists = await emailExistsInAuth(email)
+    return { error: LOGIN_ERROR, clearEmail: exists === false }
   }
 
   redirect(next)

@@ -1,11 +1,14 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useFormState, useFormStatus } from 'react-dom'
 import { signIn } from '@/app/actions/auth'
-import { Loader2, LogIn, AlertCircle } from 'lucide-react'
+import { Loader2, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react'
+
+const INPUT_CLASS =
+  'w-full bg-zinc-50 border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -25,6 +28,34 @@ function SubmitButton() {
   )
 }
 
+/** Input de contraseña con ojito para mostrar/ocultar (íconos de lucide-react). */
+function PasswordField() {
+  const [visible, setVisible] = useState(false)
+
+  return (
+    <div className="relative">
+      <input
+        id="password"
+        name="password"
+        type={visible ? 'text' : 'password'}
+        required
+        autoComplete="current-password"
+        placeholder="••••••••"
+        className={`${INPUT_CLASS} pr-11`}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        aria-pressed={visible}
+        className="absolute inset-y-0 right-0 px-3 flex items-center text-zinc-400 hover:text-zinc-600 focus:outline-none focus-visible:text-igb-yellow-dark transition-colors"
+      >
+        {visible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+      </button>
+    </div>
+  )
+}
+
 export default function LoginPage() {
   return (
     <Suspense fallback={null}>
@@ -36,6 +67,16 @@ export default function LoginPage() {
 function LoginForm() {
   const [state, action] = useFormState(signIn, null)
   const sinAcceso = useSearchParams().get('sin_acceso') === '1'
+
+  // El email es controlado a propósito: React resetea los campos no controlados
+  // al terminar la acción del form, y hacer retipear el email tras equivocarse
+  // la contraseña es la peor parte de este login. Solo se limpia si el server
+  // avisa que ese email no tiene cuenta (`clearEmail`), nunca por defecto.
+  const [email, setEmail] = useState('')
+
+  useEffect(() => {
+    if (state?.clearEmail) setEmail('')
+  }, [state])
 
   return (
     <div className="w-full max-w-sm">
@@ -87,8 +128,11 @@ function LoginForm() {
               name="email"
               type="email"
               required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@gruasinglobal.com"
-              className="w-full bg-zinc-50 border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors"
+              className={INPUT_CLASS}
             />
           </div>
 
@@ -99,14 +143,7 @@ function LoginForm() {
             >
               Contraseña
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="••••••••"
-              className="w-full bg-zinc-50 border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors"
-            />
+            <PasswordField />
           </div>
 
           <SubmitButton />
