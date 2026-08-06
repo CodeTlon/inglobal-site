@@ -1,16 +1,18 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
-/** Refresca la página cada `intervalMs` (default 60s) — la TV nunca se toca a mano. */
+/**
+ * Recarga la página cada `intervalMs` (default 60s) — la TV nunca se toca a mano.
+ * Reload completo (no router.refresh()): así, además de traer eventos nuevos, la TV
+ * también baja CSS/JS del último deploy sola. Con solo refrescar datos, una pestaña
+ * que quedó abierta de antes de un deploy se queda para siempre con el bundle viejo.
+ */
 export default function AgendaTvRefresher({ intervalMs = 60000 }: { intervalMs?: number }) {
-  const router = useRouter()
-
   useEffect(() => {
-    const id = setInterval(() => router.refresh(), intervalMs)
+    const id = setInterval(() => window.location.reload(), intervalMs)
     return () => clearInterval(id)
-  }, [router, intervalMs])
+  }, [intervalMs])
 
   return null
 }
