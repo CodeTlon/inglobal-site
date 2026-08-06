@@ -1,16 +1,40 @@
+'use client'
+
+import { useState } from 'react'
+import { Info } from 'lucide-react'
 import { ESTADOS_EVENTO } from '@/lib/validations/agenda'
 import { estadoStripColor, formatEstado } from '@/lib/agenda-view'
 
-/** Leyenda de colores de estado — misma fuente (estadoStripColor/formatEstado) que pinta cada card, no puede desincronizarse. */
+/** Ícono de info que despliega, en un modal, qué significa cada color de estado. */
 export default function EstadoLegend() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-6">
-      {ESTADOS_EVENTO.map((estado) => (
-        <div key={estado} className="flex items-center gap-2">
-          <span className={`w-3 h-3 rounded-full ${estadoStripColor(estado)}`} />
-          <span className="text-sm font-medium text-zinc-600">{formatEstado(estado)}</span>
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        aria-label="Referencias de colores"
+        className="flex items-center justify-center rounded-full border border-zinc-200 w-11 h-11 text-zinc-500 hover:bg-zinc-50 active:scale-95 transition-transform"
+      >
+        <Info size={22} />
+      </button>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/40 flex items-center justify-center px-6"
+          onClick={() => setOpen(false)}
+        >
+          <div className="bg-white rounded-2xl p-6 w-full max-w-xs space-y-3" onClick={(e) => e.stopPropagation()}>
+            <p className="font-bold text-zinc-900 text-center mb-1">Estados del calendario</p>
+            {ESTADOS_EVENTO.map((estado) => (
+              <div key={estado} className="flex items-center gap-3">
+                <span className={`w-3.5 h-3.5 rounded-full ${estadoStripColor(estado)}`} />
+                <span className="text-base text-zinc-600">{formatEstado(estado)}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
+      )}
+    </>
   )
 }
