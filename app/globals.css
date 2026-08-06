@@ -317,6 +317,23 @@
   background-color: theme('colors.slate.700');
   border-radius: 9999px;
 }
+
+/* Agenda TV: navy en vez del gris genérico — más visible a distancia, y el amarillo
+   queda libre para señalar selección/acción (día de hoy, botones) sin competir. */
+.tv-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.igb-navy') transparent;
+}
+.tv-scroll::-webkit-scrollbar {
+  width: 12px;
+}
+.tv-scroll::-webkit-scrollbar-thumb {
+  background-color: theme('colors.igb-navy');
+  border-radius: 9999px;
+}
+.tv-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
 .dashboard-scroll-dark::-webkit-scrollbar-track {
   background: transparent;
 }

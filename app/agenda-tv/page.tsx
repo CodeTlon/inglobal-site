@@ -21,21 +21,33 @@ export default async function AgendaTvPage({
 
   const prevMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() - 1, 1)).slice(0, 7)
   const nextMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() + 1, 1)).slice(0, 7)
+  const esMesActual = month.getFullYear() === new Date().getFullYear() && month.getMonth() === new Date().getMonth()
+
+  // Botones grandes a propósito: esta pantalla se maneja desde lejos (remoto/puntero de TV),
+  // no con mouse de cerca como el dashboard — el target chico de un link de texto no sirve acá.
+  const navBtn = 'flex items-center gap-2 rounded-full border border-zinc-200 px-5 py-3 text-base font-semibold text-zinc-600 hover:bg-zinc-50 active:scale-95 transition-transform'
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto">
+    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto tv-scroll">
       <AgendaKioskHeader title="Agenda de Grúas" theme="light" />
       <AgendaTvRefresher />
       <main className="px-4 sm:px-10 py-8">
-        <div className="flex items-center justify-between mb-4">
-          <Link href={`?month=${prevMonth}`} className="text-zinc-400 hover:text-zinc-900 flex items-center gap-1 text-sm">
-            <ChevronLeft size={16} /> Mes anterior
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <Link href={`?month=${prevMonth}`} className={navBtn}>
+            <ChevronLeft size={22} /> Mes anterior
           </Link>
-          <p className="text-zinc-900 text-sm font-bold capitalize">
-            {month.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
-          </p>
-          <Link href={`?month=${nextMonth}`} className="text-zinc-400 hover:text-zinc-900 flex items-center gap-1 text-sm">
-            Mes siguiente <ChevronRight size={16} />
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-zinc-900 text-lg font-bold capitalize">
+              {month.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
+            </p>
+            {!esMesActual && (
+              <Link href="?" className="text-sm font-semibold text-igb-navy hover:underline">
+                ← Volver a hoy
+              </Link>
+            )}
+          </div>
+          <Link href={`?month=${nextMonth}`} className={navBtn}>
+            Mes siguiente <ChevronRight size={22} />
           </Link>
         </div>
         <AgendaMonthView eventos={eventos} month={month} />

@@ -36,8 +36,10 @@ export default function AgendaKioskHeader({
       {backHref && (
         <Link
           href={backHref}
-          className={`sm:ml-4 text-sm transition-colors ${
-            isLight ? 'text-zinc-400 hover:text-zinc-900' : 'text-slate-400 hover:text-white'
+          className={`sm:ml-4 flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+            isLight
+              ? 'border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
+              : 'border-white/20 text-slate-300 hover:bg-white/10 hover:text-white'
           }`}
         >
           ← Volver

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
 import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
@@ -15,6 +16,16 @@ const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 export default function AgendaMonthView({ eventos, month }: { eventos: EventoAgenda[]; month: Date }) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
   const [selectedDay, setSelectedDay] = useState<{ key: string; eventos: EventoAgenda[] } | null>(null)
+
+  useEffect(() => {
+    if (!selectedDay) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setSelectedDay(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedDay])
+
   const weeks = getMonthMatrix(month)
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
@@ -61,7 +72,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
                     type="button"
                     onClick={() => setSelected(ev)}
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
-                    className={`w-full text-sm font-semibold truncate rounded px-1.5 py-0.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                    className={`w-full text-sm font-semibold truncate rounded px-1.5 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
                   </button>
@@ -70,7 +81,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
                   <button
                     type="button"
                     onClick={() => setSelectedDay({ key, eventos: dayEventos })}
-                    className="w-full text-sm font-semibold text-zinc-500 hover:text-zinc-900 text-left px-1.5 cursor-pointer"
+                    className="w-full text-sm font-bold text-igb-navy hover:underline text-left px-1.5 py-1 cursor-pointer"
                   >
                     +{dayEventos.length - 3} más
                   </button>
@@ -84,13 +95,23 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
       {selectedDay && (
         <div className="fixed inset-0 z-[200] bg-black/40 p-4 flex items-start justify-center overflow-y-auto" onClick={() => setSelectedDay(null)}>
           <div
-            className="mt-16 w-full max-w-md rounded-2xl bg-white border border-zinc-200 p-6"
+            className="mt-16 w-full max-w-md rounded-2xl bg-white border border-zinc-200 p-6 max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-lg font-bold text-zinc-900 mb-4">
-              {new Date(`${selectedDay.key}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-            </p>
-            <div className="space-y-1.5">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-lg font-bold text-zinc-900 capitalize">
+                {new Date(`${selectedDay.key}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedDay(null)}
+                aria-label="Cerrar"
+                className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors flex-shrink-0"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="space-y-2 overflow-y-auto tv-scroll pr-1">
               {selectedDay.eventos.map((ev) => (
                 <button
                   key={ev.id}
@@ -99,15 +120,12 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
                     setSelected(ev)
                     setSelectedDay(null)
                   }}
-                  className={`w-full text-sm font-semibold truncate rounded px-2 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                  className={`w-full text-base font-semibold truncate rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                 >
                   {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'} · {ev.empresa?.nombre ?? 'Empresa'}
                 </button>
               ))}
             </div>
-            <button type="button" onClick={() => setSelectedDay(null)} className="mt-4 text-sm text-zinc-500 hover:text-zinc-900">
-              Cerrar
-            </button>
           </div>
         </div>
       )}

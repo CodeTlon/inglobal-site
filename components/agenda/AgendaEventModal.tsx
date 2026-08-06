@@ -47,9 +47,10 @@ export default function AgendaEventModal({ evento, onClose }: { evento: EventoAg
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-700 transition-colors flex-shrink-0"
+            aria-label="Cerrar"
+            className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors flex-shrink-0"
           >
-            <X size={20} />
+            <X size={24} />
           </button>
         </div>
 
