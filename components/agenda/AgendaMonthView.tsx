@@ -14,6 +14,7 @@ const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
  */
 export default function AgendaMonthView({ eventos, month }: { eventos: EventoAgenda[]; month: Date }) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
+  const [selectedDay, setSelectedDay] = useState<{ key: string; eventos: EventoAgenda[] } | null>(null)
   const weeks = getMonthMatrix(month)
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
@@ -65,10 +66,50 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
                     {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
                   </button>
                 ))}
+                {dayEventos.length > 3 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDay({ key, eventos: dayEventos })}
+                    className="w-full text-sm font-semibold text-zinc-500 hover:text-zinc-900 text-left px-1.5 cursor-pointer"
+                  >
+                    +{dayEventos.length - 3} más
+                  </button>
+                )}
               </div>
             </div>
           )
         }),
+      )}
+
+      {selectedDay && (
+        <div className="fixed inset-0 z-[200] bg-black/40 p-4 flex items-start justify-center overflow-y-auto" onClick={() => setSelectedDay(null)}>
+          <div
+            className="mt-16 w-full max-w-md rounded-2xl bg-white border border-zinc-200 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-lg font-bold text-zinc-900 mb-4">
+              {new Date(`${selectedDay.key}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+            <div className="space-y-1.5">
+              {selectedDay.eventos.map((ev) => (
+                <button
+                  key={ev.id}
+                  type="button"
+                  onClick={() => {
+                    setSelected(ev)
+                    setSelectedDay(null)
+                  }}
+                  className={`w-full text-sm font-semibold truncate rounded px-2 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                >
+                  {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'} · {ev.empresa?.nombre ?? 'Empresa'}
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={() => setSelectedDay(null)} className="mt-4 text-sm text-zinc-500 hover:text-zinc-900">
+              Cerrar
+            </button>
+          </div>
+        </div>
       )}
 
       <AgendaEventModal evento={selected} onClose={() => setSelected(null)} />
