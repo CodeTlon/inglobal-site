@@ -4,6 +4,9 @@ const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
+    // lib/agenda-view.ts arma classNames de estado (bg-blue-500, bg-zinc-300, ...) que si no
+    // se escanean, Tailwind no genera el CSS para esas clases (mismo bug que en la app mobile).
+    "./lib/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {
