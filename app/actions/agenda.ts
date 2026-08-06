@@ -12,6 +12,7 @@ import {
 } from '@/lib/validations/agenda'
 import {
   type CatalogTable,
+  validarGrua,
   validarOperarios,
   syncEventoOperarios,
   buscarConflicto,
@@ -99,6 +100,9 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
     const { hora_fin, ...rest } = parsed.data
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
 
+    const errorGrua = await validarGrua(supabase, rest.grua_id)
+    if (errorGrua) return { error: errorGrua }
+
     const errorOperarios = await validarOperarios(supabase, operarioIds)
     if (errorOperarios) return { error: errorOperarios }
 
@@ -138,6 +142,9 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     if (errorEdicion) return { error: errorEdicion }
 
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
+
+    const errorGrua = await validarGrua(supabase, rest.grua_id)
+    if (errorGrua) return { error: errorGrua }
 
     const errorOperarios = await validarOperarios(supabase, operarioIds)
     if (errorOperarios) return { error: errorOperarios }

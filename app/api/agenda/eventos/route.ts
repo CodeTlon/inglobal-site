@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { eventoAgendaSchema } from '@/lib/validations/agenda'
 import { getEventosAgenda } from '@/lib/agenda'
-import { validarOperarios, buscarConflicto, syncEventoOperarios } from '@/lib/agenda-business'
+import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios } from '@/lib/agenda-business'
 
 export async function GET(request: Request) {
   const auth = await requireApiUser(request)
@@ -29,6 +29,9 @@ export async function POST(request: Request) {
 
   const { hora_fin, ...rest } = parsed.data
   const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((id: unknown) => typeof id === 'string') : []
+
+  const errorGrua = await validarGrua(supabase, rest.grua_id)
+  if (errorGrua) return apiError(errorGrua, 409)
 
   const errorOperarios = await validarOperarios(supabase, operarioIds)
   if (errorOperarios) return apiError(errorOperarios, 409)

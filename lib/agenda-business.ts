@@ -48,6 +48,20 @@ export async function validarOperarios(supabase: SupabaseClient, operarioIds: st
   return null
 }
 
+/**
+ * Simétrico a validarOperarios pero para la grúa: una grúa inactiva (o un ID que ya
+ * no existe) no puede quedar asignada a un evento nuevo/editado. Antes solo se
+ * validaban los operarios acá — la grúa solo pasaba por el `.uuid()` de Zod, que no
+ * chequea que exista ni que esté activa.
+ */
+export async function validarGrua(supabase: SupabaseClient, gruaId: string): Promise<string | null> {
+  const { data, error } = await supabase.from('gruas').select('nombre, activo').eq('id', gruaId).maybeSingle()
+  if (error) return friendlyError(error)
+  if (!data) return 'La grúa seleccionada ya no existe. Volvé a seleccionar la grúa.'
+  if (!data.activo) return `${data.nombre} está inactiva. Reactivala desde Catálogos o elegí otra grúa.`
+  return null
+}
+
 export async function syncEventoOperarios(
   supabase: SupabaseClient,
   eventoId: string,

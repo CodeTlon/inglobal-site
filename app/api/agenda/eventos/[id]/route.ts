@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { eventoAgendaSchema } from '@/lib/validations/agenda'
 import { getEventoAgendaById } from '@/lib/agenda'
-import { validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento } from '@/lib/agenda-business'
+import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -34,6 +34,9 @@ export async function PATCH(request: Request, { params }: Params) {
   if (errorEdicion) return apiError(errorEdicion, 409)
 
   const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((v: unknown) => typeof v === 'string') : []
+
+  const errorGrua = await validarGrua(supabase, rest.grua_id)
+  if (errorGrua) return apiError(errorGrua, 409)
 
   const errorOperarios = await validarOperarios(supabase, operarioIds)
   if (errorOperarios) return apiError(errorOperarios, 409)
