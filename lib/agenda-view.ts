@@ -62,6 +62,19 @@ export function estadoColorClassesLight(estado: string): string {
   return ESTADO_COLORS_LIGHT[estado] ?? ESTADO_COLORS_LIGHT.programado
 }
 
+/** Color sólido para un punto/franja — mismo mapeo que ESTADO_COLORS_LIGHT (usado por la leyenda de la TV). */
+const ESTADO_STRIP: Record<string, string> = {
+  reserva: 'bg-igb-navy',
+  programado: 'bg-igb-yellow',
+  en_curso: 'bg-blue-500',
+  finalizado: 'bg-zinc-300',
+  cancelado: 'bg-red-400',
+}
+
+export function estadoStripColor(estado: string): string {
+  return ESTADO_STRIP[estado] ?? ESTADO_STRIP.programado
+}
+
 /** "en_curso" -> "En curso", "programado" -> "Programado". */
 export function formatEstado(estado: string): string {
   return estado.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase())

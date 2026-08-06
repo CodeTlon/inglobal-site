@@ -4,6 +4,7 @@ import { getEventosAgenda } from '@/lib/agenda'
 import AgendaMonthView from '@/components/agenda/AgendaMonthView'
 import AgendaKioskHeader from '@/components/agenda/AgendaKioskHeader'
 import AgendaTvRefresher from './AgendaTvRefresher'
+import EstadoLegend from '@/components/agenda/EstadoLegend'
 import { toDateInput } from '@/lib/agenda-view'
 
 export const dynamic = 'force-dynamic'
@@ -50,6 +51,7 @@ export default async function AgendaTvPage({
             Mes siguiente <ChevronRight size={22} />
           </Link>
         </div>
+        <EstadoLegend />
         <AgendaMonthView eventos={eventos} month={month} />
       </main>
     </div>
