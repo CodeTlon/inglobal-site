@@ -51,9 +51,7 @@ export default async function AgendaTvPage({
             Mes siguiente <ChevronRight size={22} />
           </Link>
         </div>
-        <div className="flex justify-center mb-6">
-          <EstadoLegend />
-        </div>
+        <EstadoLegend />
         <AgendaMonthView eventos={eventos} month={month} />
       </main>
     </div>

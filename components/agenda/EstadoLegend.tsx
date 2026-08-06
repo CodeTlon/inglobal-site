@@ -11,12 +11,14 @@ export default function EstadoLegend() {
 
   return (
     <>
+      {/* Flotante en la esquina, chico y semi-transparente hasta que se usa — a
+          propósito, para no competir con el mes ni el calendario en la TV. */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Referencias de colores"
-        className="flex items-center justify-center rounded-full border border-zinc-200 w-11 h-11 text-zinc-500 hover:bg-zinc-50 active:scale-95 transition-transform"
+        className="fixed bottom-6 right-6 z-[150] flex items-center justify-center rounded-full border border-zinc-200 bg-white w-9 h-9 text-zinc-400 opacity-60 hover:opacity-100 hover:bg-zinc-50 active:scale-95 transition-all"
       >
-        <Info size={22} />
+        <Info size={18} />
       </button>
 
       {open && (
