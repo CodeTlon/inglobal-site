@@ -1,6 +1,6 @@
 import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
-import { eventoAgendaSchema } from '@/lib/validations/agenda'
+import { crearEventoSchema } from '@/lib/validations/agenda'
 import { getEventosAgenda } from '@/lib/agenda'
 import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios } from '@/lib/agenda-business'
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   if (!body) return apiError('Body inválido.', 400)
 
-  const parsed = eventoAgendaSchema.safeParse(body)
+  const parsed = crearEventoSchema.safeParse(body)
   if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
   const { hora_fin, ...rest } = parsed.data

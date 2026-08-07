@@ -5,8 +5,15 @@
 
 import type { EventoAgenda } from './agenda'
 
+// Fecha local en formato YYYY-MM-DD. OJO: d.toISOString() pasa a UTC — con
+// Argentina en UTC-3 eso corre la fecha "hoy" un día para adelante entre las
+// 21:00 y las 23:59 locales (el reloj UTC ya cruzó medianoche). Por eso se arma
+// con los componentes locales de `d`, nunca con toISOString().
 export function toDateInput(d: Date): string {
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 export function addDays(d: Date, days: number): Date {
@@ -87,7 +94,15 @@ export function formatEstado(estado: string): string {
  */
 export function getEstadoVisual(evento: EventoAgenda, now = new Date()): string {
   if (evento.estado === 'programado') {
-    const fin = new Date(`${evento.fecha}T${(evento.hora_fin ?? evento.hora_inicio).slice(0, 8)}`)
+    // Bug 1: usaba `evento.fecha` (día de inicio) para calcular el fin. Un
+    // evento de varios días (fecha_hasta > fecha) se pintaba "finalizado" ya
+    // pasada la hora de fin del PRIMER día, aunque siguiera en curso el resto.
+    // Bug 2: sin hora_fin, usaba hora_inicio como si durara 0 minutos (se
+    // veía "finalizado" apenas empezaba). rangosSeSolapan sí interpreta
+    // hora_fin null como "abierto hasta fin del día" — unificamos ese criterio
+    // acá también.
+    const fechaFin = evento.fecha_hasta ?? evento.fecha
+    const fin = new Date(`${fechaFin}T${(evento.hora_fin ?? '23:59:59').slice(0, 8)}`)
     if (fin < now) return 'finalizado'
   }
   return evento.estado

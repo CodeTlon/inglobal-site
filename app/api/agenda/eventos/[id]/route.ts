@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { eventoAgendaSchema } from '@/lib/validations/agenda'
 import { getEventoAgendaById } from '@/lib/agenda'
-import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento } from '@/lib/agenda-business'
+import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento, validarBorradoEvento } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -61,6 +61,9 @@ export async function DELETE(request: Request, { params }: Params) {
   const auth = await requireApiUser(request)
   if (!auth) return apiError('No autenticado.', 401)
   const { id } = await params
+
+  const errorBorrado = await validarBorradoEvento(auth.supabase, id)
+  if (errorBorrado) return apiError(errorBorrado, 409)
 
   const { error } = await auth.supabase.from('eventos_agenda').delete().eq('id', id)
   if (error) return apiError(friendlyError(error), 500)

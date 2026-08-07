@@ -15,8 +15,14 @@ const ESTADOS = [
   { value: 'cancelado', label: 'Cancelado' },
 ]
 
+// Fecha local en formato YYYY-MM-DD. OJO: d.toISOString() pasa a UTC — con
+// Argentina en UTC-3 eso corre "hoy" un día para adelante entre las 21:00 y
+// las 23:59 locales (el reloj UTC ya cruzó medianoche).
 function toDateInput(d: Date): string {
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 const today = new Date()
@@ -67,7 +73,12 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
     }
     const horaInicio = formData.get('hora_inicio') as string
     const horaFin = formData.get('hora_fin') as string
-    if (horaInicio && horaFin) {
+    // Si fecha_hasta cae en otro día, hora_fin ya pertenece a ESE día — no
+    // tiene que ser "después" de hora_inicio en el reloj (turno 22:00→02:00
+    // cruzando medianoche). Antes esto bloqueaba el submit en el cliente sin
+    // ni llegar a pegarle al backend, que ya soporta el caso.
+    const cruzaDias = !!fechaHasta && fechaHasta !== fecha
+    if (horaInicio && horaFin && !cruzaDias) {
       const [hi, mi] = horaInicio.split(':').map(Number)
       const [hf, mf] = horaFin.split(':').map(Number)
       if (hf * 60 + mf < hi * 60 + mi + MIN_DURACION_MIN) {

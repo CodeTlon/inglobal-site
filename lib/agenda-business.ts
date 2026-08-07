@@ -85,13 +85,20 @@ function formatFechaCorta(fecha: string): string {
   return `${d}/${m}/${y}`
 }
 
+// Bug: antes comparaba fecha y hora por separado ("¿se solapan los rangos de
+// fecha?" AND "¿se solapan los horarios de reloj?"), lo cual está mal apenas
+// un evento cruza más de un día — un evento de fecha 06/08 08:00 a fecha_hasta
+// 10/08 10:00 (una grúa reservada de corrido varios días) no detectaba
+// conflicto contra un evento el 07/08 de 14:00 a 16:00, porque 14:00 no es
+// "menor" que 10:00 en el reloj, aunque el 07/08 esté completamente adentro
+// del rango. Se arma el datetime completo (fecha+hora, como string ISO
+// ordena cronológicamente igual) y se comparan como un único intervalo.
 export function rangosSeSolapan(a: EventoWindow, b: EventoWindow): boolean {
-  const finA = a.fecha_hasta ?? a.fecha
-  const finB = b.fecha_hasta ?? b.fecha
-  if (a.fecha > finB || b.fecha > finA) return false
-  const horaFinA = a.hora_fin ?? '23:59'
-  const horaFinB = b.hora_fin ?? '23:59'
-  return a.hora_inicio < horaFinB && b.hora_inicio < horaFinA
+  const inicioA = `${a.fecha}T${a.hora_inicio}`
+  const finA = `${a.fecha_hasta ?? a.fecha}T${a.hora_fin ?? '23:59'}`
+  const inicioB = `${b.fecha}T${b.hora_inicio}`
+  const finB = `${b.fecha_hasta ?? b.fecha}T${b.hora_fin ?? '23:59'}`
+  return inicioA < finB && inicioB < finA
 }
 
 /**
@@ -237,6 +244,22 @@ export async function validarEdicionEvento(
     }
   }
 
+  return null
+}
+
+/**
+ * Antes DELETE no tenía ninguna restricción: se podía borrar cualquier
+ * evento en cualquier estado, sin pasar por acá. Un evento en_curso borrado
+ * hace desaparecer un trabajo activo sin dejar rastro, y uno finalizado es
+ * historial (probablemente ya facturado) — bloqueamos esos dos, igual que ya
+ * se bloquea editarlos en validarEdicionEvento.
+ */
+export async function validarBorradoEvento(supabase: SupabaseClient, id: string): Promise<string | null> {
+  const { data, error } = await supabase.from('eventos_agenda').select('estado').eq('id', id).maybeSingle()
+  if (error) return friendlyError(error)
+  if (!data) return null // ya no existe — dejar que el delete sea no-op
+  if (data.estado === 'en_curso') return 'No se puede borrar: el evento está en curso.'
+  if (data.estado === 'finalizado') return 'No se puede borrar un evento finalizado (es historial).'
   return null
 }
 

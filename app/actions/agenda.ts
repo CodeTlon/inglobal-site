@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { friendlyError } from '@/lib/friendly-error'
 import {
   eventoAgendaSchema,
+  crearEventoSchema,
   gruaSchema,
   empresaAgendaSchema,
   operarioSchema,
@@ -18,6 +19,7 @@ import {
   buscarConflicto,
   getRecursosOcupados as getRecursosOcupadosBusiness,
   validarEdicionEvento,
+  validarBorradoEvento,
   catalogToggle as catalogToggleBusiness,
   catalogDelete as catalogDeleteBusiness,
   gruaDuplicada,
@@ -54,8 +56,8 @@ function parseOperarioIds(raw: FormDataEntryValue | null): string[] {
   }
 }
 
-function parseEventoForm(formData: FormData) {
-  return eventoAgendaSchema.safeParse({
+function parseEventoForm(formData: FormData, schema: typeof eventoAgendaSchema | typeof crearEventoSchema) {
+  return schema.safeParse({
     fecha:       formData.get('fecha'),
     fecha_hasta: formData.get('fecha_hasta'),
     hora_inicio: formData.get('hora_inicio'),
@@ -94,7 +96,7 @@ export async function getRecursosOcupados(
 export async function createEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
   try {
     const supabase = await requireUser()
-    const parsed = parseEventoForm(formData)
+    const parsed = parseEventoForm(formData, crearEventoSchema)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 
     const { hora_fin, ...rest } = parsed.data
@@ -133,7 +135,7 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de evento requerido.' }
 
-    const parsed = parseEventoForm(formData)
+    const parsed = parseEventoForm(formData, eventoAgendaSchema)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 
     const { hora_fin, ...rest } = parsed.data
@@ -174,6 +176,9 @@ export async function deleteEvento(prevState: unknown, formData: FormData): Prom
     const supabase = await requireUser()
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de evento requerido.' }
+
+    const errorBorrado = await validarBorradoEvento(supabase, id)
+    if (errorBorrado) return { error: errorBorrado }
 
     const { error } = await supabase.from('eventos_agenda').delete().eq('id', id)
     if (error) return { error: friendlyError(error) }
