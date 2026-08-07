@@ -36,13 +36,20 @@ interface Props {
   empresas: EmpresaAgenda[]
   operarios: Operario[]
   action: (prevState: unknown, formData: FormData) => Promise<AgendaState>
+  /** De dónde vino (ej. /dashboard/agenda/calendario?day=2026-08-07). Se manda
+   * de vuelta en el submit para que el redirect post-guardado vuelva ahí en
+   * vez de siempre al listado genérico — así no se pierde el día en el que
+   * estabas parado al crear/editar un evento. */
+  from?: string
+  /** Fecha con la que precargar un evento nuevo (viene de "+" en el calendario). */
+  fechaInicial?: string
 }
 
-export default function EventoForm({ evento, gruas, empresas, operarios, action }: Props) {
+export default function EventoForm({ evento, gruas, empresas, operarios, action, from, fechaInicial }: Props) {
   const [state, formAction] = useFormState(action, undefined)
   const [clientError, setClientError] = useState<string | null>(null)
 
-  const [fecha, setFecha] = useState(evento?.fecha ?? '')
+  const [fecha, setFecha] = useState(evento?.fecha ?? fechaInicial ?? '')
   const [fechaHasta, setFechaHasta] = useState(evento?.fecha_hasta ?? '')
   const [horaInicio, setHoraInicio] = useState(evento?.hora_inicio?.slice(0, 5) ?? '')
   const [horaFin, setHoraFin] = useState(evento?.hora_fin?.slice(0, 5) ?? '')
@@ -106,6 +113,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action 
   return (
     <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
       {evento && <input type="hidden" name="id" value={evento.id} />}
+      <input type="hidden" name="from" value={from ?? ''} />
 
       {(clientError || state?.error) && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">

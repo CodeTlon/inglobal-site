@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { Suspense } from 'react'
 import { getEventosAgenda } from '@/lib/agenda'
 import AgendaWeekView from '@/components/agenda/AgendaWeekView'
@@ -21,7 +21,7 @@ function GridSkeleton() {
 
 async function DayPanel({ dayKey }: { dayKey: string }) {
   const eventosDelDia = await getEventosAgenda({ desde: dayKey, hasta: dayKey })
-  return <AgendaDayView eventos={eventosDelDia} />
+  return <AgendaDayView eventos={eventosDelDia} dayKey={dayKey} />
 }
 
 async function WeekPanel({ weekStart }: { weekStart: Date }) {
@@ -68,6 +68,14 @@ export default async function AgendaCalendarioPage({
               <ChevronRight size={16} />
             </Link>
           </div>
+          <div className="flex justify-end mb-3">
+            <Link
+              href={`/dashboard/agenda/nuevo?fecha=${dayKey}&from=${encodeURIComponent(`/dashboard/agenda/calendario?day=${dayKey}`)}`}
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-igb-navy hover:underline"
+            >
+              <Plus size={16} /> Nuevo evento
+            </Link>
+          </div>
           <Suspense key={dayKey} fallback={<GridSkeleton />}>
             <DayPanel dayKey={dayKey} />
           </Suspense>
@@ -85,6 +93,14 @@ export default async function AgendaCalendarioPage({
             </p>
             <Link href={`?week=${nextWeek}`} className="text-zinc-400 hover:text-zinc-900 flex items-center gap-1 text-sm">
               Semana siguiente <ChevronRight size={16} />
+            </Link>
+          </div>
+          <div className="flex justify-end mb-3">
+            <Link
+              href={`/dashboard/agenda/nuevo?fecha=${weekKey}&from=${encodeURIComponent(`/dashboard/agenda/calendario?week=${weekKey}`)}`}
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-igb-navy hover:underline"
+            >
+              <Plus size={16} /> Nuevo evento
             </Link>
           </div>
           <Suspense key={weekKey} fallback={<GridSkeleton />}>

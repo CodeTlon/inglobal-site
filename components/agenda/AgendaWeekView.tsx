@@ -119,7 +119,15 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
 
       {eventos.length === 0 && <p className="text-center text-zinc-400 py-16">No hay eventos programados esta semana.</p>}
 
-      <AgendaEventModal evento={selected} onClose={() => setSelected(null)} />
+      <AgendaEventModal
+        evento={selected}
+        onClose={() => setSelected(null)}
+        editHref={
+          selected
+            ? `/dashboard/agenda/${selected.id}?from=${encodeURIComponent(`/dashboard/agenda/calendario?week=${toDateInput(weekStart)}`)}`
+            : undefined
+        }
+      />
     </div>
   )
 }

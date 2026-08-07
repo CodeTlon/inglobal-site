@@ -1,12 +1,26 @@
 'use client'
 
 import { useEffect } from 'react'
-import { X, MapPin, Users, Clock, Building2 } from 'lucide-react'
+import Link from 'next/link'
+import { X, MapPin, Users, Clock, Building2, Pencil } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
 import { estadoColorClassesLight, formatEstado, getEstadoVisual } from '@/lib/agenda-view'
 
-/** Panel de detalle de solo lectura al clickear un evento en la grilla semanal — sin acciones, solo cerrar. */
-export default function AgendaEventModal({ evento, onClose }: { evento: EventoAgenda | null; onClose: () => void }) {
+/**
+ * Panel de detalle al clickear un evento en la grilla semanal/diaria. Solo
+ * lectura salvo que el caller pase `editHref` (el dashboard lo arma con
+ * `from` de vuelta al día/semana actual; la TV de /agenda-tv nunca lo pasa —
+ * ahí no hay sesión de admin, no correspondería un link a editar).
+ */
+export default function AgendaEventModal({
+  evento,
+  onClose,
+  editHref,
+}: {
+  evento: EventoAgenda | null
+  onClose: () => void
+  editHref?: string
+}) {
   useEffect(() => {
     if (!evento) return
     function onKey(e: KeyboardEvent) {
@@ -44,14 +58,25 @@ export default function AgendaEventModal({ evento, onClose }: { evento: EventoAg
               {fechaHasta && <> hasta el {fechaHasta}</>}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Cerrar"
-            className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors flex-shrink-0"
-          >
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {editHref && (
+              <Link
+                href={editHref}
+                aria-label="Editar evento"
+                className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
+              >
+                <Pencil size={18} />
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Cerrar"
+              className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         <div className="space-y-3 text-sm">

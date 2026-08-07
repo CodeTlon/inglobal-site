@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getEventosAgenda } from '@/lib/agenda'
-import { formatEstado } from '@/lib/agenda-view'
+import { formatEstado, toDateInput } from '@/lib/agenda-view'
 import PageHeader from '@/components/dashboard/PageHeader'
 import AgendaTvQrLink from './AgendaTvQrLink'
 import { ChevronRight, Plus, Settings2, MapPin, Users } from 'lucide-react'
@@ -13,7 +13,7 @@ const ESTADO_STYLES: Record<string, string> = {
 }
 
 export default async function AgendaDashboardPage() {
-  const eventos = await getEventosAgenda({ desde: new Date().toISOString().slice(0, 10) })
+  const eventos = await getEventosAgenda({ desde: toDateInput(new Date()) })
 
   return (
     <div className="max-w-3xl">

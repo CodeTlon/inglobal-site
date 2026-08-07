@@ -26,6 +26,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
     return () => window.removeEventListener('keydown', onKey)
   }, [selectedDay])
 
+  const todayKey = toDateInput(new Date())
   const weeks = getMonthMatrix(month)
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
@@ -40,9 +41,9 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
   }
 
   return (
-    <div className="grid grid-cols-7 gap-1.5">
+    <div className="grid grid-cols-7 gap-2">
       {DIA_LABEL.map((d) => (
-        <div key={d} className="text-center text-sm uppercase tracking-widest text-zinc-400 pb-2">
+        <div key={d} className="text-center text-base uppercase tracking-widest text-zinc-400 pb-2">
           {d}
         </div>
       ))}
@@ -52,27 +53,29 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
           const key = toDateInput(day)
           const isCurrentMonth = day.getMonth() === month.getMonth()
           const dayEventos = (byDay.get(key) ?? []).sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio))
+          const isToday = key === todayKey
           return (
             <div
               key={key}
-              className={`min-h-[140px] rounded-lg border border-zinc-200 p-2.5 ${
-                isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'
-              }`}
+              id={isToday ? 'tv-today' : undefined}
+              className={`min-h-[190px] rounded-lg border p-3.5 ${
+                isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
+              } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'}`}
             >
-              <p className="text-xl font-bold text-zinc-900 mb-1.5">{day.getDate()}</p>
+              <p className="text-2xl font-bold text-zinc-900 mb-2">{day.getDate()}</p>
               {dayEventos.length > 0 && (
-                <p className="text-sm text-igb-yellow-dark font-bold mb-1.5">
+                <p className="text-base text-igb-yellow-dark font-bold mb-2">
                   {dayEventos.length} evento{dayEventos.length > 1 ? 's' : ''}
                 </p>
               )}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {dayEventos.slice(0, 3).map((ev) => (
                   <button
                     key={ev.id}
                     type="button"
                     onClick={() => setSelected(ev)}
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
-                    className={`w-full text-sm font-semibold truncate rounded px-1.5 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                    className={`w-full text-base font-semibold truncate rounded px-2 py-2 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
                   </button>
@@ -81,7 +84,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
                   <button
                     type="button"
                     onClick={() => setSelectedDay({ key, eventos: dayEventos })}
-                    className="w-full text-sm font-bold text-igb-navy hover:underline text-left px-1.5 py-1 cursor-pointer"
+                    className="w-full text-base font-bold text-igb-navy hover:underline text-left px-2 py-1.5 cursor-pointer"
                   >
                     +{dayEventos.length - 3} más
                   </button>

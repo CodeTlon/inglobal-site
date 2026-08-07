@@ -37,7 +37,22 @@ async function requireUser() {
 
 function revalidateEventos() {
   revalidatePath('/dashboard/agenda')
+  revalidatePath('/dashboard/agenda/calendario')
   revalidatePath('/agenda-tv')
+}
+
+// El form manda de vuelta a dónde volver después de guardar (día/semana del
+// calendario del que vino). Antes el redirect post-save estaba hardcodeado a
+// /dashboard/agenda siempre, así que crear o editar un evento te sacaba del
+// día en el que estabas parado. Se valida que sea una ruta propia (no un
+// string arbitrario) para no abrir un redirect a otro dominio.
+function safeFrom(value: FormDataEntryValue | null): string | null {
+  return typeof value === 'string' && value.startsWith('/dashboard/agenda') ? value : null
+}
+
+function redirectConSaved(from: string | null, saved: string): never {
+  const base = from ?? '/dashboard/agenda'
+  redirect(`${base}${base.includes('?') ? '&' : '?'}saved=${saved}`)
 }
 
 function revalidateCatalogos() {
@@ -126,7 +141,7 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
   } catch (e) {
     return { error: friendlyError(e) }
   }
-  redirect('/dashboard/agenda?saved=created')
+  redirectConSaved(safeFrom(formData.get('from')), 'created')
 }
 
 export async function updateEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -168,7 +183,7 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
   } catch (e) {
     return { error: friendlyError(e) }
   }
-  redirect('/dashboard/agenda?saved=updated')
+  redirectConSaved(safeFrom(formData.get('from')), 'updated')
 }
 
 export async function deleteEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -187,7 +202,7 @@ export async function deleteEvento(prevState: unknown, formData: FormData): Prom
   } catch (e) {
     return { error: friendlyError(e) }
   }
-  redirect('/dashboard/agenda?saved=deleted')
+  redirectConSaved(safeFrom(formData.get('from')), 'deleted')
 }
 
 // ─── Catálogos (gruas / empresas_agenda / operarios) ───────────────────────

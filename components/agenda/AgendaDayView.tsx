@@ -12,7 +12,7 @@ import AgendaEventModal from './AgendaEventModal'
  * queda ilegible; una lista ordenada por hora es lo que realmente se puede
  * leer en mobile. Click en un evento abre el mismo detalle que la semanal.
  */
-export default function AgendaDayView({ eventos }: { eventos: EventoAgenda[] }) {
+export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgenda[]; dayKey: string }) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
   const ordenados = [...eventos].sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio))
 
@@ -49,7 +49,15 @@ export default function AgendaDayView({ eventos }: { eventos: EventoAgenda[] }) 
         )
       })}
 
-      <AgendaEventModal evento={selected} onClose={() => setSelected(null)} />
+      <AgendaEventModal
+        evento={selected}
+        onClose={() => setSelected(null)}
+        editHref={
+          selected
+            ? `/dashboard/agenda/${selected.id}?from=${encodeURIComponent(`/dashboard/agenda/calendario?day=${dayKey}`)}`
+            : undefined
+        }
+      />
     </div>
   )
 }
