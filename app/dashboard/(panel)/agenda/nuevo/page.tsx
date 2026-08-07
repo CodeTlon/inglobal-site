@@ -5,7 +5,12 @@ import PageHeader from '@/components/dashboard/PageHeader'
 import EventoForm from '../EventoForm'
 import { ArrowLeft } from 'lucide-react'
 
-export default async function NuevoEventoPage() {
+export default async function NuevoEventoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; fecha?: string }>
+}) {
+  const { from, fecha } = await searchParams
   const [gruas, empresas, operarios] = await Promise.all([
     getGruas(),
     getEmpresasAgenda(),
@@ -16,17 +21,17 @@ export default async function NuevoEventoPage() {
     <div className="max-w-4xl">
       <div className="mb-6">
         <Link
-          href="/dashboard/agenda"
+          href={from || '/dashboard/agenda'}
           className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
         >
-          <ArrowLeft size={14} /> Volver a Agenda
+          <ArrowLeft size={14} /> Volver
         </Link>
       </div>
 
       <PageHeader title="Nuevo Evento" description="Programá una grúa para una empresa en un horario y ubicación." />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <EventoForm gruas={gruas} empresas={empresas} operarios={operarios} action={createEvento} />
+        <EventoForm gruas={gruas} empresas={empresas} operarios={operarios} action={createEvento} from={from} fechaInicial={fecha} />
       </div>
     </div>
   )

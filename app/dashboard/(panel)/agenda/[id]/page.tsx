@@ -9,10 +9,12 @@ import { ArrowLeft } from 'lucide-react'
 
 interface Props {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ from?: string }>
 }
 
-export default async function EventoEditPage({ params }: Props) {
+export default async function EventoEditPage({ params, searchParams }: Props) {
   const { id } = await params
+  const { from } = await searchParams
   const [evento, gruas, empresas, operarios] = await Promise.all([
     getEventoAgendaById(id),
     getGruas({ includeInactive: true }),
@@ -31,10 +33,10 @@ export default async function EventoEditPage({ params }: Props) {
     <div className="max-w-4xl">
       <div className="mb-6">
         <Link
-          href="/dashboard/agenda"
+          href={from || '/dashboard/agenda'}
           className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
         >
-          <ArrowLeft size={14} /> Volver a Agenda
+          <ArrowLeft size={14} /> Volver
         </Link>
       </div>
 
@@ -44,13 +46,14 @@ export default async function EventoEditPage({ params }: Props) {
         actions={
           <form action={handleDelete}>
             <input type="hidden" name="id" value={evento.id} />
+            <input type="hidden" name="from" value={from ?? ''} />
             <DeleteButton confirmMessage="¿Eliminar este evento de la agenda? Esta acción no se puede deshacer." />
           </form>
         }
       />
 
       <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-        <EventoForm evento={evento} gruas={gruas} empresas={empresas} operarios={operarios} action={updateEvento} />
+        <EventoForm evento={evento} gruas={gruas} empresas={empresas} operarios={operarios} action={updateEvento} from={from} />
       </div>
     </div>
   )
