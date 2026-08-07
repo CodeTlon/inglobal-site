@@ -11,6 +11,7 @@ const PG_CODE_MESSAGES: Record<string, string> = {
   '23502': 'Falta completar un campo obligatorio.',
   '22P02': 'Uno de los valores enviados no tiene el formato esperado.',
   '42501': 'No tenés permisos para realizar esta acción.',
+  '23P01': 'La grúa o el operario ya están reservados en ese horario. Recargá y volvé a intentar.',
   'PGRST116': 'No se encontró el registro solicitado.',
   'PGRST301': 'Tu sesión expiró. Iniciá sesión de nuevo.',
 }
