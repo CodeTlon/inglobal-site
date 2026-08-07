@@ -57,6 +57,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
           return (
             <div
               key={key}
+              id={isToday ? 'tv-today' : undefined}
               className={`min-h-[190px] rounded-lg border p-3.5 ${
                 isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
               } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'}`}
