@@ -14,6 +14,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { estadoTransicionado } from '@/lib/agenda-business'
 
 async function resolveClient(supabase?: SupabaseClient) {
   return supabase ?? (await createSupabaseServerClient())
@@ -104,6 +105,19 @@ function mapEvento(row: any): EventoAgenda {
 }
 
 /**
+ * Si el evento debería tener otro estado a esta hora (ver estadoTransicionado),
+ * lo persiste (lazy, on-read — no hace falta cron) y lo refleja en el objeto que
+ * se devuelve. Best-effort: si el update falla, igual se muestra el estado
+ * correcto en esta respuesta, no se bloquea la lectura por eso.
+ */
+async function aplicarTransicionEstado(evento: EventoAgenda, client: SupabaseClient): Promise<void> {
+  const nuevo = estadoTransicionado(evento)
+  if (!nuevo) return
+  const { error } = await client.from('eventos_agenda').update({ estado: nuevo }).eq('id', evento.id)
+  if (!error) evento.estado = nuevo
+}
+
+/**
  * Eventos ordenados por fecha/hora ascendente. `desde`/`hasta` filtran por fecha
  * (YYYY-MM-DD), inclusive — un evento de varios días (fecha_hasta) matchea si su
  * rango se solapa con la ventana pedida, no sólo si empieza adentro (si no, un
@@ -121,7 +135,9 @@ export async function getEventosAgenda(
     .order('fecha', { ascending: true })
     .order('hora_inicio', { ascending: true })
   if (error || !data) return []
-  return data.map(mapEvento)
+  const eventos = data.map(mapEvento)
+  await Promise.all(eventos.map((ev) => aplicarTransicionEstado(ev, client)))
+  return eventos
 }
 
 export async function getEventoAgendaById(id: string, supabase?: SupabaseClient): Promise<EventoAgenda | null> {
@@ -132,5 +148,7 @@ export async function getEventoAgendaById(id: string, supabase?: SupabaseClient)
     .eq('id', id)
     .single()
   if (error || !data) return null
-  return mapEvento(data)
+  const evento = mapEvento(data)
+  await aplicarTransicionEstado(evento, client)
+  return evento
 }

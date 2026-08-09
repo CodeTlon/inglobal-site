@@ -263,6 +263,34 @@ export async function validarBorradoEvento(supabase: SupabaseClient, id: string)
   return null
 }
 
+// ─── Auto-transición de estado por hora ────────────────────────────────────
+
+export type EventoEstadoWindow = {
+  estado: string
+  fecha: string
+  fecha_hasta: string | null
+  hora_inicio: string
+  hora_fin: string | null
+}
+
+/**
+ * Estado que un evento debería tener AHORA según fecha/hora, o `null` si el
+ * guardado sigue siendo correcto. Se aplica al LEER (lib/agenda.ts), nunca en el
+ * PATCH manual — así una reserva vencida sin confirmar no "avanza sola" a
+ * programado/en_curso (se cancela), y un programado que ya arrancó no se queda
+ * mostrando datos de una hora que ya pasó. `en_curso` no se toca acá: cerrarlo
+ * (finalizado/cancelado) es una decisión humana, no algo que deba pasar solo.
+ */
+export function estadoTransicionado(evento: EventoEstadoWindow, now = new Date()): EstadoEvento | null {
+  if (evento.estado !== 'reserva' && evento.estado !== 'programado') return null
+  const inicio = new Date(`${evento.fecha}T${evento.hora_inicio.slice(0, 8)}`)
+  const fin = new Date(`${evento.fecha_hasta ?? evento.fecha}T${(evento.hora_fin ?? '23:59:59').slice(0, 8)}`)
+  if (evento.estado === 'reserva') return fin < now ? 'cancelado' : null
+  if (fin < now) return 'finalizado'
+  if (inicio <= now) return 'en_curso'
+  return null
+}
+
 // ─── Catálogos (gruas / empresas_agenda / operarios) ───────────────────────
 
 export async function estadosDeEventosDelRecurso(
@@ -313,11 +341,24 @@ export async function catalogToggle(
   return {}
 }
 
+/**
+ * A diferencia de catalogToggle (que ya bloqueaba inactivar un recurso con eventos
+ * activos), el delete no chequeaba nada — como grua_id/empresa_id/operario_id son
+ * FK ON DELETE RESTRICT, borrar cualquier recurso alguna vez usado en un evento
+ * (incluso uno finalizado/cancelado viejo, que es historial) siempre fallaba, pero
+ * como un 500 de Postgres genérico en vez de un 409 con un mensaje claro. Se
+ * bloquea acá con el mismo criterio y mensaje que ya usa catalogToggle.
+ */
 export async function catalogDelete(
   supabase: SupabaseClient,
   table: CatalogTable,
   id: string,
 ): Promise<{ error?: string }> {
+  const estados = await estadosDeEventosDelRecurso(supabase, table, id)
+  if (estados.length > 0) {
+    return { error: `No se puede eliminar: tiene ${estados.length} evento(s) asociado(s). Desactivalo en vez de eliminarlo.` }
+  }
+
   const { error } = await supabase.from(table).delete().eq('id', id)
   if (error) return { error: friendlyError(error) }
   return {}
@@ -350,5 +391,17 @@ export async function empresaAgendaDuplicada(
   if (excludeId) query = query.neq('id', excludeId)
   const { data } = await query.limit(1)
   if (data && data.length > 0) return 'Ya existe una empresa con ese nombre.'
+  return null
+}
+
+export async function operarioDuplicado(
+  supabase: SupabaseClient,
+  nombre: string,
+  excludeId?: string,
+): Promise<string | null> {
+  let query = supabase.from('operarios').select('id').ilike('nombre', nombre)
+  if (excludeId) query = query.neq('id', excludeId)
+  const { data } = await query.limit(1)
+  if (data && data.length > 0) return 'Ya existe un operario con ese nombre.'
   return null
 }

@@ -2,6 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { operarioSchema } from '@/lib/validations/agenda'
 import { getOperarios } from '@/lib/agenda'
+import { operarioDuplicado } from '@/lib/agenda-business'
 
 export async function GET(request: Request) {
   const auth = await requireApiUser(request)
@@ -24,6 +25,9 @@ export async function POST(request: Request) {
 
   const parsed = operarioSchema.safeParse(body)
   if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
+
+  const duplicado = await operarioDuplicado(supabase, parsed.data.nombre)
+  if (duplicado) return apiError(duplicado, 409)
 
   const { data, error } = await supabase.from('operarios').insert(parsed.data).select('id').single()
   if (error) return apiError(friendlyError(error), 500)

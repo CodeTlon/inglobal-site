@@ -1,7 +1,7 @@
 import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { operarioSchema } from '@/lib/validations/agenda'
-import { catalogToggle, catalogDelete } from '@/lib/agenda-business'
+import { catalogToggle, catalogDelete, operarioDuplicado } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -23,6 +23,9 @@ export async function PATCH(request: Request, { params }: Params) {
   const parsed = operarioSchema.safeParse(body)
   if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
+  const duplicado = await operarioDuplicado(supabase, parsed.data.nombre, id)
+  if (duplicado) return apiError(duplicado, 409)
+
   const { error } = await supabase.from('operarios').update(parsed.data).eq('id', id)
   if (error) return apiError(friendlyError(error), 500)
 
@@ -35,7 +38,7 @@ export async function DELETE(request: Request, { params }: Params) {
   const { id } = await params
 
   const result = await catalogDelete(auth.supabase, 'operarios', id)
-  if (result.error) return apiError(result.error, 500)
+  if (result.error) return apiError(result.error, 409)
 
   return apiData({ id })
 }

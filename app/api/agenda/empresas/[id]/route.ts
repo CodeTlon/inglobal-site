@@ -38,7 +38,7 @@ export async function DELETE(request: Request, { params }: Params) {
   const { id } = await params
 
   const result = await catalogDelete(auth.supabase, 'empresas_agenda', id)
-  if (result.error) return apiError(result.error, 500)
+  if (result.error) return apiError(result.error, 409)
 
   return apiData({ id })
 }
