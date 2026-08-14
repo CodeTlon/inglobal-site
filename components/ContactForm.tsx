@@ -149,6 +149,19 @@ export default function ContactForm({ defaultService }: ContactFormProps) {
       </div>
 
       <div>
+        <label htmlFor="ubicacion" className={labelClass}>
+          Ubicación
+        </label>
+        <input
+          id="ubicacion"
+          name="ubicacion"
+          type="text"
+          placeholder="Dirección o zona (opcional)"
+          className={inputClass}
+        />
+      </div>
+
+      <div>
         <label htmlFor="message" className={labelClass}>
           Mensaje *
         </label>

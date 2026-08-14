@@ -6,6 +6,7 @@ export const contactSchema = z.object({
   email: z.string().email('Email inválido'),
   phone: z.string().optional(),
   servicio: z.string().optional(),
+  ubicacion: z.string().optional(),
   message: z.string().min(10, 'El mensaje debe tener al menos 10 caracteres'),
 })
 
