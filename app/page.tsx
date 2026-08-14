@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Picture from '@/components/Picture'
 import HeroVideo from '@/components/HeroVideo'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
+import ClientesCarousel from '@/components/ClientesCarousel'
 import { getSiteSettings, getServicios, getClientes } from '@/lib/content'
 
 // ─── Static gallery (not in CMS scope) ───────────────────────────────────────
@@ -58,7 +59,7 @@ export default async function HomePage() {
       getSiteSettings('clientes_destacados'),
       getSiteSettings('ubicacion'),
       getServicios(),
-      getClientes(),
+      getClientes({ onlyFeatured: true }),
     ])
 
   // Hero
@@ -370,27 +371,7 @@ export default async function HomePage() {
             <p className="text-body-lg mt-3 max-w-xl mx-auto">{cdSubheading}</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center">
-            {clientes.map((cliente) => (
-              <Link
-                key={cliente.slug}
-                href={`/clientes/${cliente.slug}`}
-                className="bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-sm grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:shadow-md transition-all duration-300 group"
-                data-animate="scale"
-              >
-                <Image
-                  src={cliente.logo}
-                  alt={`Logo ${cliente.name}`}
-                  width={140}
-                  height={60}
-                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 15vw"
-                  quality={70}
-                  loading="lazy"
-                  className="object-contain h-full w-full max-h-12 transition-transform duration-300 group-hover:scale-105"
-                />
-              </Link>
-            ))}
-          </div>
+          <ClientesCarousel clientes={clientes} />
 
           <div className="mt-12 text-center" data-animate="fade-up" data-delay="150">
             <Link href="/clientes" className="btn-outline">

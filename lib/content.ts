@@ -217,14 +217,18 @@ export async function getMontaje(slug: string, { includeUnpublished = false } = 
 // clientes
 // ─────────────────────────────────────────────────────────────
 
-/** Todos los clientes, ordenados por work_rank DESC. `includeUnpublished`: uso exclusivo del dashboard. */
-export async function getClientes({ includeUnpublished = false } = {}): Promise<Cliente[]> {
-  if (isPlaceholder()) return FALLBACK_CLIENTES
+/** Todos los clientes, ordenados por work_rank DESC. `includeUnpublished`: uso exclusivo del dashboard. `onlyFeatured`: solo destacados (carrusel del home). */
+export async function getClientes({
+  includeUnpublished = false,
+  onlyFeatured = false,
+}: { includeUnpublished?: boolean; onlyFeatured?: boolean } = {}): Promise<Cliente[]> {
+  if (isPlaceholder()) return onlyFeatured ? FALLBACK_CLIENTES.filter((c) => c.featured) : FALLBACK_CLIENTES
 
   try {
     const supabase = createSupabaseClient()
     let query = supabase.from('clientes').select('*')
     if (!includeUnpublished) query = query.eq('published', true)
+    if (onlyFeatured) query = query.eq('featured', true)
     const { data, error } = await query.order('work_rank', { ascending: false })
 
     if (error || !data || data.length === 0) {
