@@ -4,6 +4,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 
 const POLL_MS = 1500
+// ponytail: techo duro para el polling — si por lo que sea (blip de red del lado de
+// la TV, error intermitente del server) el loop nunca ve 'approved', antes se quedaba
+// pegado en el mismo QR para siempre y en silencio (el catch de abajo no avisaba nada).
+// A los ~20 intentos fallidos seguidos (30s) reintentamos con un código nuevo en vez
+// de confiar en que el usuario note que el QR "murió" y recargue la página a mano.
+const MAX_CONSECUTIVE_FAILURES = 20
 
 export default function PairQr() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -15,10 +21,12 @@ export default function PairQr() {
   const exchangeFailed = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('error')
   const tokenRef = useRef<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const failCountRef = useRef(0)
 
   const startPairing = useCallback(async () => {
     setStatus('loading')
     setQrDataUrl(null)
+    failCountRef.current = 0
     try {
       const res = await fetch('/api/tv-pair/start', { method: 'POST' })
       const body = await res.json()
@@ -51,16 +59,30 @@ export default function PairQr() {
       try {
         const res = await fetch(`/api/tv-pair/status?token=${token}`)
         const body = await res.json()
-        const s = body?.data?.status
+        const s = res.ok ? body?.data?.status : undefined
         if (s === 'approved') {
           if (pollRef.current) clearInterval(pollRef.current)
           window.location.href = `/api/tv-pair/exchange?token=${token}`
+          return
         } else if (s === 'expired') {
           if (pollRef.current) clearInterval(pollRef.current)
           startPairing()
+          return
         }
-      } catch {
-        // sigue intentando en el próximo tick
+        if (s !== 'pending') {
+          // Respuesta 200 sin el shape esperado, o no-200 — cuenta como intento fallido.
+          console.error('[pair-tv] status inesperado:', res.status, body)
+          failCountRef.current += 1
+        } else {
+          failCountRef.current = 0
+        }
+      } catch (e) {
+        console.error('[pair-tv] poll falló:', e)
+        failCountRef.current += 1
+      }
+      if (failCountRef.current >= MAX_CONSECUTIVE_FAILURES) {
+        if (pollRef.current) clearInterval(pollRef.current)
+        startPairing()
       }
     }, POLL_MS)
 
