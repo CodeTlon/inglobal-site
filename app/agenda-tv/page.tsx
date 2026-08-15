@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getEventosAgenda } from '@/lib/agenda'
 import AgendaMonthView from '@/components/agenda/AgendaMonthView'
@@ -33,23 +32,27 @@ export default async function AgendaTvPage({
       <AgendaKioskHeader title="Agenda de Grúas" theme="light" />
       <AgendaTvRefresher />
       <main className="flex-1 min-h-0 flex flex-col px-4 sm:px-10 py-8">
+        {/* ponytail: <a> planas en vez de next/link — esta pantalla es un kiosco
+            desatendido con force-dynamic + auto-reload cada 60s (AgendaTvRefresher);
+            el prefetch/router cache de Link podía servir un payload de otro mes ya
+            cacheado (eventos vacíos, reloj viejo) al volver al mes actual. */}
         <div className="shrink-0 flex items-center justify-between gap-3 mb-6">
-          <Link href={`?month=${prevMonth}`} className={navBtn}>
+          <a href={`?month=${prevMonth}`} className={navBtn}>
             <ChevronLeft size={22} /> Mes anterior
-          </Link>
+          </a>
           <div className="flex flex-col items-center gap-2">
             <p className="text-zinc-900 text-lg font-bold capitalize">
               {month.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
             </p>
             {!esMesActual && (
-              <Link href="?" className="text-sm font-semibold text-igb-navy hover:underline">
+              <a href="?" className="text-sm font-semibold text-igb-navy hover:underline">
                 ← Volver a hoy
-              </Link>
+              </a>
             )}
           </div>
-          <Link href={`?month=${nextMonth}`} className={navBtn}>
+          <a href={`?month=${nextMonth}`} className={navBtn}>
             Mes siguiente <ChevronRight size={22} />
-          </Link>
+          </a>
         </div>
         <div className="shrink-0">
           <EstadoLegend />

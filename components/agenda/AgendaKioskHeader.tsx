@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import AgendaKioskClock from './AgendaKioskClock'
 
 /**
  * Topbar minimal para las vistas de solo lectura de Agenda (TV mensual + calendario semanal
@@ -16,7 +17,6 @@ export default function AgendaKioskHeader({
   backHref?: string
   theme?: 'dark' | 'light'
 }) {
-  const now = new Date()
   const isLight = theme === 'light'
   return (
     <header
@@ -55,13 +55,7 @@ export default function AgendaKioskHeader({
             En vivo
           </span>
         )}
-        <span className={`text-xs sm:text-sm text-right whitespace-nowrap ${isLight ? 'text-zinc-400' : 'text-slate-400'}`}>
-          <span className="hidden sm:inline">
-            {now.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
-            {' · '}
-          </span>
-          {now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-        </span>
+        <AgendaKioskClock isLight={isLight} />
       </span>
     </header>
   )

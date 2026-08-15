@@ -71,9 +71,14 @@ export default function AgendaMonthView({
           return (
             <div
               key={key}
+              // ponytail: la celda entera abre el detalle del día — antes solo el
+              // botón "+N más" lo hacía, y con overflow-hidden + celdas de altura
+              // fija (1fr) ese botón (y hasta los eventos de más abajo) podían quedar
+              // recortados y sin poder tocarse cuando entraban varios eventos.
+              onClick={() => dayEventos.length > 0 && setSelectedDay({ key, eventos: dayEventos })}
               className={`h-full overflow-hidden rounded-lg border p-3.5 ${
                 isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
-              } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'}`}
+              } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'} ${dayEventos.length > 0 ? 'cursor-pointer' : ''}`}
             >
               <p className="text-2xl font-bold text-zinc-900 mb-2">{day.getDate()}</p>
               {dayEventos.length > 0 && (
@@ -86,7 +91,10 @@ export default function AgendaMonthView({
                   <button
                     key={ev.id}
                     type="button"
-                    onClick={() => setSelected(ev)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelected(ev)
+                    }}
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
                     className={`w-full rounded px-2 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
