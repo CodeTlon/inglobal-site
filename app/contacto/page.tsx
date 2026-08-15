@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Phone, Mail } from 'lucide-react'
 import ContactFormWrapper from '@/components/ContactFormWrapper'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
-import { getSiteSettings } from '@/lib/content'
+import { getSiteSettings, getServicios } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Contacto',
@@ -10,7 +10,11 @@ export const metadata: Metadata = {
 }
 
 export default async function ContactoPage() {
-  const settings = await getSiteSettings('contacto')
+  const [settings, s, servicios] = await Promise.all([
+    getSiteSettings('contacto'),
+    getSiteSettings('contacto_header'),
+    getServicios(),
+  ])
 
   const address =
     (settings.address as string) || 'Ana Riglos de Irigoyen S/N\nCórdoba, Argentina'
@@ -24,6 +28,10 @@ export default async function ContactoPage() {
   const addressLines = address.split('\n')
   const phoneHref = `tel:${phone.replace(/[\s-]/g, '')}`
 
+  const headingLines = ((s.heading as string) || 'Hablemos de su\npróximo proyecto.').split('\n')
+  const whatsapp = (s.whatsapp as string) || 'https://wa.me/5493513454244'
+  const instagram = (s.instagram as string) || 'https://www.instagram.com/gruasinglobal'
+
   return (
     <main className="bg-white">
       {/* Page Header */}
@@ -33,21 +41,26 @@ export default async function ContactoPage() {
             className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
             data-animate="fade-up"
           >
-            Contacto Directo
+            {(s.label as string) || 'Contacto Directo'}
           </span>
           <h1
             className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
             data-animate="blur-up"
             data-delay="100"
           >
-            Hablemos de su <br /> próximo proyecto.
+            {headingLines.map((line, i) => (
+              <span key={i}>
+                {i > 0 && <br />}
+                {line}
+              </span>
+            ))}
           </h1>
           <p
             className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
             data-animate="fade-up"
             data-delay="200"
           >
-            Asesoramiento técnico especializado para operaciones de alta complejidad.
+            {(s.subheading as string) || 'Asesoramiento técnico especializado para operaciones de alta complejidad.'}
           </p>
         </div>
       </section>
@@ -65,13 +78,13 @@ export default async function ContactoPage() {
             >
               <div className="max-w-md">
                 <h2 className="text-3xl font-headline font-bold text-zinc-900 mb-2">
-                  Envianos tu consulta
+                  {(s.form_title as string) || 'Envianos tu consulta'}
                 </h2>
                 <p className="text-zinc-500 mb-10 text-sm">
-                  Complete el formulario y un asesor técnico le responderá a la brevedad.
+                  {(s.form_subtitle as string) || 'Complete el formulario y un asesor técnico le responderá a la brevedad.'}
                 </p>
               </div>
-              <ContactFormWrapper />
+              <ContactFormWrapper services={servicios.map((sv) => ({ slug: sv.slug, title: sv.title }))} />
             </div>
 
             {/* Info column */}
@@ -113,7 +126,7 @@ export default async function ContactoPage() {
                 </p>
                 <div className="flex items-center gap-10">
                   <a
-                    href="https://wa.me/5493513454244"
+                    href={whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Contactar por WhatsApp"
@@ -129,7 +142,7 @@ export default async function ContactoPage() {
                     </svg>
                   </a>
                   <a
-                    href="https://www.instagram.com/gruasinglobal"
+                    href={instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Ver Instagram de Grúas InGlobal"
@@ -176,10 +189,10 @@ export default async function ContactoPage() {
       <section className="section-pad bg-igb-surface" id="ubicacion">
         <div className="container-igb">
           <div className="text-center mb-12" data-animate="fade-up">
-            <span className="label-tag flex justify-center">Dónde Encontrarnos</span>
-            <h2 className="heading-display">Nuestra Ubicación</h2>
+            <span className="label-tag flex justify-center">{(s.map_label as string) || 'Dónde Encontrarnos'}</span>
+            <h2 className="heading-display">{(s.map_heading as string) || 'Nuestra Ubicación'}</h2>
             <p className="text-body-lg mt-3 max-w-xl mx-auto">
-              Acercate a nuestras oficinas o contactanos para planificar tu próximo movimiento.
+              {(s.map_subheading as string) || 'Acercate a nuestras oficinas o contactanos para planificar tu próximo movimiento.'}
             </p>
           </div>
 

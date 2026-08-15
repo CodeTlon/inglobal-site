@@ -9,9 +9,10 @@ export const metadata: Metadata = {
 }
 
 export default async function ClientesPage() {
-  const [clientes, settings] = await Promise.all([
+  const [clientes, settings, cta] = await Promise.all([
     getClientes(),
     getSiteSettings('clientes_destacados'),
+    getSiteSettings('clientes_cta'),
   ])
 
   const label = (settings.label as string) || 'Nuestras Alianzas'
@@ -68,14 +69,14 @@ export default async function ClientesPage() {
             className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-6"
             data-animate="fade-up"
           >
-            ¿Querés trabajar con nosotros?
+            {(cta.heading as string) || '¿Querés trabajar con nosotros?'}
           </h2>
           <p
             className="text-zinc-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
             data-animate="fade-up"
             data-delay="150"
           >
-            Somos una PyME con una gran fortaleza humana donde construimos relaciones comerciales excelentes y duraderas.
+            {(cta.subheading as string) || 'Somos una PyME con una gran fortaleza humana donde construimos relaciones comerciales excelentes y duraderas.'}
           </p>
           <Link
             href="/contacto"
@@ -83,7 +84,7 @@ export default async function ClientesPage() {
             data-animate="scale"
             data-delay="250"
           >
-            Contactar ahora
+            {(cta.button as string) || 'Contactar ahora'}
           </Link>
         </div>
       </section>

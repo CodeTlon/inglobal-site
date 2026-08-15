@@ -22,6 +22,14 @@ const SETTING_PATHS: Record<string, string[]> = {
   footer:             ['/'],
   contacto:           ['/contacto'],
   dashboard_quicklinks: ['/dashboard'],
+  servicios_header:   ['/servicios'],
+  montajes_header:    ['/montajes'],
+  galeria_header:     ['/galeria'],
+  clientes_cta:       ['/clientes'],
+  contacto_header:    ['/contacto'],
+  navbar:             ['/'],
+  footer_extra:       ['/'],
+  home_gallery:       ['/'],
 }
 
 async function requireUser() {

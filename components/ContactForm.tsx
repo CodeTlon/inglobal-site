@@ -3,13 +3,16 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { sendContact } from '@/app/actions/contact'
 import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
-const services = [
-  { value: 'gruas-telescopicas', label: 'Grúas Telescópicas' },
-  { value: 'hidrogruas', label: 'Hidrogrúas' },
-  { value: 'movimientos-pesados', label: 'Movimientos Pesados' },
-  { value: 'traslados', label: 'Traslados con Carretones' },
-  { value: 'montajes', label: 'Montajes Industriales' },
-  { value: 'otro', label: 'Otro' },
+// Fallback si por lo que sea no llegó la prop `services` (ej. el fallback de
+// Suspense en ContactFormWrapper, que renderiza antes de tener searchParams).
+// La lista real sale de la tabla `servicios` — dar de alta un servicio nuevo
+// en el dashboard lo agrega acá solo, no hace falta tocar código.
+const FALLBACK_SERVICES = [
+  { slug: 'gruas-telescopicas', title: 'Grúas Telescópicas' },
+  { slug: 'hidrogruas', title: 'Hidrogrúas' },
+  { slug: 'movimientos-pesados', title: 'Movimientos Pesados' },
+  { slug: 'traslados', title: 'Traslados con Carretones' },
+  { slug: 'montajes', title: 'Montajes Industriales' },
 ]
 
 function SubmitButton() {
@@ -42,9 +45,10 @@ const labelClass = 'block text-xs font-bold text-igb-secondary uppercase trackin
 
 interface ContactFormProps {
   defaultService?: string
+  services?: { slug: string; title: string }[]
 }
 
-export default function ContactForm({ defaultService }: ContactFormProps) {
+export default function ContactForm({ defaultService, services }: ContactFormProps) {
   const [state, action] = useFormState(sendContact, null)
 
   if (state?.success) {
@@ -140,11 +144,12 @@ export default function ContactForm({ defaultService }: ContactFormProps) {
           className={`${inputClass} cursor-pointer bg-transparent`}
         >
           <option value="">Seleccionar servicio...</option>
-          {services.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
+          {(services ?? FALLBACK_SERVICES).map((s) => (
+            <option key={s.slug} value={s.slug}>
+              {s.title}
             </option>
           ))}
+          <option value="otro">Otro</option>
         </select>
       </div>
 

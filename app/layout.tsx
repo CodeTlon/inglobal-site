@@ -7,6 +7,7 @@ import ScrollReveal from '@/components/ScrollReveal'
 import RegisterSW from '@/components/RegisterSW'
 import OfflineBanner from '@/components/OfflineBanner'
 import { SITE_URL } from '@/lib/site'
+import { getSiteSettings } from '@/lib/content'
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -67,11 +68,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const navbarSettings = await getSiteSettings('navbar')
   return (
     <html lang="es" className={`${manrope.variable} ${inter.variable}`}>
       <head>
@@ -104,7 +106,7 @@ export default function RootLayout({
         <OfflineBanner />
         <RegisterSW />
         <ScrollReveal />
-        <Navbar />
+        <Navbar labels={navbarSettings} />
         <main>{children}</main>
         <Footer />
       </body>

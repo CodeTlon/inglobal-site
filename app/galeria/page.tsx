@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
-import { getGaleria } from '@/lib/content'
+import { getGaleria, getSiteSettings } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Portafolio Operativo',
@@ -22,6 +22,7 @@ const ROW_SPAN_MOBILE: Record<number, string> = { 1: '', 2: 'row-span-2' }
 
 export default async function GaleriaPage() {
   const galeria = await getGaleria()
+  const s = await getSiteSettings('galeria_header')
 
   return (
     <main className="bg-white">
@@ -32,21 +33,21 @@ export default async function GaleriaPage() {
             className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
             data-animate="fade-up"
           >
-            Nuestros Proyectos en Imágenes
+            {(s.label as string) || 'Nuestros Proyectos en Imágenes'}
           </span>
           <h1
             className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
             data-animate="blur-up"
             data-delay="100"
           >
-            Portafolio Operativo
+            {(s.heading as string) || 'Portafolio Operativo'}
           </h1>
           <p
             className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
             data-animate="fade-up"
             data-delay="200"
           >
-            Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.
+            {(s.subheading as string) || 'Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.'}
           </p>
         </div>
       </section>
@@ -109,10 +110,10 @@ export default async function GaleriaPage() {
 
           <div className="max-w-xl" data-animate="fade-up">
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-4">
-              ¿Su proyecto requiere esta precisión?
+              {(s.cta_heading as string) || '¿Su proyecto requiere esta precisión?'}
             </h2>
             <p className="text-zinc-600 text-lg">
-              Llevamos nuestra experiencia técnica y seguridad certificada a su próximo desafío industrial.
+              {(s.cta_subheading as string) || 'Llevamos nuestra experiencia técnica y seguridad certificada a su próximo desafío industrial.'}
             </p>
           </div>
 
@@ -122,7 +123,7 @@ export default async function GaleriaPage() {
             data-animate="scale"
             data-delay="150"
           >
-            Solicitar Presupuesto
+            {(s.cta_button as string) || 'Solicitar Presupuesto'}
           </Link>
 
         </div>

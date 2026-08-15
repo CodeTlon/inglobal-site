@@ -132,6 +132,14 @@ type SiteSettingsKey =
   | 'footer'
   | 'contacto'
   | 'dashboard_quicklinks'
+  | 'servicios_header'
+  | 'montajes_header'
+  | 'galeria_header'
+  | 'clientes_cta'
+  | 'contacto_header'
+  | 'navbar'
+  | 'footer_extra'
+  | 'home_gallery'
 
 /**
  * Devuelve el valor de una clave de site_settings, siempre como objeto
