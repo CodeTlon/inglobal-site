@@ -361,6 +361,6 @@ Estos módulos viven en `codetlon-cloud/.claude/modules/` (desde este repo: `../
 | pipeline / `.github/workflows` / Dockerfile / env vars (CI = gate de calidad) | `ci-cd.md` |
 | dejar el proyecto live / incidente en producción (monitoreo) | `observability.md` |
 | agenda de grúas / flota / TV-kiosco (`/dashboard/agenda`, `/agenda-tv`) | Ya integrado en este repo (migración `009_agenda.sql`) — ver Historial de Cambios e Imágenes/PWA acá mismo |
-| PWA instalable / acceso mobile del personal de campo | `app/manifest.ts` + `public/sw.js` + `scripts/generate-pwa-icons.mjs`, todo en este repo. `inglobal-app` (Expo) queda **pausado** — ver su propio TASKS.md |
+| PWA instalable / acceso mobile del personal de campo | `app/manifest.ts` + `public/sw.js` + `scripts/generate-pwa-icons.mjs`, todo en este repo. La pausa de `inglobal-app` (Expo) anotada el 2026-07-06 (entrada de esa fecha, más abajo) quedó desactualizada: confirmado el 2026-08-15 que sigue el plan de subirla a App Store/Play Store — ver `inglobal-agenda-app/docs/deployment.md` |
 
 Regla: leer SOLO el módulo que la tarea pide (disciplina de tokens), no todos por las dudas.

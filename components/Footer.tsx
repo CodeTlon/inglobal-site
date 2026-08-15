@@ -13,7 +13,10 @@ const navLinks = [
   { href: '/contacto', label: 'Contacto' },
 ]
 
-const legalLinks = [{ href: '/aviso-legal', label: 'Aviso Legal' }]
+const legalLinks = [
+  { href: '/aviso-legal', label: 'Aviso Legal' },
+  { href: '/politica-de-privacidad', label: 'Política de Privacidad' },
+]
 
 export default async function Footer() {
   const settings = await getSiteSettings('footer')
