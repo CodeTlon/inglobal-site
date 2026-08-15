@@ -88,9 +88,12 @@ export default function AgendaMonthView({
                     type="button"
                     onClick={() => setSelected(ev)}
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
-                    className={`w-full text-base font-semibold truncate rounded px-2 py-2 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                    className={`w-full rounded px-2 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
-                    {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
+                    <p className="text-sm font-bold truncate">
+                      {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
+                    </p>
+                    <p className="text-xs truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>
                   </button>
                 ))}
                 {dayEventos.length > 3 && (
