@@ -293,6 +293,14 @@ export function estadoTransicionado(evento: EventoEstadoWindow, now = new Date()
 
 // ─── Catálogos (gruas / empresas_agenda / operarios) ───────────────────────
 
+// Mismos campos que EventoEstadoWindow: hacen falta para calcular el estado
+// EFECTIVO (ver estadoTransicionado) en vez del `estado` crudo de la fila, que
+// se actualiza perezosamente recién cuando algo lista el evento vía
+// getEventosAgenda/getEventoAgendaById. Sin esto, un evento programado/en_curso
+// cuya hora de fin ya pasó sigue bloqueando el alta/baja del recurso para
+// siempre aunque el catálogo ya lo muestre "disponible".
+const CAMPOS_ESTADO_EFECTIVO = 'estado, fecha, fecha_hasta, hora_inicio, hora_fin'
+
 export async function estadosDeEventosDelRecurso(
   supabase: SupabaseClient,
   table: CatalogTable,
@@ -301,15 +309,18 @@ export async function estadosDeEventosDelRecurso(
   if (table === 'operarios') {
     const { data } = await supabase
       .from('eventos_operarios')
-      .select('evento:eventos_agenda(estado)')
+      .select(`evento:eventos_agenda(${CAMPOS_ESTADO_EFECTIVO})`)
       .eq('operario_id', id)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data ?? []).map((fila: any) => fila.evento?.estado).filter(Boolean)
+    return (data ?? [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((fila: any) => fila.evento as EventoEstadoWindow | null)
+      .filter((ev): ev is EventoEstadoWindow => Boolean(ev))
+      .map((ev) => estadoTransicionado(ev) ?? ev.estado)
   }
   const columna = RECURSO_COLUMN[table]
   if (!columna) return []
-  const { data } = await supabase.from('eventos_agenda').select('estado').eq(columna, id)
-  return (data ?? []).map((ev) => ev.estado)
+  const { data } = await supabase.from('eventos_agenda').select(CAMPOS_ESTADO_EFECTIVO).eq(columna, id)
+  return (data ?? []).map((ev) => estadoTransicionado(ev) ?? ev.estado)
 }
 
 /**

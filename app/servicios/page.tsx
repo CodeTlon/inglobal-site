@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
-import { getServicios } from '@/lib/content'
+import { getServicios, getSiteSettings } from '@/lib/content'
 import {
   ArrowUpToLine,
   HardHat,
@@ -25,6 +25,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 export default async function ServiciosPage() {
   const services = await getServicios()
+  const s = await getSiteSettings('servicios_header')
 
   return (
     <main className="bg-white">
@@ -35,21 +36,21 @@ export default async function ServiciosPage() {
             className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
             data-animate="fade-up"
           >
-            Nuestras Soluciones
+            {(s.label as string) || 'Nuestras Soluciones'}
           </span>
           <h1
             className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6"
             data-animate="blur-up"
             data-delay="100"
           >
-            Nuestros Servicios
+            {(s.heading as string) || 'Nuestros Servicios'}
           </h1>
           <p
             className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
             data-animate="fade-up"
             data-delay="200"
           >
-            Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.
+            {(s.subheading as string) || 'Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.'}
           </p>
         </div>
       </section>
@@ -159,10 +160,10 @@ export default async function ServiciosPage() {
         <div className="container-igb flex flex-col items-center text-center gap-10 lg:flex-row lg:justify-between lg:text-left">
           <div className="max-w-xl" data-animate="fade-up">
             <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4 text-zinc-900 tracking-tight">
-              ¿Listo para comenzar su proyecto?
+              {(s.cta_heading as string) || '¿Listo para comenzar su proyecto?'}
             </h2>
             <p className="text-zinc-600 text-lg">
-              Asesoramiento técnico personalizado para cada necesidad de izaje.
+              {(s.cta_subheading as string) || 'Asesoramiento técnico personalizado para cada necesidad de izaje.'}
             </p>
           </div>
 
@@ -172,7 +173,7 @@ export default async function ServiciosPage() {
             data-animate="scale"
             data-delay="150"
           >
-            Solicitar Presupuesto
+            {(s.cta_button as string) || 'Solicitar Presupuesto'}
           </Link>
         </div>
       </section>

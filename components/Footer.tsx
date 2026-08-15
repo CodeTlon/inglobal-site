@@ -2,21 +2,19 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 import { getSiteSettings } from '@/lib/content'
+import { BASE_NAV_LINKS } from '@/lib/nav-links'
 
-const navLinks = [
-  { href: '/', label: 'Inicio' },
-  { href: '/quienes-somos', label: 'Quiénes Somos' },
-  { href: '/servicios', label: 'Servicios' },
-  { href: '/montajes', label: 'Montajes' },
-  { href: '/galeria', label: 'Galería' },
-  { href: '/clientes', label: 'Clientes' },
-  { href: '/contacto', label: 'Contacto' },
+const BASE_LEGAL_LINKS = [
+  { href: '/aviso-legal', label: 'Aviso Legal', id: 'aviso_legal' },
+  { href: '/politica-de-privacidad', label: 'Política de Privacidad', id: 'politica_privacidad' },
 ]
 
-const legalLinks = [{ href: '/aviso-legal', label: 'Aviso Legal' }]
-
 export default async function Footer() {
-  const settings = await getSiteSettings('footer')
+  const [settings, extra, navbarSettings] = await Promise.all([
+    getSiteSettings('footer'),
+    getSiteSettings('footer_extra'),
+    getSiteSettings('navbar'),
+  ])
 
   const description =
     (settings.description as string) ||
@@ -25,6 +23,13 @@ export default async function Footer() {
   const address = (settings.address as string) || 'Ana Riglos de Irigoyen S/N\nCórdoba, Argentina'
   const email = (settings.email as string) || 'info@gruasinglobal.com'
   const hours = (settings.hours as string) || 'Lun-Vie 8-18h / Sáb 8-13h'
+
+  // Mismos 7 links que el Navbar (misma key `navbar`, un solo lugar para editar el texto).
+  const navLinks = BASE_NAV_LINKS.map((link) => ({ ...link, label: (navbarSettings[link.id] as string) || link.label }))
+  const legalLinks = BASE_LEGAL_LINKS.map((link) => ({ ...link, label: (extra[link.id] as string) || link.label }))
+  const navHeading = (extra.nav_heading as string) || 'Navegación'
+  const contactHeading = (extra.contact_heading as string) || 'Atención Comercial'
+  const copyrightName = (extra.copyright_name as string) || 'Grúas InGlobal S.R.L.'
 
   // phone number for tel: link — strip spaces/dashes
   const phoneHref = `tel:${phone.replace(/[\s-]/g, '')}`
@@ -53,7 +58,7 @@ export default async function Footer() {
 
           {/* Nav */}
           <div className="space-y-5">
-            <h3 className="text-white font-headline font-semibold text-base">Navegación</h3>
+            <h3 className="text-white font-headline font-semibold text-base">{navHeading}</h3>
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -70,7 +75,7 @@ export default async function Footer() {
 
           {/* Contacto Directo */}
           <div className="space-y-5">
-            <h3 className="text-white font-headline font-semibold text-base">Atención Comercial</h3>
+            <h3 className="text-white font-headline font-semibold text-base">{contactHeading}</h3>
             <ul className="space-y-4">
               <li>
                 <a
@@ -116,7 +121,7 @@ export default async function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-slate-500 text-center md:text-left">
-            © {new Date().getFullYear()} Grúas InGlobal S.R.L. — Todos los derechos reservados.
+            © {new Date().getFullYear()} {copyrightName} — Todos los derechos reservados.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">

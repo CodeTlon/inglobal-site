@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getMontajes } from '@/lib/content'
+import { getMontajes, getSiteSettings } from '@/lib/content'
 import MontajesGrid from './MontajesGrid'
 
 export const metadata: Metadata = {
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 export default async function MontajesPage() {
   const montajes = await getMontajes()
+  const s = await getSiteSettings('montajes_header')
 
   return (
     <main className="bg-white">
@@ -20,21 +21,21 @@ export default async function MontajesPage() {
             className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
             data-animate="fade-up"
           >
-            Portafolio de Proyectos
+            {(s.label as string) || 'Portafolio de Proyectos'}
           </span>
           <h1
             className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6"
             data-animate="blur-up"
             data-delay="100"
           >
-            Casos de Éxito
+            {(s.heading as string) || 'Casos de Éxito'}
           </h1>
           <p
             className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
             data-animate="fade-up"
             data-delay="200"
           >
-            Ingeniería aplicada a desafíos complejos. Cada proyecto es un testimonio de nuestra precisión técnica y compromiso con la seguridad.
+            {(s.subheading as string) || 'Ingeniería aplicada a desafíos complejos. Cada proyecto es un testimonio de nuestra precisión técnica y compromiso con la seguridad.'}
           </p>
         </div>
       </section>
@@ -53,14 +54,14 @@ export default async function MontajesPage() {
             className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-6"
             data-animate="fade-up"
           >
-            ¿Tu proyecto es el próximo desafío?
+            {(s.cta_heading as string) || '¿Tu proyecto es el próximo desafío?'}
           </h2>
           <p
             className="text-zinc-600 text-lg max-w-xl mx-auto mb-10"
             data-animate="fade-up"
             data-delay="150"
           >
-            Contactanos para recibir asesoramiento técnico especializado y presupuesto a medida.
+            {(s.cta_subheading as string) || 'Contactanos para recibir asesoramiento técnico especializado y presupuesto a medida.'}
           </p>
           <Link
             href="/contacto"
@@ -68,7 +69,7 @@ export default async function MontajesPage() {
             data-animate="scale"
             data-delay="250"
           >
-            Consultanos ahora
+            {(s.cta_button as string) || 'Consultanos ahora'}
           </Link>
         </div>
       </section>

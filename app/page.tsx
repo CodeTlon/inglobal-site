@@ -3,41 +3,34 @@ import Link from 'next/link'
 import Picture from '@/components/Picture'
 import HeroVideo from '@/components/HeroVideo'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
+import ClientesCarousel from '@/components/ClientesCarousel'
 import { getSiteSettings, getServicios, getClientes } from '@/lib/content'
 
-// ─── Static gallery (not in CMS scope) ───────────────────────────────────────
-const galleryItems = [
-  {
-    src: '/images/igb-1.webp',
-    alt: 'Grúa telescópica en operación',
-    span: 'md:col-span-2 md:row-span-2',
-    label: 'Izaje Industrial',
-  },
-  {
-    src: '/images/igb-5.webp',
-    alt: 'Grúas en planta industrial',
-    span: 'md:col-span-1 md:row-span-1',
-    label: 'Planta Industrial',
-  },
-  {
-    src: '/images/igb-7.webp',
-    alt: 'Montaje industrial con plataforma',
-    span: 'md:col-span-1 md:row-span-1',
-    label: 'Montaje Especial',
-  },
-  {
-    src: '/images/igb-9.webp',
-    alt: 'Izaje de tanque industrial al atardecer',
-    span: 'md:col-span-1 md:row-span-1',
-    label: 'Petroquímica',
-  },
-  {
-    src: '/images/igb-10.webp',
-    alt: 'Operaciones logísticas de maquinaria pesada',
-    span: 'md:col-span-1 md:row-span-1',
-    label: 'Logística Pesada',
-  },
+// El layout bento (cantidad de tiles y su span) queda fijo en código; src/alt/label
+// de cada tile sí se editan desde el dashboard (key `home_gallery`, ver más abajo).
+const GALLERY_SPANS = [
+  'md:col-span-2 md:row-span-2',
+  'md:col-span-1 md:row-span-1',
+  'md:col-span-1 md:row-span-1',
+  'md:col-span-1 md:row-span-1',
+  'md:col-span-1 md:row-span-1',
 ]
+const GALLERY_FALLBACK = [
+  { src: '/images/igb-1.webp', alt: 'Grúa telescópica en operación', label: 'Izaje Industrial' },
+  { src: '/images/igb-5.webp', alt: 'Grúas en planta industrial', label: 'Planta Industrial' },
+  { src: '/images/igb-7.webp', alt: 'Montaje industrial con plataforma', label: 'Montaje Especial' },
+  { src: '/images/igb-9.webp', alt: 'Izaje de tanque industrial al atardecer', label: 'Petroquímica' },
+  { src: '/images/igb-10.webp', alt: 'Operaciones logísticas de maquinaria pesada', label: 'Logística Pesada' },
+]
+
+function buildGalleryItems(s: Record<string, unknown>) {
+  return GALLERY_FALLBACK.map((fallback, i) => ({
+    src: (s[`item${i + 1}_src`] as string) || fallback.src,
+    alt: (s[`item${i + 1}_alt`] as string) || fallback.alt,
+    label: (s[`item${i + 1}_label`] as string) || fallback.label,
+    span: GALLERY_SPANS[i],
+  }))
+}
 
 // ─── Default stats (fallback before DB is populated) ─────────────────────────
 const defaultStats = [
@@ -49,7 +42,7 @@ const defaultStats = [
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const [heroSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, servicios, clientes] =
+  const [heroSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, gallerySettings, servicios, clientes] =
     await Promise.all([
       getSiteSettings('hero'),
       getSiteSettings('stats'),
@@ -57,8 +50,9 @@ export default async function HomePage() {
       getSiteSettings('cta_banner'),
       getSiteSettings('clientes_destacados'),
       getSiteSettings('ubicacion'),
+      getSiteSettings('home_gallery'),
       getServicios(),
-      getClientes(),
+      getClientes({ onlyFeatured: true }),
     ])
 
   // Hero
@@ -113,6 +107,15 @@ export default async function HomePage() {
   const ubicSubheading =
     (ubicacionSettings.subheading as string) ||
     'Acercate a nuestras oficinas o contactanos para planificar tu próximo movimiento.'
+
+  // Galería (bento del home)
+  const galItems = buildGalleryItems(gallerySettings)
+  const galLabel = (gallerySettings.label as string) || 'Nuestro Trabajo'
+  const galHeading = (gallerySettings.heading as string) || 'Proyectos que nos definen'
+  const galSubheading =
+    (gallerySettings.subheading as string) ||
+    'Visualizá la magnitud de nuestras operaciones en sectores industrial, energético e infraestructura.'
+  const galLinkText = (gallerySettings.link_text as string) || 'Ver galería completa'
 
   return (
     <>
@@ -317,22 +320,22 @@ export default async function HomePage() {
             data-animate="fade-up"
           >
             <div>
-              <span className="label-tag">Nuestro Trabajo</span>
-              <h2 className="heading-display">Proyectos que nos definen</h2>
+              <span className="label-tag">{galLabel}</span>
+              <h2 className="heading-display">{galHeading}</h2>
               <p className="text-body-lg mt-3 max-w-md">
-                Visualizá la magnitud de nuestras operaciones en sectores industrial, energético e infraestructura.
+                {galSubheading}
               </p>
             </div>
             <Link
               href="/galeria"
               className="flex items-center gap-2 text-igb-yellow-dark font-bold font-headline text-sm hover:gap-3 transition-all flex-shrink-0"
             >
-              Ver galería completa
+              {galLinkText}
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[600px]">
-            {galleryItems.map((item, i) => (
+            {galItems.map((item, i) => (
               <div
                 key={item.src}
                 className={`relative overflow-hidden rounded-xl ${item.span || ''}`}
@@ -370,27 +373,7 @@ export default async function HomePage() {
             <p className="text-body-lg mt-3 max-w-xl mx-auto">{cdSubheading}</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center">
-            {clientes.map((cliente) => (
-              <Link
-                key={cliente.slug}
-                href={`/clientes/${cliente.slug}`}
-                className="bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-sm grayscale opacity-70 hover:grayscale-0 hover:opacity-100 hover:shadow-md transition-all duration-300 group"
-                data-animate="scale"
-              >
-                <Image
-                  src={cliente.logo}
-                  alt={`Logo ${cliente.name}`}
-                  width={140}
-                  height={60}
-                  sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 15vw"
-                  quality={70}
-                  loading="lazy"
-                  className="object-contain h-full w-full max-h-12 transition-transform duration-300 group-hover:scale-105"
-                />
-              </Link>
-            ))}
-          </div>
+          <ClientesCarousel clientes={clientes} />
 
           <div className="mt-12 text-center" data-animate="fade-up" data-delay="150">
             <Link href="/clientes" className="btn-outline">

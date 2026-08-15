@@ -20,6 +20,7 @@ export async function sendContact(prevState: unknown, formData: FormData) {
     email: formData.get('email'),
     phone: formData.get('phone'),
     servicio: formData.get('servicio'),
+    ubicacion: formData.get('ubicacion'),
     message: formData.get('message'),
   })
 
@@ -28,7 +29,7 @@ export async function sendContact(prevState: unknown, formData: FormData) {
     return { error: firstError ?? 'Datos inválidos. Verificá los campos.' }
   }
 
-  const { name, empresa, email, phone, servicio, message } = parsed.data
+  const { name, empresa, email, phone, servicio, ubicacion, message } = parsed.data
   const servicioLabel = servicio ? (serviciosMap[servicio] ?? servicio) : null
 
   try {
@@ -65,6 +66,10 @@ export async function sendContact(prevState: unknown, formData: FormData) {
               ${phone ? `<tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Teléfono</td>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;"><a href="tel:${phone}" style="color: #6f5d00;">${phone}</a></td>
+              </tr>` : ''}
+              ${ubicacion ? `<tr>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Ubicación</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${ubicacion}</td>
               </tr>` : ''}
               ${servicioLabel ? `<tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Servicio</td>

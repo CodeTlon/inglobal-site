@@ -76,6 +76,8 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
 
       <Checkbox label="Publicado" name="published" defaultChecked={cliente?.published ?? true} hint="Si está destildado, no se muestra en el sitio público." />
 
+      <Checkbox label="Destacado" name="featured" defaultChecked={cliente?.featured ?? true} hint="Aparece en el carrusel de clientes destacados del home." />
+
       <div className="flex justify-end pt-2">
         <SaveButton />
       </div>

@@ -4,18 +4,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
+import { BASE_NAV_LINKS } from '@/lib/nav-links'
 
-const navLinks = [
-  { href: '/', label: 'Inicio', id: 'index' },
-  { href: '/quienes-somos', label: 'Quiénes Somos', id: 'quienes-somos' },
-  { href: '/servicios', label: 'Servicios', id: 'servicios' },
-  { href: '/montajes', label: 'Montajes', id: 'montajes' },
-  { href: '/galeria', label: 'Galería', id: 'galeria' },
-  { href: '/clientes', label: 'Clientes', id: 'clientes' },
-  { href: '/contacto', label: 'Contacto', id: 'contacto' },
-]
-
-export default function Navbar() {
+export default function Navbar({ labels }: { labels?: Record<string, unknown> }) {
+  const navLinks = BASE_NAV_LINKS.map((link) => ({ ...link, label: (labels?.[link.id] as string) || link.label }))
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [hasDarkHero, setHasDarkHero] = useState(false)
