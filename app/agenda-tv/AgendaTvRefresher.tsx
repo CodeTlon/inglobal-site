@@ -14,14 +14,5 @@ export default function AgendaTvRefresher({ intervalMs = 60000 }: { intervalMs?:
     return () => clearInterval(id)
   }, [intervalMs])
 
-  // Cada reload arranca scrolleado arriba del todo — en un mes de 5/6
-  // semanas "hoy" puede quedar fuera de cámara la mitad de las veces. Nadie
-  // toca la TV para bajar, así que la llevamos nosotros. AgendaMonthView le
-  // pone este id solo a la celda de hoy (si el mes mostrado no es el actual,
-  // no existe y esto no hace nada).
-  useEffect(() => {
-    document.getElementById('tv-today')?.scrollIntoView({ block: 'center' })
-  }, [])
-
   return null
 }

@@ -13,7 +13,15 @@ const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
  * Tema claro, igual que AgendaWeekView, para que la TV no desentone del resto del sitio.
  * Click en un evento abre su detalle en AgendaEventModal (mismo componente que la vista semanal).
  */
-export default function AgendaMonthView({ eventos, month }: { eventos: EventoAgenda[]; month: Date }) {
+export default function AgendaMonthView({
+  eventos,
+  month,
+  className = '',
+}: {
+  eventos: EventoAgenda[]
+  month: Date
+  className?: string
+}) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
   const [selectedDay, setSelectedDay] = useState<{ key: string; eventos: EventoAgenda[] } | null>(null)
 
@@ -41,7 +49,13 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
   }
 
   return (
-    <div className="grid grid-cols-7 gap-2">
+    <div
+      className={`grid grid-cols-7 gap-2 ${className}`}
+      // Fila de encabezado a su alto natural, las semanas se reparten el resto
+      // en partes iguales — para que el mes entre completo en la pantalla de
+      // la TV sin scroll (antes las celdas crecían sin techo con min-h).
+      style={{ gridTemplateRows: `auto repeat(${weeks.length}, 1fr)` }}
+    >
       {DIA_LABEL.map((d) => (
         <div key={d} className="text-center text-base uppercase tracking-widest text-zinc-400 pb-2">
           {d}
@@ -57,8 +71,7 @@ export default function AgendaMonthView({ eventos, month }: { eventos: EventoAge
           return (
             <div
               key={key}
-              id={isToday ? 'tv-today' : undefined}
-              className={`min-h-[190px] rounded-lg border p-3.5 ${
+              className={`h-full overflow-hidden rounded-lg border p-3.5 ${
                 isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
               } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'}`}
             >
