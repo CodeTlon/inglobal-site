@@ -354,20 +354,27 @@ export async function catalogToggle(
 
 /**
  * A diferencia de catalogToggle (que ya bloqueaba inactivar un recurso con eventos
- * activos), el delete no chequeaba nada — como grua_id/empresa_id/operario_id son
- * FK ON DELETE RESTRICT, borrar cualquier recurso alguna vez usado en un evento
+ * activos), el delete no chequeaba nada — como grua_id/empresa_id son FK NOT NULL
+ * ON DELETE RESTRICT, borrar cualquier recurso alguna vez usado en un evento
  * (incluso uno finalizado/cancelado viejo, que es historial) siempre fallaba, pero
  * como un 500 de Postgres genérico en vez de un 409 con un mensaje claro. Se
  * bloquea acá con el mismo criterio y mensaje que ya usa catalogToggle.
+ *
+ * `operarios` es la excepción: es M2M vía `eventos_operarios` (no una columna NOT
+ * NULL del evento), esa fila puente tiene ON DELETE CASCADE (ver migración 025), y
+ * el negocio pidió que borrar un operario siempre funcione — el evento queda
+ * intacto, solo pierde a ese operario.
  */
 export async function catalogDelete(
   supabase: SupabaseClient,
   table: CatalogTable,
   id: string,
 ): Promise<{ error?: string }> {
-  const estados = await estadosDeEventosDelRecurso(supabase, table, id)
-  if (estados.length > 0) {
-    return { error: `No se puede eliminar: tiene ${estados.length} evento(s) asociado(s). Desactivalo en vez de eliminarlo.` }
+  if (table !== 'operarios') {
+    const estados = await estadosDeEventosDelRecurso(supabase, table, id)
+    if (estados.length > 0) {
+      return { error: `No se puede eliminar: tiene ${estados.length} evento(s) asociado(s). Desactivalo en vez de eliminarlo.` }
+    }
   }
 
   const { error } = await supabase.from(table).delete().eq('id', id)
