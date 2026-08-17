@@ -53,6 +53,13 @@ export default function ClienteForm({ cliente, entityId, action }: Props) {
         placeholder="Ej: Trabajamos junto a Constructora del Sur desde 2015, acompañando sus obras más importantes de la ciudad."
       />
 
+      <Checkbox
+        label="Tiene blog / página de trabajos"
+        name="tiene_blog"
+        defaultChecked={cliente?.tiene_blog ?? false}
+        hint="Si está tildado, el logo es clickeable y lleva a su página con historia y trabajos cargados. Si no, se muestra solo el logo (sin link)."
+      />
+
       <ImageUpload
         label="Logo"
         name="logo"

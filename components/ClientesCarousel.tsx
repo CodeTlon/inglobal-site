@@ -15,7 +15,7 @@ const clickableClass = 'hover:grayscale-0 hover:opacity-100 hover:shadow-md'
 const imgClass = 'object-contain h-full w-full max-h-12 transition-transform duration-300'
 
 function ClienteCard({ cliente }: { cliente: Cliente }) {
-  const hasBlog = !!cliente.content?.trim()
+  const hasBlog = cliente.tiene_blog
   const image = (
     <Image
       src={cliente.logo}

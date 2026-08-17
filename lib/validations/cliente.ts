@@ -7,6 +7,7 @@ export const clienteSchema = z.object({
   logo_focal_mobile: z.string().nullable().optional(),
   bio:       z.string().optional(),
   content:   z.string().optional(),
+  tiene_blog: z.coerce.boolean().default(false),
   featured:  z.coerce.boolean().default(true),
   work_rank: z.coerce.number().int('El orden debe ser un número entero').min(0, 'El orden no puede ser negativo').max(1000, 'El orden máximo es 1000').default(10),
   published: z.coerce.boolean().default(true),

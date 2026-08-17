@@ -46,6 +46,7 @@ export interface Cliente {
   logo_focal_mobile?: string | null
   bio:         string | null
   content:     string | null
+  tiene_blog:  boolean
   featured:    boolean
   work_rank:   number
   published:   boolean

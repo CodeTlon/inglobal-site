@@ -11,7 +11,7 @@ interface Props {
 export async function generateStaticParams() {
   try {
     const clientes = await getClientes()
-    return clientes.map((c) => ({ slug: c.slug }))
+    return clientes.filter((c) => c.tiene_blog).map((c) => ({ slug: c.slug }))
   } catch {
     return []
   }
@@ -35,7 +35,7 @@ export default async function ClienteDetailPage({ params }: Props) {
   const { slug } = await params
   const cliente = await getCliente(slug)
 
-  if (!cliente) notFound()
+  if (!cliente || !cliente.tiene_blog) notFound()
 
   const trabajos = await getTrabajos(cliente.id)
   const historia = (cliente.content || '').split('\n\n').filter(Boolean)
