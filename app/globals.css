@@ -338,6 +338,24 @@
   background: transparent;
 }
 
+/* ─── CLIENTES SIN BLOG — marquee automático ───────────────────────────
+   Track duplicado x2 en el componente, acá solo el translate de la mitad. */
+.clientes-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+.clientes-marquee-track {
+  animation: clientes-marquee 35s linear infinite;
+}
+.clientes-marquee-mask:hover .clientes-marquee-track,
+.clientes-marquee-mask:focus-within .clientes-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes clientes-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 /* ─── REDUCED MOTION ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   /* Scroll reveals: show immediately */
@@ -362,6 +380,11 @@
 
   /* Nav slide: disable */
   .nav-mobile-menu {
+    animation: none !important;
+  }
+
+  /* Marquee de clientes: disable */
+  .clientes-marquee-track {
     animation: none !important;
   }
 }

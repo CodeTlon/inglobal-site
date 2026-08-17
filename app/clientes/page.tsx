@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getClientes, getSiteSettings } from '@/lib/content'
 import ClientesGrid from './ClientesGrid'
+import ClientesLogoMarquee from '@/components/ClientesLogoMarquee'
 
 export const metadata: Metadata = {
   title: 'Clientes',
@@ -14,6 +15,9 @@ export default async function ClientesPage() {
     getSiteSettings('clientes_destacados'),
     getSiteSettings('clientes_cta'),
   ])
+
+  const conBlog = clientes.filter((c) => c.tiene_blog)
+  const sinBlog = clientes.filter((c) => !c.tiene_blog)
 
   const label = (settings.label as string) || 'Nuestras Alianzas'
   const heading = (settings.heading as string) || 'Nuestros Clientes'
@@ -49,18 +53,37 @@ export default async function ClientesPage() {
         </div>
       </section>
 
-      {/* Logo grid — flex-wrap auto-centers any orphan row */}
-      <section className="section-pad bg-white">
-        <div className="container-igb">
-          <ClientesGrid clientes={clientes} />
-
-          <div className="mt-16 text-center" data-animate="fade-up" data-delay="200">
-            <p className="text-zinc-500 text-sm font-medium">
-              {clientes.length} empresas que ya eligieron Grúas InGlobal
-            </p>
+      {/* Casos de éxito — clickeable, lleva a historia + trabajos del cliente */}
+      {conBlog.length > 0 && (
+        <section className="section-pad bg-white">
+          <div className="container-igb">
+            <div className="text-center mb-12" data-animate="fade-up">
+              <span className="label-tag">Casos de éxito</span>
+              <h2 className="heading-display">Clientes con historia propia</h2>
+            </div>
+            <ClientesGrid clientes={conBlog} />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Resto de clientes — solo logo, carrusel automático, sin click */}
+      {sinBlog.length > 0 && (
+        <section className="section-pad bg-zinc-50 border-y border-zinc-100">
+          <div className="container-igb">
+            <div className="text-center mb-12" data-animate="fade-up">
+              <span className="label-tag">Confían en nosotros</span>
+              <h2 className="heading-display">Otras empresas que nos eligen</h2>
+            </div>
+          </div>
+          <ClientesLogoMarquee clientes={sinBlog} />
+        </section>
+      )}
+
+      <div className="text-center py-12 bg-white" data-animate="fade-up">
+        <p className="text-zinc-500 text-sm font-medium">
+          {clientes.length} empresas que ya eligieron Grúas InGlobal
+        </p>
+      </div>
 
       {/* Final CTA */}
       <section className="py-24 bg-zinc-100">
