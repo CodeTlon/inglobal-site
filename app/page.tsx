@@ -163,7 +163,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/servicios"
-                className="btn-outline text-center bg-white/50 backdrop-blur-sm sm:bg-transparent hidden md:inline-flex md:items-center md:justify-center"
+                className="btn-outline text-center bg-white/90 sm:bg-transparent inline-flex items-center justify-center"
               >
                 {heroCtaSecondary}
               </Link>
@@ -176,11 +176,11 @@ export default async function HomePage() {
       {statsItems.length > 0 && (
         <section className="bg-igb-surface border-y border-igb-outline/50 py-10">
           <div className="container-igb" data-animate="fade-up">
-            <div className="grid grid-cols-3 gap-x-3 sm:gap-x-6 md:flex md:flex-wrap md:justify-center md:gap-16">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 sm:gap-x-10 md:gap-16">
               {statsItems.map((s, i) => {
                 const accent = ['text-igb-yellow-dark', 'text-igb-navy', 'text-igb-on-surface'][i % 3]
                 return (
-                  <div key={s.label} className="group text-center md:text-left">
+                  <div key={s.label} className="group text-center min-w-[88px]">
                     <p
                       className={`text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold ${accent} tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none`}
                     >
@@ -208,14 +208,14 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {servicios.map((servicio) => {
               const isRemoteImg = servicio.img?.startsWith('http')
               return (
                 <Link
                   key={servicio.slug}
                   href={`/servicios?servicio=${servicio.slug}`}
-                  className="card-igb group flex flex-col h-full cursor-pointer"
+                  className="card-igb group flex flex-col h-full cursor-pointer w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]"
                   data-animate="fade-up"
                 >
                   {/* Service image */}
