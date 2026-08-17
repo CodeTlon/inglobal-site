@@ -29,6 +29,12 @@ se construyen o tocan esas features.
 - [ ] Cambiar `work_rank` de un cliente existente → el orden del listado público cambia de acuerdo.
 - [ ] Cliente sin logo → no rompe el layout de la card.
 - [ ] Borrar un cliente → desaparece de `/clientes` y su `/clientes/[slug]` da 404.
+- [ ] Tildar "Tiene blog" en un cliente → pasa del carrusel automático al grid clickeable de "Casos de éxito" en `/clientes`, y `/clientes/[slug]` deja de dar 404.
+- [ ] Destildar "Tiene blog" en un cliente que antes lo tenía → vuelve al carrusel de solo-logo, y visitar su URL vieja `/clientes/[slug]` a mano da 404 (no queda accesible).
+- [ ] `/clientes`: el carrusel automático de "Otras empresas" se mueve solo sin tocar nada, se pausa al pasar el mouse/tocar y retoma al soltar.
+- [ ] Home, sección "Clientes Destacados" (>5 clientes destacados): el carrusel avanza solo cada ~3.5s, las flechas (desktop) no tapan ningún logo, y no se ve un pico/mitad de tarjeta del próximo cliente en ningún ancho de pantalla (375/768/1280).
+- [ ] Hero del home en mobile: el botón "Ver Servicios" se lee bien (fondo con contraste) sobre el video en cualquier frame, sin verse lavado/blanco.
+- [ ] Stats del home con una cantidad de ítems que no llena una fila completa (ej. 4 stats en mobile) → el sobrante queda centrado, no pegado a la izquierda con un hueco al lado.
 
 ## Servicios (CRUD)
 - [ ] Crear/editar un servicio → se refleja en `/servicios`.
