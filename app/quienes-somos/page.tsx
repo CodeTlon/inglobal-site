@@ -153,18 +153,23 @@ export default async function QuienesSomosPage() {
 
       {/* Stats strip */}
       <section className="section-pad bg-igb-surface-low">
-        <div className="container-igb">
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-8">
-            {statsItems.map((s) => (
-              <div key={s.label} className="text-center min-w-[140px]" data-animate="fade-up">
-                <p className="text-5xl font-headline font-extrabold text-zinc-900 tracking-tight">
-                  {s.number}
-                </p>
-                <p className="text-sm font-bold text-igb-secondary uppercase tracking-wider mt-3">
-                  {s.label}
-                </p>
-              </div>
-            ))}
+        <div className="container-igb" data-animate="fade-up">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-6 sm:gap-x-10 md:gap-16">
+            {statsItems.map((s, i) => {
+              const accent = ['text-igb-yellow-dark', 'text-igb-navy', 'text-igb-on-surface'][i % 3]
+              return (
+                <div key={s.label} className="group text-center min-w-[88px]">
+                  <p
+                    className={`text-2xl sm:text-3xl md:text-4xl font-headline font-extrabold ${accent} tracking-tight group-hover:text-igb-yellow-dark transition-colors leading-none`}
+                  >
+                    {s.number}
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] md:text-sm text-igb-secondary mt-2 font-bold uppercase tracking-wider leading-snug">
+                    {s.label}
+                  </p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>

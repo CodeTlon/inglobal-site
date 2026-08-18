@@ -246,7 +246,7 @@ export default async function HomePage() {
                     {servicio.title}
                   </h3>
                   {servicio.excerpt && (
-                    <p className="text-sm text-igb-secondary mt-2 leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                    <p className="text-sm text-igb-secondary mt-2 leading-relaxed min-h-[2.5rem]">
                       {servicio.excerpt}
                     </p>
                   )}
