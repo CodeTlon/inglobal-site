@@ -68,7 +68,7 @@ export default async function ClientesPage() {
 
       {/* Resto de clientes — solo logo, carrusel automático, sin click */}
       {sinBlog.length > 0 && (
-        <section className="section-pad bg-zinc-50 border-y border-zinc-100">
+        <section className="pt-24 lg:pt-32 pb-8 lg:pb-10 bg-zinc-50 border-y border-zinc-100">
           <div className="container-igb">
             <div className="text-center mb-12" data-animate="fade-up">
               <span className="label-tag">Otras alianzas</span>
