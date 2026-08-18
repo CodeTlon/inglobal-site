@@ -245,11 +245,9 @@ export default async function HomePage() {
                   <h3 className="text-2xl font-headline font-bold text-igb-on-surface leading-tight line-clamp-2 min-h-[3.75rem]">
                     {servicio.title}
                   </h3>
-                  {servicio.excerpt && (
-                    <p className="text-sm text-igb-secondary mt-2 leading-relaxed min-h-[2.5rem]">
-                      {servicio.excerpt}
-                    </p>
-                  )}
+                  <p className="text-sm text-igb-secondary mt-2 leading-relaxed min-h-[2.5rem]">
+                    {servicio.excerpt}
+                  </p>
                 </Link>
               )
             })}

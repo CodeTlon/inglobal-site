@@ -94,7 +94,7 @@ export default async function RootLayout({
                 addressCountry: 'AR',
               },
               telephone: '+5403513454244',
-              email: 'info@gruasinglobal.com',
+              email: 'cotizacionesinglobalsrl@gmail.com',
               openingHours: ['Mo-Fr 08:00-18:00', 'Sa 08:00-13:00'],
               priceRange: '$$',
               areaServed: 'Argentina',

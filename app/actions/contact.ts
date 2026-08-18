@@ -33,10 +33,10 @@ export async function sendContact(prevState: unknown, formData: FormData) {
   const servicioLabel = servicio ? (serviciosMap[servicio] ?? servicio) : null
 
   try {
-    // El lead queda registrado en la casilla de info@gruasinglobal.com (sin DB)
+    // El lead queda registrado en la casilla de cotizacionesinglobalsrl@gmail.com (sin DB)
     await resend.emails.send({
       from: `${process.env.RESEND_FROM_NAME ?? 'InGlobal'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
-      to: process.env.COMPANY_EMAIL ?? 'info@gruasinglobal.com',
+      to: process.env.COMPANY_EMAIL ?? 'cotizacionesinglobalsrl@gmail.com',
       replyTo: email,
       subject: `Nueva consulta de ${name}${empresa ? ` — ${empresa}` : ''}`,
       html: `

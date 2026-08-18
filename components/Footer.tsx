@@ -20,8 +20,9 @@ export default async function Footer() {
     (settings.description as string) ||
     'Soluciones de elevación y logística pesada para los desafíos más exigentes del mercado industrial. Más de 40 años de trayectoria en Argentina.'
   const phone = (settings.phone as string) || '0351 345-4244'
+  const phoneSecondary = settings.phone_secondary as string | undefined
   const address = (settings.address as string) || 'Ana Riglos de Irigoyen S/N\nCórdoba, Argentina'
-  const email = (settings.email as string) || 'info@gruasinglobal.com'
+  const email = (settings.email as string) || 'cotizacionesinglobalsrl@gmail.com'
   const hours = (settings.hours as string) || 'Lun-Vie 8-18h / Sáb 8-13h'
 
   // Mismos 7 links que el Navbar (misma key `navbar`, un solo lugar para editar el texto).
@@ -33,6 +34,7 @@ export default async function Footer() {
 
   // phone number for tel: link — strip spaces/dashes
   const phoneHref = `tel:${phone.replace(/[\s-]/g, '')}`
+  const phoneSecondaryHref = phoneSecondary ? `tel:${phoneSecondary.replace(/[\s-]/g, '')}` : null
   // address for display — support \n in DB value
   const addressLines = address.split('\n')
 
@@ -86,6 +88,18 @@ export default async function Footer() {
                   {phone}
                 </a>
               </li>
+
+              {phoneSecondaryHref && (
+                <li>
+                  <a
+                    href={phoneSecondaryHref}
+                    className="flex items-center gap-3 text-sm text-slate-400 hover:text-igb-yellow transition-colors group"
+                  >
+                    <Phone className="w-4 h-4 flex-shrink-0 text-igb-yellow" />
+                    {phoneSecondary}
+                  </a>
+                </li>
+              )}
 
               <li className="flex items-start gap-3 text-sm text-slate-400">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-igb-yellow" />

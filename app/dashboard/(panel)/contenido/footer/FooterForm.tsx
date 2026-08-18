@@ -39,6 +39,14 @@ export default function FooterForm({ settings }: { settings: Record<string, unkn
         hint="Formato visible. Se convierte a enlace tel: automáticamente."
       />
 
+      <TextField
+        label="Teléfono secundario"
+        name="phone_secondary"
+        defaultValue={settings.phone_secondary as string}
+        placeholder="0351 645-0657"
+        hint="Opcional. Se convierte a enlace tel: automáticamente."
+      />
+
       <TextArea
         label="Dirección"
         name="address"
@@ -52,7 +60,7 @@ export default function FooterForm({ settings }: { settings: Record<string, unkn
         label="Email"
         name="email"
         defaultValue={settings.email as string}
-        placeholder="info@gruasinglobal.com"
+        placeholder="cotizacionesinglobalsrl@gmail.com"
         type="email"
       />
 

@@ -20,7 +20,7 @@ VARIABLES DE ENTORNO NECESARIAS:
   RESEND_API_KEY                 (de resend.com → API Keys)
   RESEND_FROM_NAME               = Grúas InGlobal
   RESEND_FROM_EMAIL              = noreply@gruasinglobal.com
-  COMPANY_EMAIL                  = info@gruasinglobal.com
+  COMPANY_EMAIL                  = cotizacionesinglobalsrl@gmail.com
 
 ════════════════════════════════════════════
 

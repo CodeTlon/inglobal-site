@@ -24,6 +24,8 @@ export default function ContactoForm({ settings }: { settings: Record<string, un
 
       <TextField label="Teléfono" name="phone" defaultValue={settings.phone as string} placeholder="0351 345-4244" type="tel" />
 
+      <TextField label="Teléfono secundario" name="phone_secondary" defaultValue={settings.phone_secondary as string} placeholder="0351 645-0657" type="tel" hint="Opcional." />
+
       <TextArea
         label="Dirección"
         name="address"
@@ -33,7 +35,7 @@ export default function ContactoForm({ settings }: { settings: Record<string, un
         hint="Usá salto de línea para separar calle de ciudad."
       />
 
-      <TextField label="Email" name="email" defaultValue={settings.email as string} placeholder="info@gruasinglobal.com" type="email" />
+      <TextField label="Email" name="email" defaultValue={settings.email as string} placeholder="cotizacionesinglobalsrl@gmail.com" type="email" />
 
       <div className="grid grid-cols-2 gap-4">
         <TextField

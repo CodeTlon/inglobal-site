@@ -23,10 +23,12 @@ export default async function ContactoPage() {
   const hoursSaturday =
     (settings.hours_saturday as string) || 'Sáb 8:00 — 13:00h'
   const phone = (settings.phone as string) || '0351 345-4244'
-  const email = (settings.email as string) || 'info@gruasinglobal.com'
+  const phoneSecondary = settings.phone_secondary as string | undefined
+  const email = (settings.email as string) || 'cotizacionesinglobalsrl@gmail.com'
 
   const addressLines = address.split('\n')
   const phoneHref = `tel:${phone.replace(/[\s-]/g, '')}`
+  const phoneSecondaryHref = phoneSecondary ? `tel:${phoneSecondary.replace(/[\s-]/g, '')}` : null
 
   const headingLines = ((s.heading as string) || 'Hablemos de su\npróximo proyecto.').split('\n')
   const whatsapp = (s.whatsapp as string) || 'https://wa.me/5493513454244'
@@ -177,6 +179,15 @@ export default async function ContactoPage() {
                   >
                     <Phone className="w-7 h-7" aria-hidden="true" />
                   </a>
+                  {phoneSecondaryHref && (
+                    <a
+                      href={phoneSecondaryHref}
+                      aria-label="Llamar a Grúas InGlobal (línea secundaria)"
+                      className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
+                    >
+                      <Phone className="w-7 h-7" aria-hidden="true" />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

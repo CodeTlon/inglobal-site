@@ -17,7 +17,7 @@ lib/validations/contact.ts (Zod schema)
        ↓
 app/actions/contact.ts
   1. createSupabaseServiceClient() → INSERT into contact_leads
-  2. resend.emails.send() → Email HTML a info@gruasinglobal.com
+  2. resend.emails.send() → Email HTML a cotizacionesinglobalsrl@gmail.com
        ↓
 { success: true } → Muestra mensaje de éxito
 { error: string } → Muestra mensaje de error

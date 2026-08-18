@@ -31,7 +31,7 @@
 | Rich text (trabajos) | TipTap (`@tiptap/react` + extensions) — mismo patrón que gc2/blog: imágenes vía `uploadMediaAction`, embeds de YouTube, `sanitizeHtml` antes de `dangerouslySetInnerHTML` |
 | Auth              | Supabase Auth (email+password) — protege `/dashboard/**`. `user_metadata.must_change_password` fuerza cambio de clave en el primer login (ver Quirks) |
 | Storage           | Supabase Storage, bucket `media` (fotos de montajes/clientes/servicios + video del hero) |
-| Email             | Resend (`info@gruasinglobal.com`)                                |
+| Email             | Resend (`cotizacionesinglobalsrl@gmail.com`)                                |
 | Imágenes estáticas | **Pre-build pipeline**: sharp → AVIF + WebP · `<Picture>` (solo `public/images/`, no las subidas por el dashboard) |
 | Maps              | Google Maps iframe, **lazy-mounted on click** (privacy/perf)     |
 | Tests E2E         | Playwright (25 tests · 3 viewports: 375 / 768 / 1280 · puerto dedicado 3310) |
@@ -211,7 +211,7 @@ SUPABASE_SERVICE_ROLE_KEY      ← server-only, usado en Server Actions
 RESEND_API_KEY                 ← server-only
 RESEND_FROM_NAME               (opt, default "InGlobal")
 RESEND_FROM_EMAIL              (opt, default "onboarding@resend.dev")
-COMPANY_EMAIL                  (opt, default "info@gruasinglobal.com")
+COMPANY_EMAIL                  (opt, default "cotizacionesinglobalsrl@gmail.com")
 ```
 
 `.env.supabase.local` (gitignored, solo para `scripts/db-sync-dev.mjs`): `SUPABASE_ACCESS_TOKEN` + `SUPABASE_DEV_PROJECT_REF` + `SUPABASE_DEV_DB_PASSWORD`.

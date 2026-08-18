@@ -29,7 +29,7 @@ export default function AvisoLegalPage() {
               <ul className="mt-4 space-y-2 text-igb-secondary">
                 <li><strong className="text-igb-on-surface">Razón Social:</strong> Grúas InGlobal S.R.L.</li>
                 <li><strong className="text-igb-on-surface">Domicilio:</strong> Ana Riglos de Irigoyen S/N, Córdoba, Argentina</li>
-                <li><strong className="text-igb-on-surface">Correo electrónico:</strong> info@gruasinglobal.com</li>
+                <li><strong className="text-igb-on-surface">Correo electrónico:</strong> cotizacionesinglobalsrl@gmail.com</li>
                 <li><strong className="text-igb-on-surface">Teléfono:</strong> 0351 345-4244</li>
               </ul>
             </div>
@@ -66,7 +66,7 @@ export default function AvisoLegalPage() {
                 5. Protección de datos
               </h2>
               <p className="text-igb-secondary leading-relaxed">
-                Los datos personales proporcionados a través del formulario de contacto serán utilizados exclusivamente para responder a la consulta del usuario. En ningún caso serán cedidos a terceros sin consentimiento previo. El usuario puede ejercer sus derechos de acceso, rectificación y supresión contactando a info@gruasinglobal.com.
+                Los datos personales proporcionados a través del formulario de contacto serán utilizados exclusivamente para responder a la consulta del usuario. En ningún caso serán cedidos a terceros sin consentimiento previo. El usuario puede ejercer sus derechos de acceso, rectificación y supresión contactando a cotizacionesinglobalsrl@gmail.com.
               </p>
             </div>
 

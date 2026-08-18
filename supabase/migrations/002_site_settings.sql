@@ -90,7 +90,7 @@ INSERT INTO public.site_settings (key, value) VALUES
     'description', 'Soluciones de elevación y logística pesada para los desafíos más exigentes del mercado industrial. Más de 40 años de trayectoria en Argentina.',
     'phone',       '0351 345-4244',
     'address',     'Ana Riglos de Irigoyen S/N, Córdoba, Argentina',
-    'email',       'info@gruasinglobal.com',
+    'email',       'cotizacionesinglobalsrl@gmail.com',
     'hours',       'Lun-Vie 8-18h / Sáb 8-13h'
   )),
 
@@ -100,7 +100,7 @@ INSERT INTO public.site_settings (key, value) VALUES
     'hours_weekday', 'Lun-Vie 8:00 — 18:00h',
     'hours_saturday','Sáb 8:00 — 13:00h',
     'phone',         '0351 345-4244',
-    'email',         'info@gruasinglobal.com'
+    'email',         'cotizacionesinglobalsrl@gmail.com'
   ))
 
 ON CONFLICT (key) DO NOTHING;

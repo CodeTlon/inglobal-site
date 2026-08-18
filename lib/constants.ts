@@ -66,8 +66,9 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
   footer: {
     description: 'Soluciones de elevación y logística pesada para los desafíos más exigentes del mercado industrial. Más de 40 años de trayectoria en Argentina.',
     phone:       '0351 345-4244',
+    phone_secondary: '0351 645-0657',
     address:     'Ana Riglos de Irigoyen S/N, Córdoba, Argentina',
-    email:       'info@gruasinglobal.com',
+    email:       'cotizacionesinglobalsrl@gmail.com',
     hours:       'Lun-Vie 8-18h / Sáb 8-13h',
   },
   contacto: {
@@ -75,7 +76,8 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
     hours_weekday:  'Lun-Vie 8:00 — 18:00h',
     hours_saturday: 'Sáb 8:00 — 13:00h',
     phone:          '0351 345-4244',
-    email:          'info@gruasinglobal.com',
+    phone_secondary: '0351 645-0657',
+    email:          'cotizacionesinglobalsrl@gmail.com',
   },
   dashboard_quicklinks: {
     items: [

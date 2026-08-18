@@ -70,7 +70,7 @@ SUPABASE_SERVICE_ROLE_KEY      = [service_role key]
 RESEND_API_KEY                 = [API key de Resend]
 RESEND_FROM_NAME               = Grúas InGlobal
 RESEND_FROM_EMAIL              = noreply@gruasinglobal.com
-COMPANY_EMAIL                  = info@gruasinglobal.com
+COMPANY_EMAIL                  = cotizacionesinglobalsrl@gmail.com
 ```
 
 ### 3.3 Deploy
@@ -104,7 +104,7 @@ Agregar los registros DNS que Vercel indica:
 - [ ] Sitio accesible en `gruasinglobal.com`
 - [ ] HTTPS activo (candado verde)
 - [ ] Formulario de contacto envía email
-- [ ] Email llega a `info@gruasinglobal.com`
+- [ ] Email llega a `cotizacionesinglobalsrl@gmail.com`
 - [ ] Lead guardado en Supabase → Table `contact_leads`
 - [ ] WhatsApp button abre chat correcto
 - [ ] Teléfono `0351 345-4244` funciona en mobile

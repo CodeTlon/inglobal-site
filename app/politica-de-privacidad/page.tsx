@@ -79,8 +79,8 @@ export default function PoliticaDePrivacidadPage() {
               </h2>
               <p className="text-igb-secondary leading-relaxed">
                 Podés solicitar acceso, rectificación o supresión de tus datos personales escribiendo a{' '}
-                <a href="mailto:info@gruasinglobal.com" className="text-igb-navy underline">
-                  info@gruasinglobal.com
+                <a href="mailto:cotizacionesinglobalsrl@gmail.com" className="text-igb-navy underline">
+                  cotizacionesinglobalsrl@gmail.com
                 </a>.
               </p>
             </div>
