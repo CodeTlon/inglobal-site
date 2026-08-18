@@ -2,7 +2,7 @@ import Image from 'next/image'
 import type { Cliente } from '@/lib/content'
 
 const cardClass =
-  'bg-white rounded-xl p-6 flex items-center justify-center h-28 w-[45%] sm:w-[28%] md:w-[16%] shrink-0 border border-slate-100 shadow-sm grayscale opacity-70'
+  'bg-white rounded-xl p-4 flex items-center justify-center h-20 w-[30%] sm:w-[20%] md:w-[13%] shrink-0 border border-slate-100 shadow-sm grayscale opacity-70'
 
 function LogoCard({ cliente }: { cliente: Cliente }) {
   return (
@@ -12,10 +12,10 @@ function LogoCard({ cliente }: { cliente: Cliente }) {
         alt={`Logo ${cliente.name}`}
         width={140}
         height={60}
-        sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 16vw"
+        sizes="(max-width: 640px) 30vw, (max-width: 1024px) 20vw, 13vw"
         quality={70}
         loading="lazy"
-        className="object-contain h-full w-full max-h-12"
+        className="object-contain h-full w-full max-h-8"
       />
     </div>
   )

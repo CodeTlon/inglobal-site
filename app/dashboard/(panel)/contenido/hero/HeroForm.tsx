@@ -28,7 +28,15 @@ export default function HeroForm({ settings }: { settings: Record<string, unknow
         defaultValue={settings.headline as string}
         maxLength={100}
         placeholder="Elevando tus proyectos con seguridad y precisión."
-        hint="El texto completo del h1. Máximo 100 caracteres. La palabra 'seguridad' se resalta automáticamente en amarillo."
+        hint="El texto completo del h1. Máximo 100 caracteres."
+      />
+
+      <TextField
+        label="Palabra a resaltar"
+        name="highlight_word"
+        defaultValue={(settings.highlight_word as string) || 'seguridad'}
+        placeholder="seguridad"
+        hint="Esa palabra (si aparece dentro del titular) se pinta de azul. Dejar vacío para no resaltar nada."
       />
 
       <TextArea

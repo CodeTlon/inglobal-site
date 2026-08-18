@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Trash2, Plus, Upload, Loader2, Image as ImageIcon, Video as VideoIcon, FileText } from 'lucide-react'
 import { uploadMediaAction, deleteMediaAction } from '@/app/actions/settings'
 import { resizeImageFile } from '@/lib/client-image-resize'
-import { uploadDirectToStorage } from '@/lib/client-upload'
+import { uploadDirectToStorage, uploadVideoWithTranscode } from '@/lib/client-upload'
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 import { friendlyError } from '@/lib/friendly-error'
 import ConfirmDialog from './ConfirmDialog'
@@ -487,13 +487,14 @@ export function VideoUpload({
     setPreviewBroken(false)
     setBusy(true)
     setErr(null)
-    // Subida directa al bucket desde el navegador (no uploadMediaAction) —
-    // Vercel rechaza con un 413 crudo el body de cualquier función serverless
-    // que pase 4.5MB, sin importar el bodySizeLimit de next.config.mjs. Ver
-    // lib/client-upload.ts.
+    // Sube pasando por el servicio de transcode del VPS (recomprime antes de
+    // guardar); si no está configurado o falla, cae solo a subida directa al
+    // bucket sin comprimir. Cualquiera de los dos caminos bypasea
+    // uploadMediaAction — Vercel rechaza con un 413 crudo el body de cualquier
+    // función serverless que pase 4.5MB. Ver lib/client-upload.ts.
     let res: { url?: string; error?: string }
     try {
-      res = await uploadDirectToStorage(file, folder)
+      res = await uploadVideoWithTranscode(file, folder)
     } catch (uploadErr) {
       URL.revokeObjectURL(localPreview)
       if (myGen !== genRef.current) return

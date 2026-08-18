@@ -62,6 +62,7 @@ export default async function HomePage() {
   const heroSubheadline =
     (heroSettings.subheadline as string) ||
     'Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.'
+  const heroHighlightWord = (heroSettings.highlight_word as string) || 'seguridad'
   const heroCtaPrimary = (heroSettings.cta_primary as string) || 'Solicitar Presupuesto'
   const heroCtaSecondary = (heroSettings.cta_secondary as string) || 'Ver Servicios'
   const heroVideoUrl = (heroSettings.video_url as string | null | undefined) || null
@@ -142,11 +143,11 @@ export default async function HomePage() {
         <div className="relative z-10 container-igb w-full pt-32 pb-16 md:pt-24">
           <div className="max-w-2xl">
             <h1 className="heading-hero mb-6 text-zinc-900 hero-anim hero-anim-d1">
-              {heroHeadline.split('seguridad').length > 1 ? (
+              {heroHighlightWord && heroHeadline.includes(heroHighlightWord) ? (
                 <>
-                  {heroHeadline.split('seguridad')[0]}
-                  <span className="text-igb-yellow-dark">seguridad</span>
-                  {heroHeadline.split('seguridad')[1]}
+                  {heroHeadline.split(heroHighlightWord)[0]}
+                  <span className="text-igb-navy">{heroHighlightWord}</span>
+                  {heroHeadline.split(heroHighlightWord)[1]}
                 </>
               ) : (
                 heroHeadline
@@ -245,7 +246,7 @@ export default async function HomePage() {
                     {servicio.title}
                   </h3>
                   {servicio.excerpt && (
-                    <p className="text-sm text-igb-secondary mt-2 leading-relaxed">
+                    <p className="text-sm text-igb-secondary mt-2 leading-relaxed line-clamp-2 min-h-[2.5rem]">
                       {servicio.excerpt}
                     </p>
                   )}

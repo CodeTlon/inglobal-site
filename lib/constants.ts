@@ -13,6 +13,7 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
   hero: {
     headline:       'Elevando tus proyectos con seguridad y precisión.',
     subheadline:    'Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.',
+    highlight_word: 'seguridad',
     cta_primary:    'Solicitar Presupuesto',
     cta_secondary:  'Ver Servicios',
     video_url:        '/videos/opt/hero-desktop.mp4', // horizontal, video real del cliente (montaje/desmontaje), para md+

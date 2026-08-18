@@ -154,9 +154,9 @@ export default async function QuienesSomosPage() {
       {/* Stats strip */}
       <section className="section-pad bg-igb-surface-low">
         <div className="container-igb">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-12 text-center">
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-8">
             {statsItems.map((s) => (
-              <div key={s.label} data-animate="fade-up">
+              <div key={s.label} className="text-center min-w-[140px]" data-animate="fade-up">
                 <p className="text-5xl font-headline font-extrabold text-zinc-900 tracking-tight">
                   {s.number}
                 </p>

@@ -71,7 +71,7 @@ export default async function ClientesPage() {
         <section className="section-pad bg-zinc-50 border-y border-zinc-100">
           <div className="container-igb">
             <div className="text-center mb-12" data-animate="fade-up">
-              <span className="label-tag">Confían en nosotros</span>
+              <span className="label-tag">Otras alianzas</span>
               <h2 className="heading-display">Otras empresas que nos eligen</h2>
             </div>
           </div>
