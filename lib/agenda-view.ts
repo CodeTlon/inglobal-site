@@ -144,7 +144,7 @@ export function layoutDayEvents<T extends { hora_inicio: string; hora_fin?: stri
     const laneEnds: string[] = []
     const laneOf = new Map<T, number>()
     for (const ev of cluster) {
-      const fin = ev.hora_fin ?? '23:59'
+      const fin = ev.hora_fin ?? '23:59:59'
       let lane = laneEnds.findIndex((end) => end <= ev.hora_inicio)
       if (lane === -1) {
         lane = laneEnds.length
@@ -161,7 +161,7 @@ export function layoutDayEvents<T extends { hora_inicio: string; hora_fin?: stri
   }
 
   for (const ev of sorted) {
-    const fin = ev.hora_fin ?? '23:59'
+    const fin = ev.hora_fin ?? '23:59:59'
     if (cluster.length > 0 && ev.hora_inicio >= clusterEnd) flushCluster()
     cluster.push(ev)
     clusterEnd = cluster.length === 1 ? fin : fin > clusterEnd ? fin : clusterEnd

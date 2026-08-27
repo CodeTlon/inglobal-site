@@ -61,9 +61,19 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
       return
     }
     let cancelado = false
-    getRecursosOcupados(fecha, fechaHasta || null, horaInicio, horaFin || null, evento?.id).then((res) => {
-      if (!cancelado) setOcupados(res)
-    })
+    getRecursosOcupados(fecha, fechaHasta || null, horaInicio, horaFin || null, evento?.id)
+      .then((res) => {
+        if (!cancelado) setOcupados(res)
+      })
+      .catch(() => {
+        // Antes esto era una promesa sin manejar: si fallaba, `ocupados`
+        // quedaba en su último valor (o vacío) sin ningún aviso — el picker
+        // no deshabilitaba nada por estar "libre" cuando en realidad no se
+        // sabía. El servidor igual rechaza un solapamiento real (constraint
+        // de la DB, ver migración 024), así que esto es UX, no integridad de
+        // datos — pero vale avisar en vez de fallar en silencio.
+        if (!cancelado) setClientError('No se pudo confirmar la disponibilidad de grúa/operarios. Revisá tu conexión.')
+      })
     return () => {
       cancelado = true
     }
