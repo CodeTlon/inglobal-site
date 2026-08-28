@@ -88,6 +88,7 @@ export const empresaAgendaSchema = z.object({
   contacto: z.string().min(1, 'El contacto es obligatorio'),
   telefono: z.string().min(1, 'El teléfono es obligatorio').regex(TELEFONO_REGEX, 'Teléfono inválido'),
   notas:    z.string().nullable().optional(),
+  logo_url: z.string().url().nullable().optional(),
 })
 
 export const operarioSchema = z.object({

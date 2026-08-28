@@ -11,8 +11,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const desde = searchParams.get('desde') ?? undefined
   const hasta = searchParams.get('hasta') ?? undefined
+  // Filtros por recurso — historial de una grúa/empresa/operario puntual
+  // (detalle de catálogo). Sin desde/hasta trae todo el historial.
+  const gruaId = searchParams.get('grua_id') ?? undefined
+  const empresaId = searchParams.get('empresa_id') ?? undefined
+  const operarioId = searchParams.get('operario_id') ?? undefined
 
-  const eventos = await getEventosAgenda({ desde, hasta }, auth.supabase)
+  const eventos = await getEventosAgenda({ desde, hasta, gruaId, empresaId, operarioId }, auth.supabase)
   return apiData(eventos)
 }
 

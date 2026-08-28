@@ -36,6 +36,7 @@ export interface EmpresaAgenda {
   contacto: string | null
   telefono: string | null
   notas: string | null
+  logo_url: string | null
   activo: boolean
   created_at: string
 }
@@ -54,8 +55,8 @@ export interface EventoAgenda {
   fecha_hasta: string | null
   hora_inicio: string
   hora_fin: string | null
-  grua_id: string
-  empresa_id: string
+  grua_id: string | null
+  empresa_id: string | null
   ubicacion: string | null
   notas: string | null
   estado: string
@@ -124,13 +125,29 @@ async function aplicarTransicionEstado(evento: EventoAgenda, client: SupabaseCli
  * evento que arrancó antes de `desde` pero sigue vigente desaparecía de la vista).
  */
 export async function getEventosAgenda(
-  { desde, hasta }: { desde?: string; hasta?: string } = {},
+  {
+    desde,
+    hasta,
+    gruaId,
+    empresaId,
+    operarioId,
+  }: { desde?: string; hasta?: string; gruaId?: string; empresaId?: string; operarioId?: string } = {},
   supabase?: SupabaseClient,
 ): Promise<EventoAgenda[]> {
   const client = await resolveClient(supabase)
   let query = client.from('eventos_agenda').select(EVENTO_SELECT)
   if (hasta) query = query.lte('fecha', hasta)
   if (desde) query = query.or(`fecha_hasta.gte.${desde},and(fecha_hasta.is.null,fecha.gte.${desde})`)
+  if (gruaId) query = query.eq('grua_id', gruaId)
+  if (empresaId) query = query.eq('empresa_id', empresaId)
+  if (operarioId) {
+    // M2M vía eventos_operarios, no una columna de eventos_agenda — hay que
+    // resolver primero qué eventos tienen a este operario.
+    const { data: rels } = await client.from('eventos_operarios').select('evento_id').eq('operario_id', operarioId)
+    const eventoIds = (rels ?? []).map((r) => r.evento_id)
+    if (eventoIds.length === 0) return []
+    query = query.in('id', eventoIds)
+  }
   const { data, error } = await query
     .order('fecha', { ascending: true })
     .order('hora_inicio', { ascending: true })

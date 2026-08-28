@@ -29,27 +29,65 @@ const navSections = [
       { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard, exact: true },
     ],
   },
+  // Contenido dividido por página del sitio en vez de una lista plana de 18
+  // links sin agrupar — cada sección de acá abajo es "todo lo editable de
+  // esa página", en el orden en que aparece navegando el sitio.
   {
-    label: 'Contenido',
+    label: 'Contenido · Inicio',
     links: [
       { href: '/dashboard/contenido/hero', label: 'Hero', icon: Settings },
-      { href: '/dashboard/contenido/quienes-somos', label: 'Quiénes Somos', icon: Settings },
       { href: '/dashboard/contenido/que-hacemos', label: 'Qué Hacemos', icon: Settings },
       { href: '/dashboard/contenido/stats', label: 'Stats', icon: Settings },
+      { href: '/dashboard/contenido/clientes-destacados', label: 'Clientes destacados', icon: Settings },
+      { href: '/dashboard/contenido/home-gallery', label: 'Galería de fotos', icon: Settings },
       { href: '/dashboard/contenido/cta-banner', label: 'CTA Banner', icon: Settings },
-      { href: '/dashboard/contenido/clientes-destacados', label: 'Clientes (sección home)', icon: Settings },
-      { href: '/dashboard/contenido/ubicacion', label: 'Ubicación', icon: Settings },
-      { href: '/dashboard/contenido/footer', label: 'Footer', icon: Settings },
-      { href: '/dashboard/contenido/contacto', label: 'Contacto', icon: Settings },
       { href: '/dashboard/contenido/accesos-rapidos', label: 'Accesos rápidos', icon: Settings },
-      { href: '/dashboard/contenido/servicios-header', label: 'Servicios (encabezado)', icon: Settings },
-      { href: '/dashboard/contenido/montajes-header', label: 'Montajes (encabezado)', icon: Settings },
-      { href: '/dashboard/contenido/galeria-header', label: 'Galería (encabezado)', icon: Settings },
-      { href: '/dashboard/contenido/clientes-cta', label: 'Clientes (CTA final)', icon: Settings },
-      { href: '/dashboard/contenido/contacto-header', label: 'Contacto (encabezado)', icon: Settings },
+      { href: '/dashboard/contenido/ubicacion', label: 'Ubicación', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Quiénes somos',
+    links: [
+      { href: '/dashboard/contenido/quienes-somos', label: 'Quiénes Somos', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Servicios',
+    links: [
+      { href: '/dashboard/contenido/servicios-header', label: 'Encabezado', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Montajes',
+    links: [
+      { href: '/dashboard/contenido/montajes-header', label: 'Encabezado', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Galería',
+    links: [
+      { href: '/dashboard/contenido/galeria-header', label: 'Encabezado', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Contacto',
+    links: [
+      { href: '/dashboard/contenido/contacto-header', label: 'Encabezado', icon: Settings },
+      { href: '/dashboard/contenido/contacto', label: 'Datos de contacto', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Clientes',
+    links: [
+      { href: '/dashboard/contenido/clientes-cta', label: 'CTA final', icon: Settings },
+    ],
+  },
+  {
+    label: 'Contenido · Navbar y footer (todo el sitio)',
+    links: [
       { href: '/dashboard/contenido/navbar', label: 'Menú de navegación', icon: Settings },
+      { href: '/dashboard/contenido/footer', label: 'Footer', icon: Settings },
       { href: '/dashboard/contenido/footer-extra', label: 'Footer (textos extra)', icon: Settings },
-      { href: '/dashboard/contenido/home-gallery', label: 'Home (galería de fotos)', icon: Settings },
     ],
   },
   {

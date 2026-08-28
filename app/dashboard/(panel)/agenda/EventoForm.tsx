@@ -155,7 +155,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
         <SelectField
           label="Grúa"
           name="grua_id"
-          defaultValue={evento?.grua_id}
+          defaultValue={evento?.grua_id ?? undefined}
           options={gruas.map((g) => ({
             value: g.id,
             label: ocupados.gruaIds.includes(g.id) ? `${g.nombre} (ocupada en ese horario)` : g.nombre,
@@ -166,7 +166,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
         <SelectField
           label="Empresa"
           name="empresa_id"
-          defaultValue={evento?.empresa_id}
+          defaultValue={evento?.empresa_id ?? undefined}
           options={empresas.map((e) => ({ value: e.id, label: e.nombre }))}
           placeholder="Seleccioná una empresa"
         />

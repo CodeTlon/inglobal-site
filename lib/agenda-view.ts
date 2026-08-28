@@ -58,7 +58,10 @@ export function estadoColorClasses(estado: string): string {
 
 /** Paleta clara (fondo blanco) — usada por la vista semanal de jefes, no por la TV. */
 const ESTADO_COLORS_LIGHT: Record<string, string> = {
-  reserva: 'bg-igb-navy/10 border-igb-navy/30 text-igb-navy',
+  // navy a /10 quedaba demasiado apagado al lado del amarillo (mismo % de
+  // opacidad, pero navy es un tono mucho más oscuro/desaturado de base, así
+  // que a simple vista casi no se distinguía del blanco de fondo).
+  reserva: 'bg-igb-navy/20 border-igb-navy/40 text-igb-navy',
   programado: 'bg-igb-yellow/15 border-igb-yellow/30 text-igb-yellow-dark',
   en_curso: 'bg-blue-50 border-blue-200 text-blue-600',
   finalizado: 'bg-zinc-100 border-zinc-200 text-zinc-500',
@@ -92,11 +95,11 @@ export function formatEstado(estado: string): string {
  * ventana entre un fetch y el siguiente (el server ya persiste lo mismo al leer, ver
  * `estadoTransicionado` en lib/agenda-business.ts, una sola fuente de reglas repetida
  * acá solo porque el fetch pudo haber pasado hace rato).
- *  - `reserva` nunca confirmada cuya ventana ya pasó -> `cancelado` (no avanza sola a
- *    `programado`/`en_curso`, una reserva sin confirmar que venció está cancelada).
- *  - `programado` que ya arrancó pero no terminó -> `en_curso`.
- *  - `programado` cuya ventana ya terminó -> `finalizado`.
- *  - `en_curso` se cierra a mano (finalizarlo es una decisión, no algo automático).
+ *  - `reserva` nunca confirmada cuyo día/hora ya llegó -> `cancelado` (no avanza sola a
+ *    `programado`/`en_curso`; se cancela ni bien arranca su ventana, no espera a que
+ *    termine, para liberar la grúa/operario apenas se sabe que no se confirmó).
+ *  - `programado` que ya arrancó pero no terminó -> `en_curso` (nunca `reserva`).
+ *  - `programado` o `en_curso` cuya ventana ya terminó -> `finalizado`.
  *
  * Bug 1 (ya resuelto acá): usaba `evento.fecha` (día de inicio) para calcular el fin. Un
  * evento de varios días (fecha_hasta > fecha) se pintaba "finalizado" ya pasada la hora
@@ -110,10 +113,12 @@ export function getEstadoVisual(evento: EventoAgenda, now = new Date()): string 
   const inicio = new Date(`${evento.fecha}T${evento.hora_inicio.slice(0, 8)}`)
   const fin = new Date(`${fechaFin}T${(evento.hora_fin ?? '23:59:59').slice(0, 8)}`)
   if (evento.estado === 'reserva') {
-    if (fin < now) return 'cancelado'
+    if (inicio <= now) return 'cancelado'
   } else if (evento.estado === 'programado') {
     if (fin < now) return 'finalizado'
     if (inicio <= now) return 'en_curso'
+  } else if (evento.estado === 'en_curso') {
+    if (fin < now) return 'finalizado'
   }
   return evento.estado
 }

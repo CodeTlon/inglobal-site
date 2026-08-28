@@ -37,7 +37,10 @@ export default function AgendaEventModal({
     day: 'numeric',
     month: 'long',
   })
-  const fechaHasta = evento.fecha_hasta
+  // Si fecha_hasta viene seteado pero es el mismo día que fecha (rango
+  // redundante, no un evento multi-día real), no se muestra "hasta el
+  // mismo día" — solo la fecha una vez.
+  const fechaHasta = evento.fecha_hasta && evento.fecha_hasta !== evento.fecha
     ? new Date(`${evento.fecha_hasta}T00:00:00`).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
     : null
 

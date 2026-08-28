@@ -117,13 +117,17 @@ export async function buscarConflicto(
 ): Promise<string | null> {
   let gruaQuery = supabase
     .from('eventos_agenda')
-    .select('id, fecha, fecha_hasta, hora_inicio, hora_fin')
+    .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado')
     .eq('grua_id', gruaId)
     .neq('estado', 'cancelado')
   if (excludeId) gruaQuery = gruaQuery.neq('id', excludeId)
   const { data: eventosGrua, error: errorGrua } = await gruaQuery
   if (errorGrua) throw new Error(`No se pudo verificar disponibilidad de la grúa: ${friendlyError(errorGrua)}`)
   for (const ev of eventosGrua ?? []) {
+    // Mismo motivo que en getRecursosOcupados: el filtro de arriba es sobre
+    // el estado crudo, hace falta el efectivo para no bloquear contra una
+    // reserva que ya se canceló sola.
+    if ((estadoTransicionado(ev) ?? ev.estado) === 'cancelado') continue
     if (rangosSeSolapan(ventana, ev)) {
       return `La grúa seleccionada ya está asignada el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
     }
@@ -138,7 +142,7 @@ export async function buscarConflicto(
     for (const fila of filasOperarios ?? []) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ev = fila.evento as any
-      if (!ev || ev.estado === 'cancelado') continue
+      if (!ev || (estadoTransicionado(ev) ?? ev.estado) === 'cancelado') continue
       if (excludeId && ev.id === excludeId) continue
       if (rangosSeSolapan(ventana, ev)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,7 +174,7 @@ export async function getRecursosOcupados(
 
     let query = supabase
       .from('eventos_agenda')
-      .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, grua_id, eventos_operarios(operario_id)')
+      .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado, grua_id, eventos_operarios(operario_id)')
       .neq('estado', 'cancelado')
     if (excludeEventoId) query = query.neq('id', excludeEventoId)
     const { data, error } = await query
@@ -179,6 +183,12 @@ export async function getRecursosOcupados(
     const gruaIds = new Set<string>()
     const operarioIds = new Set<string>()
     for (const ev of data) {
+      // El filtro de arriba es sobre el estado crudo persistido — una
+      // reserva sin confirmar cuyo día ya llegó sigue en la fila como
+      // 'reserva' hasta que algo la relea y la persista, así que acá se
+      // recalcula el estado EFECTIVO para no seguir mostrando ocupado algo
+      // que ya se liberó solo.
+      if ((estadoTransicionado(ev) ?? ev.estado) === 'cancelado') continue
       if (!rangosSeSolapan(ventana, ev)) continue
       if (ev.grua_id) gruaIds.add(ev.grua_id)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -282,12 +292,20 @@ export type EventoEstadoWindow = {
  * (finalizado/cancelado) es una decisión humana, no algo que deba pasar solo.
  */
 export function estadoTransicionado(evento: EventoEstadoWindow, now = new Date()): EstadoEvento | null {
-  if (evento.estado !== 'reserva' && evento.estado !== 'programado') return null
+  if (evento.estado !== 'reserva' && evento.estado !== 'programado' && evento.estado !== 'en_curso') return null
   const inicio = new Date(`${evento.fecha}T${evento.hora_inicio.slice(0, 8)}`)
   const fin = new Date(`${evento.fecha_hasta ?? evento.fecha}T${(evento.hora_fin ?? '23:59:59').slice(0, 8)}`)
-  if (evento.estado === 'reserva') return fin < now ? 'cancelado' : null
+  // reserva: es tentativa, nadie la confirmó a "programado". Si ya llegó el
+  // día/hora para el que se pidió, se cancela sola y libera la grúa/operario
+  // — no espera a que termine la ventana como programado/en_curso, porque
+  // una reserva nunca ocupa nada por sí sola una vez que pasó su momento.
+  if (evento.estado === 'reserva') return inicio <= now ? 'cancelado' : null
+  // en_curso: antes se cerraba siempre a mano ("es una decisión, no algo
+  // automático"). Ahora, si ya pasó la ventana, se auto-finaliza igual que
+  // programado. Solo programado pasa a en_curso — reserva nunca (arriba ya
+  // se cortó por su cuenta si no se confirmó a tiempo).
   if (fin < now) return 'finalizado'
-  if (inicio <= now) return 'en_curso'
+  if (evento.estado === 'programado' && inicio <= now) return 'en_curso'
   return null
 }
 
@@ -329,6 +347,16 @@ export async function estadosDeEventosDelRecurso(
  * un evento en_curso O programado, bloquea (409). Requisito: un recurso ya
  * asignado a algo, en curso o a futuro, no se puede dar de baja.
  */
+// Eventos "vivos" — bloquean inactivar/borrar el recurso. Uno finalizado/
+// cancelado es historial y no debería trabar nada (grua_id/empresa_id son
+// nullable con ON DELETE SET NULL, ver migración 027 — el evento
+// finalizado/cancelado sobrevive, solo pierde la referencia). Única fuente
+// de verdad de "qué cuenta como ocupado" en todo este archivo — catalogToggle,
+// catalogDelete y estadosDeEventosDelRecurso (vía estadoTransicionado) tienen
+// que estar siempre de acuerdo acá, si no un recurso puede quedar bloqueado
+// para siempre (o, peor, dejar borrar/inactivar algo que en realidad está en uso).
+const ESTADOS_VIVOS = ['reserva', 'programado', 'en_curso']
+
 export async function catalogToggle(
   supabase: SupabaseClient,
   table: CatalogTable,
@@ -336,14 +364,18 @@ export async function catalogToggle(
   activo: boolean,
 ): Promise<{ error?: string }> {
   if (activo) {
-    // Se está por INACTIVAR — chequear que no participe de un evento activo.
+    // Se está por INACTIVAR — chequear que no participe de un evento vivo.
+    // Usa el estado EFECTIVO (estadosDeEventosDelRecurso → estadoTransicionado),
+    // no el crudo de la fila: una reserva cuyo día ya llegó sin confirmarse
+    // ya está cancelada en la práctica y no debe seguir bloqueando, ni un
+    // en_curso que ya pasó su hora de fin.
     const estados = await estadosDeEventosDelRecurso(supabase, table, id)
-    if (estados.includes('en_curso')) {
+    const vivos = estados.filter((e) => ESTADOS_VIVOS.includes(e))
+    if (vivos.includes('en_curso')) {
       return { error: 'No se puede inactivar: está participando en un evento en curso.' }
     }
-    const programados = estados.filter((e) => e === 'programado' || e === 'reserva').length
-    if (programados > 0) {
-      return { error: `No se puede inactivar: tiene ${programados} evento(s) programado(s) o reservado(s) asignado(s).` }
+    if (vivos.length > 0) {
+      return { error: `No se puede inactivar: tiene ${vivos.length} evento(s) programado(s) o reservado(s) asignado(s).` }
     }
   }
 
@@ -354,11 +386,14 @@ export async function catalogToggle(
 
 /**
  * A diferencia de catalogToggle (que ya bloqueaba inactivar un recurso con eventos
- * activos), el delete no chequeaba nada — como grua_id/empresa_id son FK NOT NULL
+ * activos), el delete no chequeaba nada — como grua_id/empresa_id eran FK NOT NULL
  * ON DELETE RESTRICT, borrar cualquier recurso alguna vez usado en un evento
  * (incluso uno finalizado/cancelado viejo, que es historial) siempre fallaba, pero
- * como un 500 de Postgres genérico en vez de un 409 con un mensaje claro. Se
- * bloquea acá con el mismo criterio y mensaje que ya usa catalogToggle.
+ * como un 500 de Postgres genérico en vez de un 409 con un mensaje claro.
+ *
+ * Ahora bloquea solo si tiene eventos VIVOS (reserva/programado/en_curso) — si
+ * todos sus eventos asociados ya están finalizados/cancelados, se permite
+ * borrar igual y esos eventos quedan como historial con la referencia en null.
  *
  * `operarios` es la excepción: es M2M vía `eventos_operarios` (no una columna NOT
  * NULL del evento), esa fila puente tiene ON DELETE CASCADE (ver migración 025), y
@@ -372,8 +407,9 @@ export async function catalogDelete(
 ): Promise<{ error?: string }> {
   if (table !== 'operarios') {
     const estados = await estadosDeEventosDelRecurso(supabase, table, id)
-    if (estados.length > 0) {
-      return { error: `No se puede eliminar: tiene ${estados.length} evento(s) asociado(s). Desactivalo en vez de eliminarlo.` }
+    const vivos = estados.filter((e) => ESTADOS_VIVOS.includes(e)).length
+    if (vivos > 0) {
+      return { error: `No se puede eliminar: tiene ${vivos} evento(s) vivo(s) (reserva/programado/en curso) asociado(s). Desactivalo en vez de eliminarlo.` }
     }
   }
 

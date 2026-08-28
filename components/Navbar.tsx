@@ -53,8 +53,12 @@ export default function Navbar({ labels }: { labels?: Record<string, unknown> })
       <nav className="container-igb flex items-center justify-between h-16 lg:h-20">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+        {/* Un solo logo siempre — logo.png y logo.webp no son la misma
+            marca en clara/oscura, son dos diseños distintos (uno apilado en
+            2 líneas, otro en 1 línea con más aire), así que el swap se veía
+            como si el logo cambiara de diseño y se achicara al hacer scroll. */}
         <Image
-          src={darkMode ? '/images/logo.png' : '/images/logo.webp'}
+          src="/images/logo.webp"
           alt="Grúas InGlobal S.R.L."
           className="h-10 w-auto"
           sizes="160px"
