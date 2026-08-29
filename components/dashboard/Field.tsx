@@ -268,7 +268,19 @@ export function ImageUpload({
     // cualquier función serverless a 4.5MB sin importar next.config.mjs, así
     // que una foto de celular real nunca llegaba a uploadMediaAction (ver
     // lib/client-image-resize.ts).
-    const file = await resizeImageFile(picked)
+    let file: File
+    try {
+      file = await resizeImageFile(picked)
+    } catch (resizeErr) {
+      URL.revokeObjectURL(localPreview)
+      if (myGen !== genRef.current) return
+      setBusy(false)
+      objectUrlRef.current = null
+      setErr(resizeErr instanceof Error ? resizeErr.message : 'No se pudo procesar la imagen.')
+      setUrl(previousUrl)
+      e.target.value = ''
+      return
+    }
 
     const fd = new FormData()
     fd.append('file', file)
