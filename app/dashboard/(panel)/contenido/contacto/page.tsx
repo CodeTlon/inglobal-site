@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getSiteSettings } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
-import ContentSection from '@/components/dashboard/ContentSection'
+import ContentTabs from '@/components/dashboard/ContentTabs'
 import ContactoHeaderForm from '../contacto-header/ContactoHeaderForm'
 import ContactoForm from './ContactoForm'
 
@@ -18,13 +18,13 @@ export default async function ContactoContentPage() {
           <ArrowLeft size={14} /> Volver al panel
         </Link>
       </div>
-      <PageHeader title="Contacto" description="Encabezado y datos de contacto de la página de Contacto, en un solo lugar." />
-      <ContentSection titulo="Encabezado">
-        <ContactoHeaderForm settings={contactoHeader} />
-      </ContentSection>
-      <ContentSection titulo="Datos de contacto">
-        <ContactoForm settings={contacto} />
-      </ContentSection>
+      <PageHeader title="Contacto" description="Encabezado y datos de contacto de la página de Contacto." />
+      <ContentTabs
+        tabs={[
+          { label: 'Encabezado', content: <ContactoHeaderForm settings={contactoHeader} /> },
+          { label: 'Datos de contacto', content: <ContactoForm settings={contacto} /> },
+        ]}
+      />
     </div>
   )
 }

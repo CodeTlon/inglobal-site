@@ -36,7 +36,7 @@ const navSections = [
   {
     label: 'Contenido',
     links: [
-      { href: '/dashboard/contenido/inicio', label: 'Inicio', icon: Settings },
+      { href: '/dashboard/contenido/inicio', label: 'Página de Inicio', icon: Settings },
       { href: '/dashboard/contenido/paginas', label: 'Páginas (Quiénes somos, Servicios, Montajes, Galería)', icon: Settings },
       { href: '/dashboard/contenido/contacto', label: 'Contacto', icon: Settings },
       { href: '/dashboard/contenido/clientes-cta', label: 'Clientes', icon: Settings },

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getSiteSettings } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
-import ContentSection from '@/components/dashboard/ContentSection'
+import ContentTabs from '@/components/dashboard/ContentTabs'
 import NavbarForm from './NavbarForm'
 import FooterForm from '../footer/FooterForm'
 import FooterExtraForm from '../footer-extra/FooterExtraForm'
@@ -24,15 +24,13 @@ export default async function NavbarFooterContentPage() {
         title="Navbar y footer"
         description="Se ve en todo el sitio: menú de navegación, footer principal y textos extra del footer."
       />
-      <ContentSection titulo="Menú de navegación">
-        <NavbarForm settings={navbar} />
-      </ContentSection>
-      <ContentSection titulo="Footer">
-        <FooterForm settings={footer} />
-      </ContentSection>
-      <ContentSection titulo="Footer (textos extra)">
-        <FooterExtraForm settings={footerExtra} />
-      </ContentSection>
+      <ContentTabs
+        tabs={[
+          { label: 'Menú de navegación', content: <NavbarForm settings={navbar} /> },
+          { label: 'Footer', content: <FooterForm settings={footer} /> },
+          { label: 'Footer (textos extra)', content: <FooterExtraForm settings={footerExtra} /> },
+        ]}
+      />
     </div>
   )
 }

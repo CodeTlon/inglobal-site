@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getSiteSettings } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
-import ContentSection from '@/components/dashboard/ContentSection'
+import ContentTabs from '@/components/dashboard/ContentTabs'
 import QuienesSomosForm from '../quienes-somos/QuienesSomosForm'
 import ServiciosHeaderForm from '../servicios-header/ServiciosHeaderForm'
 import MontajesHeaderForm from '../montajes-header/MontajesHeaderForm'
@@ -23,18 +23,14 @@ export default async function PaginasContentPage() {
         </Link>
       </div>
       <PageHeader title="Páginas" description="Quiénes somos, y los encabezados de Servicios, Montajes y Galería." />
-      <ContentSection titulo="Quiénes somos">
-        <QuienesSomosForm settings={quienesSomos} />
-      </ContentSection>
-      <ContentSection titulo="Servicios (encabezado)">
-        <ServiciosHeaderForm settings={serviciosHeader} />
-      </ContentSection>
-      <ContentSection titulo="Montajes (encabezado)">
-        <MontajesHeaderForm settings={montajesHeader} />
-      </ContentSection>
-      <ContentSection titulo="Galería (encabezado)">
-        <GaleriaHeaderForm settings={galeriaHeader} />
-      </ContentSection>
+      <ContentTabs
+        tabs={[
+          { label: 'Quiénes somos', content: <QuienesSomosForm settings={quienesSomos} /> },
+          { label: 'Servicios (encabezado)', content: <ServiciosHeaderForm settings={serviciosHeader} /> },
+          { label: 'Montajes (encabezado)', content: <MontajesHeaderForm settings={montajesHeader} /> },
+          { label: 'Galería (encabezado)', content: <GaleriaHeaderForm settings={galeriaHeader} /> },
+        ]}
+      />
     </div>
   )
 }

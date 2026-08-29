@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getSiteSettings } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
-import ContentSection from '@/components/dashboard/ContentSection'
+import ContentTabs from '@/components/dashboard/ContentTabs'
 import HeroForm from '../hero/HeroForm'
 import QueHacemosForm from '../que-hacemos/QueHacemosForm'
 import StatsForm from '../stats/StatsForm'
@@ -30,31 +30,19 @@ export default async function InicioContentPage() {
           <ArrowLeft size={14} /> Volver al panel
         </Link>
       </div>
-      <PageHeader title="Inicio" description="Todo el contenido editable de la página de inicio, en un solo lugar." />
-      <ContentSection titulo="Hero">
-        <HeroForm settings={hero} />
-      </ContentSection>
-      <ContentSection titulo="Qué hacemos">
-        <QueHacemosForm settings={queHacemos} />
-      </ContentSection>
-      <ContentSection titulo="Stats">
-        <StatsForm settings={stats} />
-      </ContentSection>
-      <ContentSection titulo="Clientes destacados">
-        <ClientesDestForm settings={clientesDest} />
-      </ContentSection>
-      <ContentSection titulo="Galería de fotos">
-        <HomeGalleryForm settings={homeGallery} />
-      </ContentSection>
-      <ContentSection titulo="CTA Banner">
-        <CtaBannerForm settings={ctaBanner} />
-      </ContentSection>
-      <ContentSection titulo="Accesos rápidos">
-        <AccesosRapidosForm settings={accesosRapidos} />
-      </ContentSection>
-      <ContentSection titulo="Ubicación">
-        <UbicacionForm settings={ubicacion} />
-      </ContentSection>
+      <PageHeader title="Página de Inicio" description="Elegí qué bloque de la home querés editar." />
+      <ContentTabs
+        tabs={[
+          { label: 'Hero', content: <HeroForm settings={hero} /> },
+          { label: 'Qué hacemos', content: <QueHacemosForm settings={queHacemos} /> },
+          { label: 'Stats', content: <StatsForm settings={stats} /> },
+          { label: 'Clientes destacados', content: <ClientesDestForm settings={clientesDest} /> },
+          { label: 'Galería de fotos', content: <HomeGalleryForm settings={homeGallery} /> },
+          { label: 'CTA Banner', content: <CtaBannerForm settings={ctaBanner} /> },
+          { label: 'Accesos rápidos', content: <AccesosRapidosForm settings={accesosRapidos} /> },
+          { label: 'Ubicación', content: <UbicacionForm settings={ubicacion} /> },
+        ]}
+      />
     </div>
   )
 }
