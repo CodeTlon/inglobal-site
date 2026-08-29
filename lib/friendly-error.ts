@@ -50,5 +50,10 @@ export function friendlyError(
     }
   }
 
+  // Nada matcheó — el usuario ve el mensaje genérico, pero acá queda el
+  // error real en los logs del server (Vercel > proyecto > Logs) para
+  // poder diagnosticarlo después en vez de quedar a ciegas.
+  console.error('[friendlyError] sin traducción conocida:', { code, message, error })
+
   return fallback
 }
