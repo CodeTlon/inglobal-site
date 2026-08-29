@@ -9,18 +9,19 @@ import StatsForm from '../stats/StatsForm'
 import ClientesDestForm from '../clientes-destacados/ClientesDestForm'
 import HomeGalleryForm from '../home-gallery/HomeGalleryForm'
 import CtaBannerForm from '../cta-banner/CtaBannerForm'
-import AccesosRapidosForm from '../accesos-rapidos/AccesosRapidosForm'
 import UbicacionForm from '../ubicacion/UbicacionForm'
 
+// Accesos rápidos NO va acá — es config del panel (qué botones aparecen en
+// /dashboard), no contenido de la home pública. Se edita ahí mismo, al
+// lado del widget, ver AccesosRapidosEditor en app/dashboard/(panel)/page.tsx.
 export default async function InicioContentPage() {
-  const [hero, queHacemos, stats, clientesDest, homeGallery, ctaBanner, accesosRapidos, ubicacion] = await Promise.all([
+  const [hero, queHacemos, stats, clientesDest, homeGallery, ctaBanner, ubicacion] = await Promise.all([
     getSiteSettings('hero'),
     getSiteSettings('que_hacemos'),
     getSiteSettings('stats'),
     getSiteSettings('clientes_destacados'),
     getSiteSettings('home_gallery'),
     getSiteSettings('cta_banner'),
-    getSiteSettings('dashboard_quicklinks'),
     getSiteSettings('ubicacion'),
   ])
   return (
@@ -39,7 +40,6 @@ export default async function InicioContentPage() {
           { label: 'Clientes destacados', content: <ClientesDestForm settings={clientesDest} /> },
           { label: 'Galería de fotos', content: <HomeGalleryForm settings={homeGallery} /> },
           { label: 'CTA Banner', content: <CtaBannerForm settings={ctaBanner} /> },
-          { label: 'Accesos rápidos', content: <AccesosRapidosForm settings={accesosRapidos} /> },
           { label: 'Ubicación', content: <UbicacionForm settings={ubicacion} /> },
         ]}
       />

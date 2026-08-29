@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getMontajes, getClientes, getServicios, getSiteSettings } from '@/lib/content'
 import { QUICKLINK_CANDIDATES } from '@/lib/constants'
 import { Building2, Users, Wrench, ArrowRight } from 'lucide-react'
+import AccesosRapidosEditor from '@/components/dashboard/AccesosRapidosEditor'
 
 export default async function DashboardHomePage() {
   const [montajes, clientes, servicios, quicklinksSettings] = await Promise.all([
@@ -84,16 +85,11 @@ export default async function DashboardHomePage() {
           <h2 className="text-base font-headline font-bold text-zinc-900">
             Accesos rápidos
           </h2>
-          <Link
-            href="/dashboard/contenido/inicio"
-            className="text-xs font-bold text-igb-yellow-dark hover:text-igb-on-surface transition-colors"
-          >
-            Editar
-          </Link>
+          <AccesosRapidosEditor settings={quicklinksSettings} />
         </div>
         {quickLinks.length === 0 ? (
           <p className="text-sm text-zinc-400">
-            Sin accesos configurados. <Link href="/dashboard/contenido/accesos-rapidos" className="underline">Agregá uno</Link>.
+            Sin accesos configurados. Usá &quot;Editar&quot; arriba para agregar uno.
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
