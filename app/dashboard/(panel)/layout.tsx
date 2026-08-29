@@ -45,28 +45,15 @@ const navSections = [
       { href: '/dashboard/contenido/ubicacion', label: 'Ubicación', icon: Settings },
     ],
   },
+  // Quiénes somos/Servicios/Montajes/Galería son cada una un solo campo
+  // (el encabezado) — no ameritan grupo propio, van juntas acá.
   {
-    label: 'Contenido · Quiénes somos',
+    label: 'Contenido · Páginas',
     links: [
       { href: '/dashboard/contenido/quienes-somos', label: 'Quiénes Somos', icon: Settings },
-    ],
-  },
-  {
-    label: 'Contenido · Servicios',
-    links: [
-      { href: '/dashboard/contenido/servicios-header', label: 'Encabezado', icon: Settings },
-    ],
-  },
-  {
-    label: 'Contenido · Montajes',
-    links: [
-      { href: '/dashboard/contenido/montajes-header', label: 'Encabezado', icon: Settings },
-    ],
-  },
-  {
-    label: 'Contenido · Galería',
-    links: [
-      { href: '/dashboard/contenido/galeria-header', label: 'Encabezado', icon: Settings },
+      { href: '/dashboard/contenido/servicios-header', label: 'Servicios', icon: Settings },
+      { href: '/dashboard/contenido/montajes-header', label: 'Montajes', icon: Settings },
+      { href: '/dashboard/contenido/galeria-header', label: 'Galería', icon: Settings },
     ],
   },
   {

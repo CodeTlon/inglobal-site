@@ -240,6 +240,7 @@ function parseGruaForm(formData: FormData) {
     patente:             formData.get('patente'),
     capacidad_toneladas: formData.get('capacidad_toneladas') || undefined,
     tipo:                formData.get('tipo') || undefined,
+    foto_url:            formData.get('foto_url') || undefined,
   })
 }
 
@@ -288,6 +289,7 @@ function parseEmpresaAgendaForm(formData: FormData) {
     contacto: formData.get('contacto'),
     telefono: formData.get('telefono'),
     notas:    formData.get('notas'),
+    logo_url: formData.get('logo_url') || undefined,
   })
 }
 
@@ -334,6 +336,7 @@ function parseOperarioForm(formData: FormData) {
   return operarioSchema.safeParse({
     nombre:   formData.get('nombre'),
     telefono: formData.get('telefono'),
+    foto_url: formData.get('foto_url') || undefined,
   })
 }
 

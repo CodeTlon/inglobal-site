@@ -3,8 +3,8 @@ import { getGruas, getEmpresasAgenda, getOperarios } from '@/lib/agenda'
 import { TIPOS_GRUA } from '@/lib/validations/agenda'
 import {
   createGrua, updateGrua, toggleGrua, deleteGrua,
-  createEmpresaAgenda, toggleEmpresaAgenda, deleteEmpresaAgenda,
-  createOperario, toggleOperario, deleteOperario,
+  createEmpresaAgenda, updateEmpresaAgenda, toggleEmpresaAgenda, deleteEmpresaAgenda,
+  createOperario, updateOperario, toggleOperario, deleteOperario,
 } from '@/app/actions/agenda'
 import PageHeader from '@/components/dashboard/PageHeader'
 import CatalogSection from './CatalogSection'
@@ -40,13 +40,14 @@ export default async function CatalogosAgendaPage() {
             nombre: g.nombre,
             activo: g.activo,
             subtitle: [g.tipo, g.patente, g.capacidad_toneladas ? `${g.capacidad_toneladas} tn` : null].filter(Boolean).join(' · '),
-            values: { nombre: g.nombre, patente: g.patente ?? '', capacidad_toneladas: g.capacidad_toneladas ?? '', tipo: g.tipo },
+            values: { nombre: g.nombre, patente: g.patente ?? '', capacidad_toneladas: g.capacidad_toneladas ?? '', tipo: g.tipo, foto_url: g.foto_url ?? '' },
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Grúa Terex 25 tn' },
             { name: 'tipo', label: 'Tipo', type: 'select', options: TIPO_OPTIONS },
             { name: 'patente', label: 'Patente', required: true, placeholder: 'Ej: AB123CD' },
             { name: 'capacidad_toneladas', label: 'Capacidad (tn)', type: 'number', required: true, placeholder: 'Ej: 25' },
+            { name: 'foto_url', label: 'Foto', type: 'image', folder: 'grua-fotos' },
           ]}
           createAction={createGrua}
           updateAction={updateGrua}
@@ -61,13 +62,17 @@ export default async function CatalogosAgendaPage() {
             nombre: e.nombre,
             activo: e.activo,
             subtitle: [e.contacto, e.telefono].filter(Boolean).join(' · '),
+            values: { nombre: e.nombre, contacto: e.contacto ?? '', telefono: e.telefono ?? '', notas: e.notas ?? '', logo_url: e.logo_url ?? '' },
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Constructora del Sur S.A.' },
             { name: 'contacto', label: 'Persona de contacto', required: true, placeholder: 'Ej: Juan Pérez' },
             { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
+            { name: 'notas', label: 'Notas' },
+            { name: 'logo_url', label: 'Logo', type: 'image', folder: 'empresa-logos' },
           ]}
           createAction={createEmpresaAgenda}
+          updateAction={updateEmpresaAgenda}
           toggleAction={toggleEmpresaAgenda}
           deleteAction={deleteEmpresaAgenda}
         />
@@ -79,12 +84,15 @@ export default async function CatalogosAgendaPage() {
             nombre: o.nombre,
             activo: o.activo,
             subtitle: o.telefono ?? undefined,
+            values: { nombre: o.nombre, telefono: o.telefono ?? '', foto_url: o.foto_url ?? '' },
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Carlos Gómez' },
             { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
+            { name: 'foto_url', label: 'Foto', type: 'image', folder: 'operario-fotos' },
           ]}
           createAction={createOperario}
+          updateAction={updateOperario}
           toggleAction={toggleOperario}
           deleteAction={deleteOperario}
         />

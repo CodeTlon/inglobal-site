@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useFormState } from 'react-dom'
-import { TextField, SelectField } from '@/components/dashboard/Field'
+import { TextField, SelectField, ImageUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
@@ -24,6 +24,9 @@ interface FieldConfig {
   required?: boolean
   options?: { value: string; label: string }[]
   placeholder?: string
+  // Solo para type: 'image' — carpeta del bucket `media` donde se sube
+  // (mismo bucket y misma convención de carpeta que usa la app).
+  folder?: string
 }
 
 interface Props {
@@ -47,6 +50,14 @@ function FieldInputs({ fields, values }: { fields: FieldConfig[]; values?: Recor
             name={f.name}
             defaultValue={values?.[f.name]}
             options={f.options ?? []}
+          />
+        ) : f.type === 'image' ? (
+          <ImageUpload
+            key={f.name}
+            label={f.label}
+            name={f.name}
+            folder={f.folder ?? 'catalogo-agenda'}
+            defaultValue={values?.[f.name] !== undefined ? String(values[f.name]) : undefined}
           />
         ) : (
           <TextField

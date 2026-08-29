@@ -81,6 +81,7 @@ export const gruaSchema = z.object({
   patente:             z.string().min(1, 'La patente es obligatoria'),
   capacidad_toneladas: z.coerce.number().positive('La capacidad debe ser mayor a 0'),
   tipo:                z.enum(TIPOS_GRUA).default('Grúa'),
+  foto_url:            z.string().url().nullable().optional(),
 })
 
 export const empresaAgendaSchema = z.object({
@@ -94,4 +95,5 @@ export const empresaAgendaSchema = z.object({
 export const operarioSchema = z.object({
   nombre:   z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   telefono: z.string().min(1, 'El teléfono es obligatorio').regex(TELEFONO_REGEX, 'Teléfono inválido'),
+  foto_url: z.string().url().nullable().optional(),
 })
