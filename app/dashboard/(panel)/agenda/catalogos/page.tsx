@@ -68,7 +68,7 @@ export default async function CatalogosAgendaPage() {
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Constructora del Sur S.A.' },
             { name: 'contacto', label: 'Persona de contacto', required: true, placeholder: 'Ej: Juan Pérez' },
             { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
-            { name: 'notas', label: 'Notas' },
+            { name: 'notas', label: 'Notas', placeholder: 'Notas internas (opcional)' },
             { name: 'logo_url', label: 'Logo', type: 'image', folder: 'empresa-logos' },
           ]}
           createAction={createEmpresaAgenda}
