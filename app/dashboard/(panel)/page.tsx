@@ -24,7 +24,7 @@ export default async function DashboardHomePage() {
       count: servicios.length,
       href: '/dashboard/servicios',
       icon: Wrench,
-      color: 'bg-blue-50 text-blue-600',
+      color: 'bg-igb-navy/10 text-igb-navy',
     },
     {
       label: 'Montajes',
@@ -38,7 +38,7 @@ export default async function DashboardHomePage() {
       count: clientes.length,
       href: '/dashboard/clientes',
       icon: Users,
-      color: 'bg-green-50 text-green-600',
+      color: 'bg-igb-navy/10 text-igb-navy',
     },
   ]
 
