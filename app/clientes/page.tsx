@@ -68,7 +68,7 @@ export default async function ClientesPage() {
 
       {/* Resto de clientes — solo logo, carrusel automático, sin click */}
       {sinBlog.length > 0 && (
-        <section className="pt-24 lg:pt-32 pb-8 lg:pb-10 bg-zinc-50 border-y border-zinc-100">
+        <section className="pt-24 lg:pt-32 pb-16 lg:pb-20 bg-zinc-50 border-y border-zinc-100">
           <div className="container-igb">
             <div className="text-center mb-12" data-animate="fade-up">
               <span className="label-tag">Otras alianzas</span>
@@ -76,26 +76,26 @@ export default async function ClientesPage() {
             </div>
           </div>
           <ClientesLogoMarquee clientes={sinBlog} />
+          <p className="text-center text-zinc-500 text-sm font-medium mt-10" data-animate="fade-up">
+            {clientes.length} empresas que ya eligieron Grúas InGlobal
+          </p>
         </section>
       )}
 
-      <div className="text-center py-12 bg-white" data-animate="fade-up">
-        <p className="text-zinc-500 text-sm font-medium">
-          {clientes.length} empresas que ya eligieron Grúas InGlobal
-        </p>
-      </div>
-
-      {/* Final CTA */}
-      <section className="py-24 bg-zinc-100">
+      {/* Final CTA — fondo navy a propósito, para que no se lea como una
+          continuación más del gris de arriba (antes zinc-100 sobre
+          zinc-50 casi no se distinguían, y encima había una franja blanca
+          suelta en el medio con el conteo de empresas). */}
+      <section className="py-24 bg-igb-navy">
         <div className="container-igb text-center">
           <h2
-            className="text-3xl md:text-4xl font-headline font-bold text-zinc-900 tracking-tight mb-6"
+            className="text-3xl md:text-4xl font-headline font-bold text-white tracking-tight mb-6"
             data-animate="fade-up"
           >
             {(cta.heading as string) || '¿Querés trabajar con nosotros?'}
           </h2>
           <p
-            className="text-zinc-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-slate-300 text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
             data-animate="fade-up"
             data-delay="150"
           >
