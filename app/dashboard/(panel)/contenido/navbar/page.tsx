@@ -2,10 +2,17 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getSiteSettings } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
+import ContentSection from '@/components/dashboard/ContentSection'
 import NavbarForm from './NavbarForm'
+import FooterForm from '../footer/FooterForm'
+import FooterExtraForm from '../footer-extra/FooterExtraForm'
 
-export default async function NavbarContentPage() {
-  const settings = await getSiteSettings('navbar')
+export default async function NavbarFooterContentPage() {
+  const [navbar, footer, footerExtra] = await Promise.all([
+    getSiteSettings('navbar'),
+    getSiteSettings('footer'),
+    getSiteSettings('footer_extra'),
+  ])
   return (
     <div className="max-w-4xl">
       <div className="mb-6">
@@ -14,10 +21,18 @@ export default async function NavbarContentPage() {
         </Link>
       </div>
       <PageHeader
-        title="Menú de navegación"
-        description="Texto de los links del menú (arriba en todo el sitio) y del footer, que muestra los mismos 7 links. Las rutas quedan fijas, solo se edita el texto visible."
+        title="Navbar y footer"
+        description="Se ve en todo el sitio: menú de navegación, footer principal y textos extra del footer."
       />
-      <NavbarForm settings={settings} />
+      <ContentSection titulo="Menú de navegación">
+        <NavbarForm settings={navbar} />
+      </ContentSection>
+      <ContentSection titulo="Footer">
+        <FooterForm settings={footer} />
+      </ContentSection>
+      <ContentSection titulo="Footer (textos extra)">
+        <FooterExtraForm settings={footerExtra} />
+      </ContentSection>
     </div>
   )
 }
