@@ -58,6 +58,8 @@ function FieldInputs({ fields, values }: { fields: FieldConfig[]; values?: Recor
             name={f.name}
             folder={f.folder ?? 'catalogo-agenda'}
             defaultValue={values?.[f.name] !== undefined ? String(values[f.name]) : undefined}
+            cropAspect={1}
+            cropRound
           />
         ) : (
           <TextField

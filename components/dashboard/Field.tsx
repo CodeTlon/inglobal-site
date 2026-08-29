@@ -8,6 +8,7 @@ import { uploadDirectToStorage, uploadVideoWithTranscode } from '@/lib/client-up
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 import { friendlyError } from '@/lib/friendly-error'
 import ConfirmDialog from './ConfirmDialog'
+import ImageCropModal from './ImageCropModal'
 
 function formatMB(bytes: number) {
   return `${Math.round(bytes / (1024 * 1024))} MB`
@@ -198,6 +199,8 @@ export function ImageUpload({
   focalDefaultValue,
   focalMobileName,
   focalMobileDefaultValue,
+  cropAspect,
+  cropRound,
 }: {
   label: string
   name: string
@@ -210,6 +213,10 @@ export function ImageUpload({
   /** Si se pasa (además de focalName), agrega un segundo foco para mobile — toggle Desktop/Mobile sobre el mismo preview. Vacío = usa el foco de desktop. */
   focalMobileName?: string
   focalMobileDefaultValue?: string | null
+  /** Si se pasa, antes de subir abre el modal estándar de recorte/zoom/rotación (aspect ratio fijo, ej. 1 para avatares cuadrados/circulares). */
+  cropAspect?: number
+  /** Solo con cropAspect: recorta en círculo en vez de rectángulo (para avatares). */
+  cropRound?: boolean
 }) {
   const [url, setUrl] = useState<string>(defaultValue ?? '')
   // Valor real que viaja al formulario — a diferencia de `url` (preview, puede ser
@@ -222,7 +229,9 @@ export function ImageUpload({
   const [focal, setFocal] = useState<string>(focalDefaultValue ?? '50% 50%')
   const [focalMobile, setFocalMobile] = useState<string>(focalMobileDefaultValue ?? '')
   const [focalMode, setFocalMode] = useState<'desktop' | 'mobile'>('desktop')
+  const [pendingCropFile, setPendingCropFile] = useState<File | null>(null)
   const objectUrlRef = useRef<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const genRef = useRef(0)
 
   // Foco que se está editando/mostrando según el toggle — en mobile, si nunca
@@ -245,7 +254,7 @@ export function ImageUpload({
     }
   }, [])
 
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+  function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = e.target.files?.[0]
     if (!picked) return
     if (picked.size > MAX_IMAGE_BYTES) {
@@ -253,6 +262,16 @@ export function ImageUpload({
       e.target.value = ''
       return
     }
+    if (cropAspect) {
+      // El modal de recorte confirma de forma asíncrona, desenganchado del
+      // evento original — el <input> recién se resetea al cerrar/confirmar.
+      setPendingCropFile(picked)
+      return
+    }
+    void processFile(picked)
+  }
+
+  async function processFile(picked: File) {
     // Contador de generación: si el usuario elige otro archivo antes de que
     // termine este upload, la respuesta de este pick queda obsoleta y no debe
     // pisar el preview del pick más nuevo.
@@ -278,7 +297,7 @@ export function ImageUpload({
       objectUrlRef.current = null
       setErr(resizeErr instanceof Error ? resizeErr.message : 'No se pudo procesar la imagen.')
       setUrl(previousUrl)
-      e.target.value = ''
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
@@ -296,7 +315,7 @@ export function ImageUpload({
       objectUrlRef.current = null
       setErr(friendlyError(uploadErr, 'Error al subir el archivo. Intentá de nuevo.'))
       setUrl(previousUrl)
-      e.target.value = ''
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
     URL.revokeObjectURL(localPreview)
@@ -312,7 +331,7 @@ export function ImageUpload({
       setUrl(res.url)
       setCommittedUrl(res.url)
     }
-    e.target.value = ''
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   return (
@@ -401,6 +420,7 @@ export function ImageUpload({
               )}
               {busy ? 'Subiendo…' : 'Subir archivo'}
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={onPick}
@@ -434,6 +454,22 @@ export function ImageUpload({
       </div>
 
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}
+
+      {pendingCropFile && (
+        <ImageCropModal
+          file={pendingCropFile}
+          aspect={cropAspect ?? 1}
+          round={cropRound}
+          onCancel={() => {
+            setPendingCropFile(null)
+            if (fileInputRef.current) fileInputRef.current.value = ''
+          }}
+          onConfirm={(cropped) => {
+            setPendingCropFile(null)
+            void processFile(cropped)
+          }}
+        />
+      )}
     </div>
   )
 }
