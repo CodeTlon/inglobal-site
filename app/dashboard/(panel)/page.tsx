@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getMontajes, getClientes, getServicios, getSiteSettings } from '@/lib/content'
 import { QUICKLINK_CANDIDATES } from '@/lib/constants'
-import { Building2, Users, Wrench, ArrowRight, Zap } from 'lucide-react'
+import { Building2, Users, Wrench, ArrowRight } from 'lucide-react'
 
 export default async function DashboardHomePage() {
   const [montajes, clientes, servicios, quicklinksSettings] = await Promise.all([
@@ -38,7 +38,7 @@ export default async function DashboardHomePage() {
       count: clientes.length,
       href: '/dashboard/clientes',
       icon: Users,
-      color: 'bg-igb-navy/10 text-igb-navy',
+      color: 'bg-sky-50 text-sky-600',
     },
   ]
 
@@ -85,7 +85,7 @@ export default async function DashboardHomePage() {
             Accesos rápidos
           </h2>
           <Link
-            href="/dashboard/contenido/accesos-rapidos"
+            href="/dashboard/contenido/inicio"
             className="text-xs font-bold text-igb-yellow-dark hover:text-igb-on-surface transition-colors"
           >
             Editar
@@ -101,11 +101,8 @@ export default async function DashboardHomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 bg-zinc-50 hover:bg-igb-yellow/10 border border-zinc-200 hover:border-igb-yellow/40 hover:shadow-sm px-4 py-3.5 rounded-lg transition-all group"
+                className="flex items-center bg-zinc-50 hover:bg-igb-yellow/10 border border-zinc-200 hover:border-igb-yellow/40 hover:shadow-sm px-4 py-3.5 rounded-lg transition-all group"
               >
-                <div className="w-9 h-9 rounded-lg bg-white border border-zinc-200 flex items-center justify-center flex-shrink-0 group-hover:border-igb-yellow/40">
-                  <Zap size={16} className="text-igb-yellow-dark" />
-                </div>
                 <span className="text-sm font-bold text-zinc-700 group-hover:text-igb-yellow-dark transition-colors">
                   {link.label}
                 </span>
