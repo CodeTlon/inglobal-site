@@ -38,7 +38,10 @@ export default function PoliticaDePrivacidadPage() {
                   <strong className="text-igb-on-surface">Datos operativos de agenda:</strong> turnos, disponibilidad de grúas y operarios, y demás información de programación que el personal ingresa para coordinar el trabajo.
                 </li>
                 <li>
-                  <strong className="text-igb-on-surface">Cámara:</strong> la app solicita acceso a la cámara únicamente para escanear el código QR que vincula una TV a la sesión de agenda. No se capturan, almacenan ni envían fotos ni video.
+                  <strong className="text-igb-on-surface">Catálogo de grúas, operarios y empresas:</strong> nombre, teléfono de contacto y foto o logo que el personal carga para cada grúa, operario o empresa cliente del catálogo de la agenda.
+                </li>
+                <li>
+                  <strong className="text-igb-on-surface">Cámara y galería de fotos:</strong> la app solicita acceso a la cámara para escanear el código QR que vincula una TV a la sesión de agenda (no se capturan, almacenan ni envían fotos ni video de esa lectura), y acceso a la galería de fotos para que el personal elija la foto o logo de una grúa, operario o empresa del catálogo — esas fotos sí se almacenan, según el punto anterior.
                 </li>
                 <li>
                   <strong className="text-igb-on-surface">Formulario de contacto del sitio:</strong> nombre, email y mensaje que un visitante decide enviarnos, usados solo para responder esa consulta.
