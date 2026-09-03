@@ -36,6 +36,13 @@ export default function AgendaMonthView({
 
   const todayKey = toDateInput(new Date())
   const weeks = getMonthMatrix(month)
+  // Meses de 6 semanas dejan menos alto por celda (7 filas en vez de 6
+  // repartiendo el mismo espacio) — sin achicar el contenido, el número de
+  // día + el badge de cantidad ya casi llenaban la celda entera y el
+  // overflow-hidden cortaba los eventos antes de que se vieran. Con menos
+  // eventos visibles pero más chicos entran completos sin necesitar scroll.
+  const compact = weeks.length >= 6
+  const maxVisible = compact ? 2 : 3
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
     // Evento de varios días (fecha_hasta) — aparece en cada día de su rango,
@@ -76,18 +83,18 @@ export default function AgendaMonthView({
               // fija (1fr) ese botón (y hasta los eventos de más abajo) podían quedar
               // recortados y sin poder tocarse cuando entraban varios eventos.
               onClick={() => dayEventos.length > 0 && setSelectedDay({ key, eventos: dayEventos })}
-              className={`h-full overflow-hidden rounded-lg border p-3.5 ${
+              className={`h-full overflow-hidden rounded-lg border ${compact ? 'p-2' : 'p-3.5'} ${
                 isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
               } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'} ${dayEventos.length > 0 ? 'cursor-pointer' : ''}`}
             >
-              <p className="text-2xl font-bold text-zinc-900 mb-2">{day.getDate()}</p>
-              {dayEventos.length > 0 && (
+              <p className={`font-bold text-zinc-900 ${compact ? 'text-base mb-0.5' : 'text-2xl mb-2'}`}>{day.getDate()}</p>
+              {dayEventos.length > 0 && !compact && (
                 <p className="text-base text-igb-yellow-dark font-bold mb-2">
                   {dayEventos.length} evento{dayEventos.length > 1 ? 's' : ''}
                 </p>
               )}
-              <div className="space-y-1.5">
-                {dayEventos.slice(0, 3).map((ev) => (
+              <div className={compact ? 'space-y-1' : 'space-y-1.5'}>
+                {dayEventos.slice(0, maxVisible).map((ev) => (
                   <button
                     key={ev.id}
                     type="button"
@@ -96,21 +103,21 @@ export default function AgendaMonthView({
                       setSelected(ev)
                     }}
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
-                    className={`w-full rounded px-2 py-1.5 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                    className={`w-full rounded border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
-                    <p className="text-sm font-bold truncate">
+                    <p className={`font-bold truncate ${compact ? 'text-xs' : 'text-sm'}`}>
                       {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
                     </p>
-                    <p className="text-xs truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>
+                    {!compact && <p className="text-xs truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>}
                   </button>
                 ))}
-                {dayEventos.length > 3 && (
+                {dayEventos.length > maxVisible && (
                   <button
                     type="button"
                     onClick={() => setSelectedDay({ key, eventos: dayEventos })}
-                    className="w-full text-base font-bold text-igb-navy hover:underline text-left px-2 py-1.5 cursor-pointer"
+                    className={`w-full font-bold text-igb-navy hover:underline text-left cursor-pointer ${compact ? 'text-xs px-1.5 py-0.5' : 'text-base px-2 py-1.5'}`}
                   >
-                    +{dayEventos.length - 3} más
+                    +{dayEventos.length - maxVisible} más
                   </button>
                 )}
               </div>
