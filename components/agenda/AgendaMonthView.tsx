@@ -36,13 +36,14 @@ export default function AgendaMonthView({
 
   const todayKey = toDateInput(new Date())
   const weeks = getMonthMatrix(month)
-  // Meses de 6 semanas dejan menos alto por celda (7 filas en vez de 6
-  // repartiendo el mismo espacio) — sin achicar el contenido, el número de
-  // día + el badge de cantidad ya casi llenaban la celda entera y el
-  // overflow-hidden cortaba los eventos antes de que se vieran. Con menos
-  // eventos visibles pero más chicos entran completos sin necesitar scroll.
-  const compact = weeks.length >= 6
-  const maxVisible = compact ? 2 : 3
+  // Antes esto solo se achicaba en meses de 6 semanas — pero 5 y 6 semanas
+  // reparten una altura casi igual (6 filas son ~17% más bajas que 5), así
+  // que si 2-3 eventos no entraban en 6 semanas, tampoco entran cómodos en 5.
+  // Siempre compacto: el número de día + el badge de cantidad ya casi
+  // llenaban la celda entera y el overflow-hidden cortaba los eventos antes
+  // de que se vieran, en cualquier mes.
+  const compact = true
+  const maxVisible = 2
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
     // Evento de varios días (fecha_hasta) — aparece en cada día de su rango,

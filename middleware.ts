@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
@@ -40,6 +41,11 @@ export async function middleware(request: NextRequest) {
   if ((isDashboard || isAgendaTv) && !isLogin && !isAgendaTvPair && !user) {
     const url = request.nextUrl.clone()
     if (isAgendaTv) {
+      // ponytail: log temporal — un usuario reportó que una TV ya logueada
+      // volvió a pedir el QR después de un deploy; esto ayuda a confirmar
+      // si es un refresh token vencido/reusado o algo del lado de Supabase
+      // la próxima vez que pase. Sacar cuando se confirme la causa.
+      console.error('[middleware] TV sin sesión, redirige a /agenda-tv/pair', { userError: userError?.message })
       url.pathname = '/agenda-tv/pair'
     } else {
       url.pathname = '/dashboard/login'
