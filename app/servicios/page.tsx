@@ -3,6 +3,9 @@ import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
 import { getServicios, getSiteSettings } from '@/lib/content'
+import { JsonLd } from '@/components/seo/JsonLd'
+import TLDRBox from '@/components/TLDRBox'
+import { SITE_URL } from '@/lib/site'
 import {
   ArrowUpToLine,
   HardHat,
@@ -13,7 +16,8 @@ import {
 
 export const metadata: Metadata = {
   title: 'Servicios',
-  description: 'Grúas telescópicas, hidrogrúas, movimientos pesados y traslados con carretones.',
+  description:
+    'Grúas telescópicas, hidrogrúas, movimientos pesados y traslados con carretones en Córdoba y toda Argentina. Cotización según carga, altura y plazos — respuesta con asesoramiento técnico.',
 }
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -23,12 +27,68 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Truck,
 }
 
+const FAQ_ITEMS = [
+  {
+    q: '¿Cómo se cotiza un servicio de grúa o montaje industrial?',
+    a: 'La cotización depende del peso y las dimensiones de la carga, la altura o el alcance requerido, el tipo de terreno y los plazos de la operación. Con esos datos armamos un presupuesto técnico a medida — no manejamos tarifas fijas por hora sin evaluar el proyecto primero.',
+  },
+  {
+    q: '¿Qué información necesitan para armar el presupuesto?',
+    a: 'Peso y dimensiones de la carga, ubicación y accesos al sitio, altura o distancia de izaje, y la fecha estimada del trabajo. Cuanta más precisión tengamos, más ajustado sale el presupuesto — si todavía no tenés todos los datos, igual podemos avanzar con una primera estimación.',
+  },
+  {
+    q: '¿Cuánto tiempo lleva coordinar un montaje o izaje?',
+    a: 'Para operaciones estándar, entre 24 y 72 horas desde que confirmamos el presupuesto hasta que el equipo está en sitio. Montajes de mayor complejidad (grandes alturas, cargas especiales, múltiples grúas) requieren una etapa previa de planificación técnica más extensa.',
+  },
+  {
+    q: '¿Los operadores y equipos están certificados?',
+    a: 'Sí. Todos nuestros operadores tienen certificación vigente y los equipos pasan mantenimiento e inspección periódica, en línea con las normas de seguridad para trabajo en altura y movimiento de cargas pesadas en Argentina.',
+  },
+  {
+    q: '¿Trabajan en toda Argentina o solo en Córdoba?',
+    a: 'Nuestra base operativa está en Córdoba, pero cubrimos traslados y montajes en todo el país según el proyecto. Contanos la ubicación al pedir el presupuesto para calcular los costos de traslado del equipo.',
+  },
+  {
+    q: '¿Qué pasa si el alcance del proyecto cambia sobre la marcha?',
+    a: 'Es habitual en obra. Reevaluamos el presupuesto y los tiempos apenas surge un cambio de alcance (otro peso, otra altura, otro acceso) y te lo confirmamos antes de seguir — sin sorpresas en la facturación final.',
+  },
+]
+
 export default async function ServiciosPage() {
   const services = await getServicios()
   const s = await getSiteSettings('servicios_header')
 
   return (
     <main className="bg-white">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            ...services.map((service) => ({
+              '@type': 'Service',
+              serviceType: service.title,
+              name: service.title,
+              description: service.desc || service.excerpt,
+              provider: {
+                '@type': 'LocalBusiness',
+                name: 'Grúas InGlobal S.R.L.',
+                url: SITE_URL,
+              },
+              areaServed: 'Argentina',
+              url: `${SITE_URL}/servicios#${service.slug}`,
+            })),
+            {
+              '@type': 'FAQPage',
+              mainEntity: FAQ_ITEMS.map((item) => ({
+                '@type': 'Question',
+                name: item.q,
+                acceptedAnswer: { '@type': 'Answer', text: item.a },
+              })),
+            },
+          ],
+        }}
+      />
+
       {/* Page Header */}
       <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
         <div className="container-igb">
@@ -46,12 +106,26 @@ export default async function ServiciosPage() {
             {(s.heading as string) || 'Nuestros Servicios'}
           </h1>
           <p
-            className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
+            className="text-xl text-zinc-500 max-w-2xl leading-relaxed mb-8"
             data-animate="fade-up"
             data-delay="200"
           >
-            {(s.subheading as string) || 'Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina.'}
+            {(s.subheading as string) ||
+              'Alquiler de grúas telescópicas, hidrogrúas, movimientos pesados y traslados con carretones en Córdoba y toda Argentina — equipos certificados y operadores expertos para cada tipo de carga.'}
           </p>
+
+          <div className="max-w-2xl" data-animate="fade-up" data-delay="250">
+            <TLDRBox
+              heading="Nuestros servicios en resumen"
+              items={services.map((service) => service.excerpt || service.title)}
+            />
+            <Link
+              href="/contacto"
+              className="btn-primary transition-all hover:-translate-y-0.5"
+            >
+              {(s.cta_button as string) || 'Solicitar Presupuesto'}
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -152,6 +226,34 @@ export default async function ServiciosPage() {
               </div>
             )
           })}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 bg-zinc-50 border-t border-zinc-100" id="preguntas-frecuentes">
+        <div className="container-igb max-w-3xl">
+          <div className="mb-14 text-center" data-animate="fade-up">
+            <span className="label-tag">Dudas frecuentes</span>
+            <h2 className="heading-display">Preguntas sobre cotización y montajes</h2>
+          </div>
+
+          <div className="space-y-8">
+            {FAQ_ITEMS.map((item) => (
+              <div key={item.q} className="border-b border-zinc-200 pb-8" data-animate="fade-up">
+                <h3 className="text-xl font-headline font-bold text-zinc-900 mb-3">{item.q}</h3>
+                <p className="text-zinc-600 leading-relaxed">{item.a}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 flex flex-wrap gap-4" data-animate="fade-up" data-delay="150">
+            <Link href="/montajes" className="btn-outline transition-all hover:-translate-y-0.5">
+              Ver casos de éxito
+            </Link>
+            <Link href="/contacto" className="btn-primary transition-all hover:-translate-y-0.5">
+              Consultar mi proyecto
+            </Link>
+          </div>
         </div>
       </section>
 

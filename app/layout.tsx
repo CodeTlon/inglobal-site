@@ -6,6 +6,11 @@ import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import RegisterSW from '@/components/RegisterSW'
 import OfflineBanner from '@/components/OfflineBanner'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
+import CookieConsent from '@/components/CookieConsent'
+import BackToTop from '@/components/BackToTop'
+import StickyMobileCTA from '@/components/StickyMobileCTA'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { SITE_URL } from '@/lib/site'
 import { getSiteSettings } from '@/lib/content'
 
@@ -74,41 +79,43 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const navbarSettings = await getSiteSettings('navbar')
+  const gaId = process.env.NEXT_PUBLIC_GA_ID
   return (
     <html lang="es" className={`${manrope.variable} ${inter.variable}`}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'LocalBusiness',
-              name: 'Grúas InGlobal S.R.L.',
-              description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
-              url: SITE_URL,
-              image: `${SITE_URL}/images/logo.png`,
-              address: {
-                '@type': 'PostalAddress',
-                streetAddress: 'Ana Riglos de Irigoyen S/N',
-                addressLocality: 'Córdoba',
-                addressCountry: 'AR',
-              },
-              telephone: '+5403513454244',
-              email: 'cotizacionesinglobalsrl@gmail.com',
-              openingHours: ['Mo-Fr 08:00-18:00', 'Sa 08:00-13:00'],
-              priceRange: '$$',
-              areaServed: 'Argentina',
-            }),
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'LocalBusiness',
+            name: 'Grúas InGlobal S.R.L.',
+            description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
+            url: SITE_URL,
+            image: `${SITE_URL}/images/logo.png`,
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: 'Ana Riglos de Irigoyen S/N',
+              addressLocality: 'Córdoba',
+              addressCountry: 'AR',
+            },
+            telephone: '+5403513454244',
+            email: 'cotizacionesinglobalsrl@gmail.com',
+            openingHours: ['Mo-Fr 08:00-18:00', 'Sa 08:00-13:00'],
+            priceRange: '$$',
+            areaServed: 'Argentina',
           }}
         />
       </head>
       <body className="antialiased">
+        {gaId && <GoogleAnalytics gaId={gaId} />}
         <OfflineBanner />
         <RegisterSW />
         <ScrollReveal />
         <Navbar labels={navbarSettings} />
         <main>{children}</main>
         <Footer />
+        <BackToTop />
+        <StickyMobileCTA />
+        <CookieConsent />
       </body>
     </html>
   )

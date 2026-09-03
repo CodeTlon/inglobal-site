@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/actions/auth'
+import { clearPwaCache } from '@/lib/pwa-cache'
 import SavedToast from '@/components/dashboard/SavedToast'
 import {
   LayoutDashboard,
@@ -173,7 +174,14 @@ export default function DashboardPanelLayout({
 
         {/* Logout */}
         <div className="px-3 py-4 border-t border-slate-800" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
-          <form action={signOut}>
+          <form
+            action={signOut}
+            onSubmit={() => {
+              // Fire-and-forget: no bloquea el submit real del form action (server
+              // action, cierra la sesión de Supabase server-side) — ver lib/pwa-cache.ts.
+              void clearPwaCache()
+            }}
+          >
             <button
               type="submit"
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all"

@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+# services/* tiene su propio package.json/node_modules (ver services/video-transcode) —
+# sin esto, node_modules ahí quedaba sin ignorar (el patrón de arriba está anclado a la raíz).
+node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz

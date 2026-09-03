@@ -7,6 +7,7 @@ import { getCliente, getClientes, getTrabajo, getTrabajos } from '@/lib/content'
 import { youtubeEmbedUrl, parseYoutubeId } from '@/lib/youtube'
 import { sanitizeHtml } from '@/lib/sanitize'
 import LazyYoutubeEmbed from '@/components/LazyYoutubeEmbed'
+import ShareButton from '@/components/ShareButton'
 
 interface Props {
   params: Promise<{ slug: string; trabajo: string }>
@@ -33,9 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!cliente) return { title: 'Trabajo no encontrado' }
     const trabajo = await getTrabajo(cliente.id, trabajoSlug)
     if (!trabajo) return { title: 'Trabajo no encontrado' }
+    const fecha = trabajo.fecha
+      ? new Date(`${trabajo.fecha}T00:00:00`).toLocaleDateString('es-AR', { year: 'numeric', month: 'long' })
+      : null
     return {
       title: `${trabajo.title} — ${cliente.name}`,
-      description: trabajo.excerpt ?? undefined,
+      description:
+        `${trabajo.excerpt ?? `${trabajo.title}, proyecto realizado para ${cliente.name}.`}${fecha ? ` Realizado en ${fecha}.` : ''} Grúas InGlobal S.R.L.`.trim(),
       openGraph: {
         title: trabajo.title,
         description: trabajo.excerpt ?? undefined,
@@ -173,13 +178,14 @@ export default async function TrabajoDetailPage({ params }: Props) {
             </a>
           )}
 
-          <div className="mt-12 pt-8 border-t border-zinc-100">
+          <div className="mt-12 pt-8 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-4">
             <Link
               href={`/clientes/${cliente.slug}`}
               className="inline-flex items-center gap-2 text-igb-yellow-dark hover:text-zinc-900 transition-colors font-bold font-headline text-sm"
             >
               <ArrowLeft size={16} /> Volver a {cliente.name}
             </Link>
+            <ShareButton title={`${trabajo.title} — ${cliente.name}`} text={trabajo.excerpt ?? undefined} />
           </div>
         </div>
       </section>

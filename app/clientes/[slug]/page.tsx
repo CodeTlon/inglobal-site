@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCliente, getClientes, getTrabajos } from '@/lib/content'
 import ClienteTrabajos from './ClienteTrabajos'
+import ShareButton from '@/components/ShareButton'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -23,8 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const cliente = await getCliente(slug)
     if (!cliente) return { title: 'Cliente no encontrado' }
     return {
-      title: cliente.name,
-      description: cliente.bio || `${cliente.name} — cliente de Grúas InGlobal S.R.L.`,
+      title: `Caso de éxito — ${cliente.name}`,
+      description:
+        cliente.bio ||
+        `Trabajos y proyectos realizados junto a ${cliente.name}: montajes, izajes y movimientos pesados a cargo de Grúas InGlobal S.R.L.`,
     }
   } catch {
     return { title: 'Cliente' }
@@ -96,13 +99,16 @@ export default async function ClienteDetailPage({ params }: Props) {
             <ClienteTrabajos clienteSlug={cliente.slug} trabajos={trabajos} />
 
             <div className="mt-16 pt-10 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-              <Link
-                href="/clientes"
-                className="text-igb-yellow-dark font-bold font-headline text-sm flex items-center gap-2 hover:gap-3 transition-all"
-              >
-                ← Volver a Clientes
-              </Link>
-              <Link href="/contacto" className="btn-primary">
+              <div className="flex flex-wrap items-center gap-4">
+                <Link
+                  href="/clientes"
+                  className="text-igb-yellow-dark font-bold font-headline text-sm flex items-center gap-2 hover:gap-3 transition-all"
+                >
+                  ← Volver a Clientes
+                </Link>
+                <ShareButton title={`Caso de éxito — ${cliente.name}`} text={cliente.bio ?? undefined} />
+              </div>
+              <Link href="/contacto" className="btn-primary transition-all hover:-translate-y-0.5">
                 Trabajar con InGlobal
               </Link>
             </div>

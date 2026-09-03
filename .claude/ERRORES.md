@@ -93,3 +93,39 @@ Un formulario que "no tira error visible al cargar" no prueba que su submit func
 el guardado end-to-end (editar → guardar → recargar en otra pestaña) antes de dar por completo una
 feature de CMS, sobre todo cuando el contrato entre `action` y `*Form.tsx` se escribió en momentos
 distintos (la action es de `62bc191`, los forms reales son de `3d783e8`, casi 3 meses después).
+
+## `is_admin()` (022) dejó momentáneamente la escritura abierta a usuarios anónimos — corregido en 023
+
+**Síntoma**
+Ninguno reportado en producción (encontrado en auditoría de seguridad, no en uso real) — pero el defecto,
+de haber llegado a un ambiente sin corregir, habría permitido a cualquier request sin sesión (key `anon`)
+escribir en `site_settings`/`montajes`/`clientes`/`servicios`/`trabajos`/`galeria` y el bucket `media`.
+
+**Causa raíz**
+`022_user_roles.sql` introdujo `is_admin()` para separar roles `admin`/`trabajador`:
+```sql
+SELECT COALESCE(auth.jwt() -> 'app_metadata' ->> 'role', 'admin') = 'admin'
+```
+La intención era "sin rol seteado = admin, para no romper cuentas viejas" — pero un request **sin sesión
+en absoluto** (key `anon`) tampoco tiene `app_metadata.role` en su JWT, así que el `COALESCE` también lo
+resolvía a `'admin'` y las policies (`USING (public.is_admin())`) lo dejaban pasar. El chequeo de rol
+reemplazó sin querer al chequeo de autenticación que las policies anteriores sí tenían
+(`auth.role() = 'authenticated'`), en vez de sumarse a él.
+
+**Solución**
+`023_fix_is_admin_requires_auth.sql` agrega `auth.role() = 'authenticated' AND` antes del chequeo de rol.
+
+**Lección / pendiente**
+No hay infraestructura de test de RLS en este proyecto (sin `supabase/config.toml`, sin pgTAP, sin CI —
+`tests/e2e/inglobal.spec.ts` con Playwright es end-to-end de UI, no ejercita policies directamente; el
+único test unitario del repo es `services/video-transcode/token.test.mjs`, que no toca Supabase). Esta
+clase de bug — una policy que combina rol + auth y accidentalmente le abre la puerta a `anon` — no queda
+atrapada por nada automático hoy; se encontró leyendo las migraciones a mano. Si en algún momento se arma
+infraestructura de test para este repo, el caso mínimo a cubrir es: crear dos clientes Supabase (uno con
+la `anon` key sin sesión, otro con un JWT de `authenticated` sin `app_metadata.role`) e intentar un INSERT
+en `site_settings` con cada uno — el primero debe fallar (`RLS`/403), el segundo debe pasar. Alcanzaría con
+pgTAP (`supabase test db`, corre las policies directo en Postgres, sin necesidad de un server Next arriba)
+o, más simple y sin herramienta nueva, un script Node con `@supabase/supabase-js` contra el proyecto dev
+(mismo patrón que `scripts/db-sync-dev.mjs`) corrido a mano tras tocar cualquier policy de rol. No se
+armó ninguna de las dos opciones en esta sesión — decisión explícita de no improvisar infraestructura de
+test nueva sin que el equipo elija el enfoque.

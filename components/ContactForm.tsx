@@ -88,6 +88,8 @@ export default function ContactForm({ defaultService, services }: ContactFormPro
             type="text"
             placeholder="Tu nombre"
             required
+            minLength={2}
+            title="Ingresá al menos 2 caracteres"
             className={inputClass}
           />
         </div>
@@ -176,6 +178,8 @@ export default function ContactForm({ defaultService, services }: ContactFormPro
           rows={5}
           placeholder="Contanos qué necesitás..."
           required
+          minLength={10}
+          title="Contanos al menos un poco más — mínimo 10 caracteres"
           className={`${inputClass} resize-none`}
         />
       </div>

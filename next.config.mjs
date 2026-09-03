@@ -32,18 +32,50 @@ const nextConfig = {
     ]
   },
   async headers() {
+    // El servicio de transcode (services/video-transcode, VPS aparte en Coolify) recibe
+    // fetch() directo del navegador (lib/client-upload.ts) cuando está configurado — sin
+    // esto en connect-src, la CSP lo bloquearía y el upload de video caería silenciosamente
+    // al fallback sin comprimir (falla "soft" por diseño, pero mejor no depender de eso).
+    const transcodeUrl = process.env.NEXT_PUBLIC_TRANSCODE_SERVICE_URL
+    const transcodeOrigin = transcodeUrl ? new URL(transcodeUrl).origin : ''
+
+    const csp = [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.ytimg.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "font-src 'self' data:",
+      `connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com${transcodeOrigin ? ' ' + transcodeOrigin : ''}`,
+      "media-src 'self' https://*.supabase.co",
+      "frame-src 'self' https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      'upgrade-insecure-requests',
+    ].join('; ')
+
+    const securityHeaders = [
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+      { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+    ]
+
+    // CSP solo en producción: `next dev` usa eval() para Fast Refresh/HMR (webpack
+    // eval-source-map) y un websocket propio — un script-src sin 'unsafe-eval' y sin el
+    // origen ws: rompería el dev server. En prod (build real, sin webpack HMR) no hace falta.
+    if (process.env.NODE_ENV === 'production') {
+      securityHeaders.push({ key: 'Content-Security-Policy', value: csp })
+    }
+
     return [
       {
         // Aplica a todo el sitio (público + /dashboard). Deploy es siempre Vercel (HTTPS),
         // por eso HSTS es seguro sin chequeo condicional.
         source: '/:path*',
-        headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-        ],
+        headers: securityHeaders,
       },
     ]
   },

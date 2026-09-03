@@ -19,7 +19,8 @@ export default function Pagination({
       <button
         onClick={() => onChange(page - 1)}
         disabled={page === 1}
-        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Página anterior"
+        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all hover:border-igb-yellow-dark/40 hover:bg-zinc-50 active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-200 disabled:hover:bg-white disabled:active:scale-100"
       >
         <ChevronLeft size={16} className="text-zinc-500" />
       </button>
@@ -33,8 +34,12 @@ export default function Pagination({
           <button
             key={p}
             onClick={() => onChange(p as number)}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold transition-all border ${
-              p === page ? 'bg-igb-yellow border-igb-yellow text-igb-on-yellow' : 'bg-white border-zinc-200 text-zinc-500'
+            aria-label={`Ir a la página ${p}`}
+            aria-current={p === page ? 'page' : undefined}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold transition-all border active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow ${
+              p === page
+                ? 'bg-igb-yellow border-igb-yellow text-igb-on-yellow'
+                : 'bg-white border-zinc-200 text-zinc-500 hover:border-igb-yellow-dark/40 hover:text-igb-yellow-dark'
             }`}
           >
             {p}
@@ -45,7 +50,8 @@ export default function Pagination({
       <button
         onClick={() => onChange(page + 1)}
         disabled={page === totalPages}
-        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Página siguiente"
+        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all hover:border-igb-yellow-dark/40 hover:bg-zinc-50 active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-200 disabled:hover:bg-white disabled:active:scale-100"
       >
         <ChevronRight size={16} className="text-zinc-500" />
       </button>

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useFormState, useFormStatus } from 'react-dom'
 import { signIn } from '@/app/actions/auth'
+import { clearPwaCache } from '@/lib/pwa-cache'
 import { Loader2, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react'
 
 const INPUT_CLASS =
@@ -77,6 +78,15 @@ function LoginForm() {
   useEffect(() => {
     if (state?.clearEmail) setEmail('')
   }, [state])
+
+  // Cubre las salidas que no pasan por el botón "Cerrar sesión" del sidebar (ver
+  // lib/pwa-cache.ts): el redirect forzoso de middleware.ts a un trabajador (?sin_acceso=1)
+  // es un 302 server-side, sin chance de correr JS antes de llegar acá — y una sesión que
+  // simplemente expiró también termina en esta pantalla. Si estás en el login no debería
+  // quedar nada cacheado de una sesión autenticada, así que se limpia sin condición al montar.
+  useEffect(() => {
+    void clearPwaCache()
+  }, [])
 
   return (
     <div className="w-full max-w-sm">

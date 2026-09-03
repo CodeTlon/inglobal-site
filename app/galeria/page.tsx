@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { getGaleria, getSiteSettings } from '@/lib/content'
 
 export const metadata: Metadata = {
-  title: 'Portafolio Operativo',
+  title: 'Galería de Trabajos',
   description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas InGlobal S.R.L.',
 }
 
