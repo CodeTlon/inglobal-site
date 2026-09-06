@@ -29,6 +29,11 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
     <div className="space-y-2">
       {ordenados.map((ev) => {
         const visual = getEstadoVisual(ev)
+        // Turno nocturno/multi-día visto desde un día que no es el de
+        // arranque: mostrar `ev.hora_inicio` tal cual (ej. "22:00") es
+        // engañoso acá, ese día en particular el evento arranca a las 00:00
+        // (viene de ayer) — se ve como si arrancara de nuevo a las 22:00.
+        const esDiaInicio = dayKey === ev.fecha
         return (
           <button
             key={ev.id}
@@ -37,7 +42,7 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
             className={`w-full flex items-start gap-3 rounded-lg border px-3 py-3 text-left transition-all hover:brightness-95 ${estadoColorClassesLight(visual)}`}
           >
             <div className="flex-shrink-0 w-14 text-sm font-bold">
-              {ev.hora_inicio.slice(0, 5)}
+              {esDiaInicio ? ev.hora_inicio.slice(0, 5) : 'Cont.'}
               {ev.hora_fin && <span className="block text-xs font-normal opacity-70">a {ev.hora_fin.slice(0, 5)}</span>}
             </div>
             <div className="flex-1 min-w-0">

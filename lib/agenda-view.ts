@@ -91,6 +91,44 @@ export function formatEstado(estado: string): string {
 }
 
 /**
+ * ¿La ventana [hora_inicio, hora_fin) cruza medianoche? — turno nocturno sin
+ * `fecha_hasta` explícita (ej. 22:00→02:00, mismo `fecha`) o CON `fecha_hasta`
+ * puesta a mano pero con `hora_fin` <= `hora_inicio` (mismo caso, solo que el
+ * usuario completó el día de fin en vez de dejarlo vacío). `fecha_hasta ===
+ * fecha` es el único caso que NO es cruce: ahí el usuario puso el mismo día
+ * como fin a propósito, así que `hora_fin <= hora_inicio` es un error de
+ * formulario de verdad, no un turno nocturno (ver lib/validations/agenda.ts).
+ * Copiado 1:1 de inglobal-agenda-app/src/lib/agenda-view.ts — única fuente de
+ * este criterio, portado acá porque este archivo nunca lo tuvo y por eso el
+ * dashboard/TV mostraba turnos nocturnos como "finalizado" apenas pasaba la
+ * hora de fin del reloj (antes de medianoche), incluso en curso.
+ */
+export function cruzaMedianoche(
+  fecha: string,
+  fechaHasta: string | null | undefined,
+  horaInicio: string,
+  horaFinEfectiva: string,
+): boolean {
+  if (fechaHasta === fecha) return false
+  return horaFinEfectiva <= horaInicio
+}
+
+/** Último día efectivo de la ventana del evento: `fecha_hasta` si está puesta
+ * (ya es el fin, cruce medianoche o no), o el día siguiente a `fecha` cuando
+ * cruza medianoche sin `fecha_hasta` explícita. */
+export function finDiaEfectivo(
+  fecha: string,
+  fechaHasta: string | null | undefined,
+  horaInicio: string,
+  horaFinEfectiva: string,
+): string {
+  if (fechaHasta) return fechaHasta
+  return cruzaMedianoche(fecha, fechaHasta, horaInicio, horaFinEfectiva)
+    ? toDateInput(addDays(new Date(`${fecha}T00:00:00`), 1))
+    : fecha
+}
+
+/**
  * Estado *visual* según la hora actual, sin tocar la DB — red de seguridad para la
  * ventana entre un fetch y el siguiente (el server ya persiste lo mismo al leer, ver
  * `estadoTransicionado` en lib/agenda-business.ts, una sola fuente de reglas repetida
@@ -107,11 +145,17 @@ export function formatEstado(estado: string): string {
  * Bug 2 (ya resuelto acá): sin hora_fin, usaba hora_inicio como si durara 0 minutos (se
  * veía "finalizado"/"en_curso" mal apenas empezaba). rangosSeSolapan sí interpreta
  * hora_fin null como "abierto hasta fin del día" — se unifica ese criterio acá también.
+ * Bug 3 (turno nocturno, ver `cruzaMedianoche`): sin esto, un evento 22:00→02:00 sin
+ * `fecha_hasta` calculaba `fin` en el MISMO día a las 02:00 — antes que `inicio`
+ * (22:00) — así que `fin < now` daba `finalizado` casi todo el tiempo, incluso con el
+ * turno en curso.
  */
 export function getEstadoVisual(evento: EventoAgenda, now = new Date()): string {
-  const fechaFin = evento.fecha_hasta ?? evento.fecha
-  const inicio = new Date(`${evento.fecha}T${evento.hora_inicio.slice(0, 8)}`)
-  const fin = new Date(`${fechaFin}T${(evento.hora_fin ?? '23:59:59').slice(0, 8)}`)
+  const horaInicioStr = evento.hora_inicio.slice(0, 8)
+  const horaFinEfectiva = (evento.hora_fin ?? '23:59:59').slice(0, 8)
+  const inicio = new Date(`${evento.fecha}T${horaInicioStr}`)
+  const finDiaStr = finDiaEfectivo(evento.fecha, evento.fecha_hasta, horaInicioStr, horaFinEfectiva)
+  const fin = new Date(`${finDiaStr}T${horaFinEfectiva}`)
   if (evento.estado === 'reserva') {
     if (inicio <= now) return 'cancelado'
   } else if (evento.estado === 'programado') {

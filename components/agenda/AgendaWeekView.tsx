@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput } from '@/lib/agenda-view'
+import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput, finDiaEfectivo } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 const START_HOUR = 7
@@ -78,10 +78,22 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
           const dayEventos = eventos.filter((ev) => key >= ev.fecha && key <= (ev.fecha_hasta ?? ev.fecha))
           const layout = layoutDayEvents(dayEventos)
           return dayEventos.map((ev) => {
-            const rowStart = Math.floor(timeToSlot(ev.hora_inicio)) + 2
-            const rowEnd = ev.hora_fin
-              ? Math.max(rowStart + 1, Math.ceil(timeToSlot(ev.hora_fin)) + 2)
-              : rowStart + 2
+            // Turno nocturno (22:00→02:00) con o sin `fecha_hasta`: la
+            // columna de un día intermedio/final de su rango NO arranca a
+            // `ev.hora_inicio` (eso ya pasó un día anterior) ni termina a
+            // `ev.hora_fin` salvo que ESTE sea el último día — antes se
+            // usaban esos dos valores tal cual en cada columna, dibujando en
+            // el día de continuación una card clavada en "22:00" con un
+            // alto de un solo slot (el clamp de más abajo), en vez del
+            // pedazo real [00:00, hora_fin) de ese día.
+            const horaFinEfectiva = ev.hora_fin ?? '23:59'
+            const finDia = finDiaEfectivo(ev.fecha, ev.fecha_hasta, ev.hora_inicio, horaFinEfectiva)
+            const esDiaInicio = key === ev.fecha
+            const esUltimoDia = key === finDia
+            const horaInicioDelDia = esDiaInicio ? ev.hora_inicio : '00:00'
+            const horaFinDelDia = esUltimoDia ? horaFinEfectiva : '23:59'
+            const rowStart = Math.floor(timeToSlot(horaInicioDelDia)) + 2
+            const rowEnd = Math.max(rowStart + 1, Math.ceil(timeToSlot(horaFinDelDia)) + 2)
             const visual = getEstadoVisual(ev)
             // Eventos que se solapan en horario el mismo día van lado a lado
             // (carriles), no apilados encima uno del otro.
@@ -108,7 +120,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                 title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
               >
                 <p className="text-[11px] font-bold truncate">
-                  {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
+                  {esDiaInicio ? horaInicioDelDia.slice(0, 5) : 'cont.'} {ev.grua?.nombre ?? 'Grúa'}
                 </p>
                 <p className="text-[10px] truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>
               </button>

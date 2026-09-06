@@ -12,6 +12,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { friendlyError } from '@/lib/friendly-error'
 import { TRANSICIONES_VALIDAS, type EstadoEvento } from '@/lib/validations/agenda'
+import { finDiaEfectivo } from '@/lib/agenda-view'
 
 export type CatalogTable = 'gruas' | 'empresas_agenda' | 'operarios'
 
@@ -93,12 +94,22 @@ function formatFechaCorta(fecha: string): string {
 // "menor" que 10:00 en el reloj, aunque el 07/08 esté completamente adentro
 // del rango. Se arma el datetime completo (fecha+hora, como string ISO
 // ordena cronológicamente igual) y se comparan como un único intervalo.
+// Turno nocturno sin `fecha_hasta` explícita (ej. 22:00→02:00, mismo `fecha`):
+// `COALESCE(fecha_hasta, fecha) + hora_fin` cae en el MISMO día, antes que
+// `hora_inicio` — un intervalo invertido que nunca se solapa con nada, así
+// que esta grúa/operario quedaba libre "en el papel" durante un turno
+// nocturno real (doble reserva posible). `finDiaEfectivo` (lib/agenda-view.ts)
+// ya resuelve esto: usa el día siguiente cuando corresponde.
+function finInstante(ev: EventoWindow): string {
+  const horaFinEfectiva = ev.hora_fin ?? '23:59'
+  const finDia = finDiaEfectivo(ev.fecha, ev.fecha_hasta, ev.hora_inicio, horaFinEfectiva)
+  return `${finDia}T${horaFinEfectiva}`
+}
+
 export function rangosSeSolapan(a: EventoWindow, b: EventoWindow): boolean {
   const inicioA = `${a.fecha}T${a.hora_inicio}`
-  const finA = `${a.fecha_hasta ?? a.fecha}T${a.hora_fin ?? '23:59'}`
   const inicioB = `${b.fecha}T${b.hora_inicio}`
-  const finB = `${b.fecha_hasta ?? b.fecha}T${b.hora_fin ?? '23:59'}`
-  return inicioA < finB && inicioB < finA
+  return inicioA < finInstante(b) && inicioB < finInstante(a)
 }
 
 /**
@@ -293,8 +304,16 @@ export type EventoEstadoWindow = {
  */
 export function estadoTransicionado(evento: EventoEstadoWindow, now = new Date()): EstadoEvento | null {
   if (evento.estado !== 'reserva' && evento.estado !== 'programado' && evento.estado !== 'en_curso') return null
-  const inicio = new Date(`${evento.fecha}T${evento.hora_inicio.slice(0, 8)}`)
-  const fin = new Date(`${evento.fecha_hasta ?? evento.fecha}T${(evento.hora_fin ?? '23:59:59').slice(0, 8)}`)
+  const horaInicioStr = evento.hora_inicio.slice(0, 8)
+  const horaFinEfectiva = (evento.hora_fin ?? '23:59:59').slice(0, 8)
+  const inicio = new Date(`${evento.fecha}T${horaInicioStr}`)
+  // finDiaEfectivo (lib/agenda-view.ts): turno nocturno sin `fecha_hasta`
+  // (22:00→02:00) calculaba `fin` en el MISMO día, antes que `inicio` — con
+  // eso `fin < now` daba true casi todo el tiempo y esta función lo pasaba a
+  // 'finalizado' EN LA BASE apenas pasaban las 2am del día que arrancó,
+  // aunque el turno siguiera en curso.
+  const finDiaStr = finDiaEfectivo(evento.fecha, evento.fecha_hasta, horaInicioStr, horaFinEfectiva)
+  const fin = new Date(`${finDiaStr}T${horaFinEfectiva}`)
   // reserva: es tentativa, nadie la confirmó a "programado". Si ya llegó el
   // día/hora para el que se pidió, se cancela sola y libera la grúa/operario
   // — no espera a que termine la ventana como programado/en_curso, porque
