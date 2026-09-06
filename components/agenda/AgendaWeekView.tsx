@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput, finDiaEfectivo } from '@/lib/agenda-view'
+import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput, finDiaEfectivoEvento } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 const START_HOUR = 7
@@ -75,7 +75,11 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
         {dayKeys.flatMap((key, dayIdx) => {
           // Evento de varios días (fecha_hasta) — se repite en cada columna de
           // día que caiga dentro de su rango y también sea parte de la semana visible.
-          const dayEventos = eventos.filter((ev) => key >= ev.fecha && key <= (ev.fecha_hasta ?? ev.fecha))
+          // finDiaEfectivo (no `fecha_hasta ?? fecha`): un turno nocturno sin
+          // `fecha_hasta` (22:00→02:00) sigue vigente al día siguiente — con el
+          // bound viejo esa columna nunca entraba acá y el evento desaparecía
+          // de su día de continuación en la semana.
+          const dayEventos = eventos.filter((ev) => key >= ev.fecha && key <= finDiaEfectivoEvento(ev))
           const layout = layoutDayEvents(dayEventos)
           return dayEventos.map((ev) => {
             // Turno nocturno (22:00→02:00) con o sin `fecha_hasta`: la
@@ -87,7 +91,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
             // alto de un solo slot (el clamp de más abajo), en vez del
             // pedazo real [00:00, hora_fin) de ese día.
             const horaFinEfectiva = ev.hora_fin ?? '23:59'
-            const finDia = finDiaEfectivo(ev.fecha, ev.fecha_hasta, ev.hora_inicio, horaFinEfectiva)
+            const finDia = finDiaEfectivoEvento(ev)
             const esDiaInicio = key === ev.fecha
             const esUltimoDia = key === finDia
             const horaInicioDelDia = esDiaInicio ? ev.hora_inicio : '00:00'

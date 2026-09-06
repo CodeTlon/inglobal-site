@@ -128,6 +128,18 @@ export function finDiaEfectivo(
     : fecha
 }
 
+/** Wrapper de finDiaEfectivo sobre un EventoAgenda — única fuente del default
+ * de `hora_fin` (`'23:59'`) para no repetirlo (y potencialmente desalinearlo,
+ * como pasó entre lib/agenda.ts y las vistas) en cada call site. */
+export function finDiaEfectivoEvento(ev: {
+  fecha: string
+  fecha_hasta?: string | null
+  hora_inicio: string
+  hora_fin?: string | null
+}): string {
+  return finDiaEfectivo(ev.fecha, ev.fecha_hasta, ev.hora_inicio, ev.hora_fin ?? '23:59')
+}
+
 /**
  * Estado *visual* según la hora actual, sin tocar la DB — red de seguridad para la
  * ventana entre un fetch y el siguiente (el server ya persiste lo mismo al leer, ver

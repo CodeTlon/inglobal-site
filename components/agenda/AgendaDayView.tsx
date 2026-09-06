@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { CalendarX2 } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { estadoColorClassesLight, getEstadoVisual, formatEstado } from '@/lib/agenda-view'
+import { estadoColorClassesLight, getEstadoVisual, formatEstado, finDiaEfectivoEvento } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 /**
@@ -34,6 +34,10 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
         // engañoso acá, ese día en particular el evento arranca a las 00:00
         // (viene de ayer) — se ve como si arrancara de nuevo a las 22:00.
         const esDiaInicio = dayKey === ev.fecha
+        // Un evento multi-día muestra "a {hora_fin}" solo en su último día —
+        // en un día intermedio esa hora no es cuándo termina hoy, sino cuándo
+        // termina el evento entero (días después), y mostrarla ahí es engañoso.
+        const esUltimoDia = dayKey === finDiaEfectivoEvento(ev)
         return (
           <button
             key={ev.id}
@@ -43,7 +47,7 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
           >
             <div className="flex-shrink-0 w-14 text-sm font-bold">
               {esDiaInicio ? ev.hora_inicio.slice(0, 5) : 'Cont.'}
-              {ev.hora_fin && <span className="block text-xs font-normal opacity-70">a {ev.hora_fin.slice(0, 5)}</span>}
+              {esUltimoDia && ev.hora_fin && <span className="block text-xs font-normal opacity-70">a {ev.hora_fin.slice(0, 5)}</span>}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold truncate">{ev.grua?.nombre ?? 'Grúa'} · {ev.empresa?.nombre ?? 'Empresa'}</p>

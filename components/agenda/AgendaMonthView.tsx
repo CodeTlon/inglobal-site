@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays } from '@/lib/agenda-view'
+import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays, finDiaEfectivoEvento } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
@@ -48,7 +48,10 @@ export default function AgendaMonthView({
   for (const ev of eventos) {
     // Evento de varios días (fecha_hasta) — aparece en cada día de su rango,
     // no solo en el día en que arrancó.
-    const finEv = ev.fecha_hasta ?? ev.fecha
+    // finDiaEfectivo (no `fecha_hasta ?? fecha`): un turno nocturno sin
+    // `fecha_hasta` (22:00→02:00) sigue vigente al día siguiente — con el
+    // bound viejo el bucketing nunca llegaba a esa columna del mes.
+    const finEv = finDiaEfectivoEvento(ev)
     for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(new Date(`${d}T00:00:00`), 1))) {
       const list = byDay.get(d) ?? []
       list.push(ev)
@@ -107,7 +110,7 @@ export default function AgendaMonthView({
                     className={`w-full rounded border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     <p className={`font-bold truncate ${compact ? 'text-xs' : 'text-sm'}`}>
-                      {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
+                      {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'}
                     </p>
                     {!compact && <p className="text-xs truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>}
                   </button>
@@ -157,7 +160,8 @@ export default function AgendaMonthView({
                   }}
                   className={`w-full text-base font-semibold truncate rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                 >
-                  {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'} · {ev.empresa?.nombre ?? 'Empresa'}
+                  {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'} ·{' '}
+                  {ev.empresa?.nombre ?? 'Empresa'}
                 </button>
               ))}
             </div>
