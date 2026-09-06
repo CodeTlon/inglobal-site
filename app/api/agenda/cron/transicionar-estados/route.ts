@@ -7,20 +7,25 @@ import { toDateInput, addDays } from '@/lib/agenda-view'
 export const dynamic = 'force-dynamic'
 
 /**
- * Cron de Vercel (ver vercel.json) — cancela reservas vencidas sin confirmar
- * y cierra eventos con la ventana horaria pasada DE VERDAD en la base, sin
- * depender de que alguien abra la agenda. `aplicarTransicionEstado` (en
- * lib/agenda.ts) ya hace esta misma transición, pero solo on-read — si nadie
- * mira ese evento, la fila queda vieja indefinidamente y a nivel de la
- * agenda visual mobile/web/TV se ve corregido igual (estadoVisual lo
- * recalcula al vuelo), pero el recurso puede seguir "reservado" para el
- * EXCLUDE constraint de la DB (024_eventos_agenda_no_overlap.sql), que
- * compara el estado crudo de la columna, no el transicionado.
+ * Cron (ver .github/workflows/cron-transicionar-estados.yml) — cancela
+ * reservas vencidas sin confirmar y cierra eventos con la ventana horaria
+ * pasada DE VERDAD en la base, sin depender de que alguien abra la agenda.
+ * `aplicarTransicionEstado` (en lib/agenda.ts) ya hace esta misma transición,
+ * pero solo on-read — si nadie mira ese evento, la fila queda vieja
+ * indefinidamente y a nivel de la agenda visual mobile/web/TV se ve
+ * corregido igual (estadoVisual lo recalcula al vuelo), pero el recurso
+ * puede seguir "reservado" para el EXCLUDE constraint de la DB
+ * (024_eventos_agenda_no_overlap.sql), que compara el estado crudo de la
+ * columna, no el transicionado.
  *
- * Protegido con CRON_SECRET — Vercel Cron manda automáticamente
- * `Authorization: Bearer $CRON_SECRET` en cada invocación programada
- * (ver vercel.json). Sin esa env var seteada en el proyecto, este endpoint
- * rechaza todo con 401.
+ * Antes lo disparaba el cron nativo de Vercel (vercel.json) — se sacó porque
+ * en el plan Hobby los crons de más de 1 vez por día bloquean TODO deploy
+ * (fallan la validación al buildear), y este corría cada 15 min. Ahora lo
+ * dispara un workflow de GitHub Actions con el mismo `CRON_SECRET`.
+ *
+ * Protegido con CRON_SECRET — sin esa env var seteada acá Y como secret de
+ * GitHub Actions (mismo valor en ambos lados), este endpoint rechaza todo
+ * con 401.
  */
 export async function GET(request: Request) {
   try {
