@@ -22,7 +22,11 @@ export default async function AgendaTvPage({
 
   const prevMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() - 1, 1)).slice(0, 7)
   const nextMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() + 1, 1)).slice(0, 7)
-  const esMesActual = month.getFullYear() === new Date().getFullYear() && month.getMonth() === new Date().getMonth()
+  const hoy = new Date()
+  const esMesActual = month.getFullYear() === hoy.getFullYear() && month.getMonth() === hoy.getMonth()
+  // Si estoy viendo un mes pasado, "hoy" queda para adelante (flecha a la
+  // derecha) — si estoy en el futuro, "hoy" queda para atrás (izquierda).
+  const hoyQuedaAdelante = month < hoy
 
   // Botones grandes a propósito: esta pantalla se maneja desde lejos (remoto/puntero de TV),
   // no con mouse de cerca como el dashboard — el target chico de un link de texto no sirve acá.
@@ -51,7 +55,7 @@ export default async function AgendaTvPage({
             </p>
             {!esMesActual && (
               <Link href="?" className="text-sm font-semibold text-igb-navy hover:underline">
-                ← Volver a hoy
+                {hoyQuedaAdelante ? 'Volver a hoy →' : '← Volver a hoy'}
               </Link>
             )}
           </div>
