@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getEventosAgenda } from '@/lib/agenda'
 import AgendaMonthView from '@/components/agenda/AgendaMonthView'
@@ -32,27 +33,31 @@ export default async function AgendaTvPage({
       <AgendaKioskHeader title="Agenda de Grúas" theme="light" />
       <AgendaTvRefresher />
       <main className="flex-1 min-h-0 flex flex-col px-4 sm:px-10 py-8">
-        {/* ponytail: <a> planas en vez de next/link — esta pantalla es un kiosco
-            desatendido con force-dynamic + auto-reload cada 60s (AgendaTvRefresher);
-            el prefetch/router cache de Link podía servir un payload de otro mes ya
-            cacheado (eventos vacíos, reloj viejo) al volver al mes actual. */}
+        {/* Antes esto usaba <a> planas (full reload) en vez de next/link porque en
+            Next 14 el Client Router Cache guardaba 30s un payload dinámico y podía
+            mostrar un mes viejo cacheado. Desde Next 15 el default de
+            staleTimes.dynamic es 0 (sin config nueva acá) — un force-dynamic como
+            esta página siempre pide fresco al navegar con Link, así que el reload
+            completo ya no hace falta y solo sumaba la lentitud reportada. El
+            auto-reload duro cada 60s (AgendaTvRefresher) sigue igual, es para
+            agarrar deploys nuevos, no relacionado con esto. */}
         <div className="shrink-0 flex items-center justify-between gap-3 mb-6">
-          <a href={`?month=${prevMonth}`} className={navBtn}>
+          <Link href={`?month=${prevMonth}`} className={navBtn}>
             <ChevronLeft size={22} /> Mes anterior
-          </a>
+          </Link>
           <div className="flex flex-col items-center gap-2">
             <p className="text-zinc-900 text-lg font-bold capitalize">
               {month.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
             </p>
             {!esMesActual && (
-              <a href="?" className="text-sm font-semibold text-igb-navy hover:underline">
+              <Link href="?" className="text-sm font-semibold text-igb-navy hover:underline">
                 ← Volver a hoy
-              </a>
+              </Link>
             )}
           </div>
-          <a href={`?month=${nextMonth}`} className={navBtn}>
+          <Link href={`?month=${nextMonth}`} className={navBtn}>
             Mes siguiente <ChevronRight size={22} />
-          </a>
+          </Link>
         </div>
         <div className="shrink-0">
           <EstadoLegend />
