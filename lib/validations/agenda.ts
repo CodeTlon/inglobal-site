@@ -48,7 +48,15 @@ function validarRangoFechaHora(data: z.infer<typeof eventoBase>, ctx: z.Refineme
   if (data.fecha_hasta && data.fecha_hasta < data.fecha) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fecha_hasta'], message: 'La fecha de fin no puede ser anterior a la fecha de inicio' })
   }
-  const cruzaDias = !!data.fecha_hasta && data.fecha_hasta !== data.fecha
+  // Cruza medianoche también de forma implícita cuando no se completó
+  // fecha_hasta y hora_fin quedó "antes" que hora_inicio en el reloj (ej.
+  // 22:00→02:00) — mismo criterio que ya usa el cliente (EventoForm.tsx) y
+  // agenda-view.ts. Antes este schema solo reconocía el cruce si fecha_hasta
+  // venía explícita, así que un turno nocturno sin tocar ese campo (que el
+  // form sí permite) caía acá y se rechazaba por duración mínima.
+  const cruzaDias =
+    (!!data.fecha_hasta && data.fecha_hasta !== data.fecha) ||
+    (!data.fecha_hasta && !!data.hora_fin && data.hora_fin <= data.hora_inicio)
   if (data.hora_fin && !cruzaDias) {
     const [hi, mi] = data.hora_inicio.split(':').map(Number)
     const [hf, mf] = data.hora_fin.split(':').map(Number)

@@ -1,0 +1,19 @@
+name: Cron - transicionar estados de agenda
+
+# Reemplaza el cron nativo de Vercel (vercel.json), que en el plan Hobby solo
+# permite 1 corrida por día y bloqueaba TODO deploy mientras el schedule
+# fuera más frecuente que eso — quedamos pegados en un build viejo sin darnos
+# cuenta. GitHub Actions no tiene ese límite, así que movemos el ping acá.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {} # para poder probarlo a mano desde la pestaña Actions
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al endpoint de transición de estados
+        run: |
+          curl -sf -X GET "https://inglobal-site-theta.vercel.app/api/agenda/cron/transicionar-estados" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays } from '@/lib/agenda-view'
+import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays, finDiaEfectivoEvento } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
@@ -36,18 +36,22 @@ export default function AgendaMonthView({
 
   const todayKey = toDateInput(new Date())
   const weeks = getMonthMatrix(month)
-  // Meses de 6 semanas dejan menos alto por celda (7 filas en vez de 6
-  // repartiendo el mismo espacio) — sin achicar el contenido, el número de
-  // día + el badge de cantidad ya casi llenaban la celda entera y el
-  // overflow-hidden cortaba los eventos antes de que se vieran. Con menos
-  // eventos visibles pero más chicos entran completos sin necesitar scroll.
-  const compact = weeks.length >= 6
-  const maxVisible = compact ? 2 : 3
+  // Antes esto solo se achicaba en meses de 6 semanas — pero 5 y 6 semanas
+  // reparten una altura casi igual (6 filas son ~17% más bajas que 5), así
+  // que si 2-3 eventos no entraban en 6 semanas, tampoco entran cómodos en 5.
+  // Siempre compacto: el número de día + el badge de cantidad ya casi
+  // llenaban la celda entera y el overflow-hidden cortaba los eventos antes
+  // de que se vieran, en cualquier mes.
+  const compact = true
+  const maxVisible = 2
   const byDay = new Map<string, EventoAgenda[]>()
   for (const ev of eventos) {
     // Evento de varios días (fecha_hasta) — aparece en cada día de su rango,
     // no solo en el día en que arrancó.
-    const finEv = ev.fecha_hasta ?? ev.fecha
+    // finDiaEfectivo (no `fecha_hasta ?? fecha`): un turno nocturno sin
+    // `fecha_hasta` (22:00→02:00) sigue vigente al día siguiente — con el
+    // bound viejo el bucketing nunca llegaba a esa columna del mes.
+    const finEv = finDiaEfectivoEvento(ev)
     for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(new Date(`${d}T00:00:00`), 1))) {
       const list = byDay.get(d) ?? []
       list.push(ev)
@@ -106,7 +110,7 @@ export default function AgendaMonthView({
                     className={`w-full rounded border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     <p className={`font-bold truncate ${compact ? 'text-xs' : 'text-sm'}`}>
-                      {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'}
+                      {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'}
                     </p>
                     {!compact && <p className="text-xs truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>}
                   </button>
@@ -156,7 +160,8 @@ export default function AgendaMonthView({
                   }}
                   className={`w-full text-base font-semibold truncate rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                 >
-                  {ev.hora_inicio.slice(0, 5)} {ev.grua?.nombre ?? 'Grúa'} · {ev.empresa?.nombre ?? 'Empresa'}
+                  {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'} ·{' '}
+                  {ev.empresa?.nombre ?? 'Empresa'}
                 </button>
               ))}
             </div>

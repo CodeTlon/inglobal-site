@@ -94,7 +94,15 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
     // tiene que ser "después" de hora_inicio en el reloj (turno 22:00→02:00
     // cruzando medianoche). Antes esto bloqueaba el submit en el cliente sin
     // ni llegar a pegarle al backend, que ya soporta el caso.
-    const cruzaDias = !!fechaHasta && fechaHasta !== fecha
+    // Cruza medianoche también de forma IMPLÍCITA cuando no se completó
+    // fecha_hasta y hora_fin quedó "antes" que hora_inicio en el reloj (ej.
+    // 22:00→02:00 sin tocar ese campo) — mismo criterio que
+    // lib/validations/agenda.ts y lib/agenda-view.ts (cruzaMedianoche). Sin
+    // esto, ese caso (el más común: turno nocturno de un solo día) seguía
+    // bloqueado acá aunque el backend ya lo soportara.
+    const cruzaDias =
+      (!!fechaHasta && fechaHasta !== fecha) ||
+      (!fechaHasta && !!horaFin && horaFin <= horaInicio)
     if (horaInicio && horaFin && !cruzaDias) {
       const [hi, mi] = horaInicio.split(':').map(Number)
       const [hf, mf] = horaFin.split(':').map(Number)

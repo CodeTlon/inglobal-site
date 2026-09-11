@@ -15,6 +15,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { estadoTransicionado } from '@/lib/agenda-business'
+import { addDays, finDiaEfectivoEvento, toDateInput } from '@/lib/agenda-view'
 
 async function resolveClient(supabase?: SupabaseClient) {
   return supabase ?? (await createSupabaseServerClient())
@@ -139,7 +140,16 @@ export async function getEventosAgenda(
   const client = await resolveClient(supabase)
   let query = client.from('eventos_agenda').select(EVENTO_SELECT)
   if (hasta) query = query.lte('fecha', hasta)
-  if (desde) query = query.or(`fecha_hasta.gte.${desde},and(fecha_hasta.is.null,fecha.gte.${desde})`)
+  // Un turno nocturno sin `fecha_hasta` (22:00->02:00) sigue vigente el día
+  // siguiente a `fecha`, así que además de `fecha.gte.desde` hay que traer
+  // los eventos sin fecha_hasta que arrancaron el día anterior a `desde` —
+  // si no cruzan medianoche, el filtro post-fetch de abajo (finDiaEfectivo)
+  // los descarta igual. Sin este día extra, la vista Día/Semana/Mes de
+  // `desde` no traía de la base ese evento en absoluto.
+  if (desde) {
+    const desdePrev = toDateInput(addDays(new Date(`${desde}T00:00:00`), -1))
+    query = query.or(`fecha_hasta.gte.${desde},and(fecha_hasta.is.null,fecha.gte.${desdePrev})`)
+  }
   if (gruaId) query = query.eq('grua_id', gruaId)
   if (empresaId) query = query.eq('empresa_id', empresaId)
   if (operarioId) {
@@ -154,7 +164,10 @@ export async function getEventosAgenda(
     .order('fecha', { ascending: true })
     .order('hora_inicio', { ascending: true })
   if (error || !data) return []
-  const eventos = data.map(mapEvento)
+  let eventos = data.map(mapEvento)
+  if (desde) {
+    eventos = eventos.filter((ev) => finDiaEfectivoEvento(ev) >= desde)
+  }
   await Promise.all(eventos.map((ev) => aplicarTransicionEstado(ev, client)))
   return eventos
 }
