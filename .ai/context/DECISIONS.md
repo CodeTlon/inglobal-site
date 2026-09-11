@@ -1,0 +1,41 @@
+# DECISIONS — Grúas InGlobal
+
+Decisiones arquitectónicas clave, reconstruidas del código y del historial de git. No es un changelog exhaustivo commit-por-commit — para eso está `git log`; esto es "por qué se hizo así" para las decisiones con consecuencias que todavía importan.
+
+## Reescritura PHP → Next.js 15 con dashboard CMS (2026-07-04)
+
+**Contexto**: sitio PHP legacy que el cliente no podía editar sin depender de un desarrollador. **Decisión**: reescritura completa a Next.js 15 (App Router, RSC) + dashboard CMS sobre Supabase (Auth + Postgres + RLS + Storage), con Server Actions como capa de mutación. **Consecuencia**: casi todo el contenido del sitio (textos, fotos, montajes, clientes, servicios) queda editable sin tocar código; el patrón fallback-first (`lib/content.ts` + `lib/constants.ts`) mantiene el sitio público funcionando aunque Supabase esté caído o mal configurado.
+
+## Bypass de Server Actions para uploads grandes (rondas de julio 2026)
+
+**Contexto**: uploads de fotos/videos fallaban con "unexpected response" o se colgaban. **Causa raíz encontrada**: Vercel cappea el body de cualquier función serverless a 4.5MB de forma dura — no configurable desde la app, y el `bodySizeLimit` de Next no tiene efecto sobre ese límite de plataforma. **Decisión**: resize client-side de imágenes (Canvas nativo) antes de subir, y upload directo del navegador al bucket de Storage para video/PDF (bypaseando el Server Action por completo). **Alternativa descartada**: subir el binario crudo al Server Action confiando en `bodySizeLimit` — no funciona, es justamente lo que causaba el bug. Ver `.ai/context/CONVENTIONS.md`.
+
+## PWA instalable → app nativa con backend propio (decisión que evolucionó)
+
+**Contexto original (2026-07-06)**: el personal de campo usa iPhones sin presupuesto para Apple Developer/App Store, así que se optó por una PWA instalable (`app/manifest.ts`, service worker propio) en vez de una app nativa (Expo, proyecto `inglobal-app`, pausado en ese momento). **Lo que pasó después**: para septiembre 2026 existe una app mobile real (`inglobal-agenda-app`, repo aparte) consumiendo una capa REST propia (`app/api/**`, auth Bearer vía `lib/supabase-api.ts`) — el plan evolucionó de "PWA instalable" a "app nativa con su propio backend dentro de este mismo repo". **Estado vigente**: ambas superficies conviven — la PWA sigue existiendo (`/dashboard/agenda` como `start_url`) pero la app mobile con `app/api/**` es la superficie real para el rol `trabajador`. No queda claro si la PWA sigue siendo el vehículo de distribución activo o quedó como remanente — ver `.ai/context/OPEN_QUESTIONS.md`.
+
+## Sistema de roles admin/trabajador (migraciones 022/023)
+
+**Contexto**: con la app mobile en desarrollo, hacía falta distinguir cuentas de gerencia (acceso al panel web completo) de cuentas de personal de campo (solo agenda vía mobile). **Decisión**: rol en `app_metadata.role` (no `user_metadata`, que el propio usuario puede reescribir), gateado en `middleware.ts` (un `trabajador` es deslogueado si entra al panel web) y en RLS vía `is_admin()`. **Incidente en el camino**: la primera versión de `is_admin()` (migración `022`) quedó evaluando `true` también para requests sin sesión (anon), abriendo escritura anónima en varias tablas de contenido durante una ventana — corregido en `023` exigiendo `auth.role() = 'authenticated'` además del rol. **Consecuencia para el futuro**: cualquier cambio a `is_admin()` necesita re-verificar explícitamente el caso anon.
+
+## Prevención de solapamiento de agenda a nivel de constraint de DB (migración 024)
+
+**Contexto**: `buscarConflicto()` (chequeo en memoria antes de insertar/actualizar un evento) no podía garantizar ausencia de solapamiento bajo escritura concurrente — race condition real de "check-then-insert" (dos eventos podían pisarse si se creaban casi al mismo tiempo). **Decisión**: constraint `EXCLUDE USING gist` (extensión `btree_gist`) a nivel de Postgres para grúas, más `pg_advisory_xact_lock` en trigger para operarios (vía la tabla puente `eventos_operarios`). **Alternativa descartada**: confiar solo en el chequeo de aplicación — insuficiente bajo concurrencia real.
+
+## Video transcode como microservicio aparte, no en el runtime de Vercel
+
+**Contexto**: subir video sin re-comprimir generaba archivos pesados; el runtime serverless de Vercel no trae `ffmpeg` instalado (no es una dependencia de npm, es un binario de sistema). **Decisión**: `services/video-transcode/` — microservicio Node/Express con su propio `Dockerfile`, consumido desde el proyecto principal vía `lib/transcode-token.ts` + `app/actions/transcode.ts` (`NEXT_PUBLIC_TRANSCODE_SERVICE_URL`). Si el servicio no está configurado o no responde, el upload cae con soft-fail (sube el archivo sin transcodificar) — nunca rompe el flujo. **Estado**: la integración en el código principal ya está completa; lo que puede faltar es el hosting productivo del microservicio en sí (ver `.ai/context/OPEN_QUESTIONS.md` sobre Coolify).
+
+## `tiene_blog` como toggle explícito (migración 026)
+
+**Contexto**: si un cliente tenía blog propio (`/clientes/[slug]` accesible) se inferías de si `content` (texto de "historia") estaba vacío o no — doble uso del mismo campo, frágil. **Decisión**: columna booleana explícita `tiene_blog`, controlada por el admin en el form, desacoplada del contenido de texto.
+
+## SEO on-page + Analytics + Consent Mode v2 (commit `96d2442`, 2026-09)
+
+**Contexto**: el sitio no tenía tracking ni optimización para buscadores/LLMs. **Decisión**: Google Analytics vía `gtag.js` con Consent Mode v2 (`denied` por default hasta que el usuario elige) + banner de cookies propio (sin librería) + CSP endurecida (solo en producción) + `sitemap.ts`/`robots.ts` ampliados + `llms.txt` para descubribilidad por LLMs (AEO/GEO). **Alternativa descartada**: no hay evidencia de que se haya evaluado un CMP de terceros — el banner es una implementación propia mínima.
+
+## Veredicto Fase 3 de este trabajo de context engineering (2026-09-11)
+
+**¿RAG?** No aplica hoy. El corpus real del proyecto (código + documentación, ya modularizada en `.ai/context/`) es chico y cabe completo en una sesión sin costo relevante; no cambia con velocidad suficiente como para justificar mantener un índice vectorial aparte; y el proyecto ya resuelve "no cargar todo siempre" con el mismo patrón que usa el resto de la fábrica — un índice de tabla (`.ai/context/00_INDEX.md`) que dirige a módulos on-demand, sin embeddings ni vector DB. El contenido dinámico de Supabase (montajes/clientes/servicios/trabajos) tampoco es candidato: es contenido de runtime consultado vía Supabase directamente, no algo sobre lo que un agente necesite hacer búsqueda semántica para programar. Si en el futuro aparece un corpus grande y cambiante (ej. una base de conocimiento de soporte, contenido de blog masivo), ahí sí valdría reevaluar.
+
+**¿Subagente de mantenimiento de contexto?** No aplica todavía a nivel de este repo, con un matiz. El mecanismo correcto ya existe (`/cambio` + `/cerrar`) — el problema que motivó esta restructuración no fue falta de tooling, sino que ese proceso no se ejecutó de forma consistente en las últimas rondas (los docs de mantenimiento quedaron ~2 meses atrás pese a que `/cerrar` está diseñado para actualizarlos en cada cierre de sesión). Reforzar `/cerrar` para que apunte a `.ai/context/` en vez de reescribir un archivo monolítico ataca la causa real. El matiz: Mateo mantiene esta misma estructura de contexto en varios proyectos de la fábrica (`output/*`, `portfolio/*`), así que el dolor de sincronizar contexto a mano sí se repite entre proyectos — pero eso es argumento para una eventual herramienta a nivel de fábrica (`codetlon-cloud`/`codetlon-forge`), no para un subagente dedicado a `inglobal-site` en particular. Queda anotado en `.ai/context/OPEN_QUESTIONS.md` como algo a evaluar a nivel fábrica, fuera del alcance de este repo.

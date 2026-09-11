@@ -1,3 +1,5 @@
+> ⚠️ **OBSOLETO** — este documento describe el estado del proyecto en abril 2026 (Next.js 14, sin dashboard/CMS). Ya no refleja el código real. Ver [`AGENTS.md`](../AGENTS.md) y [`.ai/context/`](../.ai/context/00_INDEX.md) en la raíz del repo.
+
 # Technical Documentation — Grúas InGlobal S.R.L.
 
 ## Arquitectura
