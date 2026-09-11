@@ -6,7 +6,7 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 
 - **`RESEND_API_KEY`/`RESEND_FROM_EMAIL` de producción**: todavía sin completar, esperando que Mateo pase la key real. El formulario de contacto en prod usa el default de Resend (`onboarding@resend.dev`) hasta entonces.
 - **Dominio `gruasinglobal.com`**: todavía no cortado a la producción real de Vercel — el deploy de la rama `main` sigue sirviendo desde su alias `*.vercel.app`.
-- **Deploy sin integración Git**: Vercel no tiene el repo conectado — el deploy a producción es manual (`vercel --prod`), según `docs/deployment-guide.md`. No hay pipeline de CI/CD (`.github/workflows/` no existe).
+- **Deploy sin integración Git**: Vercel no tiene el repo conectado — el deploy a producción es manual (`vercel --prod`), según `docs/deployment-guide.md`. Sigue sin haber gate de calidad automático (lint/tsc/build/tests en push o PR) — `.github/workflows/` sí existe desde el 2026-09-06, pero solo para el cron de agenda (`cron-transicionar-estados.yml`), no como CI.
 - **Hosting del microservicio `services/video-transcode/`**: la integración en el código principal (`lib/transcode-token.ts`, `app/actions/transcode.ts`) ya está completa; no está confirmado si el microservicio ya corre en algún lado (Coolify u otro) o si sigue con el soft-fail activo (sube sin transcodificar). Ver `.ai/context/OPEN_QUESTIONS.md`.
 
 ## En desarrollo activo

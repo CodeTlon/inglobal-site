@@ -36,8 +36,8 @@ No es un esquema "doble Supabase" simple — son 5 puntos de entrada distintos s
 ## Agenda como sub-sistema propio
 
 - Estados: `reserva → programado → en_curso → finalizado`, o `cancelado` desde `reserva`/`programado`/`en_curso` — sin retroceso (`TRANSICIONES_VALIDAS`, `lib/validations/agenda.ts`).
-- Auto-transición de estado sin intervención humana: `estadoTransicionado`/`getEstadoVisual` (`lib/agenda-business.ts`, `lib/agenda-view.ts`) recalculan el estado efectivo en cada lectura (una `reserva` vencida sin confirmar se muestra cancelada, un `programado`/`en_curso` que ya pasó su ventana se muestra finalizado) — y además un **cron de Vercel** (`vercel.json`, `*/15 * * * *` → `/api/agenda/cron/transicionar-estados`, protegido por `CRON_SECRET`) persiste esos cambios en la DB, no es solo cosmético en la UI.
-- Prevención de solapamiento en dos niveles: `buscarConflicto()` (chequeo en memoria antes de insertar/actualizar) + un constraint real a nivel de base (`024_eventos_agenda_no_overlap.sql`, `EXCLUDE USING gist` con extensión `btree_gist` para grúas, `pg_advisory_xact_lock` para operarios vía tabla puente) — el constraint de DB existe porque el chequeo en memoria por sí solo tiene una race condition real bajo escritura concurrente ("check-then-insert").
+- Auto-transición de estado sin intervención humana: `estadoTransicionado`/`getEstadoVisual` (`lib/agenda-business.ts`, `lib/agenda-view.ts`) recalculan el estado efectivo en cada lectura (una `reserva` vencida sin confirmar se muestra cancelada, un `programado`/`en_curso` que ya pasó su ventana se muestra finalizado) — y además un **workflow de GitHub Actions** (`.github/workflows/cron-transicionar-estados.yml`, `*/15 * * * *`, le pega a `/api/agenda/cron/transicionar-estados` con `CRON_SECRET`) persiste esos cambios en la DB, no es solo cosmético en la UI. **No es un cron de Vercel** — ver `.ai/context/DECISIONS.md` (el plan Hobby de Vercel solo permite 1 corrida de cron nativo por día; uno cada 15min bloqueaba silenciosamente todos los deploys).
+- Prevención de solapamiento en dos niveles: `buscarConflicto()` (chequeo en memoria antes de insertar/actualizar) + un constraint real a nivel de base (`024_eventos_agenda_no_overlap.sql`, `EXCLUDE USING gist` con extensión `btree_gist` para grúas, `pg_advisory_xact_lock` para operarios vía tabla puente; extendido en `030_eventos_agenda_no_overlap_medianoche.sql` para turnos nocturnos sin `fecha_hasta` explícita donde `hora_fin <= hora_inicio` — el fin real cae al día siguiente) — el constraint de DB existe porque el chequeo en memoria por sí solo tiene una race condition real bajo escritura concurrente ("check-then-insert").
 - `validarOperarios()` exige al menos un operario asignado y bloquea operarios `activo:false`.
 - `getRecursosOcupados()` marca grúas/operarios ocupados usando el estado **efectivo** (no la columna cruda), para no marcar "ocupado" algo que ya venció.
 
@@ -64,8 +64,8 @@ Pantalla de TV sin teclado — no puede loguearse con email/password. Pairing ti
 
 - Vercel, **sin integración Git conectada** — deploy manual (`vercel --prod`), según `docs/deployment-guide.md`.
 - Dominio `gruasinglobal.com` todavía no cortado a la producción real — sigue sirviendo desde el alias `*.vercel.app` (ver `lib/site.ts`).
-- Cron job propio (`vercel.json`) para la transición de estados de agenda.
-- Sin CI/CD (no existe `.github/workflows/`) — el gate de calidad (`lint && tsc --noEmit && build`) es local/manual, corrido antes de mergear.
+- `.github/workflows/cron-transicionar-estados.yml` dispara el cron de transición de estados de agenda (GitHub Actions, no Vercel — ver `.ai/context/DECISIONS.md`). Es el único workflow del repo; no es un gate de calidad.
+- Sin CI/CD de calidad (nada corre `lint`/`tsc`/`build`/tests automáticamente en push o PR) — ese gate sigue siendo local/manual, corrido antes de mergear.
 
 ## Patrones estructurales
 

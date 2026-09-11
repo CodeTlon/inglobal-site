@@ -6,9 +6,9 @@ Problemas conocidos que afectan decisiones de ingeniería futuras (no son bugs a
 
 Los 4 docs de mantenimiento del proyecto (`README.md`, `ARCHITECTURE.md`, `MANUAL-PRUEBAS.md`, `.claude/ERRORES.md`) se desincronizaron del código real en ~2 meses (julio→septiembre 2026) pese a que `/cerrar` está diseñado para actualizarlos en cada cierre de sesión — el ejemplo más grave: `.claude/CLAUDE.md` afirmó "no hay roles" mientras el código ya implementaba un sistema real de roles admin/trabajador. Esta restructuración (`AGENTS.md` + `.ai/context/`) ataca la causa reforzando `/cambio`/`/cerrar` para apuntar acá — pero el riesgo de que alguien edite código sin actualizar `.ai/context/` en el mismo cambio sigue existiendo si no se respeta la disciplina.
 
-## Sin CI/CD real
+## Sin CI/CD de calidad real
 
-No existe `.github/workflows/`. El gate de calidad (`lint && tsc --noEmit && build`) es puramente local/manual — depende de que la persona que mergea lo corra antes de pushear. Nada automático lo hace cumplir en GitHub.
+`.github/workflows/` existe desde el 2026-09-06, pero solo con `cron-transicionar-estados.yml` (dispara el cron de agenda cada 15min — reemplazó al cron nativo de Vercel, ver `.ai/context/DECISIONS.md`). No hay ningún workflow que corra `lint`/`tsc --noEmit`/`build`/tests en push o PR — ese gate de calidad sigue siendo puramente local/manual, depende de que la persona que mergea lo corra antes de pushear.
 
 ## Cobertura de tests limitada
 
