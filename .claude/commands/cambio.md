@@ -6,7 +6,7 @@ Tema de la sesión: $ARGUMENTS
 
 Abrí una sesión de mantenimiento:
 
-1. **Contexto:** Ya tenés `.claude/CLAUDE.md` cargado. Tené a mano `ARCHITECTURE.md` para leer SOLO lo necesario en cada cambio (no releas el repo entero).
+1. **Contexto:** Ya tenés `AGENTS.md` cargado. Tené a mano `.ai/context/00_INDEX.md` para leer SOLO el archivo de `.ai/context/` que corresponda a cada cambio (no releas el repo entero, ni todo `.ai/context/`).
 2. **Elegí el tipo** según el trabajo (e inferilo de la descripción; si el usuario lo indica, respetalo):
    `feat/` pedido/feature nueva · `fix/` bug · `perf/` optimización · `refactor/` refactor · `chore/` deps/config/contenido · `style/` visual · `docs/` documentación.
 3. **Crear la rama desde main:**
@@ -17,7 +17,7 @@ Abrí una sesión de mantenimiento:
 A partir de ahora, en CADA prompt de la sesión:
 - Implementás lo pedido leyendo solo los archivos necesarios.
 - `git add` + `git commit` granular y convencional (`fix:`/`feat:`/...), **sin `Co-Authored-By: Claude`**.
-- Si el cambio fue estructural (archivo/tabla/env nuevos), actualizás `.claude/CLAUDE.md` y `ARCHITECTURE.md` en el mismo commit.
+- Si el cambio fue estructural (archivo/tabla/env nuevos), actualizás el/los archivo(s) correspondiente(s) de `.ai/context/` (`DOMAIN.md` si es de datos, `ARCHITECTURE.md` si es de arquitectura, `CONVENTIONS.md` si es un patrón nuevo, `DECISIONS.md` si es una decisión con alternativas) en el mismo commit, y `AGENTS.md` si afecta una convención crítica no negociable.
 - Si el cambio tiene riesgo real de bug que los tests automáticos no van a atrapar (UI con criterio humano, timing/concurrencia, credenciales externas), sumá su sección a `MANUAL-PRUEBAS.md` en el mismo commit.
 - **NO** `git push`, **NO** merge a main. Quedás en la rama esperando el próximo pedido.
 
