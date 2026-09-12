@@ -11,6 +11,13 @@ se construyen o tocan esas features.
 - [ ] Cerrar sesión → vuelve a bloquear `/dashboard/**` hasta loguear de nuevo.
 - [ ] Recargar la página estando logueado → la sesión persiste (cookies SSR), no vuelve a pedir login.
 
+## Eliminación del rol `trabajador` (migración `031_drop_trabajador_role.sql`)
+- [ ] Aplicar `031` a Supabase dev (`node scripts/db-sync-dev.mjs --yes`) antes de probar lo de abajo.
+- [ ] Loguear con una cuenta que tenía `app_metadata.role = 'trabajador'` (creada antes de este cambio) → entra al panel web normalmente, sin deslogueo ni redirect a `?sin_acceso=1`.
+- [ ] Esa misma cuenta puede editar `site_settings`/montajes/clientes/servicios/trabajos/galería (antes bloqueado por RLS para `trabajador`) → confirma que `is_admin()` ya no chequea el rol.
+- [ ] `/dashboard/usuarios`: crear una cuenta nueva → ya no aparece el selector de Rol, ni el badge Admin/Trabajador en la lista.
+- [ ] La app mobile (`inglobal-agenda-app`) sigue pudiendo loguearse y usar `app/api/**` con una cuenta cualquiera (antes solo con `trabajador`).
+
 ## Contenido editable (`site_settings`)
 - [ ] Editar Hero (headline/subheadline/CTAs) → guardar → recargar `/` en otra pestaña → el cambio aparece.
 - [ ] Subir un video en Hero (`VideoUpload`) → el home muestra el `<video>` en vez de la imagen fallback.
