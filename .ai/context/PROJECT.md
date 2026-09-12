@@ -31,4 +31,4 @@ Desde ~agosto/septiembre 2026 el proyecto ganó una segunda superficie: una **ap
 - No es un ERP: no maneja facturación, pagos, ni contabilidad.
 - No es multi-tenant: es un proyecto de un solo cliente (Grúas InGlobal), sin arquitectura pensada para reutilizarse como producto para otras empresas de grúas.
 - No reemplaza la gestión comercial/administrativa de la empresa — la agenda de grúas es planificación operativa de flota, no un CRM.
-- El rol `trabajador` no tiene (ni está pensado para tener) acceso al panel web — su superficie es exclusivamente la app mobile. Confirmar con el cliente/Mateo si esto cambia (ver `.ai/context/OPEN_QUESTIONS.md`).
+- El rol `trabajador` no tiene acceso al panel web hoy — su superficie es exclusivamente la app mobile. Mateo decidió (2026-09-11) eliminarlo y dejar un solo rol (`admin`); todavía no implementado — ver `.ai/context/CURRENT_STATE.md` y `.ai/context/DECISIONS.md`.

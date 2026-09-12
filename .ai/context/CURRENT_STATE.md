@@ -11,7 +11,8 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 
 ## En desarrollo activo
 
-- **App mobile `inglobal-agenda-app`** (repo aparte): consume `app/api/**` vía Bearer token para que el personal de campo (rol `trabajador`) gestione la agenda desde el celular.
+- **App mobile `inglobal-agenda-app`** (repo aparte): consume `app/api/**` vía Bearer token para que el personal de campo (rol `trabajador`) gestione la agenda desde el celular. Usa el **mismo proyecto Supabase** que el web (confirmado por Mateo, 2026-09-11).
+- **Eliminar el rol `trabajador`, dejar solo `admin`** (decisión de Mateo, 2026-09-11) — **todavía no implementado**. El código actual sigue con el sistema de dos roles. Antes de tocar código hay que resolver qué reemplaza al rol `trabajador` para que la app mobile del punto anterior siga pudiendo autenticarse — ver `.ai/context/DECISIONS.md`.
 - **Esta misma restructuración de contexto** (`AGENTS.md` + `.ai/context/`, en curso desde 2026-09-11): reemplaza el patrón anterior de un único `.claude/CLAUDE.md` monolítico que se había desincronizado del código real en varios puntos (roles, `app/api/**`, TV pairing, SEO/Analytics, entre otros — ver `.ai/context/DECISIONS.md`). `.claude/CLAUDE.md` y `ARCHITECTURE.md` (raíz) pasan a ser stubs cortos que apuntan acá.
 
 ## Prioridades conocidas (no bloqueantes)
