@@ -12,7 +12,7 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 ## En desarrollo activo
 
 - **App mobile `inglobal-agenda-app`** (repo aparte): consume `app/api/**` vía Bearer token para que el personal de campo gestione la agenda desde el celular, con las mismas cuentas que el panel web (sin distinción de rol desde 2026-09-11). Usa el **mismo proyecto Supabase** que el web (confirmado por Mateo, 2026-09-11).
-- Falta aplicar la migración `031_drop_trabajador_role.sql` a Supabase dev/prod (`node scripts/db-sync-dev.mjs --yes` para dev; prod se promueve a mano al mergear a `main`, como el resto de las migraciones).
+- **Migración `031_drop_trabajador_role.sql`**: aplicada a dev (`db-sync-dev.mjs --yes`, 2026-09-11) y a **prod** (pegada a mano en el SQL Editor de Supabase, 2026-09-12, excepción puntual al flujo normal porque `is_admin()` era una redefinición de función sin riesgo de dato — no un wipe). El `is_admin()` de prod ya no chequea rol. **El código todavía no está mergeado a `main`** (sigue en la rama `refactor/eliminar-rol-trabajador`) — hasta el `/cerrar`, el panel web de prod sigue deslogueando cuentas `trabajador` en `middleware.ts` aunque el RLS de abajo ya las dejaría escribir.
 - **Esta misma restructuración de contexto** (`AGENTS.md` + `.ai/context/`, en curso desde 2026-09-11): reemplaza el patrón anterior de un único `.claude/CLAUDE.md` monolítico que se había desincronizado del código real en varios puntos (roles, `app/api/**`, TV pairing, SEO/Analytics, entre otros — ver `.ai/context/DECISIONS.md`). `.claude/CLAUDE.md` y `ARCHITECTURE.md` (raíz) pasan a ser stubs cortos que apuntan acá.
 
 ## Prioridades conocidas (no bloqueantes)
