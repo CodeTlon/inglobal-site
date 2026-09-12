@@ -32,7 +32,7 @@ npm run optimize:video    # requiere ffmpeg local
 
 - **Límite real de subida = 4.5MB de Vercel**, no el `bodySizeLimit` de Next (no configurable desde la app). Cualquier upload nuevo >4MB tiene que resizear client-side (imágenes) o subir directo a Storage desde el navegador (video/PDF) — nunca crudo por un Server Action. Ver `.ai/context/CONVENTIONS.md`.
 - **`lib/friendly-error.ts` obligatorio** en todo `catch`/`if(error)` de Server Actions — nunca `error.message` de Supabase crudo a la UI.
-- **Roles reales: `admin` vs `trabajador`**, vía `user.app_metadata.role` (no `user_metadata`). Un `trabajador` no tiene acceso al panel web, solo a la app mobile vía `app/api/**` — `middleware.ts` lo desloguea si intenta entrar al panel.
+- **Un solo tipo de cuenta** (sin roles) — cualquier cuenta autenticada tiene acceso total al panel web y a la app mobile vía `app/api/**`. El sistema de roles `admin`/`trabajador` que existió brevemente se eliminó (ver `.ai/context/DECISIONS.md`) — no reintroducirlo sin discutirlo primero.
 - **`prefetch={false}`** en todo `Link` nuevo dentro de `/dashboard/**` — el middleware llama `auth.getUser()` en cada ruta del panel, y el prefetch automático de Next multiplica esas llamadas.
 - **CSP solo corre en producción** — no asumir que un bloqueo de CSP aparece en `npm run dev`.
 - **Server Actions vs `app/api/**`**: si la mutación la usa el sitio público o el dashboard web, es un Server Action; si la consume la app mobile, es un Route Handler con auth Bearer en `app/api/**`.

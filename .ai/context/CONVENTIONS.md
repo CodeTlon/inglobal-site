@@ -41,10 +41,6 @@ Ver `.ai/context/DOMAIN.md` para qué campos ya lo tienen. Para sumarlo a uno nu
 
 `TrabajoForm` importa el editor de texto rico a través de este wrapper (error boundary de clase), no directo desde `ContentEditor.tsx`. Si TipTap explota parseando contenido legacy en edición, cae a un `<textarea>` plano con el HTML crudo en vez de tirar abajo todo el form.
 
-## Roles — `app_metadata`, no `user_metadata`
-
-El rol (`admin`/`trabajador`) vive en `user.app_metadata.role`, nunca en `user_metadata` — ese último lo puede reescribir el propio usuario logueado desde el cliente. Cualquier chequeo de permisos server-side tiene que leer `app_metadata`.
-
 ## Auto-generación de slugs
 
 `montajes`, `clientes` y `trabajos` generan su slug con `slugify()` a partir del título/nombre — no es un campo editable en el form. `trabajos` scopea la unicidad por `cliente_id` (sufijo `-2`/`-3` si colisiona); `montajes`/`clientes` son tablas planas sin scope.

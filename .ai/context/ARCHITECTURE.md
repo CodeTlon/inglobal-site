@@ -25,13 +25,13 @@ Si vas a agregar una mutación nueva: si la usa el sitio público o el dashboard
 
 No es un esquema "doble Supabase" simple — son 5 puntos de entrada distintos según de dónde corre el código y qué tipo de sesión tiene disponible.
 
-## Auth y roles
+## Auth — un solo tipo de cuenta, sin roles
 
-- Supabase Auth (email+password), sin signup público — `createAdminUser` (`app/actions/users.ts`) requiere ya estar logueado como admin (`requireAdmin()`).
+- Supabase Auth (email+password), sin signup público — `createAdminUser` (`app/actions/users.ts`) requiere ya estar logueado (`requireUser()`).
 - `must_change_password` (en `user_metadata`): `middleware.ts` fuerza redirect a `/dashboard/cambiar-password` en cualquier ruta de `/dashboard/**` hasta que se cambie (excepto login y la propia pantalla de cambio, para no generar loop).
-- **Roles reales: `admin` / `trabajador`**, vía `user.app_metadata.role` (no `user_metadata`, que el propio usuario logueado puede reescribir). `isAdmin()`/`requireAdmin()` en `app/actions/users.ts`; sin rol seteado = admin (retrocompatibilidad). Un `trabajador` que intenta entrar al panel web es deslogueado forzosamente (`middleware.ts`, `supabase.auth.signOut()`) y redirigido a login con `?sin_acceso=1` — su acceso real es la app mobile vía `app/api/**`.
-- **RLS por rol**: función `is_admin()` (migración `022_user_roles.sql`) gatea la escritura en `site_settings`/`montajes`/`clientes`/`servicios`/`trabajos`/`galeria`/`media`. Esa migración tuvo un gap de seguridad real: dejaba `is_admin()` en `true` también para requests **sin sesión** (anon), abriendo escritura anónima durante una ventana — corregido en `023_fix_is_admin_requires_auth.sql` exigiendo `auth.role() = 'authenticated'` además del rol. Vale la pena conocer esta historia si se toca `is_admin()` de nuevo: cualquier cambio a esa función necesita re-verificar el caso anon explícitamente.
-- La agenda queda compartida entre `admin` y `trabajador` a propósito (ambos operan sobre la misma flota).
+- **Sin roles**: cualquier cuenta autenticada tiene acceso total al panel web y a la app mobile (vía `app/api/**`). Hubo un sistema de roles `admin`/`trabajador` (migraciones `022`/`023`) que se eliminó — ver `.ai/context/DECISIONS.md` para el porqué y qué queda de esa historia (incluido un gap de seguridad real que tuvo `is_admin()` en el camino, relevante si se lo vuelve a tocar).
+- `is_admin()` (función de Postgres, migración `031_drop_trabajador_role.sql`) gatea la escritura en `site_settings`/`montajes`/`clientes`/`servicios`/`trabajos`/`galeria`/`media` — hoy es solo `auth.role() = 'authenticated'`, se mantiene el nombre por no tener que tocar cada policy que ya la usa.
+- La agenda nunca tuvo restricción por rol — siempre fue de acceso compartido a cualquier cuenta autenticada.
 
 ## Agenda como sub-sistema propio
 

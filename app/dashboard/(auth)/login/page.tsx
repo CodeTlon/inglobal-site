@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import Image from 'next/image'
-import { useSearchParams } from 'next/navigation'
 import { useFormState, useFormStatus } from 'react-dom'
 import { signIn } from '@/app/actions/auth'
 import { clearPwaCache } from '@/lib/pwa-cache'
@@ -67,7 +66,6 @@ export default function LoginPage() {
 
 function LoginForm() {
   const [state, action] = useFormState(signIn, null)
-  const sinAcceso = useSearchParams().get('sin_acceso') === '1'
 
   // El email es controlado a propósito: React resetea los campos no controlados
   // al terminar la acción del form, y hacer retipear el email tras equivocarse
@@ -80,10 +78,9 @@ function LoginForm() {
   }, [state])
 
   // Cubre las salidas que no pasan por el botón "Cerrar sesión" del sidebar (ver
-  // lib/pwa-cache.ts): el redirect forzoso de middleware.ts a un trabajador (?sin_acceso=1)
-  // es un 302 server-side, sin chance de correr JS antes de llegar acá — y una sesión que
-  // simplemente expiró también termina en esta pantalla. Si estás en el login no debería
-  // quedar nada cacheado de una sesión autenticada, así que se limpia sin condición al montar.
+  // lib/pwa-cache.ts): una sesión que expiró y te tira acá también deja cache viejo.
+  // Si estás en el login no debería quedar nada cacheado de una sesión autenticada,
+  // así que se limpia sin condición al montar.
   useEffect(() => {
     void clearPwaCache()
   }, [])
@@ -116,15 +113,6 @@ function LoginForm() {
             <p className="text-red-700 text-sm">{state.error}</p>
           </div>
         )}
-        {!state?.error && sinAcceso && (
-          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-amber-700 text-sm">
-              Tu cuenta es de trabajador: el calendario se usa desde la app InGlobal Agenda, no desde este panel.
-            </p>
-          </div>
-        )}
-
         <form action={action} className="space-y-4">
           <div>
             <label

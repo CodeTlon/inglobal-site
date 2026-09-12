@@ -24,7 +24,7 @@ export default function CreateUserForm() {
 
   return (
     <form action={action} className="bg-white rounded-2xl p-6 shadow-igb border border-zinc-100 space-y-4">
-      <h2 className="font-headline font-bold text-zinc-900">Nueva cuenta admin</h2>
+      <h2 className="font-headline font-bold text-zinc-900">Nueva cuenta</h2>
 
       {state?.error && (
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3">
@@ -47,13 +47,6 @@ export default function CreateUserForm() {
         <div>
           <label htmlFor="password" className={fieldLabel}>Contraseña</label>
           <input id="password" name="password" type="password" required minLength={6} placeholder="mín. 6 caracteres" className={fieldInput} />
-        </div>
-        <div>
-          <label htmlFor="role" className={fieldLabel}>Rol</label>
-          <select id="role" name="role" defaultValue="admin" className={fieldInput}>
-            <option value="admin">Admin (acceso total al panel)</option>
-            <option value="trabajador">Trabajador (solo agenda, en la app)</option>
-          </select>
         </div>
       </div>
 

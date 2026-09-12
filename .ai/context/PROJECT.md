@@ -4,11 +4,11 @@
 
 Sitio institucional + dashboard CMS de **Grúas InGlobal S.R.L.**, empresa de grúas, hidrogrúas y montajes industriales en Córdoba, Argentina. Reescritura de un sitio PHP legacy a Next.js 15, deployado en Vercel. El dashboard permite editar casi todo el contenido público (textos, fotos, montajes, clientes, servicios, trabajos, galería) sin tocar código, y además incluye un módulo de **agenda de flota** (grúas, empresas, operarios, eventos) con vistas para jefes (`/dashboard/agenda/calendario`) y un kiosco de TV de solo lectura (`/agenda-tv`).
 
-Desde ~agosto/septiembre 2026 el proyecto ganó una segunda superficie: una **app mobile satélite** (`inglobal-agenda-app`, repo aparte) que consume una capa REST propia (`app/api/**`, autenticación Bearer) para que el personal de campo (rol `trabajador`) gestione la agenda desde el celular sin acceso al panel web.
+Desde ~agosto/septiembre 2026 el proyecto ganó una segunda superficie: una **app mobile satélite** (`inglobal-agenda-app`, repo aparte) que consume una capa REST propia (`app/api/**`, autenticación Bearer) para que el personal de campo gestione la agenda desde el celular, con la misma cuenta que usaría en el panel web (no hay roles distintos, ver "No-objetivos").
 
 ## Para quién
 
-- **Grúas InGlobal S.R.L.** (el cliente) — usa el dashboard (`/dashboard/**`) para mantener el sitio público y gestionar la agenda de la flota. Roles `admin` (acceso total al panel + agenda) y `trabajador` (solo la app mobile, sin panel web) — ver `.ai/context/ARCHITECTURE.md`.
+- **Grúas InGlobal S.R.L.** (el cliente) — usa el dashboard (`/dashboard/**`) para mantener el sitio público y gestionar la agenda de la flota. Sin roles: cualquier cuenta tiene acceso total al panel y a la agenda, sea desde el panel web o la app mobile — ver `.ai/context/ARCHITECTURE.md`.
 - **Visitantes del sitio público** — clientes potenciales que llegan a `/`, `/servicios`, `/montajes`, `/clientes`, `/galeria`, `/contacto` buscando información y para dejar una cotización.
 - **Personal de campo** (operarios, choferes) — consumen la agenda vía la app mobile o el kiosco `/agenda-tv` (pantalla fija sin login, pairing por QR).
 
@@ -31,4 +31,4 @@ Desde ~agosto/septiembre 2026 el proyecto ganó una segunda superficie: una **ap
 - No es un ERP: no maneja facturación, pagos, ni contabilidad.
 - No es multi-tenant: es un proyecto de un solo cliente (Grúas InGlobal), sin arquitectura pensada para reutilizarse como producto para otras empresas de grúas.
 - No reemplaza la gestión comercial/administrativa de la empresa — la agenda de grúas es planificación operativa de flota, no un CRM.
-- El rol `trabajador` no tiene acceso al panel web hoy — su superficie es exclusivamente la app mobile. Mateo decidió (2026-09-11) eliminarlo y dejar un solo rol (`admin`); todavía no implementado — ver `.ai/context/CURRENT_STATE.md` y `.ai/context/DECISIONS.md`.
+- No hay roles ni niveles de permiso distintos — cualquier cuenta autenticada tiene acceso total al panel web y a la app mobile (el sistema `admin`/`trabajador` que existió brevemente se eliminó el 2026-09-11, ver `.ai/context/DECISIONS.md`).
