@@ -4,7 +4,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase-server'
 // Requiere Bearer: solo un usuario mobile ya logueado puede aprobar un pairing de TV.
 export async function POST(request: Request) {
   const auth = await requireApiUser(request)
-  if (!auth) return apiError('No autenticado.', 401)
+  if (auth instanceof Response) return auth
 
   const body = await request.json().catch(() => null)
   const token = body?.token

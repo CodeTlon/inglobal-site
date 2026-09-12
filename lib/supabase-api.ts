@@ -25,14 +25,27 @@ export function createSupabaseFromBearer(request: Request): SupabaseClient | nul
 }
 
 /**
- * Valida el Bearer token contra Supabase Auth y devuelve el cliente + usuario, o `null`
- * si no hay token o no es válido — usar al principio de todo Route Handler protegido.
+ * Valida el Bearer token contra Supabase Auth y devuelve el cliente + usuario, o el
+ * Response de error listo para retornar — usar al principio de todo Route Handler
+ * protegido: `const auth = await requireApiUser(request); if (auth instanceof Response) return auth`.
+ *
+ * Incluye el mismo chequeo de `must_change_password` que `middleware.ts` ya aplica en
+ * el dashboard web (`isDashboard && !isLogin && !isCambiarPassword && user?.user_metadata?.must_change_password`)
+ * — ese middleware solo corre para `/dashboard/**`/`/agenda-tv/**` (ver `config.matcher`
+ * ahí), nunca para `/api/**`, así que sin esto un usuario con contraseña temporal podía
+ * seguir operando indefinidamente vía la app mobile sin que el backend se lo impidiera
+ * (hallazgo documentado en `inglobal-agenda-app/.ai/context/KNOWN_ISSUES.md`). No hace
+ * falta una excepción tipo `isCambiarPassword`: el cambio de contraseña es un Server
+ * Action (`app/actions/auth.ts`), no hay ningún Route Handler de `app/api/**` para eso.
  */
 export async function requireApiUser(request: Request) {
   const supabase = createSupabaseFromBearer(request)
-  if (!supabase) return null
+  if (!supabase) return apiError('No autenticado.', 401)
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) return apiError('No autenticado.', 401)
+  if (user.user_metadata?.must_change_password) {
+    return apiError('Debés cambiar tu contraseña antes de continuar.', 403)
+  }
   return { supabase, user }
 }
 

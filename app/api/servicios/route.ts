@@ -7,7 +7,7 @@ import slugify from 'slugify'
 
 export async function GET(request: Request) {
   const auth = await requireApiUser(request)
-  if (!auth) return apiError('No autenticado.', 401)
+  if (auth instanceof Response) return auth
 
   const { data, error } = await auth.supabase.from('servicios').select('*').order('display_order', { ascending: true })
   if (error) return apiError(friendlyError(error), 500)
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const auth = await requireApiUser(request)
-  if (!auth) return apiError('No autenticado.', 401)
+  if (auth instanceof Response) return auth
   const { supabase } = auth
 
   const body = await request.json().catch(() => null)

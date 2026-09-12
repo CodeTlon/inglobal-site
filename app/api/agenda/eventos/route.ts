@@ -7,7 +7,7 @@ import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios } f
 export async function GET(request: Request) {
   try {
     const auth = await requireApiUser(request)
-    if (!auth) return apiError('No autenticado.', 401)
+    if (auth instanceof Response) return auth
 
     const { searchParams } = new URL(request.url)
     const desde = searchParams.get('desde') ?? undefined
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const auth = await requireApiUser(request)
-    if (!auth) return apiError('No autenticado.', 401)
+    if (auth instanceof Response) return auth
     const { supabase } = auth
 
     const body = await request.json().catch(() => null)

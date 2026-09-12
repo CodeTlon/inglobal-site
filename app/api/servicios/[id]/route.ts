@@ -9,7 +9,7 @@ type Params = { params: Promise<{ id: string }> }
 
 export async function GET(request: Request, { params }: Params) {
   const auth = await requireApiUser(request)
-  if (!auth) return apiError('No autenticado.', 401)
+  if (auth instanceof Response) return auth
   const { id } = await params
 
   const { data, error } = await auth.supabase.from('servicios').select('*').eq('id', id).single()
@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: Params) {
 
 export async function PATCH(request: Request, { params }: Params) {
   const auth = await requireApiUser(request)
-  if (!auth) return apiError('No autenticado.', 401)
+  if (auth instanceof Response) return auth
   const { supabase } = auth
   const { id } = await params
 
@@ -46,7 +46,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(request: Request, { params }: Params) {
   const auth = await requireApiUser(request)
-  if (!auth) return apiError('No autenticado.', 401)
+  if (auth instanceof Response) return auth
   const { supabase } = auth
   const { id } = await params
 

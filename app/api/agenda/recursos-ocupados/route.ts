@@ -5,7 +5,7 @@ import { friendlyError } from '@/lib/friendly-error'
 export async function GET(request: Request) {
   try {
     const auth = await requireApiUser(request)
-    if (!auth) return apiError('No autenticado.', 401)
+    if (auth instanceof Response) return auth
 
     const { searchParams } = new URL(request.url)
     const fecha = searchParams.get('fecha')

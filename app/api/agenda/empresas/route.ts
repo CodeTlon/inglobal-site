@@ -7,7 +7,7 @@ import { empresaAgendaDuplicada } from '@/lib/agenda-business'
 export async function GET(request: Request) {
   try {
     const auth = await requireApiUser(request)
-    if (!auth) return apiError('No autenticado.', 401)
+    if (auth instanceof Response) return auth
 
     const { searchParams } = new URL(request.url)
     const includeInactive = searchParams.get('includeInactive') === 'true'
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const auth = await requireApiUser(request)
-    if (!auth) return apiError('No autenticado.', 401)
+    if (auth instanceof Response) return auth
     const { supabase } = auth
 
     const body = await request.json().catch(() => null)
