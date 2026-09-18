@@ -10,6 +10,10 @@ Todo lo que quedó como UNKNOWN o ASSUMPTION al reconstruir el contexto de este 
 
 No existe ese workflow (el único `.github/workflows/` hoy es el cron de agenda, no un gate de calidad) pese a que `.claude/commands/cerrar.md` habla de "correr el mismo gate que el CI" — sugiere que en algún momento se planeó CI real. No está confirmado si sigue en el radar o se descartó a favor del gate manual.
 
+## ¿Dónde corre hoy `services/video-transcode` — tiene hosting real o sigue en soft-fail?
+
+Referenciado desde `.ai/context/CURRENT_STATE.md`, `.ai/context/ARCHITECTURE.md` y `.ai/context/DECISIONS.md` ("Hosting de `services/video-transcode`") pero nunca se había escrito acá — quedó perdida en la restructuración del 2026-09-11. Según Mateo, "cree que ya tiene hosting real" (Coolify u otro), pero dicho con reserva, no confirmado desde este repo — no hay forma de verificarlo sin chequear `NEXT_PUBLIC_TRANSCODE_SERVICE_URL` en las env vars reales de Vercel. Mientras no se confirme, el guard de soft-fail sigue activo en el código (si el servicio no responde, el upload sube sin transcodificar en vez de romper).
+
 ## ¿Vale la pena una herramienta de mantenimiento de contexto a nivel de fábrica?
 
 Fuera del alcance de este repo — ver el veredicto completo en `.ai/context/DECISIONS.md` ("Veredicto Fase 3"). Mateo mantiene la misma estructura `.claude/CLAUDE.md`/`AGENTS.md`+`.ai/context/` en varios proyectos (`output/*`, `portfolio/*`), así que el dolor de sincronización manual se repite entre proyectos. Si esto se vuelve a desincronizar en más de un proyecto, vale la pena evaluar un mecanismo compartido a nivel `codetlon-cloud`/`codetlon-forge` — no un subagente dedicado a `inglobal-site`.
