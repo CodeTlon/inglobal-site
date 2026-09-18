@@ -19,7 +19,7 @@ Si vas a agregar una mutación nueva: si la usa el sitio público o el dashboard
 |---|---|---|
 | Browser + admin | `lib/supabase.ts` | Cliente browser (uploads directos desde el navegador, ver Convenciones) + cliente admin (`service_role`) |
 | SSR cookie-based + admin | `lib/supabase-server.ts` | `createSupabaseServerClient` (RSC/Server Actions, sesión vía cookies `@supabase/ssr`) + `createSupabaseAdminClient` |
-| Bearer-token (API) | `lib/supabase-api.ts` | Exclusivo de `app/api/**` — la app mobile manda el JWT como header, no cookies |
+| Bearer-token (API) | `lib/supabase-api.ts` | Exclusivo de `app/api/**` — la app mobile manda el JWT como header, no cookies. `requireApiUser` devuelve directo el `Response` de error (401 sin sesión, 403 con `must_change_password`) en vez de `null`, para que una ruta nueva no pueda olvidarse del chequeo |
 | Inline en middleware | `middleware.ts`, `app/api/tv-pair/exchange/route.ts` | Cada uno instancia su propio `createServerClient` (mismo patrón `@supabase/ssr`), no reusan `supabase-server.ts` |
 | Microservicio aparte | `services/video-transcode/server.js` | Cliente propio (`SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`), vive fuera del runtime de Next |
 
@@ -28,7 +28,7 @@ No es un esquema "doble Supabase" simple — son 5 puntos de entrada distintos s
 ## Auth — un solo tipo de cuenta, sin roles
 
 - Supabase Auth (email+password), sin signup público — `createAdminUser` (`app/actions/users.ts`) requiere ya estar logueado (`requireUser()`).
-- `must_change_password` (en `user_metadata`): `middleware.ts` fuerza redirect a `/dashboard/cambiar-password` en cualquier ruta de `/dashboard/**` hasta que se cambie (excepto login y la propia pantalla de cambio, para no generar loop).
+- `must_change_password` (en `user_metadata`): `middleware.ts` fuerza redirect a `/dashboard/cambiar-password` en cualquier ruta de `/dashboard/**` hasta que se cambie (excepto login y la propia pantalla de cambio, para no generar loop). **También se enforce en `app/api/**`**: `requireApiUser` (`lib/supabase-api.ts`) devuelve 403 en las 14 rutas de la capa REST si `must_change_password: true` — antes del fix (`ee7d4ff`, rama `fix/must-change-password-api`) la app mobile podía seguir operando indefinidamente con una contraseña temporal. **Todavía no mergeado a `main`** — ver `.ai/context/CURRENT_STATE.md`.
 - **Sin roles**: cualquier cuenta autenticada tiene acceso total al panel web y a la app mobile (vía `app/api/**`). Hubo un sistema de roles `admin`/`trabajador` (migraciones `022`/`023`) que se eliminó — ver `.ai/context/DECISIONS.md` para el porqué y qué queda de esa historia (incluido un gap de seguridad real que tuvo `is_admin()` en el camino, relevante si se lo vuelve a tocar).
 - `is_admin()` (función de Postgres, migración `031_drop_trabajador_role.sql`) gatea la escritura en `site_settings`/`montajes`/`clientes`/`servicios`/`trabajos`/`galeria`/`media` — hoy es solo `auth.role() = 'authenticated'`, se mantiene el nombre por no tener que tocar cada policy que ya la usa.
 - La agenda nunca tuvo restricción por rol — siempre fue de acceso compartido a cualquier cuenta autenticada.
