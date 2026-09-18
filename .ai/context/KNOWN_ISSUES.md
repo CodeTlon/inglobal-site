@@ -25,3 +25,13 @@ El focal point de imágenes está limitado a 5 campos específicos (ver `.ai/con
 ## `docs/*.md` fósiles del delivery inicial
 
 `docs/README.md`, `docs/technical-docs.md`, `docs/maintenance-guide.md` describen el estado del proyecto en abril 2026 (Next 14, Zod 3, sin dashboard/CMS) — quedaron marcados como obsoletos (banner al inicio) en vez de borrados, por su valor documental/contractual como entregable original. No confiar en su contenido técnico.
+
+## [PROCESO, no seguridad] Auto-deploy a producción en cada push a `main`, sin que el equipo lo supiera
+
+**Hallazgo del 2026-09-17/18.** `docs/deployment-guide.md` afirmaba que no había integración Git↔Vercel y que el deploy a producción era manual (`vercel --prod`). Es falso: confirmado contra la API de Vercel (`GET /v9/projects/<id>` → `link.type: "github"`, `link.repo: "inglobal-site"`, `link.productionBranch: "main"`), con `link.createdAt` igual a la fecha de creación del proyecto (2026-06-16) — la conexión existe desde el día 1, no se activó recientemente.
+
+**Por qué importa (no es solo un typo de doc)**: esto aplica a **cualquier commit futuro a `main`**, no solo al fix de `must_change_password` que lo hizo evidente. Un `git push origin main` deploya solo a Production en minutos — no hay gate de revisión manual entre el push y que el código quede sirviendo en producción, más allá de que no hay CI de calidad tampoco (ver entrada de arriba "Sin CI/CD de calidad real"). Nadie decidió conscientemente activar esto — o si se decidió en algún momento, no quedó documentado y el resto de las decisiones de proceso (`docs/deployment-guide.md`, hábito de correr `vercel --prod` a mano) se construyeron sobre el supuesto contrario.
+
+**Evidencia concreta**: el commit `dc3f9a0` (2026-09-17 21:51 ARG, incluye `ee7d4ff` del fix de `must_change_password`) generó un deployment de Production creado por `vercel[bot]` doce minutos después (`created_at: 2026-09-18T01:04:43Z`), sin que nadie corriera `vercel --prod` manualmente en esa ventana.
+
+**No se trata como hallazgo de seguridad** porque no hay bypass de control de acceso ni exposición de datos — es un riesgo de proceso: mergear a `main` sin querer (o sin haber corrido `lint`/`tsc`/build local) ahora tiene efecto inmediato en producción. `docs/deployment-guide.md` ya se corrigió para reflejar que el auto-deploy está activo (commit separado a este).
