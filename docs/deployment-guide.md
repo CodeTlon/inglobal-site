@@ -9,9 +9,9 @@
 | Base de datos | Supabase | mismo proyecto que usa la mobile app (`inglobal-agenda-app`) |
 | Email | Resend | resend.com |
 
-**⚠️ No hay integración Git↔Vercel conectada.** Un push a `main` en GitHub **no** dispara un deploy — se verificó directamente (bundle sin cambios varios minutos después de un push). Ver "Actualizaciones futuras" al final: el deploy es manual, `vercel --prod`.
+**✅ La integración Git↔Vercel SÍ está conectada — auto-deploy activo en push a `main`.** Confirmado el 2026-09-18 contra la API de Vercel (`GET /v9/projects/<id>` → `link.type: "github"`, `link.repo: "inglobal-site"`, `link.productionBranch: "main"`), con `link.createdAt` igual a la fecha de creación del proyecto (2026-06-16) — es decir, la conexión existe **desde el día 1**, no es algo que se haya activado después. Corroborado además con un caso real: el commit `dc3f9a0` (2026-09-17 21:51 ARG) generó un deployment de Production creado por `vercel[bot]` doce minutos después, sin que nadie corriera `vercel --prod` a mano.
 
-Para conectarlo de una vez (recomendado): Vercel dashboard → proyecto `inglobal-site` → Settings → Git → Connect Repository → `CodeTlon/inglobal-site`, rama `main`. Después de eso sí, cada push deployaría solo.
+**Nota de discrepancia (agregada 2026-09-17/18):** este archivo decía hasta acá que no había integración Git↔Vercel y que el deploy era manual. Esa afirmación era incorrecta — no se sabe si lo fue desde que se escribió este doc o si alguien conectó el repo después sin actualizarlo, pero la evidencia de la API dice que la conexión es tan vieja como el proyecto. Ver `.ai/context/KNOWN_ISSUES.md` para el hallazgo completo (impacto de proceso: cualquier push a `main` deploya solo a producción, sin gate de revisión manual).
 
 ---
 
@@ -116,16 +116,15 @@ Agregar los registros DNS que Vercel indica:
 
 ## Actualizaciones futuras
 
-**Hoy no hay integración Git↔Vercel** (ver "Estado actual" arriba) — el push a `main` no alcanza, hay que deployar a mano:
+**El auto-deploy en push a `main` está activo** (ver "Estado actual" arriba) — `git push origin main` alcanza, Vercel builda y deploya solo a Production en unos minutos. No hace falta ningún paso manual en el flujo normal.
+
+El comando manual queda documentado solo como **fallback** para el caso en que el auto-deploy falle o haya que forzar un redeploy sin un commit nuevo (ej. reintentar tras un error de build, o revertir a un estado sin generar un commit de revert):
 
 ```bash
-git push origin main        # sigue siendo necesario para no perder el historial
-npx vercel --prod            # esto es lo que realmente actualiza producción
+npx vercel --prod            # fallback: fuerza un deploy a Production sin depender del auto-deploy
 ```
 
 `vercel` ya queda autenticado y linkeado al proyecto (`.vercel/project.json`) después del primer `vercel link` — no hace falta repetirlo salvo en una máquina nueva.
-
-Si en algún momento se conecta la integración Git (ver arriba), este paso manual deja de hacer falta y alcanza con el push.
 
 ### Route cache — cuidado con páginas sin `force-dynamic`
 Una página sin `export const dynamic = 'force-dynamic'` puede quedar servida desde el Full Route Cache de Next/Vercel **incluso después de un deploy nuevo** — pasó con `/agenda-tv/pair`, el HTML viejo se siguió sirviendo varios minutos post-deploy hasta que se le agregó `force-dynamic`. Cualquier página que dependa de datos que cambian en tiempo real (o de código que se está iterando activamente) necesita ese flag explícito.
