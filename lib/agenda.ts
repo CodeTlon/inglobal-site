@@ -39,6 +39,7 @@ export interface EmpresaAgenda {
   telefono: string | null
   notas: string | null
   logo_url: string | null
+  tipo: 'frecuente' | 'particular'
   activo: boolean
   created_at: string
 }
@@ -69,7 +70,7 @@ export interface EventoAgenda {
   updated_at: string
   grua: { nombre: string } | null
   empresa: { nombre: string } | null
-  operarios: { id: string; nombre: string }[]
+  operarios: { id: string; nombre: string; roles: string[]; eliminado_at: string | null }[]
 }
 
 export async function getGruas({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<Grua[]> {
@@ -101,13 +102,13 @@ export async function getOperarios({ includeInactive = false, eliminados = false
 }
 
 const EVENTO_SELECT =
-  '*, grua:gruas(nombre), empresa:empresas_agenda(nombre), eventos_operarios(operario:operarios(id, nombre))'
+  '*, grua:gruas(nombre), empresa:empresas_agenda(nombre), eventos_operarios(operario:operarios(id, nombre, roles, eliminado_at))'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapEvento(row: any): EventoAgenda {
   return {
     ...row,
-    operarios: (row.eventos_operarios ?? []).map((eo: { operario: { id: string; nombre: string } }) => eo.operario).filter(Boolean),
+    operarios: (row.eventos_operarios ?? []).map((eo: { operario: EventoAgenda['operarios'][number] }) => eo.operario).filter(Boolean),
   }
 }
 
@@ -137,7 +138,8 @@ export async function getEventosAgenda(
     gruaId,
     empresaId,
     operarioId,
-  }: { desde?: string; hasta?: string; gruaId?: string; empresaId?: string; operarioId?: string } = {},
+    throwOnError,
+  }: { desde?: string; hasta?: string; gruaId?: string; empresaId?: string; operarioId?: string; throwOnError?: boolean } = {},
   supabase?: SupabaseClient,
 ): Promise<EventoAgenda[]> {
   const client = await resolveClient(supabase)
@@ -166,7 +168,10 @@ export async function getEventosAgenda(
   const { data, error } = await query
     .order('fecha', { ascending: true })
     .order('hora_inicio', { ascending: true })
-  if (error || !data) return []
+  if (error || !data) {
+    if (throwOnError) throw new Error(error?.message ?? 'No se pudieron cargar los eventos')
+    return []
+  }
   let eventos = data.map(mapEvento)
   if (desde) {
     eventos = eventos.filter((ev) => finDiaEfectivoEvento(ev) >= desde)

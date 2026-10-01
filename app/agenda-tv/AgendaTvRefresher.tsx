@@ -10,7 +10,7 @@ import { useEffect } from 'react'
  */
 export default function AgendaTvRefresher({ intervalMs = 60000 }: { intervalMs?: number }) {
   useEffect(() => {
-    const id = setInterval(() => window.location.reload(), intervalMs)
+    const id = setInterval(() => { if (!document.querySelector(".z-\\[200\\]")) window.location.reload() }, intervalMs)
     return () => clearInterval(id)
   }, [intervalMs])
 

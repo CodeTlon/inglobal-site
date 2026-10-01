@@ -318,6 +318,7 @@ export async function updateEmpresaAgenda(prevState: unknown, formData: FormData
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     const duplicada = await empresaAgendaDuplicada(supabase, parsed.data.nombre, id)
     if (duplicada) return { error: duplicada }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { tipo, ...resto } = parsed.data
     const { error } = await supabase.from('empresas_agenda').update(formData.has('tipo') ? parsed.data : resto).eq('id', id)
     if (error) return { error: friendlyError(error) }
@@ -363,8 +364,9 @@ export async function updateOperario(prevState: unknown, formData: FormData): Pr
     if (!id) return { error: 'ID de operario requerido.' }
     const parsed = parseOperarioForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { roles, ...resto } = parsed.data
-    const { error } = await supabase.from('operarios').update(formData.has('roles') ? parsed.data : resto).eq('id', id)
+    const { error } = await supabase.from('operarios').update(formData.has('roles__presente') ? parsed.data : resto).eq('id', id)
     if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }

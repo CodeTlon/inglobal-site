@@ -100,7 +100,7 @@ export default function AgendaEventModal({
           {evento.operarios.length > 0 && (
             <div className="flex items-start gap-2 text-zinc-600">
               <Users size={16} className="text-zinc-400 flex-shrink-0 mt-0.5" />
-              {evento.operarios.map((o) => o.nombre).join(', ')}
+              {evento.operarios.map((o) => `${o.nombre}${o.roles?.length ? ` (${o.roles.join(', ')})` : ''}${o.eliminado_at ? ' — ex operario' : ''}`).join(', ')}
             </div>
           )}
           {evento.notas && (

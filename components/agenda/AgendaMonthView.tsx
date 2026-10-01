@@ -109,17 +109,17 @@ export default function AgendaMonthView({
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
                     className={`w-full rounded border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
-                    <p className={`font-bold truncate ${compact ? 'text-xs' : 'text-sm'}`}>
+                    <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
                       {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'}
                     </p>
-                    {!compact && <p className="text-xs truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>}
+                    <p className={`truncate opacity-80 ${compact ? 'text-xs' : 'text-sm'}`}>{ev.empresa?.nombre ?? 'Empresa'}</p>
                   </button>
                 ))}
                 {dayEventos.length > maxVisible && (
                   <button
                     type="button"
                     onClick={() => setSelectedDay({ key, eventos: dayEventos })}
-                    className={`w-full font-bold text-igb-navy hover:underline text-left cursor-pointer ${compact ? 'text-xs px-1.5 py-0.5' : 'text-base px-2 py-1.5'}`}
+                    className={`w-full font-bold text-igb-navy hover:underline text-left cursor-pointer ${compact ? 'text-sm px-1.5 py-0.5' : 'text-base px-2 py-1.5'}`}
                   >
                     +{dayEventos.length - maxVisible} más
                   </button>

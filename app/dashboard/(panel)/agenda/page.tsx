@@ -6,10 +6,11 @@ import AgendaTvQrLink from './AgendaTvQrLink'
 import { ChevronRight, Plus, Settings2, MapPin, Users } from 'lucide-react'
 
 const ESTADO_STYLES: Record<string, string> = {
+  reserva: 'bg-igb-navy/15 text-igb-navy',
   programado: 'bg-igb-yellow/15 text-igb-yellow-dark',
   en_curso: 'bg-blue-50 text-blue-600',
-  finalizado: 'bg-zinc-100 text-zinc-500',
-  cancelado: 'bg-red-50 text-red-500',
+  finalizado: 'bg-zinc-100 text-zinc-600',
+  cancelado: 'bg-red-50 text-red-700',
 }
 
 export default async function AgendaDashboardPage() {

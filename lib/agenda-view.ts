@@ -64,8 +64,8 @@ const ESTADO_COLORS_LIGHT: Record<string, string> = {
   reserva: 'bg-igb-navy/20 border-igb-navy/40 text-igb-navy',
   programado: 'bg-igb-yellow/15 border-igb-yellow/30 text-igb-yellow-dark',
   en_curso: 'bg-blue-50 border-blue-200 text-blue-600',
-  finalizado: 'bg-zinc-100 border-zinc-200 text-zinc-500',
-  cancelado: 'bg-red-50 border-red-200 text-red-500 line-through',
+  finalizado: 'bg-zinc-100 border-zinc-200 text-zinc-600',
+  cancelado: 'bg-red-50 border-red-200 text-red-700 line-through',
 }
 
 export function estadoColorClassesLight(estado: string): string {

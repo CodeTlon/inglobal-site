@@ -51,6 +51,24 @@ function FieldInputs({ fields, values }: { fields: FieldConfig[]; values?: Recor
             defaultValue={values?.[f.name]}
             options={f.options ?? []}
           />
+        ) : f.type === 'checkboxes' ? (
+          <fieldset key={f.name} className="space-y-1">
+            <input type="hidden" name={`${f.name}__presente`} value="1" />
+            <legend className="text-sm font-medium text-zinc-700">{f.label}</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {(f.options ?? []).map((o) => (
+                <label key={o.value} className="flex items-center gap-1.5 text-sm text-zinc-700">
+                  <input
+                    type="checkbox"
+                    name={f.name}
+                    value={o.value}
+                    defaultChecked={String(values?.[f.name] ?? '').split(',').includes(o.value)}
+                  />
+                  {o.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
         ) : f.type === 'image' ? (
           <ImageUpload
             key={f.name}

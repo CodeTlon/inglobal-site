@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getGruas, getEmpresasAgenda, getOperarios } from '@/lib/agenda'
-import { TIPOS_GRUA } from '@/lib/validations/agenda'
+import { TIPOS_GRUA, TIPOS_EMPRESA, ROLES_OPERARIO } from '@/lib/validations/agenda'
 import {
   createGrua, updateGrua, toggleGrua, deleteGrua,
   createEmpresaAgenda, updateEmpresaAgenda, toggleEmpresaAgenda, deleteEmpresaAgenda,
@@ -11,6 +11,8 @@ import CatalogSection from './CatalogSection'
 import { ArrowLeft } from 'lucide-react'
 
 const TIPO_OPTIONS = TIPOS_GRUA.map((t) => ({ value: t, label: t }))
+const TIPO_EMPRESA_OPTIONS = TIPOS_EMPRESA.map((t) => ({ value: t, label: t === 'frecuente' ? 'Cliente frecuente' : 'Particular' }))
+const ROL_OPTIONS = ROLES_OPERARIO.map((r) => ({ value: r, label: r }))
 
 export default async function CatalogosAgendaPage() {
   const [gruas, empresas, operarios] = await Promise.all([
@@ -61,11 +63,12 @@ export default async function CatalogosAgendaPage() {
             id: e.id,
             nombre: e.nombre,
             activo: e.activo,
-            subtitle: [e.contacto, e.telefono].filter(Boolean).join(' · '),
-            values: { nombre: e.nombre, contacto: e.contacto ?? '', telefono: e.telefono ?? '', notas: e.notas ?? '', logo_url: e.logo_url ?? '' },
+            subtitle: [e.tipo === 'frecuente' ? 'Cliente frecuente' : 'Particular', e.contacto, e.telefono].filter(Boolean).join(' · '),
+            values: { nombre: e.nombre, tipo: e.tipo, contacto: e.contacto ?? '', telefono: e.telefono ?? '', notas: e.notas ?? '', logo_url: e.logo_url ?? '' },
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Constructora del Sur S.A.' },
+            { name: 'tipo', label: 'Tipo de cliente', type: 'select', options: TIPO_EMPRESA_OPTIONS },
             { name: 'contacto', label: 'Persona de contacto', placeholder: 'Ej: Juan Pérez' },
             { name: 'telefono', label: 'Teléfono', placeholder: 'Ej: 351 555-1234' },
             { name: 'notas', label: 'Notas', placeholder: 'Notas internas (opcional)' },
@@ -83,12 +86,13 @@ export default async function CatalogosAgendaPage() {
             id: o.id,
             nombre: o.nombre,
             activo: o.activo,
-            subtitle: o.telefono ?? undefined,
-            values: { nombre: o.nombre, telefono: o.telefono ?? '', foto_url: o.foto_url ?? '' },
+            subtitle: [o.roles?.join(', '), o.telefono].filter(Boolean).join(' · ') || undefined,
+            values: { nombre: o.nombre, telefono: o.telefono ?? '', roles: (o.roles ?? []).join(','), foto_url: o.foto_url ?? '' },
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Carlos Gómez' },
             { name: 'telefono', label: 'Teléfono', placeholder: 'Ej: 351 555-1234' },
+            { name: 'roles', label: 'Roles', type: 'checkboxes', options: ROL_OPTIONS },
             { name: 'foto_url', label: 'Foto', type: 'image', folder: 'operario-fotos' },
           ]}
           createAction={createOperario}

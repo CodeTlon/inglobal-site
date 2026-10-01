@@ -18,7 +18,13 @@ export default async function AgendaTvPage({
   const month = monthParam ? new Date(`${monthParam}-01T00:00:00`) : new Date()
   const first = new Date(month.getFullYear(), month.getMonth(), 1)
   const last = new Date(month.getFullYear(), month.getMonth() + 1, 0)
-  const eventos = await getEventosAgenda({ desde: toDateInput(first), hasta: toDateInput(last) })
+  let eventos: Awaited<ReturnType<typeof getEventosAgenda>> = []
+  let cargaFallida = false
+  try {
+    eventos = await getEventosAgenda({ desde: toDateInput(first), hasta: toDateInput(last), throwOnError: true })
+  } catch {
+    cargaFallida = true
+  }
 
   const prevMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() - 1, 1)).slice(0, 7)
   const nextMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() + 1, 1)).slice(0, 7)
@@ -66,6 +72,14 @@ export default async function AgendaTvPage({
         <div className="shrink-0">
           <EstadoLegend />
         </div>
+        {cargaFallida && (
+          <p className="shrink-0 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-lg font-semibold text-red-700">
+            No se pudo cargar la agenda. Se reintenta automáticamente cada minuto.
+          </p>
+        )}
+        {!cargaFallida && eventos.length === 0 && (
+          <p className="shrink-0 text-center text-lg font-medium text-zinc-500">No hay servicios cargados este mes.</p>
+        )}
         <AgendaMonthView eventos={eventos} month={month} className="flex-1 min-h-0" />
       </main>
     </div>
