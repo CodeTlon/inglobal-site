@@ -66,8 +66,8 @@ export default async function CatalogosAgendaPage() {
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Constructora del Sur S.A.' },
-            { name: 'contacto', label: 'Persona de contacto', required: true, placeholder: 'Ej: Juan Pérez' },
-            { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
+            { name: 'contacto', label: 'Persona de contacto', placeholder: 'Ej: Juan Pérez' },
+            { name: 'telefono', label: 'Teléfono', placeholder: 'Ej: 351 555-1234' },
             { name: 'notas', label: 'Notas', placeholder: 'Notas internas (opcional)' },
             { name: 'logo_url', label: 'Logo', type: 'image', folder: 'empresa-logos' },
           ]}
@@ -88,7 +88,7 @@ export default async function CatalogosAgendaPage() {
           }))}
           fields={[
             { name: 'nombre', label: 'Nombre', placeholder: 'Ej: Carlos Gómez' },
-            { name: 'telefono', label: 'Teléfono', required: true, placeholder: 'Ej: 351 555-1234' },
+            { name: 'telefono', label: 'Teléfono', placeholder: 'Ej: 351 555-1234' },
             { name: 'foto_url', label: 'Foto', type: 'image', folder: 'operario-fotos' },
           ]}
           createAction={createOperario}

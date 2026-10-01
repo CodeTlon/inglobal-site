@@ -11,6 +11,7 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
     const includeInactive = searchParams.get('includeInactive') === 'true'
+    const eliminados = searchParams.get('eliminados') === 'true'
 
     const operarios = await getOperarios({ includeInactive }, auth.supabase)
     return apiData(operarios)

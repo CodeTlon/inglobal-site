@@ -424,12 +424,21 @@ export async function catalogDelete(
   table: CatalogTable,
   id: string,
 ): Promise<{ error?: string }> {
-  if (table !== 'operarios') {
-    const estados = await estadosDeEventosDelRecurso(supabase, table, id)
-    const vivos = estados.filter((e) => ESTADOS_VIVOS.includes(e)).length
-    if (vivos > 0) {
-      return { error: `No se puede eliminar: tiene ${vivos} evento(s) vivo(s) (reserva/programado/en curso) asociado(s). Desactivalo en vez de eliminarlo.` }
-    }
+  if (table === 'operarios') {
+    // Baja lógica: queda registrado como ex operario y conserva su historial
+    // en los eventos (un DELETE borraría las filas de eventos_operarios en cascada).
+    const { error } = await supabase
+      .from('operarios')
+      .update({ eliminado_at: new Date().toISOString(), activo: false })
+      .eq('id', id)
+    if (error) return { error: friendlyError(error) }
+    return {}
+  }
+
+  const estados = await estadosDeEventosDelRecurso(supabase, table, id)
+  const vivos = estados.filter((e) => ESTADOS_VIVOS.includes(e)).length
+  if (vivos > 0) {
+    return { error: `No se puede eliminar: tiene ${vivos} evento(s) vivo(s) (reserva/programado/en curso) asociado(s). Desactivalo en vez de eliminarlo.` }
   }
 
   const { error } = await supabase.from(table).delete().eq('id', id)
@@ -472,7 +481,7 @@ export async function operarioDuplicado(
   nombre: string,
   excludeId?: string,
 ): Promise<string | null> {
-  let query = supabase.from('operarios').select('id').ilike('nombre', nombre)
+  let query = supabase.from('operarios').select('id').is('eliminado_at', null).ilike('nombre', nombre)
   if (excludeId) query = query.neq('id', excludeId)
   const { data } = await query.limit(1)
   if (data && data.length > 0) return 'Ya existe un operario con ese nombre.'

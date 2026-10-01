@@ -92,16 +92,32 @@ export const gruaSchema = z.object({
   foto_url:            z.string().url().nullable().optional(),
 })
 
+export const TIPOS_EMPRESA = ['frecuente', 'particular'] as const
+export const ROLES_OPERARIO = ['Gruista', 'Hidrogruista', 'Ayudante', 'Carretonero'] as const
+
+/** Teléfono opcional: vacío/null se guarda como null; si viene, se valida el formato. */
+const telefonoOpcional = z.preprocess(
+  v => (typeof v === 'string' && v.trim() === '' ? null : v),
+  z.string().regex(TELEFONO_REGEX, 'Teléfono inválido').nullable().optional(),
+)
+
+const contactoOpcional = z.preprocess(
+  v => (typeof v === 'string' && v.trim() === '' ? null : v),
+  z.string().nullable().optional(),
+)
+
 export const empresaAgendaSchema = z.object({
   nombre:   z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  contacto: z.string().min(1, 'El contacto es obligatorio'),
-  telefono: z.string().min(1, 'El teléfono es obligatorio').regex(TELEFONO_REGEX, 'Teléfono inválido'),
+  contacto: contactoOpcional,
+  telefono: telefonoOpcional,
+  tipo:     z.enum(TIPOS_EMPRESA).default('particular'),
   notas:    z.string().nullable().optional(),
   logo_url: z.string().url().nullable().optional(),
 })
 
 export const operarioSchema = z.object({
   nombre:   z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  telefono: z.string().min(1, 'El teléfono es obligatorio').regex(TELEFONO_REGEX, 'Teléfono inválido'),
+  telefono: telefonoOpcional,
+  roles:    z.array(z.enum(ROLES_OPERARIO)).default([]),
   foto_url: z.string().url().nullable().optional(),
 })

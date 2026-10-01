@@ -286,8 +286,9 @@ export async function deleteGrua(prevState: unknown, formData: FormData) {
 function parseEmpresaAgendaForm(formData: FormData) {
   return empresaAgendaSchema.safeParse({
     nombre:   formData.get('nombre'),
-    contacto: formData.get('contacto'),
-    telefono: formData.get('telefono'),
+    contacto: formData.get('contacto') || null,
+    telefono: formData.get('telefono') || null,
+    tipo:     formData.get('tipo') || undefined,
     notas:    formData.get('notas'),
     logo_url: formData.get('logo_url') || undefined,
   })
@@ -317,7 +318,8 @@ export async function updateEmpresaAgenda(prevState: unknown, formData: FormData
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     const duplicada = await empresaAgendaDuplicada(supabase, parsed.data.nombre, id)
     if (duplicada) return { error: duplicada }
-    const { error } = await supabase.from('empresas_agenda').update(parsed.data).eq('id', id)
+    const { tipo, ...resto } = parsed.data
+    const { error } = await supabase.from('empresas_agenda').update(formData.has('tipo') ? parsed.data : resto).eq('id', id)
     if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }
@@ -335,7 +337,8 @@ export async function deleteEmpresaAgenda(prevState: unknown, formData: FormData
 function parseOperarioForm(formData: FormData) {
   return operarioSchema.safeParse({
     nombre:   formData.get('nombre'),
-    telefono: formData.get('telefono'),
+    telefono: formData.get('telefono') || null,
+    roles:    formData.getAll('roles'),
     foto_url: formData.get('foto_url') || undefined,
   })
 }
@@ -360,7 +363,8 @@ export async function updateOperario(prevState: unknown, formData: FormData): Pr
     if (!id) return { error: 'ID de operario requerido.' }
     const parsed = parseOperarioForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
-    const { error } = await supabase.from('operarios').update(parsed.data).eq('id', id)
+    const { roles, ...resto } = parsed.data
+    const { error } = await supabase.from('operarios').update(formData.has('roles') ? parsed.data : resto).eq('id', id)
     if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
     return { success: true }

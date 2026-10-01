@@ -47,6 +47,8 @@ export interface Operario {
   id: string
   nombre: string
   telefono: string | null
+  roles: string[]
+  eliminado_at: string | null
   foto_url: string | null
   activo: boolean
   created_at: string
@@ -88,10 +90,11 @@ export async function getEmpresasAgenda({ includeInactive = false } = {}, supaba
   return data as EmpresaAgenda[]
 }
 
-export async function getOperarios({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<Operario[]> {
+export async function getOperarios({ includeInactive = false, eliminados = false } = {}, supabase?: SupabaseClient): Promise<Operario[]> {
   const client = await resolveClient(supabase)
   let query = client.from('operarios').select('*')
-  if (!includeInactive) query = query.eq('activo', true)
+  query = eliminados ? query.not('eliminado_at', 'is', null) : query.is('eliminado_at', null)
+  if (!includeInactive && !eliminados) query = query.eq('activo', true)
   const { data, error } = await query.order('nombre', { ascending: true })
   if (error || !data) return []
   return data as Operario[]
