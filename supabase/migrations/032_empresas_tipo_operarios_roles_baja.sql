@@ -1,4 +1,4 @@
--- 031: empresas con tipo (frecuente/particular), contacto/teléfono opcionales;
+-- 032: empresas con tipo (frecuente/particular), contacto/teléfono opcionales;
 -- operarios con roles, teléfono opcional y baja lógica (ex operarios).
 
 -- Empresas ---------------------------------------------------------------
