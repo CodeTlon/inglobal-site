@@ -8,7 +8,8 @@ Fuente de verdad de los 3 entornos. La app móvil solo enlaza acá.
 | **Homologación** | `test` | proyecto Supabase de homologación — **PENDIENTE: lo define el dueño** | Vercel (entorno Preview) | perfil EAS `preview`, canal `preview` |
 | **Producción** | `main` | proyecto Supabase real del cliente | Vercel Production (auto-deploy desde `main`) | perfil EAS `production`, canal `production` |
 
-Flujo: `dev` → `test` → `main`. Las ramas `dev` y `test` ya existen en GitHub (espejo de `main` al crearlas). Un push a `main` despliega a producción. `main` es producción: se mantiene ese nombre técnico (Vercel despliega desde `main`). El proyecto Supabase de `test` todavía no está conectado:
+Flujo: `dev` → `test` → `main`. Las ramas `dev` y `test` ya existen en GitHub (espejo de `main` al crearlas). Un push a `main` despliega a producción. **Se trabaja siempre en `dev`**: los cambios nuevos se commitean ahí, se promueven a `test` para probar y recién después a `main`.
+No commitear directo a `main`. `main` es producción: se mantiene ese nombre técnico (Vercel despliega desde `main`). El proyecto Supabase de `test` todavía no está conectado:
 no asumir que existe hasta que `CURRENT_STATE.md` lo diga.
 
 ## Reglas

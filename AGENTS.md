@@ -44,6 +44,7 @@ npm run db:local:down     # apaga el stack local
 
 ## Para más contexto
 
+- **Rama de trabajo: `dev`** (`dev` → `test` → `main`). No commitear directo a `main`: despliega a producción.
 - Entornos (dev local / homologación / producción), seed y cuentas de prueba: `.ai/context/ENVIRONMENTS.md`. Producción tiene datos reales: no correr seeds ni resets fuera de local.
 
 Este archivo es la entrada corta. El detalle real vive en `.ai/context/` — ver `.ai/context/00_INDEX.md` para la tabla completa de "qué tarea → qué archivo". Resumen:
