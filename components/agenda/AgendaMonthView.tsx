@@ -91,7 +91,22 @@ export default function AgendaMonthView({
                 isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
               } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'} ${dayEventos.length > 0 ? 'cursor-pointer' : ''}`}
             >
-              <p className={`font-bold text-zinc-900 ${compact ? 'text-base mb-0.5' : 'text-2xl mb-2'}`}>{day.getDate()}</p>
+              <div className={`flex items-center justify-between ${compact ? 'mb-0.5' : 'mb-2'}`}>
+                <p className={`font-bold text-zinc-900 ${compact ? 'text-base' : 'text-2xl'}`}>{day.getDate()}</p>
+                {/* El "+N más" va en la fila del día: debajo de las tarjetas el overflow-hidden lo cortaba. */}
+                {dayEventos.length > maxVisible && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedDay({ key, eventos: dayEventos })
+                    }}
+                    className="rounded-full bg-igb-navy px-2 py-0.5 text-sm font-bold text-white cursor-pointer hover:brightness-110"
+                  >
+                    +{dayEventos.length - maxVisible} más
+                  </button>
+                )}
+              </div>
               {dayEventos.length > 0 && !compact && (
                 <p className="text-base text-igb-yellow-dark font-bold mb-2">
                   {dayEventos.length} evento{dayEventos.length > 1 ? 's' : ''}
@@ -115,15 +130,6 @@ export default function AgendaMonthView({
                     <p className={`truncate opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{ev.empresa?.nombre ?? 'Empresa'}</p>
                   </button>
                 ))}
-                {dayEventos.length > maxVisible && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDay({ key, eventos: dayEventos })}
-                    className={`w-full font-bold text-igb-navy hover:underline text-left cursor-pointer ${compact ? 'text-sm px-1.5 py-0.5' : 'text-base px-2 py-1.5'}`}
-                  >
-                    +{dayEventos.length - maxVisible} más
-                  </button>
-                )}
               </div>
             </div>
           )

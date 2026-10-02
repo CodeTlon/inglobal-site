@@ -26,6 +26,10 @@ npx tsc --noEmit          # type check
 npx playwright test       # E2E — puerto dedicado 3310, no 3000
 npm run optimize:images   # regenera public/images/opt/
 npm run optimize:video    # requiere ffmpeg local
+npm run db:local:up       # Supabase local (Docker) + migraciones + seed + cuentas de prueba
+npm run dev:local         # sitio contra el Supabase local (no toca ningún .env)
+npm run db:local:reset    # recarga migraciones + seed (solo local)
+npm run db:local:down     # apaga el stack local
 ```
 
 ## Convenciones críticas no negociables
@@ -39,6 +43,8 @@ npm run optimize:video    # requiere ffmpeg local
 - Todo el contenido y la UI son en español (es_AR).
 
 ## Para más contexto
+
+- Entornos (dev local / homologación / producción), seed y cuentas de prueba: `.ai/context/ENVIRONMENTS.md`. Producción tiene datos reales: no correr seeds ni resets fuera de local.
 
 Este archivo es la entrada corta. El detalle real vive en `.ai/context/` — ver `.ai/context/00_INDEX.md` para la tabla completa de "qué tarea → qué archivo". Resumen:
 

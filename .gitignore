@@ -54,3 +54,4 @@ www.gruasinglobal.com-*.html
 /public/videos/*
 !/public/videos/opt/
 .env*
+!.env*.example

@@ -7,6 +7,7 @@ Qué leer según el tipo de tarea. Leé solo lo que necesites — no cargues tod
 | Primera sesión en el repo / onboarding | `PROJECT.md` + `ARCHITECTURE.md` |
 | Tocar auth (cuenta única, sin roles de usuario), RLS, middleware | `ARCHITECTURE.md` (sección "Auth — un solo tipo de cuenta, sin roles") + `CONVENTIONS.md` |
 | Tocar empresas/operarios de la agenda (tipo, roles de operario, ex operarios, `hora_fin`) | `ARCHITECTURE.md` (sección "Agenda: reglas de dominio recientes") |
+| Entornos (dev local, homologación, producción), Supabase local, seed, cuentas de prueba | `ENVIRONMENTS.md` |
 | Tocar agenda (eventos, catálogos, estados, TV/kiosco) | `DOMAIN.md` (tablas de agenda + estados) + `ARCHITECTURE.md` (sección "Agenda como sub-sistema propio") + `KNOWN_ISSUES.md` |
 | Agregar un upload nuevo (imagen/video/PDF) | `CONVENTIONS.md` (sección "Uploads grandes") |
 | Agregar/editar un campo de `site_settings` o cualquier tabla de contenido | `DOMAIN.md` + `CONVENTIONS.md` (contrato de nombres) |

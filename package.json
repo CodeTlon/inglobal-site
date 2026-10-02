@@ -10,7 +10,12 @@
     "lint": "next lint",
     "optimize:images": "node scripts/optimize-images.mjs",
     "optimize:video": "node scripts/optimize-video.mjs",
-    "prebuild": "node scripts/optimize-images.mjs && node scripts/optimize-video.mjs"
+    "prebuild": "node scripts/optimize-images.mjs && node scripts/optimize-video.mjs",
+    "db:local:up": "supabase start && node scripts/db-local-users.mjs",
+    "db:local:reset": "supabase db reset --local && node scripts/db-local-users.mjs",
+    "db:local:down": "supabase stop",
+    "db:local:users": "node scripts/db-local-users.mjs",
+    "dev:local": "node scripts/dev-local.mjs"
   },
   "overrides": {
     "sharp": "^0.35.3",
