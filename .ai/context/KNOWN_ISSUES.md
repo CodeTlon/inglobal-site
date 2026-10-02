@@ -35,3 +35,15 @@ El focal point de imágenes está limitado a 5 campos específicos (ver `.ai/con
 **Evidencia concreta**: el commit `dc3f9a0` (2026-09-17 21:51 ARG, incluye `ee7d4ff` del fix de `must_change_password`) generó un deployment de Production creado por `vercel[bot]` doce minutos después (`created_at: 2026-09-18T01:04:43Z`), sin que nadie corriera `vercel --prod` manualmente en esa ventana.
 
 **No se trata como hallazgo de seguridad** porque no hay bypass de control de acceso ni exposición de datos — es un riesgo de proceso: mergear a `main` sin querer (o sin haber corrido `lint`/`tsc`/build local) ahora tiene efecto inmediato en producción. `docs/deployment-guide.md` ya se corrigió para reflejar que el auto-deploy está activo (commit separado a este).
+
+## Datos reales con valores heredados de cuando contacto/teléfono eran obligatorios
+Algunas empresas del cliente tienen `contacto = "."` (relleno para pasar la validación). No se tocaron. Si molesta, limpiar a mano desde el panel; no hay migración para eso.
+
+## Todas las empresas existentes quedaron como "Cliente frecuente"
+La migración 032 hizo `UPDATE empresas_agenda SET tipo = 'frecuente'`. Hay que reclasificar las particulares desde la app o el panel. **No volver a ejecutar ese `UPDATE`**: pisaría las clasificaciones nuevas.
+
+## Avisos de desarrollo "Issues" en el sitio
+`next dev` muestra 4-6 issues por errores de `site_settings` ajenos a la agenda. Sin investigar.
+
+## Roles de operario fijos
+`ROLES_OPERARIO` está duplicado en `inglobal-site/lib/validations/agenda.ts` y en `inglobal-agenda-app/src/lib/types.ts`. Cambiarlo en un repo exige cambiarlo en el otro.

@@ -20,3 +20,8 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 
 - Sin tests de integración ni de RLS — solo 24 E2E de UI (`tests/e2e/inglobal.spec.ts`) y 1 unit test (`services/video-transcode/token.test.mjs`). Ver `.ai/context/KNOWN_ISSUES.md`.
 - Sin CI/CD real — el gate de calidad (`lint && tsc --noEmit && build`) depende de que alguien lo corra a mano antes de mergear/pushear.
+
+## Estado al 2026-10-01 (cierre de la tanda de agenda y entornos)
+- **Hecho y en `main`:** migración 032 aplicada en producción, empresas por tipo, roles y ex operarios (app + sitio + panel web), mejoras de vistas mes/semana/día y TV, Supabase local con seed, documentación de entornos.
+- **Ramas:** `dev` (trabajo), `test` y `main` existen en los dos repos; las tres quedaron emparejadas al cerrar esta tanda.
+- **Pendiente:** (1) Supabase de homologación y su sitio en Vercel (Preview); (2) reclasificar a mano las empresas particulares: la 032 las dejó todas como `frecuente`; (3) decidir la política de `hora_fin` (18:00 vs 23:59); (4) revisar con el seed las vistas semana y día del sitio con el día de 9 servicios y la app móvil en un celular o emulador (solo se revisó la TV mensual y la semana web).
