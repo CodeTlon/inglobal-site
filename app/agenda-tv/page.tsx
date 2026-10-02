@@ -56,7 +56,7 @@ export default async function AgendaTvPage({
             <ChevronLeft size={22} /> Mes anterior
           </Link>
           <div className="flex flex-col items-center gap-2">
-            <p className="text-zinc-900 text-lg font-bold capitalize">
+            <p className="text-zinc-900 text-2xl font-bold first-letter:uppercase">
               {month.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
             </p>
             {!esMesActual && (
@@ -78,7 +78,7 @@ export default async function AgendaTvPage({
           </p>
         )}
         {!cargaFallida && eventos.length === 0 && (
-          <p className="shrink-0 text-center text-lg font-medium text-zinc-500">No hay servicios cargados este mes.</p>
+          <p className="shrink-0 pb-3 text-center text-xl font-medium text-zinc-500">No hay servicios cargados este mes.</p>
         )}
         <AgendaMonthView eventos={eventos} month={month} className="flex-1 min-h-0" />
       </main>

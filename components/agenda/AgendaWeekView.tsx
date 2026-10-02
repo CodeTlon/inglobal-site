@@ -115,7 +115,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                 key={`${ev.id}-${key}`}
                 type="button"
                 onClick={() => setSelected(ev)}
-                className={`m-1 rounded-lg border px-2 py-1 overflow-hidden text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(visual)}`}
+                className={`m-1 flex flex-col items-stretch justify-start rounded-lg border px-2 py-1 overflow-hidden text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(visual)}`}
                 style={{
                   gridColumn: dayIdx + 2,
                   gridRow: `${rowStart} / ${rowEnd}`,

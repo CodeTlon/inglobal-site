@@ -14,7 +14,7 @@ Los 4 docs de mantenimiento del proyecto (`README.md`, `ARCHITECTURE.md`, `MANUA
 
 24 tests E2E de UI (`tests/e2e/inglobal.spec.ts`, un solo archivo plano, sin agrupar por `test.describe`) + 1 unit test (`services/video-transcode/token.test.mjs`). Sin tests de integración, sin tests de políticas RLS — el incidente de `is_admin()` (migraciones 022→023, ver `.ai/context/DECISIONS.md`) no habría sido detectado por la suite actual.
 
-## Contradicción sin resolver: proyecto Supabase de la app mobile
+## RESUELTO (2026-09-11, ver DECISIONS.md): proyecto Supabase de la app mobile — es el mismo que el del sitio
 
 `docs/deployment-guide.md` dice que la app mobile usa "el mismo proyecto Supabase" que el web, mientras el resto de la documentación describe un esquema dev/prod separado (`inglobal-dev`/`inglobal-prod`). No se pudo resolver desde este repo solamente — ver `.ai/context/OPEN_QUESTIONS.md`.
 

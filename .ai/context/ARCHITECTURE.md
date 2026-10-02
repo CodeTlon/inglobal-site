@@ -62,7 +62,7 @@ Pantalla de TV sin teclado — no puede loguearse con email/password. Pairing ti
 
 ## Deploy
 
-- Vercel, **sin integración Git conectada** — deploy manual (`vercel --prod`), según `docs/deployment-guide.md`.
+- Vercel con **auto-deploy desde `main`** (integración Git activa; evidencia en `KNOWN_ISSUES.md` y `docs/deployment-guide.md`). Un push a `main` despliega a producción.
 - Dominio `gruasinglobal.com` todavía no cortado a la producción real — sigue sirviendo desde el alias `*.vercel.app` (ver `lib/site.ts`).
 - `.github/workflows/cron-transicionar-estados.yml` dispara el cron de transición de estados de agenda (GitHub Actions, no Vercel — ver `.ai/context/DECISIONS.md`). Es el único workflow del repo; no es un gate de calidad.
 - Sin CI/CD de calidad (nada corre `lint`/`tsc`/`build`/tests automáticamente en push o PR) — ese gate sigue siendo local/manual, corrido antes de mergear.
@@ -72,3 +72,13 @@ Pantalla de TV sin teclado — no puede loguearse con email/password. Pairing ti
 - Server Components por defecto; `'use client'` solo donde hace falta interactividad (Navbar, HeroVideo, ScrollReveal, ContactForm/Wrapper, LazyGoogleMap/LazyYoutubeEmbed, forms del dashboard).
 - Fallback-first en el sitio público: `lib/content.ts` atrapa errores de Supabase y devuelve `FALLBACK_*` (`lib/constants.ts`) — el sitio sigue funcionando aunque Supabase esté caído o mal configurado. `generateStaticParams` con try/catch en `montajes/[slug]` y `clientes/[slug]` permite buildear sin credenciales.
 - Todo en español (es_AR).
+
+
+## Agenda: reglas de dominio recientes (migración 032)
+- `empresas_agenda.tipo`: `frecuente` | `particular` (default `particular`). La 032 marcó TODAS las empresas ya existentes como `frecuente`; hay que reclasificar a mano las que sean particulares.
+- `empresas_agenda.contacto` y `telefono` son opcionales (nullable). `operarios.telefono` también.
+- `operarios.roles text[]`: valores fijos de `ROLES_OPERARIO` (`lib/validations/agenda.ts`): Gruista, Hidrogruista, Ayudante, Carretonero. Agregar un rol exige tocar ese array en este repo Y en `inglobal-agenda-app/src/lib/types.ts`.
+- `operarios.eliminado_at`: DELETE de un operario es baja lógica (`catalogDelete` en `lib/agenda-business.ts`). `getOperarios` los excluye; `?eliminados=true` los lista. Los eventos históricos conservan al operario y el modal lo marca "ex operario".
+- Ojo: "roles" significa dos cosas distintas — el rol de usuario `trabajador` (eliminado en la 031) y los roles de operario (vigentes).
+- **Fin de jornada por defecto (`hora_fin` vacío):** este repo usa 23:59 (`lib/agenda-business.ts`, `lib/agenda-view.ts`). La app móvil usa 18:00 para el estado visual y 23:59 para ubicar por día. Divergencia vigente; no unificar sin decisión del dueño.
+- Vista TV (`/agenda-tv`): grilla mensual con fuentes grandes, empresa visible, estados vacío y de error; el refresco de 60 s no recarga si hay un modal abierto.

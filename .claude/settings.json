@@ -32,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'RECORDATORIO mantenimiento: 1) README.md (raiz) -> fila nueva en Changelog. 2) .claude/CLAUDE.md + ARCHITECTURE.md si hubo cambios estructurales + fila en Historial. 3) Commits SIN Co-Authored-By: Claude.'"
+            "command": "echo 'RECORDATORIO mantenimiento: 1) README.md (raiz) -> fila nueva en Changelog. 2) .ai/context/ (fuente de verdad: ARCHITECTURE.md, CURRENT_STATE.md, DECISIONS.md) si hubo cambios estructurales o de dominio. 3) Commits SIN Co-Authored-By: Claude.'"
           }
         ]
       }

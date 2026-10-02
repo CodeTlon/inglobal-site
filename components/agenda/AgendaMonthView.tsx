@@ -112,7 +112,7 @@ export default function AgendaMonthView({
                     <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
                       {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'}
                     </p>
-                    <p className={`truncate opacity-80 ${compact ? 'text-xs' : 'text-sm'}`}>{ev.empresa?.nombre ?? 'Empresa'}</p>
+                    <p className={`truncate opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{ev.empresa?.nombre ?? 'Empresa'}</p>
                   </button>
                 ))}
                 {dayEventos.length > maxVisible && (
