@@ -4,12 +4,12 @@ Fuente de verdad de los 3 entornos. La app móvil solo enlaza acá.
 
 | Entorno | Branch | Supabase | Sitio | App móvil |
 |---|---|---|---|---|
-| **Desarrollo** (local) | cualquier branch de trabajo (`dev`) | stack local `inglobal-local` (Docker), datos de seed | `npm run dev:local` → `localhost:3200` | `npm run start:local` (en la app) |
-| **Homologación** | `homologacion` | proyecto Supabase de homologación — **PENDIENTE: lo define el dueño** | Vercel (entorno Preview) | perfil EAS `preview`, canal `preview` |
+| **Desarrollo** (local) | `dev` | stack local `inglobal-local` (Docker), datos de seed | `npm run dev:local` → `localhost:3200` | `npm run start:local` (en la app) |
+| **Homologación** | `test` | proyecto Supabase de homologación — **PENDIENTE: lo define el dueño** | Vercel (entorno Preview) | perfil EAS `preview`, canal `preview` |
 | **Producción** | `main` | proyecto Supabase real del cliente | Vercel Production (auto-deploy desde `main`) | perfil EAS `production`, canal `production` |
 
-Flujo previsto: `dev` → `homologacion` → `main`. Un push a `main` despliega a producción. La branch `homologacion` y
-su proyecto Supabase todavía no están creados/conectados: no asumir que existen hasta que `CURRENT_STATE.md` lo diga.
+Flujo: `dev` → `test` → `main`. Las ramas `dev` y `test` ya existen en GitHub (espejo de `main` al crearlas). Un push a `main` despliega a producción. `main` es producción: se mantiene ese nombre técnico (Vercel despliega desde `main`). El proyecto Supabase de `test` todavía no está conectado:
+no asumir que existe hasta que `CURRENT_STATE.md` lo diga.
 
 ## Reglas
 - **Producción tiene datos reales del cliente.** Nunca correr seeds, scripts de prueba ni `db reset` contra homologación o producción.
@@ -39,5 +39,5 @@ npm run db:local:down    # apaga el stack
 
 ## Pendiente de definir
 - Proyecto Supabase de homologación (URL y claves) y su sitio en Vercel.
-- Creación de la branch `homologacion` y mapeo en Vercel (Preview) y EAS (`preview`).
+- Mapeo de la branch `test` en Vercel (Preview) y de `dev`/`test` en EAS (`preview`).
 - Cargar migraciones en homologación con `supabase db push` contra ese proyecto (no con seed).
