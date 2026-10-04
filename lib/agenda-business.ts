@@ -477,7 +477,8 @@ export async function empresaAgendaDuplicada(
 }
 
 /**
- * Revierte la baja lógica de un operario (ex operario → operario). Queda activo.
+ * Revierte la baja lógica de un operario (ex operario → operario). Queda INACTIVO:
+ * se activa a mano después, para que no entre a la asignación de eventos sin querer.
  * Falla si ya existe otro operario vigente con el mismo nombre.
  */
 export async function reincorporarOperario(
@@ -496,7 +497,7 @@ export async function reincorporarOperario(
   const duplicado = await operarioDuplicado(supabase, op.nombre, id)
   if (duplicado) return { error: `${duplicado} Cambiale el nombre al otro antes de reincorporarlo.` }
 
-  const { error } = await supabase.from('operarios').update({ eliminado_at: null, activo: true }).eq('id', id)
+  const { error } = await supabase.from('operarios').update({ eliminado_at: null, activo: false }).eq('id', id)
   if (error) return { error: friendlyError(error) }
   return {}
 }
