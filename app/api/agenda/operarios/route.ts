@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const includeInactive = searchParams.get('includeInactive') === 'true'
     const eliminados = searchParams.get('eliminados') === 'true'
 
-    const operarios = await getOperarios({ includeInactive }, auth.supabase)
+    const operarios = await getOperarios({ includeInactive, eliminados }, auth.supabase)
     return apiData(operarios)
   } catch (e) {
     return apiError(friendlyError(e), 500)

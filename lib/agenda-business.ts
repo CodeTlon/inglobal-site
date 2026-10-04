@@ -476,6 +476,31 @@ export async function empresaAgendaDuplicada(
   return null
 }
 
+/**
+ * Revierte la baja lógica de un operario (ex operario → operario). Queda activo.
+ * Falla si ya existe otro operario vigente con el mismo nombre.
+ */
+export async function reincorporarOperario(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<{ error?: string }> {
+  const { data: op, error: readError } = await supabase
+    .from('operarios')
+    .select('nombre, eliminado_at')
+    .eq('id', id)
+    .maybeSingle()
+  if (readError) return { error: friendlyError(readError) }
+  if (!op) return { error: 'No se encontró el operario.' }
+  if (!op.eliminado_at) return { error: 'El operario no está dado de baja.' }
+
+  const duplicado = await operarioDuplicado(supabase, op.nombre, id)
+  if (duplicado) return { error: `${duplicado} Cambiale el nombre al otro antes de reincorporarlo.` }
+
+  const { error } = await supabase.from('operarios').update({ eliminado_at: null, activo: true }).eq('id', id)
+  if (error) return { error: friendlyError(error) }
+  return {}
+}
+
 export async function operarioDuplicado(
   supabase: SupabaseClient,
   nombre: string,

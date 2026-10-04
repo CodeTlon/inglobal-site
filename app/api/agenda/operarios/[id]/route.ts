@@ -1,7 +1,7 @@
 import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { operarioSchema } from '@/lib/validations/agenda'
-import { catalogToggle, catalogDelete, operarioDuplicado } from '@/lib/agenda-business'
+import { catalogToggle, catalogDelete, operarioDuplicado, reincorporarOperario } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -17,6 +17,12 @@ export async function PATCH(request: Request, { params }: Params) {
 
     if (Object.keys(body).length === 1 && typeof body.activo === 'boolean') {
       const result = await catalogToggle(supabase, 'operarios', id, body.activo)
+      if (result.error) return apiError(result.error, 409)
+      return apiData({ id })
+    }
+
+    if (Object.keys(body).length === 1 && body.reincorporar === true) {
+      const result = await reincorporarOperario(supabase, id)
       if (result.error) return apiError(result.error, 409)
       return apiData({ id })
     }
