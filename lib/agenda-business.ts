@@ -502,6 +502,39 @@ export async function reincorporarOperario(
   return {}
 }
 
+/**
+ * Borrado DEFINITIVO de un operario (distinto de la baja lógica de catalogDelete).
+ * Es la salida de emergencia para errores de carga: solo se permite sobre un ex
+ * operario (ya dado de baja) y solo si no tiene ningún evento asociado, porque
+ * eventos_operarios borra en cascada y se perdería el historial.
+ */
+export async function eliminarOperarioDefinitivo(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<{ error?: string }> {
+  const { data: op, error: readError } = await supabase
+    .from('operarios')
+    .select('eliminado_at')
+    .eq('id', id)
+    .maybeSingle()
+  if (readError) return { error: friendlyError(readError) }
+  if (!op) return { error: 'No se encontró el operario.' }
+  if (!op.eliminado_at) return { error: 'Primero hay que dar de baja al operario.' }
+
+  const { count, error: countError } = await supabase
+    .from('eventos_operarios')
+    .select('evento_id', { count: 'exact', head: true })
+    .eq('operario_id', id)
+  if (countError) return { error: friendlyError(countError) }
+  if (count && count > 0) {
+    return { error: `Tiene ${count} evento(s) en el historial. Queda como ex operario para conservarlos.` }
+  }
+
+  const { error } = await supabase.from('operarios').delete().eq('id', id)
+  if (error) return { error: friendlyError(error) }
+  return {}
+}
+
 export async function operarioDuplicado(
   supabase: SupabaseClient,
   nombre: string,

@@ -1,7 +1,7 @@
 import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
 import { friendlyError } from '@/lib/friendly-error'
 import { operarioSchema } from '@/lib/validations/agenda'
-import { catalogToggle, catalogDelete, operarioDuplicado, reincorporarOperario } from '@/lib/agenda-business'
+import { catalogToggle, catalogDelete, operarioDuplicado, reincorporarOperario, eliminarOperarioDefinitivo } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -48,7 +48,12 @@ export async function DELETE(request: Request, { params }: Params) {
     if (auth instanceof Response) return auth
     const { id } = await params
 
-    const result = await catalogDelete(auth.supabase, 'operarios', id)
+    // Sin parámetro: baja lógica (pasa a ex operario). `?definitivo=true`: borrado
+    // real, solo para un ex operario sin eventos (ver eliminarOperarioDefinitivo).
+    const definitivo = new URL(request.url).searchParams.get('definitivo') === 'true'
+    const result = definitivo
+      ? await eliminarOperarioDefinitivo(auth.supabase, id)
+      : await catalogDelete(auth.supabase, 'operarios', id)
     if (result.error) return apiError(result.error, 409)
 
     return apiData({ id })
