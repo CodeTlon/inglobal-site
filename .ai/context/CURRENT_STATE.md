@@ -37,3 +37,6 @@ Backend implementado (migración 033, `app/api/push/registrar`, `app/api/agenda/
 
 ## Estado al 2026-10-14 (migración a Coolify, rama `feature/dev1-coolify-backend-propio`)
 Código listo y verificado en local; **no mergeado**. Falta: crear test en Coolify, cargar datos y verificar paridad (runbook en `MIGRACION_SUPABASE.md`), probar login real y la app en dispositivo, y luego el corte de prod (pasada delta). Las secciones anteriores sobre Vercel/Supabase son históricas. La rama de notificaciones (`feature/dev1-notificaciones`, PR #6) es base de esta.
+
+## Cierre de sesión 2026-10-14 (migración a Coolify)
+Test en Coolify con datos reales cargados, verificado contra el backup y contra Vercel (ver `PENDIENTES.md`, sección "Dónde quedó todo"). Producción sigue en Vercel + Supabase, intacta. Lo que falta: seguridad inmediata (revocar token de Supabase, cerrar signup), backups de volúmenes, pruebas manuales con la app y el corte. Todo el detalle y las casillas están en `.ai/context/PENDIENTES.md`.
