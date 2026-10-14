@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useFormState } from 'react-dom'
 import { TextField, SelectField, ImageUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
@@ -14,6 +15,7 @@ interface Item {
   nombre: string
   activo: boolean
   subtitle?: string
+  detailHref?: string
   values?: Record<string, string | number>
 }
 
@@ -155,7 +157,13 @@ function CatalogRow({
   return (
     <div className="flex items-center gap-3 border border-zinc-100 rounded-lg px-3 py-2">
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-bold truncate ${item.activo ? 'text-zinc-900' : 'text-zinc-400 line-through'}`}>{item.nombre}</p>
+        <p className={`text-sm font-bold truncate ${item.activo ? 'text-zinc-900' : 'text-zinc-400 line-through'}`}>
+          {item.detailHref ? (
+            <Link href={item.detailHref} prefetch={false} className="hover:underline">{item.nombre}</Link>
+          ) : (
+            item.nombre
+          )}
+        </p>
         {item.subtitle && <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>}
         {toggleError && <p className="text-xs text-red-500 truncate">{toggleError}</p>}
       </div>

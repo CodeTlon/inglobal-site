@@ -42,6 +42,7 @@ export default async function CatalogosAgendaPage() {
           title="Grúas"
           items={gruas.map((g) => ({
             id: g.id,
+            detailHref: `/dashboard/agenda/catalogos/grua/${g.id}`,
             nombre: g.nombre,
             activo: g.activo,
             subtitle: [g.tipo, g.patente, g.capacidad_toneladas ? `${g.capacidad_toneladas} tn` : null].filter(Boolean).join(' · '),
@@ -64,6 +65,7 @@ export default async function CatalogosAgendaPage() {
           title="Empresas"
           items={empresas.map((e) => ({
             id: e.id,
+            detailHref: `/dashboard/agenda/catalogos/empresa/${e.id}`,
             nombre: e.nombre,
             activo: e.activo,
             subtitle: [e.tipo === 'frecuente' ? 'Cliente frecuente' : 'Particular', e.contacto, e.telefono].filter(Boolean).join(' · '),
@@ -87,6 +89,7 @@ export default async function CatalogosAgendaPage() {
           title="Operarios"
           items={operarios.map((o) => ({
             id: o.id,
+            detailHref: `/dashboard/agenda/catalogos/operario/${o.id}`,
             nombre: o.nombre,
             activo: o.activo,
             subtitle: [o.roles?.join(', '), o.telefono].filter(Boolean).join(' · ') || undefined,

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
 import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
 import { AlertCircle, Loader2, RotateCcw, Trash2 } from 'lucide-react'
@@ -64,7 +65,11 @@ export default function ExOperariosSection({ items, reincorporarAction, deleteAc
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-3 border border-zinc-100 rounded-lg px-3 py-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-zinc-500 truncate">{item.nombre}</p>
+              <p className="text-sm font-bold text-zinc-500 truncate">
+                <Link href={`/dashboard/agenda/catalogos/operario/${item.id}`} prefetch={false} className="hover:underline">
+                  {item.nombre}
+                </Link>
+              </p>
               {item.subtitle && <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>}
             </div>
             <button
