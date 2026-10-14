@@ -1,30 +1,26 @@
-import { createSupabaseBrowserClient } from '@/lib/supabase'
 import { friendlyError } from '@/lib/friendly-error'
 import { getTranscodeUploadInfo } from '@/app/actions/transcode'
 
 /**
- * Sube un archivo directo al bucket `media` desde el navegador (bypass del
- * Server Action) — usado para video/PDF, que Vercel rechaza con un 413 crudo
- * si pasan de 4.5MB por la función serverless (ver lib/supabase.ts). El
- * bucket ya tiene RLS que permite INSERT/DELETE a cualquier `authenticated`
- * (supabase/migrations/006_storage_media.sql), que es lo que es cualquier
- * usuario logueado en el panel.
+ * Sube un archivo al bucket `media` desde el navegador pasando por
+ * POST /api/storage/upload (no por un Server Action, que tiene su propio tope
+ * de body). Usado para video/PDF y para el editor de contenido.
  */
 export async function uploadDirectToStorage(
   file: File,
   folder: string,
 ): Promise<{ url?: string; error?: string }> {
-  const supabase = createSupabaseBrowserClient()
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
-  const path = `${folder}/${crypto.randomUUID()}.${ext}`
-
-  const { error } = await supabase.storage
-    .from('media')
-    .upload(path, file, { contentType: file.type || undefined, upsert: false })
-  if (error) return { error: friendlyError(error, 'No se pudo subir el archivo. Intentá de nuevo.') }
-
-  const { data } = supabase.storage.from('media').getPublicUrl(path)
-  return { url: data.publicUrl }
+  const body = new FormData()
+  body.append('file', file)
+  body.append('folder', folder)
+  try {
+    const res = await fetch('/api/storage/upload', { method: 'POST', body })
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok) return { error: json.error ?? 'No se pudo subir el archivo. Intentá de nuevo.' }
+    return { url: json.data.url }
+  } catch (e) {
+    return { error: friendlyError(e, 'No se pudo subir el archivo. Intentá de nuevo.') }
+  }
 }
 
 /**

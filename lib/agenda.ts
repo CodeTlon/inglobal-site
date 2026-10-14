@@ -6,19 +6,19 @@
  * SIEMPRE con un cliente autenticado, nunca con el cliente anon, y sin fallback: si no hay
  * sesión, Supabase devuelve vacío/error por RLS.
  *
- * Cada getter acepta un `supabase` opcional al final — por defecto usa el cliente
+ * Cada getter acepta un `db` opcional al final — por defecto usa el cliente
  * cookie-based (Server Components/Actions del dashboard web); los Route Handlers de
  * app/api/agenda/** le pasan el cliente Bearer-based (lib/supabase-api.ts) para que la
  * app mobile lea exactamente los mismos datos con el mismo RLS, sin duplicar queries.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import type { Db } from '@/lib/db'
+import { getServerDb } from '@/lib/session'
 import { estadoTransicionado } from '@/lib/agenda-business'
 import { addDays, finDiaEfectivoEvento, toDateInput } from '@/lib/agenda-view'
 
-async function resolveClient(supabase?: SupabaseClient) {
-  return supabase ?? (await createSupabaseServerClient())
+async function resolveClient(db?: Db) {
+  return db ?? (await getServerDb())
 }
 
 export interface Grua {
@@ -73,8 +73,8 @@ export interface EventoAgenda {
   operarios: { id: string; nombre: string; roles: string[]; eliminado_at: string | null }[]
 }
 
-export async function getGruas({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<Grua[]> {
-  const client = await resolveClient(supabase)
+export async function getGruas({ includeInactive = false } = {}, db?: Db): Promise<Grua[]> {
+  const client = await resolveClient(db)
   let query = client.from('gruas').select('*')
   if (!includeInactive) query = query.eq('activo', true)
   const { data, error } = await query.order('nombre', { ascending: true })
@@ -82,8 +82,8 @@ export async function getGruas({ includeInactive = false } = {}, supabase?: Supa
   return data as Grua[]
 }
 
-export async function getEmpresasAgenda({ includeInactive = false } = {}, supabase?: SupabaseClient): Promise<EmpresaAgenda[]> {
-  const client = await resolveClient(supabase)
+export async function getEmpresasAgenda({ includeInactive = false } = {}, db?: Db): Promise<EmpresaAgenda[]> {
+  const client = await resolveClient(db)
   let query = client.from('empresas_agenda').select('*')
   if (!includeInactive) query = query.eq('activo', true)
   const { data, error } = await query.order('nombre', { ascending: true })
@@ -91,8 +91,8 @@ export async function getEmpresasAgenda({ includeInactive = false } = {}, supaba
   return data as EmpresaAgenda[]
 }
 
-export async function getOperarios({ includeInactive = false, eliminados = false } = {}, supabase?: SupabaseClient): Promise<Operario[]> {
-  const client = await resolveClient(supabase)
+export async function getOperarios({ includeInactive = false, eliminados = false } = {}, db?: Db): Promise<Operario[]> {
+  const client = await resolveClient(db)
   let query = client.from('operarios').select('*')
   query = eliminados ? query.not('eliminado_at', 'is', null) : query.is('eliminado_at', null)
   if (!includeInactive && !eliminados) query = query.eq('activo', true)
@@ -118,7 +118,7 @@ function mapEvento(row: any): EventoAgenda {
  * se devuelve. Best-effort: si el update falla, igual se muestra el estado
  * correcto en esta respuesta, no se bloquea la lectura por eso.
  */
-async function aplicarTransicionEstado(evento: EventoAgenda, client: SupabaseClient): Promise<void> {
+async function aplicarTransicionEstado(evento: EventoAgenda, client: Db): Promise<void> {
   const nuevo = estadoTransicionado(evento)
   if (!nuevo) return
   const { error } = await client.from('eventos_agenda').update({ estado: nuevo }).eq('id', evento.id)
@@ -140,9 +140,9 @@ export async function getEventosAgenda(
     operarioId,
     throwOnError,
   }: { desde?: string; hasta?: string; gruaId?: string; empresaId?: string; operarioId?: string; throwOnError?: boolean } = {},
-  supabase?: SupabaseClient,
+  db?: Db,
 ): Promise<EventoAgenda[]> {
-  const client = await resolveClient(supabase)
+  const client = await resolveClient(db)
   let query = client.from('eventos_agenda').select(EVENTO_SELECT)
   if (hasta) query = query.lte('fecha', hasta)
   // Un turno nocturno sin `fecha_hasta` (22:00->02:00) sigue vigente el día
@@ -180,8 +180,8 @@ export async function getEventosAgenda(
   return eventos
 }
 
-export async function getEventoAgendaById(id: string, supabase?: SupabaseClient): Promise<EventoAgenda | null> {
-  const client = await resolveClient(supabase)
+export async function getEventoAgendaById(id: string, db?: Db): Promise<EventoAgenda | null> {
+  const client = await resolveClient(db)
   const { data, error } = await client
     .from('eventos_agenda')
     .select(EVENTO_SELECT)

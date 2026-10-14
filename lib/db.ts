@@ -195,12 +195,12 @@ function comparison(op: string, col: string, value: unknown, alias: string, para
 /** Parser de la sintaxis `or()` de PostgREST: "a.gte.X,and(b.is.null,c.gte.Y)". */
 function orExpr(expr: string, alias: string, params: Params): string {
   const terms = splitTopLevel(expr).map((t) => {
-    const group = t.match(/^(and|or)\((.*)\)$/s)
+    const group = t.match(/^(and|or)\(([\s\S]*)\)$/)
     if (group) {
       const inner = splitTopLevel(group[2]).map((x) => orExpr(x, alias, params))
       return `(${inner.join(group[1] === 'and' ? ' and ' : ' or ')})`
     }
-    const m = t.match(/^([a-z_][a-z0-9_]*)\.([a-z]+)\.(.*)$/is)
+    const m = t.match(/^([a-z_][a-z0-9_]*)\.([a-z]+)\.([\s\S]*)$/i)
     if (!m) throw new Error(`Condición or() inválida: ${t}`)
     const [, col, op, raw] = m
     const value = op === 'in' ? raw.replace(/^\(|\)$/g, '').split(',') : raw
@@ -213,7 +213,7 @@ function orExpr(expr: string, alias: string, params: Params): string {
 
 type Mode = 'select' | 'insert' | 'update' | 'delete' | 'upsert'
 
-class Query implements PromiseLike<DbResult> {
+class Query<T = any[]> implements PromiseLike<DbResult<T>> { // eslint-disable-line @typescript-eslint/no-explicit-any
   private mode: Mode = 'select'
   private selectStr: string | null = '*'
   private returning = false
@@ -305,14 +305,14 @@ class Query implements PromiseLike<DbResult> {
     return this
   }
 
-  single() {
+  single(): Query<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     this.shape = 'single'
-    return this
+    return this as unknown as Query<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   }
 
-  maybeSingle() {
+  maybeSingle(): Query<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     this.shape = 'maybeSingle'
-    return this
+    return this as unknown as Query<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   }
 
   // ── Construcción del SQL ──
@@ -379,19 +379,19 @@ class Query implements PromiseLike<DbResult> {
 
   // ── Ejecución ──
 
-  private async run(): Promise<DbResult> {
+  private async run(): Promise<DbResult<T>> {
     try {
       const { sql, params } = this.build()
       const res = await getPool().query<QueryResultRow>(sql, params)
 
-      if (this.mode !== 'select' && !this.returning) return { data: null, error: null, count: res.rowCount }
-      if (this.head) return { data: null, error: null, count: res.rows[0]?.n ?? 0 }
+      if (this.mode !== 'select' && !this.returning) return { data: null, error: null, count: res.rowCount } as DbResult<T>
+      if (this.head) return { data: null, error: null, count: res.rows[0]?.n ?? 0 } as DbResult<T>
 
       const rows = res.rows.map((r) => r.r)
       const count = this.countExact ? (res.rows[0]?.n ?? 0) : null
 
-      if (this.shape === 'many') return { data: rows, error: null, count }
-      if (rows.length === 1) return { data: rows[0], error: null, count }
+      if (this.shape === 'many') return { data: rows as unknown as T, error: null, count }
+      if (rows.length === 1) return { data: rows[0] as T, error: null, count }
       if (rows.length === 0 && this.shape === 'maybeSingle') return { data: null, error: null, count }
       return {
         data: null,
@@ -407,8 +407,8 @@ class Query implements PromiseLike<DbResult> {
     }
   }
 
-  then<R1 = DbResult, R2 = never>(
-    onfulfilled?: ((value: DbResult) => R1 | PromiseLike<R1>) | null,
+  then<R1 = DbResult<T>, R2 = never>(
+    onfulfilled?: ((value: DbResult<T>) => R1 | PromiseLike<R1>) | null,
     onrejected?: ((reason: unknown) => R2 | PromiseLike<R2>) | null,
   ): PromiseLike<R1 | R2> {
     return this.run().then(onfulfilled, onrejected)

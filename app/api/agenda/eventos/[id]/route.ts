@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { eventoAgendaSchema } from '@/lib/validations/agenda'
 import { getEventoAgendaById } from '@/lib/agenda'
@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: Params) {
     if (auth instanceof Response) return auth
     const { id } = await params
 
-    const evento = await getEventoAgendaById(id, auth.supabase)
+    const evento = await getEventoAgendaById(id, auth.db)
     if (!evento) return apiError('No se encontró el evento.', 404)
     return apiData(evento)
   } catch (e) {
@@ -24,7 +24,7 @@ export async function PATCH(request: Request, { params }: Params) {
   try {
     const auth = await requireApiUser(request)
     if (auth instanceof Response) return auth
-    const { supabase } = auth
+    const { db } = auth
     const { id } = await params
 
     const body = await request.json().catch(() => null)
@@ -35,31 +35,31 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const { hora_fin, ...rest } = parsed.data
 
-    const errorEdicion = await validarEdicionEvento(supabase, id, { ...rest, hora_fin: hora_fin || null })
+    const errorEdicion = await validarEdicionEvento(db, id, { ...rest, hora_fin: hora_fin || null })
     if (errorEdicion) return apiError(errorEdicion, 409)
 
     const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((v: unknown) => typeof v === 'string') : []
 
     // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
     if (parsed.data.estado !== 'cancelado') {
-      const errorGrua = await validarGrua(supabase, rest.grua_id)
+      const errorGrua = await validarGrua(db, rest.grua_id)
       if (errorGrua) return apiError(errorGrua, 409)
 
-      const errorOperarios = await validarOperarios(supabase, operarioIds)
+      const errorOperarios = await validarOperarios(db, operarioIds)
       if (errorOperarios) return apiError(errorOperarios, 409)
 
-      const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
+      const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds, id)
       if (conflicto) return apiError(conflicto, 409)
     }
 
-    const { error } = await supabase
+    const { error } = await db
       .from('eventos_agenda')
       .update({ ...rest, hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return apiError(friendlyError(error), 500)
 
-    const syncError = await syncEventoOperarios(supabase, id, operarioIds)
+    const syncError = await syncEventoOperarios(db, id, operarioIds)
     if (syncError) return apiError(syncError, 500)
 
     return apiData({ id })
@@ -74,10 +74,10 @@ export async function DELETE(request: Request, { params }: Params) {
     if (auth instanceof Response) return auth
     const { id } = await params
 
-    const errorBorrado = await validarBorradoEvento(auth.supabase, id)
+    const errorBorrado = await validarBorradoEvento(auth.db, id)
     if (errorBorrado) return apiError(errorBorrado, 409)
 
-    const { error } = await auth.supabase.from('eventos_agenda').delete().eq('id', id)
+    const { error } = await auth.db.from('eventos_agenda').delete().eq('id', id)
     if (error) return apiError(friendlyError(error), 500)
 
     return apiData({ id })

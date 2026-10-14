@@ -1,5 +1,5 @@
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
-import { apiData, apiError } from '@/lib/supabase-api'
+import { db } from '@/lib/db'
+import { apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { borrarTokens, enviarPush, getTokensPush, reclamarClave, type MensajePush } from '@/lib/push'
 import {
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       return apiError('No autorizado.', 401)
     }
 
-    const admin = createSupabaseAdminClient()
+    const admin = db
     const now = new Date()
     const hoy = ahoraEnCordoba(now).fecha
     const manana = diaSiguiente(hoy)

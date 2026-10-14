@@ -9,7 +9,7 @@
  * (cookie-based desde los Server Actions, Bearer-based desde los Route Handlers).
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Db } from '@/lib/db'
 import { friendlyError } from '@/lib/friendly-error'
 import { TRANSICIONES_VALIDAS, type EstadoEvento } from '@/lib/validations/agenda'
 import { finDiaEfectivo } from '@/lib/agenda-view'
@@ -30,10 +30,10 @@ const RECURSO_COLUMN: Record<CatalogTable, 'grua_id' | 'empresa_id' | null> = {
  * aunque su ID ya estuviera guardado de antes. Se valida acá (no en el schema Zod)
  * porque requiere ir a la base a chequear `activo`.
  */
-export async function validarOperarios(supabase: SupabaseClient, operarioIds: string[]): Promise<string | null> {
+export async function validarOperarios(db: Db, operarioIds: string[]): Promise<string | null> {
   if (operarioIds.length === 0) return 'Asigná al menos un operario al evento.'
 
-  const { data, error } = await supabase.from('operarios').select('id, nombre, activo').in('id', operarioIds)
+  const { data, error } = await db.from('operarios').select('id, nombre, activo').in('id', operarioIds)
   if (error) return friendlyError(error)
 
   const encontrados = new Map((data ?? []).map((o) => [o.id, o]))
@@ -55,8 +55,8 @@ export async function validarOperarios(supabase: SupabaseClient, operarioIds: st
  * validaban los operarios acá — la grúa solo pasaba por el `.uuid()` de Zod, que no
  * chequea que exista ni que esté activa.
  */
-export async function validarGrua(supabase: SupabaseClient, gruaId: string): Promise<string | null> {
-  const { data, error } = await supabase.from('gruas').select('nombre, activo').eq('id', gruaId).maybeSingle()
+export async function validarGrua(db: Db, gruaId: string): Promise<string | null> {
+  const { data, error } = await db.from('gruas').select('nombre, activo').eq('id', gruaId).maybeSingle()
   if (error) return friendlyError(error)
   if (!data) return 'La grúa seleccionada ya no existe. Volvé a seleccionar la grúa.'
   if (!data.activo) return `${data.nombre} está inactiva. Reactivala desde Catálogos o elegí otra grúa.`
@@ -64,14 +64,14 @@ export async function validarGrua(supabase: SupabaseClient, gruaId: string): Pro
 }
 
 export async function syncEventoOperarios(
-  supabase: SupabaseClient,
+  db: Db,
   eventoId: string,
   operarioIds: string[],
 ): Promise<string | null> {
-  const { error: delError } = await supabase.from('eventos_operarios').delete().eq('evento_id', eventoId)
+  const { error: delError } = await db.from('eventos_operarios').delete().eq('evento_id', eventoId)
   if (delError) return friendlyError(delError)
   if (operarioIds.length === 0) return null
-  const { error: insError } = await supabase
+  const { error: insError } = await db
     .from('eventos_operarios')
     .insert(operarioIds.map((operario_id) => ({ evento_id: eventoId, operario_id })))
   return insError ? friendlyError(insError) : null
@@ -120,13 +120,13 @@ export function rangosSeSolapan(a: EventoWindow, b: EventoWindow): boolean {
  * acotados por grúa/operario) y compara en memoria, dataset chico para este caso de uso.
  */
 export async function buscarConflicto(
-  supabase: SupabaseClient,
+  db: Db,
   ventana: EventoWindow,
   gruaId: string,
   operarioIds: string[],
   excludeId?: string,
 ): Promise<string | null> {
-  let gruaQuery = supabase
+  let gruaQuery = db
     .from('eventos_agenda')
     .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado')
     .eq('grua_id', gruaId)
@@ -145,7 +145,7 @@ export async function buscarConflicto(
   }
 
   if (operarioIds.length > 0) {
-    const { data: filasOperarios, error: errorOperarios } = await supabase
+    const { data: filasOperarios, error: errorOperarios } = await db
       .from('eventos_operarios')
       .select('evento_id, operario:operarios(nombre), evento:eventos_agenda(id, fecha, fecha_hasta, hora_inicio, hora_fin, estado)')
       .in('operario_id', operarioIds)
@@ -173,7 +173,7 @@ export async function buscarConflicto(
  * el propio evento no se marque a sí mismo como conflicto.
  */
 export async function getRecursosOcupados(
-  supabase: SupabaseClient,
+  db: Db,
   fecha: string,
   fechaHasta: string | null,
   horaInicio: string,
@@ -183,7 +183,7 @@ export async function getRecursosOcupados(
   try {
     const ventana: EventoWindow = { fecha, fecha_hasta: fechaHasta, hora_inicio: horaInicio, hora_fin: horaFin }
 
-    let query = supabase
+    let query = db
       .from('eventos_agenda')
       .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado, grua_id, eventos_operarios(operario_id)')
       .neq('estado', 'cancelado')
@@ -235,11 +235,11 @@ function normalizaCampo(campo: (typeof CAMPOS_COMPARABLES)[number], valor: unkno
  * mensaje de error o null si la actualización puede seguir.
  */
 export async function validarEdicionEvento(
-  supabase: SupabaseClient,
+  db: Db,
   id: string,
   nuevo: { estado: EstadoEvento; [key: string]: unknown },
 ): Promise<string | null> {
-  const { data: actual, error } = await supabase
+  const { data: actual, error } = await db
     .from('eventos_agenda')
     .select('estado, fecha, fecha_hasta, hora_inicio, hora_fin, grua_id, empresa_id, ubicacion, notas')
     .eq('id', id)
@@ -275,8 +275,8 @@ export async function validarEdicionEvento(
  * historial (probablemente ya facturado) — bloqueamos esos dos, igual que ya
  * se bloquea editarlos en validarEdicionEvento.
  */
-export async function validarBorradoEvento(supabase: SupabaseClient, id: string): Promise<string | null> {
-  const { data, error } = await supabase.from('eventos_agenda').select('estado').eq('id', id).maybeSingle()
+export async function validarBorradoEvento(db: Db, id: string): Promise<string | null> {
+  const { data, error } = await db.from('eventos_agenda').select('estado').eq('id', id).maybeSingle()
   if (error) return friendlyError(error)
   if (!data) return null // ya no existe — dejar que el delete sea no-op
   if (data.estado === 'en_curso') return 'No se puede borrar: el evento está en curso.'
@@ -339,12 +339,12 @@ export function estadoTransicionado(evento: EventoEstadoWindow, now = new Date()
 const CAMPOS_ESTADO_EFECTIVO = 'estado, fecha, fecha_hasta, hora_inicio, hora_fin'
 
 export async function estadosDeEventosDelRecurso(
-  supabase: SupabaseClient,
+  db: Db,
   table: CatalogTable,
   id: string,
 ): Promise<string[]> {
   if (table === 'operarios') {
-    const { data } = await supabase
+    const { data } = await db
       .from('eventos_operarios')
       .select(`evento:eventos_agenda(${CAMPOS_ESTADO_EFECTIVO})`)
       .eq('operario_id', id)
@@ -356,7 +356,7 @@ export async function estadosDeEventosDelRecurso(
   }
   const columna = RECURSO_COLUMN[table]
   if (!columna) return []
-  const { data } = await supabase.from('eventos_agenda').select(CAMPOS_ESTADO_EFECTIVO).eq(columna, id)
+  const { data } = await db.from('eventos_agenda').select(CAMPOS_ESTADO_EFECTIVO).eq(columna, id)
   return (data ?? []).map((ev) => estadoTransicionado(ev) ?? ev.estado)
 }
 
@@ -377,7 +377,7 @@ export async function estadosDeEventosDelRecurso(
 const ESTADOS_VIVOS = ['reserva', 'programado', 'en_curso']
 
 export async function catalogToggle(
-  supabase: SupabaseClient,
+  db: Db,
   table: CatalogTable,
   id: string,
   activo: boolean,
@@ -388,7 +388,7 @@ export async function catalogToggle(
     // no el crudo de la fila: una reserva cuyo día ya llegó sin confirmarse
     // ya está cancelada en la práctica y no debe seguir bloqueando, ni un
     // en_curso que ya pasó su hora de fin.
-    const estados = await estadosDeEventosDelRecurso(supabase, table, id)
+    const estados = await estadosDeEventosDelRecurso(db, table, id)
     const vivos = estados.filter((e) => ESTADOS_VIVOS.includes(e))
     if (vivos.includes('en_curso')) {
       return { error: 'No se puede inactivar: está participando en un evento en curso.' }
@@ -398,7 +398,7 @@ export async function catalogToggle(
     }
   }
 
-  const { error } = await supabase.from(table).update({ activo: !activo }).eq('id', id)
+  const { error } = await db.from(table).update({ activo: !activo }).eq('id', id)
   if (error) return { error: friendlyError(error) }
   return {}
 }
@@ -420,14 +420,14 @@ export async function catalogToggle(
  * intacto, solo pierde a ese operario.
  */
 export async function catalogDelete(
-  supabase: SupabaseClient,
+  db: Db,
   table: CatalogTable,
   id: string,
 ): Promise<{ error?: string }> {
   if (table === 'operarios') {
     // Baja lógica: queda registrado como ex operario y conserva su historial
     // en los eventos (un DELETE borraría las filas de eventos_operarios en cascada).
-    const { error } = await supabase
+    const { error } = await db
       .from('operarios')
       .update({ eliminado_at: new Date().toISOString(), activo: false })
       .eq('id', id)
@@ -435,25 +435,25 @@ export async function catalogDelete(
     return {}
   }
 
-  const estados = await estadosDeEventosDelRecurso(supabase, table, id)
+  const estados = await estadosDeEventosDelRecurso(db, table, id)
   const vivos = estados.filter((e) => ESTADOS_VIVOS.includes(e)).length
   if (vivos > 0) {
     return { error: `No se puede eliminar: tiene ${vivos} evento(s) vivo(s) (reserva/programado/en curso) asociado(s). Desactivalo en vez de eliminarlo.` }
   }
 
-  const { error } = await supabase.from(table).delete().eq('id', id)
+  const { error } = await db.from(table).delete().eq('id', id)
   if (error) return { error: friendlyError(error) }
   return {}
 }
 
 export async function gruaDuplicada(
-  supabase: SupabaseClient,
+  db: Db,
   nombre: string,
   patente: string,
   excludeId?: string,
 ): Promise<string | null> {
-  let porPatente = supabase.from('gruas').select('id').ilike('patente', patente)
-  let porNombre = supabase.from('gruas').select('id').ilike('nombre', nombre)
+  let porPatente = db.from('gruas').select('id').ilike('patente', patente)
+  let porNombre = db.from('gruas').select('id').ilike('nombre', nombre)
   if (excludeId) {
     porPatente = porPatente.neq('id', excludeId)
     porNombre = porNombre.neq('id', excludeId)
@@ -465,11 +465,11 @@ export async function gruaDuplicada(
 }
 
 export async function empresaAgendaDuplicada(
-  supabase: SupabaseClient,
+  db: Db,
   nombre: string,
   excludeId?: string,
 ): Promise<string | null> {
-  let query = supabase.from('empresas_agenda').select('id').ilike('nombre', nombre)
+  let query = db.from('empresas_agenda').select('id').ilike('nombre', nombre)
   if (excludeId) query = query.neq('id', excludeId)
   const { data } = await query.limit(1)
   if (data && data.length > 0) return 'Ya existe una empresa con ese nombre.'
@@ -482,10 +482,10 @@ export async function empresaAgendaDuplicada(
  * Falla si ya existe otro operario vigente con el mismo nombre.
  */
 export async function reincorporarOperario(
-  supabase: SupabaseClient,
+  db: Db,
   id: string,
 ): Promise<{ error?: string }> {
-  const { data: op, error: readError } = await supabase
+  const { data: op, error: readError } = await db
     .from('operarios')
     .select('nombre, eliminado_at')
     .eq('id', id)
@@ -494,10 +494,10 @@ export async function reincorporarOperario(
   if (!op) return { error: 'No se encontró el operario.' }
   if (!op.eliminado_at) return { error: 'El operario no está dado de baja.' }
 
-  const duplicado = await operarioDuplicado(supabase, op.nombre, id)
+  const duplicado = await operarioDuplicado(db, op.nombre, id)
   if (duplicado) return { error: `${duplicado} Cambiale el nombre al otro antes de reincorporarlo.` }
 
-  const { error } = await supabase.from('operarios').update({ eliminado_at: null, activo: false }).eq('id', id)
+  const { error } = await db.from('operarios').update({ eliminado_at: null, activo: false }).eq('id', id)
   if (error) return { error: friendlyError(error) }
   return {}
 }
@@ -509,10 +509,10 @@ export async function reincorporarOperario(
  * eventos_operarios borra en cascada y se perdería el historial.
  */
 export async function eliminarOperarioDefinitivo(
-  supabase: SupabaseClient,
+  db: Db,
   id: string,
 ): Promise<{ error?: string }> {
-  const { data: op, error: readError } = await supabase
+  const { data: op, error: readError } = await db
     .from('operarios')
     .select('eliminado_at')
     .eq('id', id)
@@ -521,7 +521,7 @@ export async function eliminarOperarioDefinitivo(
   if (!op) return { error: 'No se encontró el operario.' }
   if (!op.eliminado_at) return { error: 'Primero hay que dar de baja al operario.' }
 
-  const { count, error: countError } = await supabase
+  const { count, error: countError } = await db
     .from('eventos_operarios')
     .select('evento_id', { count: 'exact', head: true })
     .eq('operario_id', id)
@@ -530,17 +530,17 @@ export async function eliminarOperarioDefinitivo(
     return { error: `Tiene ${count} evento(s) en el historial. Queda como ex operario para conservarlos.` }
   }
 
-  const { error } = await supabase.from('operarios').delete().eq('id', id)
+  const { error } = await db.from('operarios').delete().eq('id', id)
   if (error) return { error: friendlyError(error) }
   return {}
 }
 
 export async function operarioDuplicado(
-  supabase: SupabaseClient,
+  db: Db,
   nombre: string,
   excludeId?: string,
 ): Promise<string | null> {
-  let query = supabase.from('operarios').select('id').is('eliminado_at', null).ilike('nombre', nombre)
+  let query = db.from('operarios').select('id').is('eliminado_at', null).ilike('nombre', nombre)
   if (excludeId) query = query.neq('id', excludeId)
   const { data } = await query.limit(1)
   if (data && data.length > 0) return 'Ya existe un operario con ese nombre.'

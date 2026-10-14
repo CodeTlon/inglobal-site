@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
+import { serializeSignedCookie } from 'better-call'
+import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
-const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder'
-
-// Navegación de browser (la TV hace window.location = acá), no fetch — establece la
-// sesión real con cookies vía @supabase/ssr (mismo patrón que middleware.ts) y redirige.
+// Navegación de browser (la TV hace window.location = acá), no fetch. Valida el código
+// aprobado desde la app, abre una sesión de Better Auth para el usuario que lo aprobó,
+// deja la cookie de sesión firmada y redirige a la agenda.
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const token = searchParams.get('token')
-  const failUrl = new URL('/agenda-tv/pair?error=1', request.url)
+  // Detrás del proxy de Coolify `request.url` puede traer el host interno: las
+  // redirecciones usan siempre la URL pública configurada.
+  const base = process.env.BETTER_AUTH_URL ?? request.url
+  const failUrl = new URL('/agenda-tv/pair?error=1', base)
   if (!token) return NextResponse.redirect(failUrl)
 
-  const admin = createSupabaseAdminClient()
-  const { data: pairing, error: pairingError } = await admin.from('tv_pairing_codes').select('*').eq('token', token).single()
+  const { data: pairing, error: pairingError } = await db.from('tv_pairing_codes').select('*').eq('token', token).single()
   if (pairingError) console.error('[tv-pair/exchange] lookup falló:', pairingError.message)
   if (!pairing || pairing.status !== 'approved' || !pairing.approved_by) {
     console.error('[tv-pair/exchange] pairing no aprobado:', pairing?.status ?? 'no existe')
@@ -26,43 +26,29 @@ export async function GET(request: Request) {
     return NextResponse.redirect(failUrl)
   }
 
-  const { data: userData, error: userError } = await admin.auth.admin.getUserById(pairing.approved_by)
-  const email = userData?.user?.email
-  if (!email) {
-    console.error('[tv-pair/exchange] no se encontró el email del usuario:', userError?.message)
+  // Un solo uso: se consume ANTES de crear la sesión, así dos requests simultáneos
+  // con el mismo código no abren dos sesiones.
+  const { data: consumed } = await db
+    .from('tv_pairing_codes')
+    .update({ status: 'consumed' })
+    .eq('token', token)
+    .eq('status', 'approved')
+    .select('id')
+  if (!consumed || consumed.length === 0) return NextResponse.redirect(failUrl)
+
+  try {
+    const ctx = await auth.$context
+    const session = await ctx.internalAdapter.createSession(pairing.approved_by)
+    const { name, attributes } = ctx.authCookies.sessionToken
+    const cookie = await serializeSignedCookie(name, session.token, ctx.secret, {
+      ...attributes,
+      maxAge: ctx.sessionConfig.expiresIn,
+    })
+    const response = NextResponse.redirect(new URL('/agenda-tv', base))
+    response.headers.append('set-cookie', cookie)
+    return response
+  } catch (e) {
+    console.error('[tv-pair/exchange] no se pudo abrir la sesión:', e instanceof Error ? e.message : e)
     return NextResponse.redirect(failUrl)
   }
-
-  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({ type: 'magiclink', email })
-  const hashedToken = linkData?.properties?.hashed_token
-  if (linkError || !hashedToken) {
-    console.error('[tv-pair/exchange] generateLink falló:', linkError?.message)
-    return NextResponse.redirect(failUrl)
-  }
-
-  const response = NextResponse.redirect(new URL('/agenda-tv', request.url))
-  const cookieStore = await cookies()
-  const supabase = createServerClient(SUPABASE_URL, ANON, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll()
-      },
-      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
-      },
-    },
-  })
-
-  const { error: verifyError } = await supabase.auth.verifyOtp({
-    type: 'magiclink',
-    token_hash: hashedToken,
-  })
-  if (verifyError) {
-    console.error('[tv-pair/exchange] verifyOtp falló:', verifyError.message)
-    return NextResponse.redirect(failUrl)
-  }
-
-  await admin.from('tv_pairing_codes').update({ status: 'consumed' }).eq('token', token)
-
-  return response
 }

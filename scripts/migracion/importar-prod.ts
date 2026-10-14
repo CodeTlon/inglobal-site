@@ -21,14 +21,14 @@ import { S3Client, PutObjectCommand, CreateBucketCommand, HeadBucketCommand, Put
 
 const SUPABASE_PUBLIC = /https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/media\//g
 
-const dir = process.env.BACKUP_DIR
+const dir = process.env.BACKUP_DIR as string
 if (!dir) throw new Error('Falta BACKUP_DIR')
 const publicBase = process.env.STORAGE_PUBLIC_URL
 if (!publicBase) throw new Error('Falta STORAGE_PUBLIC_URL (base pública del bucket, sin barra final)')
 const reset = process.argv.includes('--reset')
 
 const read = (f: string) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'))
-const rewrite = (s: string) => s.replace(SUPABASE_PUBLIC, `${publicBase.replace(/\/$/, '')}/`)
+const rewrite = (s: string) => s.replace(SUPABASE_PUBLIC, `${publicBase!.replace(/\/$/, '')}/`)
 
 // Orden respetando FK: padres primero.
 const TABLAS = [
@@ -53,15 +53,15 @@ async function main() {
     // ── Usuarios: mismo id, mismo hash bcrypt (login sin reset de contraseña) ──
     const users = read('auth_users.json') as {
       id: string; email: string; encrypted_password: string; email_confirmed_at: string | null
-      created_at: string; raw_user_meta_data: Record<string, unknown> | null
+      created_at: string; last_sign_in_at: string | null; raw_user_meta_data: Record<string, unknown> | null
     }[]
     for (const u of users) {
       const meta = u.raw_user_meta_data ?? {}
       const name = (meta.name as string) || (meta.full_name as string) || u.email.split('@')[0]
       await c.query(
-        `insert into "user" (id, name, email, email_verified, must_change_password, created_at, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $6)`,
-        [u.id, name, u.email.toLowerCase(), !!u.email_confirmed_at, meta.must_change_password === true, u.created_at],
+        `insert into "user" (id, name, email, email_verified, must_change_password, last_sign_in_at, created_at, updated_at)
+         values ($1, $2, $3, $4, $5, $6, $7, $7)`,
+        [u.id, name, u.email.toLowerCase(), !!u.email_confirmed_at, meta.must_change_password === true, u.last_sign_in_at, u.created_at],
       )
       await c.query(
         `insert into account (id, account_id, provider_id, user_id, password, created_at, updated_at)

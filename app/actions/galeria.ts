@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser, getServerDb } from '@/lib/session'
 import { friendlyError } from '@/lib/friendly-error'
 import { galeriaSchema } from '@/lib/validations/galeria'
 import { removeMediaUrls } from '@/lib/storage'
@@ -12,10 +12,10 @@ export type GaleriaState = { success?: boolean; error?: string } | undefined
 const LIST_PATH = '/dashboard/galeria'
 
 async function requireUser() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const db = await getServerDb()
+  const user = await getSessionUser()
   if (!user) throw new Error('No autenticado.')
-  return supabase
+  return db
 }
 
 function revalidateGaleria() {
@@ -41,16 +41,16 @@ export async function createGaleriaItem(
   formData: FormData,
 ): Promise<GaleriaState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const parsed = parse(formData)
     if (!parsed.success) {
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
-    const display_order = await nextFreeOrder(supabase, 'galeria', 'display_order', parsed.data.display_order)
+    const display_order = await nextFreeOrder(db, 'galeria', 'display_order', parsed.data.display_order)
 
-    const { error } = await supabase.from('galeria').insert({
+    const { error } = await db.from('galeria').insert({
       ...parsed.data,
       display_order,
       updated_at: new Date().toISOString(),
@@ -70,7 +70,7 @@ export async function updateGaleriaItem(
   formData: FormData,
 ): Promise<GaleriaState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de imagen requerido.' }
@@ -80,9 +80,9 @@ export async function updateGaleriaItem(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
-    const display_order = await nextFreeOrder(supabase, 'galeria', 'display_order', parsed.data.display_order, { excludeId: id })
+    const display_order = await nextFreeOrder(db, 'galeria', 'display_order', parsed.data.display_order, { excludeId: id })
 
-    const { error } = await supabase
+    const { error } = await db
       .from('galeria')
       .update({ ...parsed.data, display_order, updated_at: new Date().toISOString() })
       .eq('id', id)
@@ -101,18 +101,18 @@ export async function deleteGaleriaItem(
   formData: FormData,
 ): Promise<GaleriaState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de imagen requerido.' }
 
-    const { data: existing } = await supabase.from('galeria').select('imagen').eq('id', id).single()
+    const { data: existing } = await db.from('galeria').select('imagen').eq('id', id).single()
 
-    const { error } = await supabase.from('galeria').delete().eq('id', id)
+    const { error } = await db.from('galeria').delete().eq('id', id)
 
     if (error) return { error: friendlyError(error) }
 
-    if (existing) await removeMediaUrls(supabase, [existing.imagen])
+    if (existing) await removeMediaUrls([existing.imagen])
 
     revalidateGaleria()
   } catch (e) {

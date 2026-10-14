@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
+// Origen público de los archivos (bucket S3-compatible: MinIO/R2). Ver lib/storage.ts.
+const storageUrl = process.env.STORAGE_PUBLIC_URL ? new URL(process.env.STORAGE_PUBLIC_URL) : null
+const storageOrigin = storageUrl ? storageUrl.origin : ''
+
 const nextConfig = {
+  output: 'standalone',
   experimental: {
     // Server Actions default a 1MB de body — uploadMediaAction acepta imágenes
     // hasta 12MB y videos hasta 20MB (ver app/actions/settings.ts), así que sin
@@ -17,7 +22,9 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 60,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/public/**' },
+      ...(storageUrl
+        ? [{ protocol: storageUrl.protocol.replace(':', ''), hostname: storageUrl.hostname, ...(storageUrl.port ? { port: storageUrl.port } : {}), pathname: `${storageUrl.pathname.replace(/\/$/, '')}/**` }]
+        : []),
     ],
   },
   async redirects() {
@@ -43,10 +50,10 @@ const nextConfig = {
       "default-src 'self'",
       `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com`,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://i.ytimg.com https://www.googletagmanager.com https://www.google-analytics.com",
+      `img-src 'self' data: blob:${storageOrigin ? ' ' + storageOrigin : ''} https://images.unsplash.com https://i.ytimg.com https://www.googletagmanager.com https://www.google-analytics.com`,
       "font-src 'self' data:",
-      `connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com${transcodeOrigin ? ' ' + transcodeOrigin : ''}`,
-      "media-src 'self' https://*.supabase.co",
+      `connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com${transcodeOrigin ? ' ' + transcodeOrigin : ''}`,
+      `media-src 'self'${storageOrigin ? ' ' + storageOrigin : ''}`,
       "frame-src 'self' https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com",
       "object-src 'none'",
       "base-uri 'self'",

@@ -15,6 +15,13 @@
       "when": 1791992835539,
       "tag": "0001_reglas_de_negocio",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791993043161,
+      "tag": "0002_usuario_ultimo_ingreso",
+      "breakpoints": true
     }
   ]
 }

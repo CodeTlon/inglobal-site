@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { operarioSchema } from '@/lib/validations/agenda'
 import { getOperarios } from '@/lib/agenda'
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const includeInactive = searchParams.get('includeInactive') === 'true'
     const eliminados = searchParams.get('eliminados') === 'true'
 
-    const operarios = await getOperarios({ includeInactive, eliminados }, auth.supabase)
+    const operarios = await getOperarios({ includeInactive, eliminados }, auth.db)
     return apiData(operarios)
   } catch (e) {
     return apiError(friendlyError(e), 500)
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   try {
     const auth = await requireApiUser(request)
     if (auth instanceof Response) return auth
-    const { supabase } = auth
+    const { db } = auth
 
     const body = await request.json().catch(() => null)
     if (!body) return apiError('Body inválido.', 400)
@@ -32,10 +32,10 @@ export async function POST(request: Request) {
     const parsed = operarioSchema.safeParse(body)
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
-    const duplicado = await operarioDuplicado(supabase, parsed.data.nombre)
+    const duplicado = await operarioDuplicado(db, parsed.data.nombre)
     if (duplicado) return apiError(duplicado, 409)
 
-    const { data, error } = await supabase.from('operarios').insert(parsed.data).select('id').single()
+    const { data, error } = await db.from('operarios').insert(parsed.data).select('id').single()
     if (error) return apiError(friendlyError(error), 500)
 
     return apiData({ id: data.id }, 201)

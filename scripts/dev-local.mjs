@@ -1,31 +1,26 @@
 #!/usr/bin/env node
-// `npm run dev:local`: Next.js contra el Supabase LOCAL, sin tocar ningún .env.
-// Las variables se inyectan al proceso (tienen prioridad sobre .env.local/.env.development.local),
-// así que no hay forma de que esto escriba contra homologación o producción por error.
-import { execSync, spawn } from 'node:child_process'
+// `npm run dev:local`: Next.js contra el Postgres + MinIO locales (docker compose), sin tocar ningún .env.
+// Las variables se inyectan al proceso, así que no hay forma de escribir contra test o producción por error.
+import { spawn } from 'node:child_process'
 
-const env = {}
-for (const line of execSync('npx supabase status -o env', { encoding: 'utf8' }).split('\n')) {
-  const m = line.match(/^([A-Z_]+)="?(.*?)"?$/)
-  if (m) env[m[1]] = m[2]
-}
-if (!env.API_URL || !env.ANON_KEY || !env.SERVICE_ROLE_KEY) {
-  throw new Error('El stack local no está corriendo. Ejecutá `npm run db:local:up`.')
-}
-if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(env.API_URL)) {
-  throw new Error(`Abortado: ${env.API_URL} no es un Supabase local.`)
-}
-
+const dbPort = process.env.DB_PORT ?? '41510'
+const s3Port = process.env.MINIO_PORT ?? '41511'
 const port = process.env.PORT ?? '3200'
-console.log(`[dev:local] Supabase ${env.API_URL}  ·  sitio http://localhost:${port}`)
 
-const child = spawn('npx', ['next', 'dev', '-p', port], {
+console.log(`[dev:local] Postgres 127.0.0.1:${dbPort}  ·  MinIO 127.0.0.1:${s3Port}  ·  sitio http://localhost:${port}`)
+
+spawn('npx', ['next', 'dev', '-p', port], {
   stdio: 'inherit',
   env: {
     ...process.env,
-    NEXT_PUBLIC_SUPABASE_URL: env.API_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: env.ANON_KEY,
-    SUPABASE_SERVICE_ROLE_KEY: env.SERVICE_ROLE_KEY,
+    DATABASE_URL: `postgres://inglobal:inglobal@127.0.0.1:${dbPort}/inglobal`,
+    BETTER_AUTH_SECRET: 'secreto-local-solo-desarrollo-0123456789',
+    BETTER_AUTH_URL: `http://localhost:${port}`,
+    S3_ENDPOINT: `http://127.0.0.1:${s3Port}`,
+    S3_BUCKET: 'media',
+    S3_ACCESS_KEY_ID: 'inglobal',
+    S3_SECRET_ACCESS_KEY: 'inglobal-secret',
+    STORAGE_PUBLIC_URL: `http://127.0.0.1:${s3Port}/media`,
+    CRON_SECRET: 'cron-local',
   },
 })
-child.on('exit', (code) => process.exit(code ?? 0))

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Db } from '@/lib/db'
 
 /**
  * Si `value` ya está usado por otra fila (mismo scope, si aplica), devuelve el
@@ -6,7 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
  * se pisen en el ordenamiento en vez de bloquear el guardado.
  */
 export async function nextFreeOrder(
-  supabase: SupabaseClient,
+  db: Db,
   table: string,
   column: string,
   value: number,
@@ -15,7 +15,7 @@ export async function nextFreeOrder(
   const { scopeColumn, scopeValue, excludeId } = opts
   let candidate = value
   while (true) {
-    let query = supabase.from(table).select('id').eq(column, candidate)
+    let query = db.from(table).select('id').eq(column, candidate)
     if (scopeColumn && scopeValue) query = query.eq(scopeColumn, scopeValue)
     if (excludeId) query = query.neq('id', excludeId)
     const { data } = await query.limit(1)

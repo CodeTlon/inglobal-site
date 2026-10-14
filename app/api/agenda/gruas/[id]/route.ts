@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { gruaSchema } from '@/lib/validations/agenda'
 import { gruaDuplicada, catalogToggle, catalogDelete } from '@/lib/agenda-business'
@@ -9,7 +9,7 @@ export async function PATCH(request: Request, { params }: Params) {
   try {
     const auth = await requireApiUser(request)
     if (auth instanceof Response) return auth
-    const { supabase } = auth
+    const { db } = auth
     const { id } = await params
 
     const body = await request.json().catch(() => null)
@@ -17,7 +17,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
     // Toggle activo/inactivo: body = { activo: <valor actual, se invierte> }
     if (Object.keys(body).length === 1 && typeof body.activo === 'boolean') {
-      const result = await catalogToggle(supabase, 'gruas', id, body.activo)
+      const result = await catalogToggle(db, 'gruas', id, body.activo)
       if (result.error) return apiError(result.error, 409)
       return apiData({ id }, 200)
     }
@@ -25,10 +25,10 @@ export async function PATCH(request: Request, { params }: Params) {
     const parsed = gruaSchema.safeParse(body)
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
-    const duplicado = await gruaDuplicada(supabase, parsed.data.nombre, parsed.data.patente, id)
+    const duplicado = await gruaDuplicada(db, parsed.data.nombre, parsed.data.patente, id)
     if (duplicado) return apiError(duplicado, 409)
 
-    const { error } = await supabase.from('gruas').update(parsed.data).eq('id', id)
+    const { error } = await db.from('gruas').update(parsed.data).eq('id', id)
     if (error) return apiError(friendlyError(error), 500)
 
     return apiData({ id })
@@ -43,7 +43,7 @@ export async function DELETE(request: Request, { params }: Params) {
     if (auth instanceof Response) return auth
     const { id } = await params
 
-    const result = await catalogDelete(auth.supabase, 'gruas', id)
+    const result = await catalogDelete(auth.db, 'gruas', id)
     if (result.error) return apiError(result.error, 409)
 
     return apiData({ id })

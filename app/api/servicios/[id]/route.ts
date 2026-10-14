@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: Params) {
   if (auth instanceof Response) return auth
   const { id } = await params
 
-  const { data, error } = await auth.supabase.from('servicios').select('*').eq('id', id).single()
+  const { data, error } = await auth.db.from('servicios').select('*').eq('id', id).single()
   if (error || !data) return apiError('No se encontró el servicio.', 404)
   return apiData(data)
 }
@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: Params) {
 export async function PATCH(request: Request, { params }: Params) {
   const auth = await requireApiUser(request)
   if (auth instanceof Response) return auth
-  const { supabase } = auth
+  const { db } = auth
   const { id } = await params
 
   const body = await request.json().catch(() => null)
@@ -31,11 +31,11 @@ export async function PATCH(request: Request, { params }: Params) {
 
   const { specs, ...rest } = parsed.data
 
-  if (await titleExists(supabase, rest.title, id)) return apiError('Ya existe un servicio con ese título.', 409)
+  if (await titleExists(db, rest.title, id)) return apiError('Ya existe un servicio con ese título.', 409)
 
-  rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order, { excludeId: id })
+  rest.display_order = await nextFreeOrder(db, 'servicios', 'display_order', rest.display_order, { excludeId: id })
 
-  const { error } = await supabase
+  const { error } = await db
     .from('servicios')
     .update({ ...rest, specs: parseSpecs(specs), updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -47,13 +47,13 @@ export async function PATCH(request: Request, { params }: Params) {
 export async function DELETE(request: Request, { params }: Params) {
   const auth = await requireApiUser(request)
   if (auth instanceof Response) return auth
-  const { supabase } = auth
+  const { db } = auth
   const { id } = await params
 
-  const { data: existing } = await supabase.from('servicios').select('img').eq('id', id).single()
-  const { error } = await supabase.from('servicios').delete().eq('id', id)
+  const { data: existing } = await db.from('servicios').select('img').eq('id', id).single()
+  const { error } = await db.from('servicios').delete().eq('id', id)
   if (error) return apiError(friendlyError(error), 500)
 
-  if (existing) await removeMediaUrls(supabase, [existing.img])
+  if (existing) await removeMediaUrls([existing.img])
   return apiData({ id })
 }

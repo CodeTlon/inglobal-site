@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const auth = await requireApiUser(request)
   if (auth instanceof Response) return auth
 
-  const { data, error } = await auth.supabase.from('servicios').select('*').order('display_order', { ascending: true })
+  const { data, error } = await auth.db.from('servicios').select('*').order('display_order', { ascending: true })
   if (error) return apiError(friendlyError(error), 500)
   return apiData(data)
 }
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const auth = await requireApiUser(request)
   if (auth instanceof Response) return auth
-  const { supabase } = auth
+  const { db } = auth
 
   const body = await request.json().catch(() => null)
   if (!body) return apiError('Body inválido.', 400)
@@ -27,12 +27,12 @@ export async function POST(request: Request) {
 
   const { specs, title, ...rest } = parsed.data
 
-  if (await titleExists(supabase, title)) return apiError('Ya existe un servicio con ese título.', 409)
+  if (await titleExists(db, title)) return apiError('Ya existe un servicio con ese título.', 409)
 
-  const slug = await uniqueSlug(supabase, slugify(title, { lower: true, strict: true }))
-  rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order)
+  const slug = await uniqueSlug(db, slugify(title, { lower: true, strict: true }))
+  rest.display_order = await nextFreeOrder(db, 'servicios', 'display_order', rest.display_order)
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('servicios')
     .insert({ title, slug, ...rest, specs: parseSpecs(specs), updated_at: new Date().toISOString() })
     .select('id')

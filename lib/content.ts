@@ -2,10 +2,10 @@
  * lib/content.ts — Capa de acceso a datos para el sitio de InGlobal.
  *
  * Contrato de tipos e interfaces consumido por el frontend y el dashboard.
- * Siempre con fallback a datos estáticos si Supabase falla o no está configurado.
+ * Siempre con fallback a datos estáticos si la base falla o no está configurada.
  */
 
-import { createSupabaseClient } from '@/lib/supabase'
+import { db } from '@/lib/db'
 import {
   FALLBACK_SITE_SETTINGS,
   FALLBACK_MONTAJES,
@@ -109,12 +109,11 @@ export interface Trabajo {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Helper: detectar si Supabase está configurado
+// Helper: detectar si la base está configurada
 // ─────────────────────────────────────────────────────────────
 function isPlaceholder(): boolean {
   return (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')
+    !process.env.DATABASE_URL
   )
 }
 
@@ -145,15 +144,14 @@ type SiteSettingsKey =
 /**
  * Devuelve el valor de una clave de site_settings, siempre como objeto
  * (un array crudo en DB, ej. seed viejo de `stats`, se normaliza a `{ items: [...] }`).
- * Fallback al valor hardcodeado si Supabase no responde.
+ * Fallback al valor hardcodeado si la base no responde.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getSiteSettings(key: SiteSettingsKey): Promise<any> {
   if (isPlaceholder()) return FALLBACK_SITE_SETTINGS[key] ?? {}
 
   try {
-    const supabase = createSupabaseClient()
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('site_settings')
       .select('value')
       .eq('key', key)
@@ -185,8 +183,7 @@ export async function getMontajes({ includeUnpublished = false } = {}): Promise<
   if (isPlaceholder()) return FALLBACK_MONTAJES
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('montajes').select('*')
+    let query = db.from('montajes').select('*')
     if (!includeUnpublished) query = query.eq('published', true)
     const { data, error } = await query.order('display_order', { ascending: true })
 
@@ -206,8 +203,7 @@ export async function getMontaje(slug: string, { includeUnpublished = false } = 
   if (isPlaceholder()) return FALLBACK_MONTAJES.find((m) => m.slug === slug) ?? null
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('montajes').select('*').eq('slug', slug)
+    let query = db.from('montajes').select('*').eq('slug', slug)
     if (!includeUnpublished) query = query.eq('published', true)
     const { data, error } = await query.single()
 
@@ -234,8 +230,7 @@ export async function getClientes({
   if (isPlaceholder()) return onlyFeatured ? FALLBACK_CLIENTES.filter((c) => c.featured) : FALLBACK_CLIENTES
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('clientes').select('*')
+    let query = db.from('clientes').select('*')
     if (!includeUnpublished) query = query.eq('published', true)
     if (onlyFeatured) query = query.eq('featured', true)
     const { data, error } = await query.order('work_rank', { ascending: false })
@@ -256,8 +251,7 @@ export async function getCliente(slug: string, { includeUnpublished = false } = 
   if (isPlaceholder()) return FALLBACK_CLIENTES.find((c) => c.slug === slug) ?? null
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('clientes').select('*').eq('slug', slug)
+    let query = db.from('clientes').select('*').eq('slug', slug)
     if (!includeUnpublished) query = query.eq('published', true)
     const { data, error } = await query.single()
 
@@ -281,8 +275,7 @@ export async function getServicios({ includeUnpublished = false } = {}): Promise
   if (isPlaceholder()) return FALLBACK_SERVICIOS
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('servicios').select('*')
+    let query = db.from('servicios').select('*')
     if (!includeUnpublished) query = query.eq('published', true)
     const { data, error } = await query.order('display_order', { ascending: true })
 
@@ -307,8 +300,7 @@ export async function getTrabajos(clienteId: string, { includeUnpublished = fals
   if (isPlaceholder()) return []
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('trabajos').select('*').eq('cliente_id', clienteId)
+    let query = db.from('trabajos').select('*').eq('cliente_id', clienteId)
     if (!includeUnpublished) query = query.eq('published', true)
     const { data, error } = await query.order('display_order', { ascending: true })
 
@@ -328,8 +320,7 @@ export async function getTrabajo(clienteId: string, slug: string): Promise<Traba
   if (isPlaceholder()) return null
 
   try {
-    const supabase = createSupabaseClient()
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('trabajos')
       .select('*')
       .eq('cliente_id', clienteId)
@@ -353,8 +344,7 @@ export async function getTrabajoById(id: string): Promise<Trabajo | null> {
   if (isPlaceholder()) return null
 
   try {
-    const supabase = createSupabaseClient()
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('trabajos')
       .select('*')
       .eq('id', id)
@@ -377,8 +367,7 @@ export async function getGaleria({ includeUnpublished = false } = {}): Promise<G
   if (isPlaceholder()) return FALLBACK_GALERIA
 
   try {
-    const supabase = createSupabaseClient()
-    let query = supabase.from('galeria').select('*')
+    let query = db.from('galeria').select('*')
     if (!includeUnpublished) query = query.eq('published', true)
     const { data, error } = await query.order('display_order', { ascending: true })
 
@@ -398,8 +387,7 @@ export async function getGaleriaItem(id: string): Promise<Galeria | null> {
   if (isPlaceholder()) return FALLBACK_GALERIA.find((g) => g.id === id) ?? null
 
   try {
-    const supabase = createSupabaseClient()
-    const { data, error } = await supabase.from('galeria').select('*').eq('id', id).single()
+    const { data, error } = await db.from('galeria').select('*').eq('id', id).single()
 
     if (error || !data) return null
     return data as Galeria

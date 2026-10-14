@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getServerDb } from '@/lib/session'
 import { getEventosAgenda, type EventoAgenda } from '@/lib/agenda'
 import { formatEstado, getEstadoVisual, estadoColorClassesLight, hoyArgentina, ocupacionHoy } from '@/lib/agenda-view'
 import PageHeader from '@/components/dashboard/PageHeader'
@@ -33,8 +33,8 @@ export default async function RecursoDetallePage({ params }: { params: Promise<{
   if (!(tipo in TIPOS)) notFound()
   const cfg = TIPOS[tipo as Tipo]
 
-  const supabase = await createSupabaseServerClient()
-  const { data: recurso } = await supabase.from(cfg.table).select('*').eq('id', id).maybeSingle()
+  const db = await getServerDb()
+  const { data: recurso } = await db.from(cfg.table).select('*').eq('id', id).maybeSingle()
   if (!recurso) notFound()
 
   const eventos = await getEventosAgenda({ [cfg.filtro]: id })

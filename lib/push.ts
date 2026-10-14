@@ -3,7 +3,7 @@
  * Solo para uso server-side con el cliente admin (push_tokens no tiene policies).
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Db } from '@/lib/db'
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send'
 const LOTE = 100
@@ -50,12 +50,12 @@ export async function enviarPush(mensajes: MensajePush[]): Promise<{ enviados: n
 }
 
 /** Todos los tokens registrados (destinatarios = todos los dispositivos logueados). */
-export async function getTokensPush(admin: SupabaseClient): Promise<string[]> {
+export async function getTokensPush(admin: Db): Promise<string[]> {
   const { data } = await admin.from('push_tokens').select('token')
   return (data ?? []).map((r) => r.token as string)
 }
 
-export async function borrarTokens(admin: SupabaseClient, tokens: string[]): Promise<void> {
+export async function borrarTokens(admin: Db, tokens: string[]): Promise<void> {
   if (tokens.length === 0) return
   await admin.from('push_tokens').delete().in('token', tokens)
 }
@@ -64,7 +64,7 @@ export async function borrarTokens(admin: SupabaseClient, tokens: string[]): Pro
  * Reclama una clave de idempotencia. `true` si este corrido es el primero en
  * enviar ese aviso; `false` si ya se había enviado (violación de PK).
  */
-export async function reclamarClave(admin: SupabaseClient, clave: string): Promise<boolean> {
+export async function reclamarClave(admin: Db, clave: string): Promise<boolean> {
   const { error } = await admin.from('notificaciones_enviadas').insert({ clave })
   return !error
 }

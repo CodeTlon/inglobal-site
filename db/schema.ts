@@ -42,6 +42,7 @@ export const user = pgTable('user', {
   image: text('image'),
   // Contraseña temporal: el panel y la API obligan a cambiarla antes de seguir.
   mustChangePassword: boolean('must_change_password').notNull().default(false),
+  lastSignInAt: timestamp('last_sign_in_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })

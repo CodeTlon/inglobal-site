@@ -1,11 +1,10 @@
 import Image from 'next/image'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser } from '@/lib/session'
 import CambiarPasswordForm from './CambiarPasswordForm'
 
 export default async function CambiarPasswordPage() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const forced = Boolean(user?.user_metadata?.must_change_password)
+  const user = await getSessionUser()
+  const forced = user?.mustChangePassword === true
 
   return (
     <div className="w-full max-w-sm">

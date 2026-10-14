@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import slugify from 'slugify'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser, getServerDb } from '@/lib/session'
+import type { Db } from '@/lib/db'
 import { friendlyError } from '@/lib/friendly-error'
 import { trabajoSchema } from '@/lib/validations/trabajo'
 import { removeMediaUrls } from '@/lib/storage'
@@ -11,20 +12,20 @@ import { nextFreeOrder } from '@/lib/ordering'
 
 export type TrabajoState = { success?: boolean; error?: string } | undefined
 
-type ServerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>
+type ServerSupabase = Db
 
 async function requireUser() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const db = await getServerDb()
+  const user = await getSessionUser()
   if (!user) throw new Error('No autenticado.')
-  return supabase
+  return db
 }
 
-async function uniqueSlug(supabase: ServerSupabase, clienteId: string, base: string, excludeId?: string) {
+async function uniqueSlug(db: ServerSupabase, clienteId: string, base: string, excludeId?: string) {
   let slug = base
   let n = 2
   while (true) {
-    const { data } = await supabase
+    const { data } = await db
       .from('trabajos')
       .select('id')
       .eq('cliente_id', clienteId)
@@ -37,8 +38,8 @@ async function uniqueSlug(supabase: ServerSupabase, clienteId: string, base: str
 }
 
 /** Revalida las páginas afectadas y devuelve el slug del cliente (para redirigir a su listado de trabajos). */
-async function revalidateTrabajos(supabase: ServerSupabase, clienteId: string): Promise<string | null> {
-  const { data: cliente } = await supabase.from('clientes').select('slug').eq('id', clienteId).single()
+async function revalidateTrabajos(db: ServerSupabase, clienteId: string): Promise<string | null> {
+  const { data: cliente } = await db.from('clientes').select('slug').eq('id', clienteId).single()
   if (!cliente) return null
   revalidatePath(`/clientes/${cliente.slug}`)
   revalidatePath(`/clientes/${cliente.slug}/[trabajo]`, 'page')
@@ -74,7 +75,7 @@ export async function createTrabajo(
 ): Promise<TrabajoState> {
   let clienteSlug: string | null = null
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const parsed = parse(formData)
     if (!parsed.success) {
@@ -83,13 +84,13 @@ export async function createTrabajo(
 
     const { cliente_id, title, ...rest } = parsed.data
     const baseSlug = slugify(title, { lower: true, strict: true })
-    const slug = await uniqueSlug(supabase, cliente_id, baseSlug)
-    rest.display_order = await nextFreeOrder(supabase, 'trabajos', 'display_order', rest.display_order, {
+    const slug = await uniqueSlug(db, cliente_id, baseSlug)
+    rest.display_order = await nextFreeOrder(db, 'trabajos', 'display_order', rest.display_order, {
       scopeColumn: 'cliente_id',
       scopeValue: cliente_id,
     })
 
-    const { error } = await supabase.from('trabajos').insert({
+    const { error } = await db.from('trabajos').insert({
       cliente_id,
       title,
       slug,
@@ -99,7 +100,7 @@ export async function createTrabajo(
 
     if (error) return { error: friendlyError(error) }
 
-    clienteSlug = await revalidateTrabajos(supabase, cliente_id)
+    clienteSlug = await revalidateTrabajos(db, cliente_id)
   } catch (e) {
     return { error: friendlyError(e) }
   }
@@ -112,7 +113,7 @@ export async function updateTrabajo(
 ): Promise<TrabajoState> {
   let clienteSlug: string | null = null
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de trabajo requerido.' }
@@ -124,26 +125,26 @@ export async function updateTrabajo(
 
     const { cliente_id, title, ...rest } = parsed.data
 
-    const { data: existing } = await supabase.from('trabajos').select('slug, title').eq('id', id).single()
+    const { data: existing } = await db.from('trabajos').select('slug, title').eq('id', id).single()
     let slug = existing?.slug
     if (existing && existing.title !== title) {
       const baseSlug = slugify(title, { lower: true, strict: true })
-      slug = await uniqueSlug(supabase, cliente_id, baseSlug, id)
+      slug = await uniqueSlug(db, cliente_id, baseSlug, id)
     }
-    rest.display_order = await nextFreeOrder(supabase, 'trabajos', 'display_order', rest.display_order, {
+    rest.display_order = await nextFreeOrder(db, 'trabajos', 'display_order', rest.display_order, {
       scopeColumn: 'cliente_id',
       scopeValue: cliente_id,
       excludeId: id,
     })
 
-    const { error } = await supabase
+    const { error } = await db
       .from('trabajos')
       .update({ cliente_id, title, slug, ...rest, updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return { error: friendlyError(error) }
 
-    clienteSlug = await revalidateTrabajos(supabase, cliente_id)
+    clienteSlug = await revalidateTrabajos(db, cliente_id)
   } catch (e) {
     return { error: friendlyError(e) }
   }
@@ -156,19 +157,19 @@ export async function deleteTrabajo(
 ): Promise<TrabajoState> {
   let clienteSlug: string | null = null
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de trabajo requerido.' }
 
-    const { data: existing } = await supabase.from('trabajos').select('cliente_id, cover_image, banner_image, attachment_url').eq('id', id).single()
+    const { data: existing } = await db.from('trabajos').select('cliente_id, cover_image, banner_image, attachment_url').eq('id', id).single()
 
-    const { error } = await supabase.from('trabajos').delete().eq('id', id)
+    const { error } = await db.from('trabajos').delete().eq('id', id)
     if (error) return { error: friendlyError(error) }
 
     if (existing) {
-      await removeMediaUrls(supabase, [existing.cover_image, existing.banner_image, existing.attachment_url])
-      clienteSlug = await revalidateTrabajos(supabase, existing.cliente_id)
+      await removeMediaUrls([existing.cover_image, existing.banner_image, existing.attachment_url])
+      clienteSlug = await revalidateTrabajos(db, existing.cliente_id)
     }
   } catch (e) {
     return { error: friendlyError(e) }

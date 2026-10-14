@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { emailExistsInAuth, isValidEmailFormat } from '@/lib/auth-email'
 import { createRateLimiter } from '@/lib/rate-limit'
-import { apiData, apiError } from '@/lib/supabase-api'
+import { apiData, apiError } from '@/lib/api-auth'
 
 /**
  * POST /api/auth/check-email  ·  body: { email }  →  { data: { exists: boolean } }

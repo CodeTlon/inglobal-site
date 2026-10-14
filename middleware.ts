@@ -1,32 +1,22 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { isAuthRetryableFetchError } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
+import { auth } from '@/lib/auth'
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co'
-const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder'
-
+/**
+ * Gate de sesión del panel (/dashboard) y de la TV (/agenda-tv).
+ * Corre en runtime Node (acceso a la base para validar la sesión de verdad,
+ * no solo la cookie) — mismo comportamiento que tenía con Supabase Auth.
+ */
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request })
-
-  const supabase = createServerClient(URL, ANON, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll()
-      },
-      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-        response = NextResponse.next({ request })
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        )
-      },
-    },
-  })
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  type U = { id: string; mustChangePassword?: boolean }
+  let user: U | null = null
+  let sessionError = false
+  try {
+    const session = await auth.api.getSession({ headers: request.headers })
+    user = (session?.user as U | undefined) ?? null
+  } catch (e) {
+    sessionError = true
+    console.error('[middleware] error validando sesión:', e instanceof Error ? e.message : e)
+  }
 
   const path = request.nextUrl.pathname
   const isDashboard = path.startsWith('/dashboard')
@@ -40,27 +30,11 @@ export async function middleware(request: NextRequest) {
   // Sin sesión en rutas protegidas → redirigir al login (dashboard) o al QR de
   // emparejamiento (TV: no tiene teclado, no puede completar un login normal).
   if ((isDashboard || isAgendaTv) && !isLogin && !isAgendaTvPair && !user) {
-    // Un error transitorio de red contactando a Supabase (típico en un cold
-    // start de la función edge justo después de un deploy) no es lo mismo
-    // que "no hay sesión" — getUser() también devuelve user: null en ese
-    // caso. Antes lo tratábamos igual y mandábamos a la TV a re-emparejar
-    // con QR aunque su sesión siguiera siendo válida; ahora, si el error es
-    // retryable, dejamos pasar el request tal cual y se reintenta solo en
-    // el próximo refresh de la TV (cada 60s, ver AgendaTvRefresher).
-    if (isAgendaTv && userError && isAuthRetryableFetchError(userError)) {
-      console.error('[middleware] error transitorio validando sesión de TV, no desloggea', {
-        message: userError.message,
-      })
-      return response
-    }
+    // Un error de la base (no "sesión inexistente") en la TV no la desloguea: se
+    // deja pasar y el refresco de la TV (cada 60s) reintenta.
+    if (isAgendaTv && sessionError) return NextResponse.next()
     const url = request.nextUrl.clone()
     if (isAgendaTv) {
-      // ponytail: log temporal — un usuario reportó que una TV ya logueada
-      // volvió a pedir el QR después de un deploy; esto ayuda a confirmar
-      // si sigue pasando por otra causa (refresh token vencido/reusado,
-      // etc.) ahora que el caso de error transitorio de red está cubierto
-      // arriba. Sacar cuando se confirme que ya no pasa.
-      console.error('[middleware] TV sin sesión, redirige a /agenda-tv/pair', { userError: userError?.message })
       url.pathname = '/agenda-tv/pair'
     } else {
       url.pathname = '/dashboard/login'
@@ -79,16 +53,17 @@ export async function middleware(request: NextRequest) {
 
   // Contraseña temporal (alta nueva o reset) sin cambiar → forzar a cambiarla
   // antes de dejar entrar a cualquier otra ruta del panel.
-  if (isDashboard && !isLogin && !isCambiarPassword && user?.user_metadata?.must_change_password) {
+  if (isDashboard && !isLogin && !isCambiarPassword && user?.mustChangePassword === true) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard/cambiar-password'
     url.search = ''
     return NextResponse.redirect(url)
   }
 
-  return response
+  return NextResponse.next()
 }
 
 export const config = {
+  runtime: 'nodejs',
   matcher: ['/dashboard/:path*', '/agenda-tv/:path*'],
 }

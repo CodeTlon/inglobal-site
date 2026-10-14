@@ -1,13 +1,13 @@
 import crypto from 'crypto'
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
-import { apiData, apiError } from '@/lib/supabase-api'
+import { db } from '@/lib/db'
+import { apiData, apiError } from '@/lib/api-auth'
 
 // ponytail: 2 min era insuficiente para el flujo real (abrir la app, dar permiso de
 // cámara la primera vez, navegar y escanear) — el QR expiraba antes de aprobarlo.
 const TTL_MS = 5 * 60 * 1000
 
 export async function POST() {
-  const admin = createSupabaseAdminClient()
+  const admin = db
   const token = crypto.randomBytes(24).toString('hex')
   const expiresAt = new Date(Date.now() + TTL_MS).toISOString()
 

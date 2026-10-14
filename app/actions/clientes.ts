@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import slugify from 'slugify'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser, getServerDb } from '@/lib/session'
 import { friendlyError } from '@/lib/friendly-error'
 import { clienteSchema } from '@/lib/validations/cliente'
 import { removeMediaUrls } from '@/lib/storage'
@@ -14,10 +14,10 @@ export type ClienteState = { success?: boolean; error?: string } | undefined
 const LIST_PATH = '/dashboard/clientes'
 
 async function requireUser() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const db = await getServerDb()
+  const user = await getSessionUser()
   if (!user) throw new Error('No autenticado.')
-  return supabase
+  return db
 }
 
 function revalidateClientes() {
@@ -32,7 +32,7 @@ export async function createCliente(
   formData: FormData,
 ): Promise<ClienteState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const parsed = clienteSchema.safeParse({
       name:      formData.get('name'),
@@ -51,10 +51,10 @@ export async function createCliente(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
-    const slug = await uniqueSlug(supabase, slugify(parsed.data.name, { lower: true, strict: true }))
-    const work_rank = await nextFreeOrder(supabase, 'clientes', 'work_rank', parsed.data.work_rank)
+    const slug = await uniqueSlug(db, slugify(parsed.data.name, { lower: true, strict: true }))
+    const work_rank = await nextFreeOrder(db, 'clientes', 'work_rank', parsed.data.work_rank)
 
-    const { error } = await supabase.from('clientes').insert({
+    const { error } = await db.from('clientes').insert({
       ...parsed.data,
       slug,
       work_rank,
@@ -75,7 +75,7 @@ export async function updateCliente(
   formData: FormData,
 ): Promise<ClienteState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de cliente requerido.' }
@@ -97,14 +97,14 @@ export async function updateCliente(
       return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     }
 
-    const { data: existing } = await supabase.from('clientes').select('slug, name').eq('id', id).single()
+    const { data: existing } = await db.from('clientes').select('slug, name').eq('id', id).single()
     let slug = existing?.slug
     if (existing && existing.name !== parsed.data.name) {
-      slug = await uniqueSlug(supabase, slugify(parsed.data.name, { lower: true, strict: true }), id)
+      slug = await uniqueSlug(db, slugify(parsed.data.name, { lower: true, strict: true }), id)
     }
-    const work_rank = await nextFreeOrder(supabase, 'clientes', 'work_rank', parsed.data.work_rank, { excludeId: id })
+    const work_rank = await nextFreeOrder(db, 'clientes', 'work_rank', parsed.data.work_rank, { excludeId: id })
 
-    const { error } = await supabase
+    const { error } = await db
       .from('clientes')
       .update({ ...parsed.data, slug, work_rank, updated_at: new Date().toISOString() })
       .eq('id', id)
@@ -123,18 +123,18 @@ export async function deleteCliente(
   formData: FormData,
 ): Promise<ClienteState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de cliente requerido.' }
 
-    const { data: existing } = await supabase.from('clientes').select('logo').eq('id', id).single()
+    const { data: existing } = await db.from('clientes').select('logo').eq('id', id).single()
 
-    const { error } = await supabase.from('clientes').delete().eq('id', id)
+    const { error } = await db.from('clientes').delete().eq('id', id)
 
     if (error) return { error: friendlyError(error) }
 
-    if (existing) await removeMediaUrls(supabase, [existing.logo])
+    if (existing) await removeMediaUrls([existing.logo])
 
     revalidateClientes()
   } catch (e) {

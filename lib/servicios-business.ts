@@ -3,21 +3,21 @@
  * (app/actions/servicios.ts) y Route Handlers (app/api/servicios/**).
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Db } from '@/lib/db'
 
-export async function uniqueSlug(supabase: SupabaseClient, base: string, excludeId?: string): Promise<string> {
+export async function uniqueSlug(db: Db, base: string, excludeId?: string): Promise<string> {
   let slug = base
   let n = 2
   while (true) {
-    const { data } = await supabase.from('servicios').select('id').eq('slug', slug).limit(1)
+    const { data } = await db.from('servicios').select('id').eq('slug', slug).limit(1)
     if (!data || data.length === 0) return slug
     if (excludeId && data[0].id === excludeId) return slug
     slug = `${base}-${n++}`
   }
 }
 
-export async function titleExists(supabase: SupabaseClient, title: string, excludeId?: string): Promise<boolean> {
-  let query = supabase.from('servicios').select('id').ilike('title', title)
+export async function titleExists(db: Db, title: string, excludeId?: string): Promise<boolean> {
+  let query = db.from('servicios').select('id').ilike('title', title)
   if (excludeId) query = query.neq('id', excludeId)
   const { data } = await query.limit(1)
   return !!data && data.length > 0

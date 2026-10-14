@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import slugify from 'slugify'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser, getServerDb } from '@/lib/session'
 import { friendlyError } from '@/lib/friendly-error'
 import { servicioSchema } from '@/lib/validations/servicio'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -13,10 +13,10 @@ import { uniqueSlug, titleExists, parseSpecs } from '@/lib/servicios-business'
 export type ServicioState = { success?: boolean; error?: string } | undefined
 
 async function requireUser() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const db = await getServerDb()
+  const user = await getSessionUser()
   if (!user) throw new Error('No autenticado.')
-  return supabase
+  return db
 }
 
 function revalidateServicios() {
@@ -34,7 +34,7 @@ export async function createServicio(
   formData: FormData,
 ): Promise<ServicioState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const parsed = servicioSchema.omit({ slug: true }).safeParse({
       title:         formData.get('title'),
@@ -53,14 +53,14 @@ export async function createServicio(
 
     const { specs, title, ...rest } = parsed.data
 
-    if (await titleExists(supabase, title)) {
+    if (await titleExists(db, title)) {
       return { error: 'Ya existe un servicio con ese título.' }
     }
 
-    const slug = await uniqueSlug(supabase, slugify(title, { lower: true, strict: true }))
-    rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order)
+    const slug = await uniqueSlug(db, slugify(title, { lower: true, strict: true }))
+    rest.display_order = await nextFreeOrder(db, 'servicios', 'display_order', rest.display_order)
 
-    const { error } = await supabase.from('servicios').insert({
+    const { error } = await db.from('servicios').insert({
       title,
       slug,
       ...rest,
@@ -86,7 +86,7 @@ export async function updateServicio(
   formData: FormData,
 ): Promise<ServicioState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de servicio requerido.' }
@@ -108,13 +108,13 @@ export async function updateServicio(
 
     const { specs, ...rest } = parsed.data
 
-    if (await titleExists(supabase, rest.title, id)) {
+    if (await titleExists(db, rest.title, id)) {
       return { error: 'Ya existe un servicio con ese título.' }
     }
 
-    rest.display_order = await nextFreeOrder(supabase, 'servicios', 'display_order', rest.display_order, { excludeId: id })
+    rest.display_order = await nextFreeOrder(db, 'servicios', 'display_order', rest.display_order, { excludeId: id })
 
-    const { error } = await supabase
+    const { error } = await db
       .from('servicios')
       .update({ ...rest, specs: parseSpecs(specs), updated_at: new Date().toISOString() })
       .eq('id', id)
@@ -133,18 +133,18 @@ export async function deleteServicio(
   formData: FormData,
 ): Promise<ServicioState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const id = String(formData.get('id') ?? '').trim()
     if (!id) return { error: 'ID de servicio requerido.' }
 
-    const { data: existing } = await supabase.from('servicios').select('img').eq('id', id).single()
+    const { data: existing } = await db.from('servicios').select('img').eq('id', id).single()
 
-    const { error } = await supabase.from('servicios').delete().eq('id', id)
+    const { error } = await db.from('servicios').delete().eq('id', id)
 
     if (error) return { error: friendlyError(error) }
 
-    if (existing) await removeMediaUrls(supabase, [existing.img])
+    if (existing) await removeMediaUrls([existing.img])
 
     revalidateServicios()
   } catch (e) {
@@ -162,7 +162,7 @@ export async function reorderServicios(
   formData: FormData,
 ): Promise<ServicioState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     const raw = String(formData.get('orders') ?? '').trim()
     let orders: { id: string; display_order: number }[]
@@ -177,7 +177,7 @@ export async function reorderServicios(
     }
 
     const updates = orders.map(({ id, display_order }) =>
-      supabase
+      db
         .from('servicios')
         .update({ display_order, updated_at: new Date().toISOString() })
         .eq('id', id),

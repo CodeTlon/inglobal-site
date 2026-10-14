@@ -1,16 +1,18 @@
 import Link from 'next/link'
 import { KeyRound } from 'lucide-react'
 import PageHeader from '@/components/dashboard/PageHeader'
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
+import { db } from '@/lib/db'
 import CreateUserForm from './CreateUserForm'
 import ResetPasswordForm from './ResetPasswordForm'
 
 export const dynamic = 'force-dynamic'
 
 export default async function UsuariosPage() {
-  const admin = createSupabaseAdminClient()
-  const { data, error } = await admin.auth.admin.listUsers()
-  const users = data?.users ?? []
+  const { data, error } = await db
+    .from('user')
+    .select('id, email, last_sign_in_at')
+    .order('created_at', { ascending: true })
+  const users: { id: string; email: string; last_sign_in_at: string | null }[] = data ?? []
 
   return (
     <div className="max-w-3xl">

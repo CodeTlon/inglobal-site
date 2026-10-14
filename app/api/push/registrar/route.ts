@@ -1,5 +1,5 @@
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { db } from '@/lib/db'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 
 // Formato del Expo push token: ExponentPushToken[xxxx] o ExpoPushToken[xxxx].
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (!TOKEN_RE.test(token)) return apiError('Token inválido.', 400)
 
     // push_tokens no tiene policies: se escribe con service_role, tras validar el JWT arriba.
-    const admin = createSupabaseAdminClient()
+    const admin = db
     const { error } = await admin
       .from('push_tokens')
       .upsert(
@@ -41,7 +41,7 @@ export async function DELETE(request: Request) {
     if (!TOKEN_RE.test(token)) return apiError('Token inválido.', 400)
 
     // Solo borra el token si pertenece a quien lo pide.
-    const admin = createSupabaseAdminClient()
+    const admin = db
     const { error } = await admin.from('push_tokens').delete().eq('token', token).eq('user_id', auth.user.id)
     if (error) return apiError(friendlyError(error), 500)
 

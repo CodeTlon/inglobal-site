@@ -1,6 +1,6 @@
 import express from 'express'
 import multer from 'multer'
-import { createClient } from '@supabase/supabase-js'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { spawn } from 'node:child_process'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -10,7 +10,14 @@ import { validToken } from './token.js'
 
 const PORT = process.env.PORT || 3000
 const SECRET = process.env.TRANSCODE_SHARED_SECRET
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+const BUCKET = process.env.S3_BUCKET || 'media'
+const PUBLIC_BASE = (process.env.STORAGE_PUBLIC_URL || '').replace(/\/$/, '')
+const s3 = new S3Client({
+  endpoint: process.env.S3_ENDPOINT,
+  region: process.env.S3_REGION || 'us-east-1',
+  forcePathStyle: true,
+  credentials: { accessKeyId: process.env.S3_ACCESS_KEY_ID, secretAccessKey: process.env.S3_SECRET_ACCESS_KEY },
+})
 
 // ponytail: tope propio de 200MB, independiente del límite de 20MB que ya
 // chequea el navegador (lib/upload-limits.ts) — así el servicio no confía
@@ -46,12 +53,8 @@ app.post('/transcode', upload.single('file'), async (req, res) => {
     await transcode(req.file.path, outPath)
     const buffer = await fs.readFile(outPath)
     const storagePath = `${folder}/${crypto.randomUUID()}.mp4`
-    const { error } = await supabase.storage
-      .from('media')
-      .upload(storagePath, buffer, { contentType: 'video/mp4', upsert: false })
-    if (error) throw error
-    const { data } = supabase.storage.from('media').getPublicUrl(storagePath)
-    res.json({ url: data.publicUrl })
+    await s3.send(new PutObjectCommand({ Bucket: BUCKET, Key: storagePath, Body: buffer, ContentType: 'video/mp4' }))
+    res.json({ url: `${PUBLIC_BASE}/${storagePath}` })
   } catch (err) {
     console.error('[transcode]', err)
     res.status(500).json({ error: 'No se pudo procesar el video' })

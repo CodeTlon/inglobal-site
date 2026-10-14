@@ -1,5 +1,5 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
+import { db } from '@/lib/db'
 
 // Requiere Bearer: solo un usuario mobile ya logueado puede aprobar un pairing de TV.
 export async function POST(request: Request) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   const token = body?.token
   if (!token || typeof token !== 'string') return apiError('token requerido.', 400)
 
-  const admin = createSupabaseAdminClient()
+  const admin = db
   const { data: pairing } = await admin.from('tv_pairing_codes').select('status, expires_at').eq('token', token).single()
   if (!pairing) return apiError('Código inválido.', 404)
   if (pairing.status !== 'pending') return apiError('Este código ya no es válido.', 409)

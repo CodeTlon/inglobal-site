@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { clienteSchema } from '@/lib/validations/cliente'
 import { nextFreeOrder } from '@/lib/ordering'
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const auth = await requireApiUser(request)
   if (auth instanceof Response) return auth
 
-  const { data, error } = await auth.supabase.from('clientes').select('*').order('work_rank', { ascending: false })
+  const { data, error } = await auth.db.from('clientes').select('*').order('work_rank', { ascending: false })
   if (error) return apiError(friendlyError(error), 500)
   return apiData(data)
 }
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const auth = await requireApiUser(request)
   if (auth instanceof Response) return auth
-  const { supabase } = auth
+  const { db } = auth
 
   const body = await request.json().catch(() => null)
   if (!body) return apiError('Body inválido.', 400)
@@ -28,10 +28,10 @@ export async function POST(request: Request) {
   const parsed = clienteSchema.safeParse(body)
   if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
-  const slug = await uniqueSlug(supabase, slugify(parsed.data.name, { lower: true, strict: true }))
-  const work_rank = await nextFreeOrder(supabase, 'clientes', 'work_rank', parsed.data.work_rank)
+  const slug = await uniqueSlug(db, slugify(parsed.data.name, { lower: true, strict: true }))
+  const work_rank = await nextFreeOrder(db, 'clientes', 'work_rank', parsed.data.work_rank)
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('clientes')
     .insert({ ...parsed.data, slug, work_rank, updated_at: new Date().toISOString() })
     .select('id')

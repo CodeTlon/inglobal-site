@@ -1,5 +1,5 @@
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
-import { apiData, apiError } from '@/lib/supabase-api'
+import { db } from '@/lib/db'
+import { apiData, apiError } from '@/lib/api-auth'
 
 // Sin auth a propósito — la TV todavía no tiene sesión cuando pollea esto.
 // Devuelve solo el status, nunca datos de usuario (approved_by no se expone acá).
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const token = searchParams.get('token')
   if (!token) return apiError('token requerido.', 400)
 
-  const admin = createSupabaseAdminClient()
+  const admin = db
   const { data } = await admin.from('tv_pairing_codes').select('status, expires_at').eq('token', token).single()
   if (!data) return apiData({ status: 'expired' })
 

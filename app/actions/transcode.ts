@@ -1,6 +1,6 @@
 'use server'
 
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser } from '@/lib/session'
 import { createTranscodeToken } from '@/lib/transcode-token'
 
 // Emite un token de corta duración para que el navegador suba video directo
@@ -12,9 +12,7 @@ import { createTranscodeToken } from '@/lib/transcode-token'
 export async function getTranscodeUploadInfo(): Promise<{ url: string; token: string } | null> {
   const serviceUrl = process.env.NEXT_PUBLIC_TRANSCODE_SERVICE_URL
   if (!serviceUrl) return null
-
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getSessionUser()
   if (!user) return null
 
   try {

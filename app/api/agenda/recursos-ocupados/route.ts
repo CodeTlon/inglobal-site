@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { getRecursosOcupados } from '@/lib/agenda-business'
 import { friendlyError } from '@/lib/friendly-error'
 
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const horaFin = searchParams.get('horaFin')
     const excludeEventoId = searchParams.get('excludeEventoId') ?? undefined
 
-    const result = await getRecursosOcupados(auth.supabase, fecha, fechaHasta, horaInicio, horaFin, excludeEventoId)
+    const result = await getRecursosOcupados(auth.db, fecha, fechaHasta, horaInicio, horaFin, excludeEventoId)
     return apiData(result)
   } catch (e) {
     return apiError(friendlyError(e), 500)

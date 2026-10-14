@@ -1,6 +1,6 @@
-import { createSupabaseAdminClient } from '@/lib/supabase-server'
+import { db } from '@/lib/db'
 import { estadoTransicionado } from '@/lib/agenda-business'
-import { apiData, apiError } from '@/lib/supabase-api'
+import { apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { toDateInput, addDays } from '@/lib/agenda-view'
 
@@ -33,15 +33,13 @@ export async function GET(request: Request) {
     if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
       return apiError('No autorizado.', 401)
     }
-
-    const supabase = createSupabaseAdminClient()
     // Ventana acotada — eventos más viejos que esto ya fueron transicionados
     // la primera vez que alguien los leyó (o nunca importaron para ningún
     // chequeo de disponibilidad, que solo mira fechas cercanas a hoy).
     const desde = toDateInput(addDays(new Date(), -2))
     const hasta = toDateInput(addDays(new Date(), 2))
 
-    const { data: eventos, error } = await supabase
+    const { data: eventos, error } = await db
       .from('eventos_agenda')
       .select('id, estado, fecha, fecha_hasta, hora_inicio, hora_fin')
       .in('estado', ['reserva', 'programado', 'en_curso'])
@@ -57,7 +55,7 @@ export async function GET(request: Request) {
       if (!nuevo) continue
       // Best-effort, igual criterio que aplicarTransicionEstado: si un
       // update puntual falla no aborta el resto del batch.
-      const { error: updateError } = await supabase.from('eventos_agenda').update({ estado: nuevo }).eq('id', ev.id)
+      const { error: updateError } = await db.from('eventos_agenda').update({ estado: nuevo }).eq('id', ev.id)
       if (!updateError) actualizados++
     }
 

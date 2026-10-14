@@ -1,4 +1,4 @@
-import { requireApiUser, apiData, apiError } from '@/lib/supabase-api'
+import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { crearEventoSchema } from '@/lib/validations/agenda'
 import { getEventosAgenda } from '@/lib/agenda'
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const empresaId = searchParams.get('empresa_id') ?? undefined
     const operarioId = searchParams.get('operario_id') ?? undefined
 
-    const eventos = await getEventosAgenda({ desde, hasta, gruaId, empresaId, operarioId }, auth.supabase)
+    const eventos = await getEventosAgenda({ desde, hasta, gruaId, empresaId, operarioId }, auth.db)
     return apiData(eventos)
   } catch (e) {
     return apiError(friendlyError(e), 500)
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const auth = await requireApiUser(request)
     if (auth instanceof Response) return auth
-    const { supabase } = auth
+    const { db } = auth
 
     const body = await request.json().catch(() => null)
     if (!body) return apiError('Body inválido.', 400)
@@ -40,16 +40,16 @@ export async function POST(request: Request) {
     const { hora_fin, ...rest } = parsed.data
     const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((id: unknown) => typeof id === 'string') : []
 
-    const errorGrua = await validarGrua(supabase, rest.grua_id)
+    const errorGrua = await validarGrua(db, rest.grua_id)
     if (errorGrua) return apiError(errorGrua, 409)
 
-    const errorOperarios = await validarOperarios(supabase, operarioIds)
+    const errorOperarios = await validarOperarios(db, operarioIds)
     if (errorOperarios) return apiError(errorOperarios, 409)
 
-    const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds)
+    const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds)
     if (conflicto) return apiError(conflicto, 409)
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('eventos_agenda')
       .insert({ ...rest, hora_fin: hora_fin || null })
       .select('id')
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     if (error || !data) return apiError(error ? friendlyError(error) : 'No se pudo crear el evento.', 500)
 
-    const syncError = await syncEventoOperarios(supabase, data.id, operarioIds)
+    const syncError = await syncEventoOperarios(db, data.id, operarioIds)
     if (syncError) return apiError(syncError, 500)
 
     return apiData({ id: data.id }, 201)

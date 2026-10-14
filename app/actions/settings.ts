@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getSessionUser, getServerDb } from '@/lib/session'
 import { friendlyError } from '@/lib/friendly-error'
-import { extractStoragePath } from '@/lib/storage'
+import { extractStoragePath, putMedia, removeMedia } from '@/lib/storage'
 import { transcodeVideo } from '@/lib/video-transcode'
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 
@@ -33,10 +33,10 @@ const SETTING_PATHS: Record<string, string[]> = {
 }
 
 async function requireUser() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const db = await getServerDb()
+  const user = await getSessionUser()
   if (!user) throw new Error('No autenticado.')
-  return supabase
+  return db
 }
 
 /**
@@ -68,7 +68,7 @@ export async function updateSiteSettings(
   formData: FormData,
 ): Promise<SaveState> {
   try {
-    const supabase = await requireUser()
+    const db = await requireUser()
 
     if (!key) return { error: 'Clave de configuración requerida.' }
 
@@ -78,7 +78,7 @@ export async function updateSiteSettings(
       value[field] = parseFieldValue(raw)
     }
 
-    const { error } = await supabase
+    const { error } = await db
       .from('site_settings')
       .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
 
@@ -111,7 +111,7 @@ export async function uploadMediaAction(
   formData: FormData,
 ): Promise<{ url?: string; error?: string }> {
   try {
-    const supabase = await requireUser()
+    await requireUser()
     const file = formData.get('file')
     if (!(file instanceof File)) return { error: 'Archivo inválido.' }
 
@@ -130,7 +130,7 @@ export async function uploadMediaAction(
     if (oldUrl) {
       const oldPath = extractStoragePath(oldUrl)
       if (oldPath) {
-        await supabase.storage.from('media').remove([oldPath])
+        await removeMedia([oldPath])
       }
     }
 
@@ -167,13 +167,8 @@ export async function uploadMediaAction(
 
     const path = `${folder}/${id}.${ext}`
 
-    const { error: upErr } = await supabase.storage
-      .from('media')
-      .upload(path, buf, { contentType, upsert: false })
-    if (upErr) return { error: friendlyError(upErr, 'No se pudo subir el archivo. Intentá de nuevo.') }
-
-    const { data } = supabase.storage.from('media').getPublicUrl(path)
-    return { url: data.publicUrl }
+    const url = await putMedia(path, buf, contentType)
+    return { url }
   } catch (e) {
     return { error: friendlyError(e, 'No se pudo subir el archivo. Intentá de nuevo.') }
   }
@@ -182,11 +177,10 @@ export async function uploadMediaAction(
 /** Borra un archivo del bucket `media` a partir de su URL pública (botón "Quitar" en el dashboard). */
 export async function deleteMediaAction(url: string): Promise<{ error?: string }> {
   try {
-    const supabase = await requireUser()
+    await requireUser()
     const path = extractStoragePath(url)
     if (!path) return {}
-    const { error } = await supabase.storage.from('media').remove([path])
-    if (error) return { error: friendlyError(error, 'No se pudo eliminar el archivo.') }
+    await removeMedia([path])
     return {}
   } catch (e) {
     return { error: friendlyError(e, 'No se pudo eliminar el archivo.') }

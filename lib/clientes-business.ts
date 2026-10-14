@@ -3,13 +3,13 @@
  * (app/actions/clientes.ts) y Route Handlers (app/api/clientes/**).
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Db } from '@/lib/db'
 
-export async function uniqueSlug(supabase: SupabaseClient, base: string, excludeId?: string): Promise<string> {
+export async function uniqueSlug(db: Db, base: string, excludeId?: string): Promise<string> {
   let slug = base
   let n = 2
   while (true) {
-    const { data } = await supabase.from('clientes').select('id').eq('slug', slug).limit(1)
+    const { data } = await db.from('clientes').select('id').eq('slug', slug).limit(1)
     if (!data || data.length === 0) return slug
     if (excludeId && data[0].id === excludeId) return slug
     slug = `${base}-${n++}`
