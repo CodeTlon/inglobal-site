@@ -34,6 +34,8 @@ interface FieldConfig {
 interface Props {
   title: string
   items: Item[]
+  /** Muestra un buscador por nombre (lo usa Empresas, como la app). */
+  searchable?: boolean
   fields: FieldConfig[]
   createAction: (prevState: unknown, formData: FormData) => Promise<AgendaState>
   updateAction?: (prevState: unknown, formData: FormData) => Promise<AgendaState>
@@ -200,8 +202,11 @@ function CatalogRow({
   )
 }
 
-export default function CatalogSection({ title, items, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
+export default function CatalogSection({ title, items, searchable, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
   const [createState, createFormAction] = useFormState(createAction, undefined)
+  const [query, setQuery] = useState('')
+  const norm = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  const visibles = searchable && query.trim() ? items.filter((i) => norm(i.nombre).includes(norm(query.trim()))) : items
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -224,8 +229,19 @@ export default function CatalogSection({ title, items, fields, createAction, upd
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
       <h2 className="font-headline font-bold text-zinc-900 mb-4">{title}</h2>
 
+      {searchable && (
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar por nombre"
+          aria-label={`Buscar en ${title}`}
+          className="w-full mb-3 rounded-md border border-zinc-200 px-3 py-2 text-sm"
+        />
+      )}
+
       <div className="space-y-2 mb-6">
-        {items.map((item) => (
+        {visibles.map((item) => (
           <CatalogRow
             key={item.id}
             item={item}
@@ -235,7 +251,7 @@ export default function CatalogSection({ title, items, fields, createAction, upd
             onRequestDelete={() => setPendingDelete({ id: item.id, nombre: item.nombre })}
           />
         ))}
-        {items.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
+        {visibles.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
       </div>
 
       {(createState?.error || deleteError) && (
