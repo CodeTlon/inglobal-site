@@ -31,3 +31,6 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 - Verificado a mano con Playwright contra Supabase local + seed y con `lint`, `tsc`, `build` y los 24 E2E publicos. El E2E `tests/e2e/dashboard-agenda.spec.ts` solo corre con `E2E_LOCAL_ADMIN=1` contra el Supabase local.
 - Catalogos muestra Disponible/Ocupado de hoy (`ocupacionHoy` en `lib/agenda-view.ts`, igual que `catalog-ocupacion.ts` de la app). Cancelar evento no valida operarios/grua activos.
 - Pendiente: la app todavia no tiene push, exportar ni cambio de password in-app (trabajo en `inglobal-agenda-app`). La app movil no se probo en esta tanda (la prueba es manual de Mateo).
+
+## Estado al 2026-10-14 (notificaciones push, rama `feature/dev1-notificaciones`)
+Backend implementado (migración 033, `app/api/push/registrar`, `app/api/agenda/cron/notificar`, workflow). **Pendiente de verificar:** aplicar 033 a dev/prod, secret `CRON_SECRET` ya existente, prueba en dispositivo real con build nativo. Detalle en `DOMAIN.md` y `OPEN_QUESTIONS.md`.

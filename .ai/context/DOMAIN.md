@@ -30,3 +30,12 @@ Solo 5 campos: `montajes.cover_image_focal`/`banner_image_focal`, `trabajos.cove
 ## `updateSiteSettings` — contrato de forma
 
 Arma el `value` jsonb desde TODOS los campos del form recibido — no espera un campo `value` explícito en el FormData. Si el nombre de un campo del form no coincide exacto con lo que lee `lib/content.ts`/`lib/constants.ts`, el dato se guarda pero el público sigue mostrando el fallback viejo, sin ningún error visible.
+
+## Notificaciones push (migración 033, 2026-10-14)
+
+| Tabla | Propósito |
+|---|---|
+| `push_tokens` | Un row por dispositivo (Expo push token) + `user_id`. RLS sin policies: solo `service_role`. Destinatarios = todos los tokens (cuenta única; los operarios no tienen cuenta). |
+| `notificaciones_enviadas` | Claves de idempotencia (`recordatorio:<fecha>`, `reserva:<evento_id>`) para que el cron cada 15 min no duplique avisos. |
+
+Avisos v1 (`app/api/agenda/cron/notificar`, lógica pura en `lib/notificaciones.ts`, horario de Córdoba UTC-3): recordatorio de mañana desde las 19:00 y reserva por vencer (falta < 2 h para su `hora_inicio`, momento en que se auto-cancela). Registro/baja de token desde la app: `app/api/push/registrar` (POST/DELETE).

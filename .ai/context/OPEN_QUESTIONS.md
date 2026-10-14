@@ -26,3 +26,6 @@ Hoy son 4 fijos. Si el cliente quiere agregar o quitar roles, hay que crear una 
 
 ## ¿Cuál es el Supabase de homologación (`test`)? (abierta 2026-10-01)
 Mateo lo va a aportar. Con eso se configuran las variables de Vercel (Preview) y EAS (`preview`).
+
+## Notificaciones: alcance posterior y horario (abierta 2026-10-14)
+v1 manda solo recordatorio de mañana (19:00 Córdoba, `HORA_RECORDATORIO` en `lib/notificaciones.ts`) y reservas por vencer (ventana 2 h). Sin decidir con el dueño: la hora del recordatorio, avisos de nuevo servicio/cambio/cancelación manual y notificaciones por operario (requiere vincular celular y operario). iOS en producción depende de la cuenta Apple Developer.

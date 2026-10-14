@@ -82,3 +82,7 @@ Pantalla de TV sin teclado — no puede loguearse con email/password. Pairing ti
 - Ojo: "roles" significa dos cosas distintas — el rol de usuario `trabajador` (eliminado en la 031) y los roles de operario (vigentes).
 - **Fin de jornada por defecto (`hora_fin` vacío):** este repo usa 23:59 (`lib/agenda-business.ts`, `lib/agenda-view.ts`). La app móvil usa 18:00 para el estado visual y 23:59 para ubicar por día. Divergencia vigente; no unificar sin decisión del dueño.
 - Vista TV (`/agenda-tv`): grilla mensual con fuentes grandes, empresa visible, estados vacío y de error; el refresco de 60 s no recarga si hay un modal abierto.
+
+## Notificaciones push
+
+Expo Push Service (`lib/push.ts`). La app registra su token en `POST /api/push/registrar`; el workflow `.github/workflows/cron-notificar.yml` (`*/15 * * * *`, mismo `CRON_SECRET` que el cron de transición) llama a `/api/agenda/cron/notificar`, que arma los avisos y los envía a todos los tokens. Idempotencia por clave en `notificaciones_enviadas`; tokens `DeviceNotRegistered` se borran solos. Remoto en Android requiere build nativo (no Expo Go).
