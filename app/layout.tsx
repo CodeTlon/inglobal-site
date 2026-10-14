@@ -10,6 +10,11 @@ import GoogleAnalytics from '@/components/GoogleAnalytics'
 import CookieConsent from '@/components/CookieConsent'
 import BackToTop from '@/components/BackToTop'
 import StickyMobileCTA from '@/components/StickyMobileCTA'
+
+// El contenido sale de la base propia y el contenedor se construye SIN base (Coolify):
+// si las páginas se prerenderizaran en el build quedarían con los datos de fallback hasta
+// la primera edición del panel. Todo se renderiza por request (la base es local al servidor).
+export const dynamic = 'force-dynamic'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { SITE_URL } from '@/lib/site'
 import { getSiteSettings } from '@/lib/content'
