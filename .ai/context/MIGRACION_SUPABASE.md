@@ -38,3 +38,8 @@ Regla de Oro #7: crear recursos en Coolify/Vercel, mover credenciales y hacer el
 - Versiones viejas de la app instaladas siguen hablando con Supabase Auth: definir período de convivencia o forzar actualización.
 - Producción tiene datos reales: nada de seeds/resets fuera de local; todo ensayo en test primero.
 - Orden: la doctrina pide un proyecto por vez; este es sitio + app acoplados, así que el sitio va primero y la app inmediatamente después (comparten usuarios y storage).
+
+## Punto de partida disponible (verificado 2026-10-14)
+- `codetlon-cloud/templates/backend-propio/`: Drizzle + Better Auth + `pg`, `docker-compose.yml` (Postgres 16 local), `/api/health`, workflows `ci.yml`/`entornos.yml`/`produccion.yml`, y soporte Expo vía `@better-auth/expo` (cubre el login de la app sin Supabase Auth). Es overlay para un Next 15 nuevo: acá hay que adaptarlo a un proyecto existente (no copiar encima).
+- Fuente del esquema para el dump: el Supabase **local** de dev1 (`supabase_db_inglobal-local`, puerto 41422, seed ficticio). Nunca el de prod.
+- Postgres propio para ensayar: Docker rootless de dev1 en el rango 41000-41999 (no usar el 5432 del template).
