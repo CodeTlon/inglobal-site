@@ -27,6 +27,7 @@ import {
   catalogDelete as catalogDeleteBusiness,
   gruaDuplicada,
   empresaAgendaDuplicada,
+  operarioDuplicado,
   reincorporarOperario as reincorporarOperarioBusiness,
   eliminarOperarioDefinitivo as eliminarOperarioDefinitivoBusiness,
 } from '@/lib/agenda-business'
@@ -404,6 +405,8 @@ export async function createOperario(prevState: unknown, formData: FormData): Pr
     const supabase = await requireUser()
     const parsed = parseOperarioForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const duplicado = await operarioDuplicado(supabase, parsed.data.nombre)
+    if (duplicado) return { error: duplicado }
     const { error } = await supabase.from('operarios').insert(parsed.data)
     if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
@@ -419,6 +422,8 @@ export async function updateOperario(prevState: unknown, formData: FormData): Pr
     if (!id) return { error: 'ID de operario requerido.' }
     const parsed = parseOperarioForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const duplicado = await operarioDuplicado(supabase, parsed.data.nombre, id)
+    if (duplicado) return { error: duplicado }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { roles, ...resto } = parsed.data
     const { error } = await supabase.from('operarios').update(formData.has('roles__presente') ? parsed.data : resto).eq('id', id)
