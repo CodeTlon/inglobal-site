@@ -5,7 +5,7 @@ Sitio institucional de **Grúas InGlobal S.R.L.** (alquiler de grúas y montajes
 ## Stack
 
 - **Next.js 15.5** (App Router) + TypeScript + **Tailwind CSS**
-- **Supabase** (PostgreSQL + RLS + Auth + Storage bucket `media`)
+- **Postgres propio** (Coolify) + Drizzle, **Better Auth**, bucket S3-compatible `media`
 - **Resend** (formulario de contacto) · Zod + Server Actions
 - **Playwright** (E2E, puerto dedicado 3310) · Deploy en **Vercel**
 
@@ -13,7 +13,7 @@ Sitio institucional de **Grúas InGlobal S.R.L.** (alquiler de grúas y montajes
 
 ```bash
 npm install
-cp .env.example .env.local   # completar credenciales Supabase + Resend
+cp .env.example .env.local   # DATABASE_URL, BETTER_AUTH_*, S3_*, Resend (o usar `npm run dev:local`)
 npm run dev                  # http://localhost:3000
 ```
 
@@ -30,7 +30,7 @@ npx playwright test        # Tests E2E (puerto 3310)
 
 ## Variables de entorno
 
-Ver `.env.example`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM_NAME`, `RESEND_FROM_EMAIL`, `COMPANY_EMAIL`.
+Ver `.env.example` y `.ai/context/ENVIRONMENTS.md`: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `S3_*`, `RESEND_API_KEY`, `RESEND_FROM_NAME`, `RESEND_FROM_EMAIL`, `COMPANY_EMAIL`.
 
 ## Estructura
 
@@ -39,7 +39,7 @@ Ver `.env.example`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
 - `lib/content.ts` — fetchers con fallbacks tipados (fuente de datos de las páginas públicas)
 - `app/actions/` — Server Actions (mutaciones del dashboard + contacto)
 - `middleware.ts` — auth gate de `/dashboard/**`
-- `supabase/migrations/` — migraciones SQL (001–006)
+- `drizzle/` — migraciones SQL (Drizzle) · `db/schema.ts` — esquema
 
 Ver [`ARCHITECTURE.md`](./ARCHITECTURE.md) para el mapa de dónde tocar cada cosa.
 
@@ -62,6 +62,7 @@ Prohibida su copia, redistribución o reuso sin autorización escrita. Ver [LICE
 | Versión | Fecha | Cambio |
 |---------|-------|--------|
 | — (rama `feature/dev1-paridad-web-app`, en `dev`) | 2026-10-14 | **Paridad dashboard web / app movil en la agenda**: Catalogos gana la seccion **Ex operarios** (reincorporar y borrado definitivo, con las mismas reglas que la API: vuelve inactivo, y solo se borra sin eventos); nuevas Server Actions `reincorporarOperario` y `deleteOperarioDefinitivo`. El estado de un evento se cambia con botones de transicion valida (`cambiarEstadoEvento`, mismas validaciones que el PATCH de la app) en el detalle y en el modal del calendario; `finalizado`/`cancelado` quedan bloqueados y `en_curso` no se puede eliminar; el alta ofrece `reserva` o `programado` (antes faltaba `reserva`). Nueva pagina de detalle por recurso (`/dashboard/agenda/catalogos/[tipo]/[id]`) con estadisticas e historial. Inicio del panel con "Agenda de hoy" (servicios, en curso, pendientes; hora de Cordoba). Fix: crear/editar operario en la web ahora valida nombre duplicado (la API ya lo hacia). Buscador de empresas. Catalogos con Disponible/Ocupado de hoy (misma regla que la app) y orden activos/disponibles primero. Cancelar un evento ya no exige grua/operarios activos ni re-chequea conflicto (web y API). Seed con un ex operario sin eventos; `playwright.config.ts` admite `E2E_BASE_URL` y `PLAYWRIGHT_CHROMIUM_PATH`. |
+| v2.0.0 | 2026-10-14 | **Backend propio: fuera Supabase y Vercel**. Postgres + Drizzle (esquema/migraciones), Better Auth (hashes bcrypt migrados, sin signup), storage S3-compatible, subidas por `/api/storage/upload`, TV pairing sin magic link, Dockerfile para Coolify, `/api/health`. Scripts de migración con verificación de paridad contra el backup de prod. Incluye notificaciones push (recordatorio de mañana y reservas por vencer). La app móvil pasa a autenticarse por la API. Sin mergear: falta probar en Coolify test. |
 | v0.3.0 | 2026-07-22 | **Mensajes de error humanizados + Agenda: operarios obligatorios/activos + videos del hero del cliente**: nuevo `lib/friendly-error.ts` traduce códigos/errores crudos de Supabase-Postgres (y mensajes Zod sin traducir) a castellano en los 9 server actions del dashboard y en los uploads client-side — ya no se ve texto en inglés tipo `duplicate key value violates...` en ningún form. Agenda: un evento ya no se puede crear ni editar sin al menos un operario asignado, ni con un operario dado de baja (`activo: false`) — antes solo se filtraba en la lista de opciones del form, pero un ID inactivo ya guardado podía re-persistirse sin aviso. Fixes chicos: overlay del hero más oscuro en mobile (se veía muy claro tras el ajuste anterior), descripción corta de servicios en el home ya no se corta a mitad de palabra (se sacó un `line-clamp-2` redundante), videos del hero (desktop y mobile) actualizados con los archivos finales del cliente. |
 | — (rama `fix/reporte-bugs-post-uso-real-parte4`, en `dev`) | 2026-07-21 | **Ronda de fixes post-uso real, parte 4 (reporte de bugs del cliente)**: paginación de clientes ya no dejaba invisibles los items al cambiar de página (dependían de `ScrollReveal`, que no vuelve a correr en paginación client-side). Editar cualquier servicio tiraba error (`slug`/`excerpt` faltaban en el parse de `updateServicio`) — corregido; agregado botón eliminar servicio (no existía); título de servicio limitado a 60 caracteres + `line-clamp` para no superponerse con la imagen; bloqueo de títulos duplicados. Titular del Hero ya no se corta invisible con texto largo (`maxLength` + `line-clamp-3`). Montajes: imagen de portada pasa a obligatoria (antes inconsistente con Servicios); expuesto el campo de orden de visualización que ya existía en la DB pero no en el form (se reseteaba solo en cada guardado). Agenda: bloqueo de grúas/empresas duplicadas (nombre/patente), teléfono valida formato numérico, flujo de estados de eventos ya no permite volver atrás (`en_curso`/`finalizado` → `programado`), evento `finalizado`/`cancelado` no editable y `en_curso` solo permite cambiar el estado, grúas/operarios ocupados se marcan deshabilitados al crear/editar evento, no se puede inactivar un recurso en uso en un evento en curso (aviso si es solo "programado"). Quiénes Somos: subtítulo de la cabecera y los 3 puntos destacados pasan a editables (antes hardcodeados). Stats: máximo 5, sin pares incompletos ni etiquetas duplicadas. |
 | — (rama `fix/correctness-baja`, en `dev`) | 2026-07-17 | **Ronda de fixes post-uso real, parte 2** (9 fases sobre una tanda grande de bugs/pedidos reales): uploads que fallaban/colgaban con archivos reales — causa real es que Vercel cappea el body de cualquier función serverless a 4.5MB (no el `bodySizeLimit` de Next), fix con resize de imágenes en el navegador antes de subir y video/PDF directo del navegador al bucket. `tags` de montajes y `specs` de servicios se guardaban corrompidos (mismatch JSON vs CSV entre `StringList` y el parser del server). Error de consola del Service Worker con respuestas 206 de video. YouTube pasa a cargar con click (era el 66% del peso de página según un HAR real, no las imágenes). Listas visibles en el editor de texto rico, stats del hero a un banner propio debajo, banners menos recortados, navbar oculto hasta hacer scroll en trabajos. Placeholders de ejemplo en ~32 campos del dashboard. Foco de imagen (focal point) distinto para mobile y desktop en portadas/banners/logo (migración `017`). Agenda: validación de solapamiento de grúa/operarios entre eventos + reservas de varios días seguidos (migración `018`), feedback de guardado en catálogos (antes silencioso, parecía colgado), vista de un día para el calendario en mobile (antes grilla semanal con scroll horizontal). |

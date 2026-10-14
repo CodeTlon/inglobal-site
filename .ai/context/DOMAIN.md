@@ -1,5 +1,8 @@
 # DOMAIN — Grúas InGlobal
 
+> **Nota 2026-10-14:** `auth.users` → tablas `user`/`account`/`session` de Better Auth; `user_metadata.must_change_password` → columna `user.must_change_password`; policies RLS → guards de servidor; bucket de Supabase → S3. Esquema real: `db/schema.ts`.
+
+
 Entidades y reglas de negocio no triviales. Para el "por qué" de decisiones arquitectónicas que tocan estas entidades, ver `.ai/context/DECISIONS.md`.
 
 ## Tablas y su propósito

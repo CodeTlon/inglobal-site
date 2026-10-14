@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/start-standalone.mjs",
     "lint": "next lint",
     "optimize:images": "node scripts/optimize-images.mjs",
     "optimize:video": "node scripts/optimize-video.mjs",

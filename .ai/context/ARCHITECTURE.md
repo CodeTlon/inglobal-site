@@ -1,5 +1,8 @@
 # ARCHITECTURE — Grúas InGlobal
 
+> **Nota 2026-10-14:** el proyecto salió de Supabase y Vercel (ver `MIGRACION_SUPABASE.md`). Donde este documento dice Supabase, RLS, `supabase-js` o Vercel, leer: Postgres propio + `lib/db.ts`, autorización en el servidor (`requireSessionUser`/`requireApiUser`), Better Auth, bucket S3 y Coolify. La descripción de reglas de negocio sigue vigente.
+
+
 Arquitectura real del proyecto, con el porqué de las decisiones. Reemplaza al `ARCHITECTURE.md` de la raíz (ahora un stub) — este es el que se mantiene.
 
 ## Stack

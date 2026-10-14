@@ -147,7 +147,7 @@ test('responsive desktop (1280px) — nav links visibles', async ({ page }) => {
 test('responsive desktop (1280px) — hero stats visibles', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
-  await expect(page.getByText(/40\+/).first()).toBeVisible()
+  await expect(page.getByText(/(\+40|40\+)/).first()).toBeVisible()
 })
 
 test('responsive desktop (1280px) — galeria bento grid', async ({ page }) => {

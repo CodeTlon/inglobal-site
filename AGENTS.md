@@ -1,6 +1,6 @@
 # AGENTS.md — Grúas InGlobal
 
-Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúas/montajes, Córdoba AR). Next.js 15 en Vercel, con una app mobile satélite que consume una capa REST propia (`app/api/**`) para la agenda de flota. Reescritura de un sitio PHP legacy.
+Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúas/montajes, Córdoba AR). Next.js 15 en Coolify (Docker), con una app mobile satélite que consume una capa REST propia (`app/api/**`) para la agenda de flota. Reescritura de un sitio PHP legacy.
 
 ## Stack
 
@@ -10,11 +10,13 @@ Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúa
 | Lenguaje | TypeScript 5 (`strict: true`) |
 | UI | Tailwind CSS 3.4 + tokens custom `igb-*` |
 | Validación | Zod **v4** + react-hook-form |
-| DB/Auth/Storage | Supabase (Postgres + RLS + Auth + Storage) |
+| Datos | Postgres propio (Coolify) · esquema y migraciones con Drizzle (`db/schema.ts`, `drizzle/`) · consultas vía `lib/db.ts` |
+| Auth | Better Auth (email + contraseña, sin signup, plugin bearer para la app) |
+| Archivos | Bucket S3-compatible (MinIO/R2), `lib/storage.ts` |
 | Rich text | TipTap v3 |
 | Email | Resend |
 | Tests | Playwright (E2E) |
-| Deploy | Vercel |
+| Deploy | Coolify (`Dockerfile`, `output: 'standalone'`), entornos test y prod |
 
 ## Comandos
 
@@ -26,15 +28,19 @@ npx tsc --noEmit          # type check
 npx playwright test       # E2E — puerto dedicado 3310, no 3000
 npm run optimize:images   # regenera public/images/opt/
 npm run optimize:video    # requiere ffmpeg local
-npm run db:local:up       # Supabase local (Docker) + migraciones + seed + cuentas de prueba
-npm run dev:local         # sitio contra el Supabase local (no toca ningún .env)
-npm run db:local:reset    # recarga migraciones + seed (solo local)
-npm run db:local:down     # apaga el stack local
+npm run db:up                # Postgres + MinIO locales (docker compose, puertos 415xx)
+npm run db:local:setup       # migraciones + seed ficticio + cuentas de prueba
+npm run dev:local            # sitio contra esa base local (no toca ningún .env)
+npm run db:generate          # genera una migración Drizzle tras cambiar db/schema.ts
+npm run db:migrate           # aplica migraciones (el contenedor lo hace al arrancar)
+npm run test:unit            # capa de datos (paridad con el backup de prod)
 ```
 
 ## Convenciones críticas no negociables
 
-- **Límite real de subida = 4.5MB de Vercel**, no el `bodySizeLimit` de Next (no configurable desde la app). Cualquier upload nuevo >4MB tiene que resizear client-side (imágenes) o subir directo a Storage desde el navegador (video/PDF) — nunca crudo por un Server Action. Ver `.ai/context/CONVENTIONS.md`.
+- **Subidas:** Server Actions limitadas a 20 MB (`bodySizeLimit`); video/PDF y subidas de la app van por `POST /api/storage/upload` (100 MB). Ya no aplica el tope de 4.5 MB de Vercel. Ver `.ai/context/CONVENTIONS.md`.
+- **Sin RLS:** toda Server Action y Route Handler empieza con `requireSessionUser()` / `requireApiUser(request)`. Nunca consultar la base sin ese guard (excepto lecturas públicas del sitio en `lib/content.ts`).
+- **Esquema:** se cambia en `db/schema.ts` + migración Drizzle; lo que Drizzle no expresa va en una migración SQL manual (`drizzle-kit generate --custom`). Nunca editar una migración ya aplicada en prod.
 - **`lib/friendly-error.ts` obligatorio** en todo `catch`/`if(error)` de Server Actions — nunca `error.message` de Supabase crudo a la UI.
 - **Un solo tipo de cuenta** (sin roles) — cualquier cuenta autenticada tiene acceso total al panel web y a la app mobile vía `app/api/**`. El sistema de roles `admin`/`trabajador` que existió brevemente se eliminó (ver `.ai/context/DECISIONS.md`) — no reintroducirlo sin discutirlo primero.
 - **`prefetch={false}`** en todo `Link` nuevo dentro de `/dashboard/**` — el middleware llama `auth.getUser()` en cada ruta del panel, y el prefetch automático de Next multiplica esas llamadas.

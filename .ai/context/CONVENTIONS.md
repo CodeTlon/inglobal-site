@@ -1,5 +1,8 @@
 # CONVENTIONS — Grúas InGlobal
 
+> **Nota 2026-10-14:** `createSupabaseServerClient`/`createSupabaseAdminClient` ya no existen: usar `getServerDb()`/`db` (`lib/db.ts`) tras `requireSessionUser()` (`lib/session.ts`). Uploads: ver `AGENTS.md`. El patrón de `friendlyError` y feedback de guardado sigue igual.
+
+
 Convenciones ya establecidas en el código (no inventadas). Antes de escribir un patrón nuevo para algo que ya tiene un patrón acá, replicá el existente.
 
 ## Uploads grandes: nunca crudos por un Server Action

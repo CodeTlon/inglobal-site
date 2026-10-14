@@ -77,3 +77,13 @@ Toda regla nueva del panel (ex operarios, cambio de estado) llama a las funcione
 
 ## 2026-10-14 — Cancelar no valida grua/operarios activos ni conflicto
 Un evento se puede cancelar aunque su grua u operarios hayan quedado inactivos (cancelar libera recursos). Aplica al PATCH de la API y a las acciones del dashboard. Inactivar un recurso con eventos vivos ya esta bloqueado (`catalogToggle`), asi que es un caso de borde (datos viejos o cambios por fuera de la app).
+
+## 2026-10-14 — Salir de Supabase y Vercel: todo en Coolify
+**Decisión (Mateo):** sitio, base y archivos en Coolify con entornos test y prod; se abandonan Supabase y Vercel.
+**Por qué:** backups propios y restaurables (el plan free no los da), sin pausa por inactividad ni límites de storage, un solo lugar de infra (doctrina `codetlon-cloud`: `migracion-supabase.md`, `backend-propio.md`).
+**Cómo:** Postgres + Drizzle (esquema/migraciones) + Better Auth + S3. Los 4 usuarios se migran con su hash bcrypt (sin reset). Los archivos (27, 3.9 MB) se copian y las URLs se reescriben.
+**Trade-offs asumidos:**
+- *Capa `lib/db.ts` propia* en vez de reescribir las consultas con Drizzle: menor riesgo y filas idénticas a las de prod; a cambio, sin tipos por tabla (ver `KNOWN_ISSUES.md`).
+- *Sin RLS:* la autorización es solo del servidor. Es el mismo modelo que ya había (cuenta única autenticada = acceso total), pero ahora un olvido de `requireSessionUser()` expone datos; por eso es regla crítica en `AGENTS.md`.
+- *Signup deshabilitado* a nivel de Better Auth: en el Supabase de prod estaba habilitado y las policies daban escritura a cualquier autenticado (hallazgo del 2026-10-14). La migración lo cierra.
+- *TV pairing sin magic link:* el servidor crea la sesión directamente tras validar el código de un solo uso (se consume antes de crear la sesión).

@@ -1,5 +1,8 @@
 # KNOWN_ISSUES — Grúas InGlobal
 
+> **Nota 2026-10-14:** las entradas sobre Supabase, RLS, `is_admin()` y el auto-deploy de Vercel son históricas (la migración las reemplazó). Issues nuevos de esta etapa al final del archivo.
+
+
 Problemas conocidos que afectan decisiones de ingeniería futuras (no son bugs abiertos para arreglar ya — son restricciones/riesgos a tener en cuenta).
 
 ## Los docs de mantenimiento se desincronizan si nadie fuerza el proceso
@@ -50,3 +53,12 @@ La migración 032 hizo `UPDATE empresas_agenda SET tipo = 'frecuente'`. Hay que 
 
 ## "Hoy" del servidor
 Las paginas de agenda usan `toDateInput(new Date())` (hora del servidor, UTC en Vercel). El inicio del panel y los catalogos ya usan hora de Cordoba (`hoyArgentina`); el calendario no.
+
+## Capa de datos propia (`lib/db.ts`) en vez de un ORM tipado (2026-10-14)
+Para que la migración no tocara las ~128 consultas ni la forma de las filas, `lib/db.ts` imita la API de consultas de Supabase sobre `pg` (solo el subconjunto que se usa). Las filas no están tipadas por esquema (son `any`). Drizzle se usa para esquema y migraciones, no para consultas. Mover consultas a Drizzle, módulo por módulo, es una mejora posible; cualquier relación nueva en `select()` hay que agregarla a `RELATIONS` en `lib/db.ts`.
+
+## Fotos de la app: archivos huérfanos (2026-10-14)
+La app ahora sube cada foto con un nombre nuevo (uuid) en vez de pisar `<carpeta>/<id>.jpg`. Al reemplazar la foto de una grúa, operario o empresa, el archivo anterior queda en el bucket sin referencia. Bajo volumen; pendiente un barrido o borrar el anterior al actualizar.
+
+## Rate limit de login
+Better Auth trae rate limit propio en producción (en memoria, por instancia). Con más de una réplica del contenedor no se comparte. Hoy hay una sola.

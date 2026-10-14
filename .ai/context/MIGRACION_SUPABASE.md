@@ -1,10 +1,42 @@
-# MIGRACION_SUPABASE — salir de Supabase (sitio + app)
+# MIGRACION_SUPABASE — salir de Supabase y Vercel (sitio + app)
+
+## Estado (2026-10-14)
+Implementado y verificado en local (rama `feature/dev1-coolify-backend-propio`, ambos repos). **Sin tocar `main`.**
+Falta solo la infra en Coolify (la crea Mateo) y las pruebas ahí. Verificado: `tsc`, `next build`, E2E (23/24 + 6 skip por falta de seed; el fallo era un literal del test), tests de la capa de datos (13/13), flujo manual contra el servidor (login, bearer, TV pairing, upload, push, crons) y **paridad completa con el backup de prod** (`scripts/migracion/verificar-paridad.ts`).
+No verificado: login con la contraseña real de un usuario migrado (solo se probó el hash importado y el formato bcrypt), build de la imagen Docker en Coolify, app en dispositivo.
+
+## Runbook: levantar `test` en Coolify y compararlo con prod
+1. Crear en Coolify (entorno `test`): Postgres 17, MinIO (o bucket R2) con bucket `media` de lectura pública, y la app desde el `Dockerfile` (rama `test`). Variables y build arg `STORAGE_PUBLIC_URL`: ver `ENVIRONMENTS.md`.
+2. Las migraciones corren solas al arrancar la app (`scripts/migrate.mjs`). Alternativa manual: `DATABASE_URL=... npm run db:migrate`.
+3. Cargar los datos reales (desde una máquina con acceso a la base y al bucket; **el backup está en `/home/dev1/migracion-prod/<fecha>/`, fuera de git**):
+   ```bash
+   BACKUP_DIR=/home/dev1/migracion-prod/2026-10-14 DATABASE_URL=<url test> \
+   S3_ENDPOINT=... S3_BUCKET=media S3_ACCESS_KEY_ID=... S3_SECRET_ACCESS_KEY=... \
+   STORAGE_PUBLIC_URL=https://<host-publico>/media \
+   npx tsx scripts/migracion/importar-prod.ts --reset
+   ```
+4. Verificar paridad (sale con código 1 si algo difiere):
+   ```bash
+   BACKUP_DIR=... DATABASE_URL=<url test> STORAGE_PUBLIC_URL=... SITE_URL=https://<sitio-test> \
+   npx tsx scripts/migracion/verificar-paridad.ts
+   ```
+5. Prueba manual: login con una cuenta real (contraseña de siempre), panel, agenda, TV pairing, subir una foto, formulario de contacto.
+6. App móvil: build `preview` con `EXPO_PUBLIC_API_BASE_URL=<sitio-test>`.
+7. Para prod: repetir con una pasada **delta** (key nueva de Supabase, backup nuevo) en la ventana de corte, con el sitio viejo en solo lectura. Supabase queda 1-2 semanas como rollback.
+
+## Qué cambió (resumen)
+- **Datos:** `lib/db.ts` (capa sobre `pg` con la API de consultas de antes, filas idénticas a PostgREST) + esquema/migraciones Drizzle (`db/schema.ts`, `drizzle/`). Ya no hay RLS: toda mutación pasa por `requireSessionUser()` / `requireApiUser()`.
+- **Auth:** Better Auth (`lib/auth.ts`), email + contraseña, sin signup, plugin bearer. Hashes bcrypt de Supabase importados tal cual. `must_change_password` y `last_sign_in_at` son columnas de `user`.
+- **TV pairing:** `app/api/tv-pair/exchange` crea una sesión de Better Auth directamente (sin magic link).
+- **Storage:** `lib/storage.ts` (S3). Subidas del panel y de la app por `POST /api/storage/upload` (límite 100 MB, tipos permitidos). URLs en la base reescritas a `STORAGE_PUBLIC_URL`.
+- **App:** sin `@supabase/supabase-js`; login y sesión por la API (`src/lib/auth.ts`).
+- **Deploy:** `output: 'standalone'`, `Dockerfile`, `/api/health`.
 
 Decidido con Mateo el 2026-10-14: **salir de Supabase del todo** (sitio `inglobal-site` + app `inglobal-agenda-app`, que hoy comparten un proyecto) hacia backend propio en Coolify. Doctrina de referencia (repo `codetlon-cloud`): `.claude/modules/migracion-supabase.md`, `backend-propio.md`, `entornos.md`, `docs/BACKUPS.md`.
 
 Stack destino: Postgres en Coolify (una base por entorno) + Drizzle + Better Auth + bucket S3 (R2 o MinIO). Backups diarios a B2 con simulacro de restauración antes del corte.
 
-**Decisión de auth:** importar los hashes bcrypt de `auth.users` (sin reset masivo). Es una hipótesis hasta probarla: Better Auth hay que configurarlo con `password.hash/verify` propios compatibles con bcrypt y verificar con un usuario real en test. Si no funciona, el plan B es reset obligatorio (ya existe `must_change_password`).
+**Decisión de auth:** importar los hashes bcrypt de `auth.users` (sin reset masivo). Better Auth está configurado con `password.hash/verify` bcrypt (`lib/password.ts`); el hash importado es idéntico al de prod (verificado). Falta confirmar el login con la contraseña real de un usuario en test. Si no funcionara, el plan B es reset obligatorio (`must_change_password`).
 
 Orden de trabajo: fases 1 a 7 en local (Postgres y MinIO en Docker, sin tocar Supabase de prod); la infra de Coolify y el corte (fase 8) van al final.
 

@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test'
 
-// Paridad web/app de la agenda. Solo corre contra el Supabase LOCAL con el seed
-// (npm run db:local:up): necesita la cuenta de prueba y los datos ZZ-PRUEBA.
+// Paridad web/app de la agenda. Solo corre contra el base LOCAL con el seed
+// (npm run db:local:setup): necesita la cuenta de prueba y los datos ZZ-PRUEBA.
 // Activar con E2E_LOCAL_ADMIN=1 y E2E_BASE_URL=http://localhost:<puerto> (el de
 // `npm run dev:local`). Nunca apuntarlo a dev/test/prod. Los tests de transicion
 // de estado modifican datos: correr `npm run db:local:reset` antes de repetirlos.
-test.skip(!process.env.E2E_LOCAL_ADMIN, 'Requiere Supabase local con seed (E2E_LOCAL_ADMIN=1)')
+test.skip(!process.env.E2E_LOCAL_ADMIN, 'Requiere la base local con seed (E2E_LOCAL_ADMIN=1)')
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/dashboard/login')
