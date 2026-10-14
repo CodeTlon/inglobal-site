@@ -7,7 +7,7 @@ No verificado: login con la contraseña real de un usuario migrado (solo se prob
 
 ## Runbook: levantar `test` en Coolify y compararlo con prod
 1. Crear en Coolify (entorno `test`): Postgres 17, MinIO (o bucket R2) con bucket `media` de lectura pública, y la app desde el `Dockerfile` (rama `test`). Variables y build arg `STORAGE_PUBLIC_URL`: ver `ENVIRONMENTS.md`.
-2. Las migraciones corren solas al arrancar la app (`scripts/migrate.mjs`). Alternativa manual: `DATABASE_URL=... npm run db:migrate`.
+2. Las migraciones corren solas al arrancar la app (`instrumentation.ts`). Alternativa manual: `DATABASE_URL=... npm run db:migrate`.
 3. Cargar los datos reales (desde una máquina con acceso a la base y al bucket; **el backup está en `/home/dev1/migracion-prod/<fecha>/`, fuera de git**):
    ```bash
    BACKUP_DIR=/home/dev1/migracion-prod/2026-10-14 DATABASE_URL=<url test> \

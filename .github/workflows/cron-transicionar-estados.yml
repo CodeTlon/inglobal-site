@@ -15,5 +15,5 @@ jobs:
     steps:
       - name: Llamar al endpoint de transición de estados
         run: |
-          curl -sf -X GET "https://inglobal-site-theta.vercel.app/api/agenda/cron/transicionar-estados" \
+          curl -sf -X GET "${{ vars.SITE_URL }}/api/agenda/cron/transicionar-estados" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

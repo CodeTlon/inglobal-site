@@ -14,5 +14,5 @@ jobs:
     steps:
       - name: Llamar al endpoint de notificaciones
         run: |
-          curl -sf -X GET "https://inglobal-site-theta.vercel.app/api/agenda/cron/notificar" \
+          curl -sf -X GET "${{ vars.SITE_URL }}/api/agenda/cron/notificar" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -23,10 +23,9 @@ RUN addgroup -S app && adduser -S app -G app
 COPY --from=build --chown=app:app /app/.next/standalone ./
 COPY --from=build --chown=app:app /app/.next/static ./.next/static
 COPY --from=build --chown=app:app /app/public ./public
-# Migraciones: se aplican al arrancar con `node scripts/migrate.mjs` (ver entrypoint).
+# Migraciones: instrumentation.ts las aplica al arrancar (carpeta drizzle/ en runtime).
 COPY --from=build --chown=app:app /app/drizzle ./drizzle
-COPY --from=build --chown=app:app /app/scripts/migrate.mjs ./scripts/migrate.mjs
 USER app
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
-CMD ["sh", "-c", "node scripts/migrate.mjs && node server.js"]
+CMD ["node", "server.js"]

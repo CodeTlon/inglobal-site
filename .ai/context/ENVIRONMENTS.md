@@ -14,7 +14,7 @@ Flujo: `dev` → `test` → `main`. **Se trabaja siempre en `dev`** (vía ramas 
 
 ## Reglas
 - **Producción tiene datos reales del cliente.** Nunca correr seeds, `db:local:reset` ni `importar-prod --reset` contra homologación o producción en uso.
-- Migraciones: Drizzle (`db/schema.ts` → `drizzle/*.sql`, versionadas en git). El contenedor las aplica al arrancar (`scripts/migrate.mjs`). Una migración que ya corrió en producción no se edita; se agrega una nueva. `drizzle-kit push` solo en local.
+- Migraciones: Drizzle (`db/schema.ts` → `drizzle/*.sql`, versionadas en git). El contenedor las aplica al arrancar (`instrumentation.ts`). Una migración que ya corrió en producción no se edita; se agrega una nueva. `drizzle-kit push` solo en local.
 - Los `.env*` reales no se versionan; solo los `*.example`. Los valores reales viven en Coolify / EAS.
 - `db/seed-local.sql` y las cuentas de prueba son solo para local: `db-local-seed.ts` se niega a correr si `DATABASE_URL` no es localhost.
 
