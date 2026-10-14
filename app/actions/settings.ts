@@ -118,6 +118,7 @@ export async function uploadMediaAction(
     const mime = file.type || ''
     const isVideo = mime === 'video/mp4'
     const isDoc = mime === 'application/pdf'
+    if (mime === 'image/svg+xml') return { error: 'No se admiten archivos SVG. Subí PNG, JPG o WebP.' }
 
     if (isVideo && file.size > MAX_VIDEO_BYTES) return { error: 'El video no puede superar 20 MB.' }
     if (isDoc && file.size > MAX_DOC_BYTES) return { error: 'El documento no puede superar 8 MB.' }

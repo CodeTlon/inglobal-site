@@ -45,6 +45,10 @@ export const auth = betterAuth({
     },
   },
   session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
+  // Rate limit de Better Auth (activo en producción, en memoria de la instancia). El default del
+  // login es 3 intentos cada 10 s por IP, demasiado corto para una oficina detrás de un mismo NAT:
+  // 10 por minuto sigue frenando fuerza bruta sin trabar a quien se equivoca de tecla.
+  rateLimit: { window: 60, max: 100, customRules: { '/sign-in/email': { window: 60, max: 10 } } },
   trustedOrigins: process.env.BETTER_AUTH_TRUSTED_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean),
   databaseHooks: {
     session: {

@@ -62,3 +62,13 @@ La app ahora sube cada foto con un nombre nuevo (uuid) en vez de pisar `<carpeta
 
 ## Rate limit de login
 Better Auth trae rate limit propio en producción (en memoria, por instancia). Con más de una réplica del contenedor no se comparte. Hoy hay una sola.
+
+## Auditoría del sitio migrado (2026-10-14)
+Corregido en esta rama: servicios pegados (HH:MM vs HH:MM:SS) se tomaban como solapados; la API aceptaba crear eventos ya `finalizado`/`cancelado` y fechas/horas sin formato; `tv-pair/start` sin límite; SVG permitido en subidas; HTML sin escapar en el email de contacto; la acción de contacto rompía todo el módulo sin `RESEND_API_KEY`; redirects del middleware con el host interno detrás de un proxy; rate limit de login demasiado corto (3/10 s) para una oficina con un solo NAT.
+Pendiente / a tener en cuenta:
+- El rate limit (login y formularios) es en memoria de la instancia: con más de una réplica no se comparte.
+- `Secure` en la cookie de sesión depende de que `BETTER_AUTH_URL` sea `https://`. Verificar en test.
+- Detrás de Coolify el IP del cliente sale de `x-forwarded-for`: confirmar que el proxy lo setea.
+- `POST /api/auth/check-email` sigue siendo un enumerador de cuentas limitado por IP (diseño heredado de la app; la app nueva no lo usa y se puede borrar).
+- El formulario de contacto no persiste en `contact_leads`; si falla Resend se pierde la consulta.
+- Existe una cuenta `...+applereview@gmail.com` en prod (revisión de Apple): conviene desactivarla cuando termine la revisión.

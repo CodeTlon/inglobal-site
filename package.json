@@ -19,7 +19,7 @@
     "db:local:reset": "node --import tsx scripts/db-local-seed.ts --reset",
     "db:import-prod": "tsx scripts/migracion/importar-prod.ts",
     "dev:local": "node scripts/dev-local.mjs",
-    "test:unit": "tsx --test tests/unit/db.test.ts"
+    "test:unit": "tsx --test tests/unit/*.test.ts"
   },
   "overrides": {
     "sharp": "^0.35.3",

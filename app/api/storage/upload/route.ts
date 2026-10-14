@@ -4,8 +4,8 @@ import { putMedia } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
 
-// Misma lista que usa el panel: imágenes, video y PDF. Nunca ejecutables ni HTML.
-const MIME_PERMITIDOS = /^(image\/(jpeg|png|webp|gif|avif|heic|heif|svg\+xml)|video\/(mp4|webm|quicktime)|application\/pdf)$/
+// Imágenes, video y PDF. Nunca ejecutables, HTML ni SVG (un SVG puede llevar scripts).
+const MIME_PERMITIDOS = /^(image\/(jpeg|png|webp|gif|avif|heic|heif)|video\/(mp4|webm|quicktime)|application\/pdf)$/
 const MAX_BYTES = 100 * 1024 * 1024
 const CARPETA = /^[a-z0-9][a-z0-9/_-]{0,60}$/i
 

@@ -27,11 +27,20 @@ function fechaLocal(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
+// Formatos que Postgres acepta sin error: sin esto, una fecha u hora mal escrita llegaba
+// hasta la base y volvía como un error genérico de servidor.
+const fechaIso = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'La fecha no es válida')
+  .refine((v) => !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) && new Date(`${v}T00:00:00Z`).toISOString().startsWith(v), 'La fecha no es válida')
+const horaHHMM = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/, 'La hora no es válida')
+
 const eventoBase = z.object({
-  fecha:       z.string().min(1, 'La fecha es obligatoria'),
-  fecha_hasta: z.string().nullable().optional(),
-  hora_inicio: z.string().min(1, 'La hora de inicio es obligatoria'),
-  hora_fin:    z.string().nullable().optional(),
+  fecha:       fechaIso,
+  fecha_hasta: z.union([fechaIso, z.literal('')]).nullable().optional(),
+  hora_inicio: horaHHMM,
+  // '' = sin hora de fin (los formularios mandan el campo vacío).
+  hora_fin:    z.union([horaHHMM, z.literal('')]).nullable().optional(),
   grua_id:     z.string().uuid('Seleccioná una grúa'),
   empresa_id:  z.string().uuid('Seleccioná una empresa'),
   ubicacion:   z.string().nullable().optional(),
@@ -73,6 +82,11 @@ export const eventoAgendaSchema = eventoBase.superRefine(validarRangoFechaHora)
 
 /** Para crear: además exige que `fecha` no sea anterior a hoy. */
 export const crearEventoSchema = eventoBase.superRefine((data, ctx) => {
+  // Un evento nuevo solo nace como reserva o programado (el form web y la app ya lo
+  // limitan); finalizado/en_curso/cancelado se alcanzan por transición.
+  if (data.estado !== 'reserva' && data.estado !== 'programado') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['estado'], message: 'Un evento nuevo solo puede ser reserva o programado' })
+  }
   const hoy = fechaLocal(new Date())
   if (data.fecha < hoy) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fecha'], message: 'La fecha no puede ser anterior a hoy' })

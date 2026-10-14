@@ -4,7 +4,11 @@ import { Resend } from 'resend'
 import { createRateLimiter } from '@/lib/rate-limit'
 import { contactSchema } from '@/lib/validations/contact'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Escapa HTML: name/empresa/message vienen de un formulario público y se interpolan en un email
+// HTML hacia la casilla de la empresa — sin esto, cualquiera puede inyectar links o marcado.
+function esc(v: string): string {
+  return v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
 
 // Sin esto el form es spameable sin límite — agota la cuota de envío de Resend
 // o inunda la casilla. Mismo mecanismo que `app/api/auth/check-email/route.ts`
@@ -45,13 +49,21 @@ export async function sendContact(prevState: unknown, formData: FormData) {
   const { name, empresa, email, phone, servicio, ubicacion, message } = parsed.data
   const servicioLabel = servicio ? (serviciosMap[servicio] ?? servicio) : null
 
+  // Se crea acá (no a nivel de módulo): `new Resend(undefined)` lanza, y eso rompía la carga
+  // de la action completa en un entorno sin la clave.
+  if (!process.env.RESEND_API_KEY) {
+    console.error('[contact] falta RESEND_API_KEY: no se puede enviar la consulta')
+    return { error: 'No pudimos enviar tu consulta en este momento. Escribinos o llamanos por teléfono.' }
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
   try {
     // El lead queda registrado en la casilla de cotizacionesinglobalsrl@gmail.com (sin DB)
     await resend.emails.send({
       from: `${process.env.RESEND_FROM_NAME ?? 'InGlobal'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
       to: process.env.COMPANY_EMAIL ?? 'cotizacionesinglobalsrl@gmail.com',
       replyTo: email,
-      subject: `Nueva consulta de ${name}${empresa ? ` — ${empresa}` : ''}`,
+      subject: `Nueva consulta de ${name.replace(/[\r\n]+/g, ' ')}${empresa ? ` — ${empresa.replace(/[\r\n]+/g, ' ')}` : ''}`,
       html: `
         <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 0;">
           <!-- Header -->
@@ -66,40 +78,40 @@ export async function sendContact(prevState: unknown, formData: FormData) {
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; width: 140px; font-weight: 600;">Nombre</td>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${name}</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${esc(name)}</td>
               </tr>
               ${empresa ? `<tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Empresa</td>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${empresa}</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${esc(empresa)}</td>
               </tr>` : ''}
               <tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Email</td>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; font-size: 14px;"><a href="mailto:${email}" style="color: #6f5d00;">${email}</a></td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; font-size: 14px;"><a href="mailto:${esc(email)}" style="color: #6f5d00;">${esc(email)}</a></td>
               </tr>
               ${phone ? `<tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Teléfono</td>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;"><a href="tel:${phone}" style="color: #6f5d00;">${phone}</a></td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;"><a href="tel:${esc(phone)}" style="color: #6f5d00;">${esc(phone)}</a></td>
               </tr>` : ''}
               ${ubicacion ? `<tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Ubicación</td>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${ubicacion}</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #191c1d; font-size: 14px;">${esc(ubicacion)}</td>
               </tr>` : ''}
               ${servicioLabel ? `<tr>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; color: #575d78; font-size: 13px; font-weight: 600;">Servicio</td>
                 <td style="padding: 12px 0; border-bottom: 1px solid #f3f4f5; font-size: 14px;">
-                  <span style="background: #fef9c3; color: #6f5d00; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">${servicioLabel}</span>
+                  <span style="background: #fef9c3; color: #6f5d00; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">${esc(servicioLabel)}</span>
                 </td>
               </tr>` : ''}
             </table>
             <!-- Message -->
             <div style="margin-top: 24px; background: #f8f9fa; border-radius: 8px; padding: 20px;">
               <p style="color: #575d78; font-size: 12px; font-weight: 700; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1px;">Mensaje</p>
-              <p style="color: #191c1d; font-size: 14px; line-height: 1.6; margin: 0;">${message.replace(/\n/g, '<br>')}</p>
+              <p style="color: #191c1d; font-size: 14px; line-height: 1.6; margin: 0;">${esc(message).replace(/\n/g, '<br>')}</p>
             </div>
             <!-- CTA -->
             <div style="margin-top: 28px; text-align: center;">
-              <a href="mailto:${email}" style="background: #f5d100; color: #221b00; padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-block;">
-                Responder a ${name}
+              <a href="mailto:${esc(email)}" style="background: #f5d100; color: #221b00; padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-block;">
+                Responder a ${esc(name)}
               </a>
             </div>
           </div>

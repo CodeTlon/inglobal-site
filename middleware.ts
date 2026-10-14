@@ -6,6 +6,18 @@ import { auth } from '@/lib/auth'
  * Corre en runtime Node (acceso a la base para validar la sesión de verdad,
  * no solo la cookie) — mismo comportamiento que tenía con Supabase Auth.
  */
+/**
+ * Redirect a una ruta del propio sitio. Se arma con la URL pública (BETTER_AUTH_URL), no con
+ * `request.nextUrl`: detrás del proxy de Coolify el host que ve Next es el interno
+ * (localhost / 0.0.0.0) y la redirección mandaba al navegador a una dirección inalcanzable.
+ */
+function redirectTo(request: NextRequest, pathname: string, params?: Record<string, string>) {
+  const base = process.env.BETTER_AUTH_URL ?? request.url
+  const url = new URL(pathname, base)
+  for (const [k, v] of Object.entries(params ?? {})) url.searchParams.set(k, v)
+  return NextResponse.redirect(url)
+}
+
 export async function middleware(request: NextRequest) {
   type U = { id: string; mustChangePassword?: boolean }
   let user: U | null = null
@@ -33,31 +45,19 @@ export async function middleware(request: NextRequest) {
     // Un error de la base (no "sesión inexistente") en la TV no la desloguea: se
     // deja pasar y el refresco de la TV (cada 60s) reintenta.
     if (isAgendaTv && sessionError) return NextResponse.next()
-    const url = request.nextUrl.clone()
-    if (isAgendaTv) {
-      url.pathname = '/agenda-tv/pair'
-    } else {
-      url.pathname = '/dashboard/login'
-      url.searchParams.set('next', path)
-    }
-    return NextResponse.redirect(url)
+    if (isAgendaTv) return redirectTo(request, '/agenda-tv/pair')
+    return redirectTo(request, '/dashboard/login', { next: path })
   }
 
   // Ya autenticado intentando entrar al login → redirigir al dashboard
   if (isLogin && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    url.search = ''
-    return NextResponse.redirect(url)
+    return redirectTo(request, '/dashboard')
   }
 
   // Contraseña temporal (alta nueva o reset) sin cambiar → forzar a cambiarla
   // antes de dejar entrar a cualquier otra ruta del panel.
   if (isDashboard && !isLogin && !isCambiarPassword && user?.mustChangePassword === true) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard/cambiar-password'
-    url.search = ''
-    return NextResponse.redirect(url)
+    return redirectTo(request, '/dashboard/cambiar-password')
   }
 
   return NextResponse.next()

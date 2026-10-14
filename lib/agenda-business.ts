@@ -100,15 +100,22 @@ function formatFechaCorta(fecha: string): string {
 // que esta grúa/operario quedaba libre "en el papel" durante un turno
 // nocturno real (doble reserva posible). `finDiaEfectivo` (lib/agenda-view.ts)
 // ya resuelve esto: usa el día siguiente cuando corresponde.
+// La base devuelve las horas como 'HH:MM:SS' y los formularios las mandan como 'HH:MM'.
+// Comparadas como texto, '12:00' < '12:00:00' (un prefijo es menor), así que dos servicios
+// pegados (uno termina 12:00 y el otro arranca 12:00) se tomaban como solapados.
+function conSegundos(hora: string): string {
+  return hora.length === 5 ? `${hora}:00` : hora
+}
+
 function finInstante(ev: EventoWindow): string {
   const horaFinEfectiva = ev.hora_fin ?? '23:59'
   const finDia = finDiaEfectivo(ev.fecha, ev.fecha_hasta, ev.hora_inicio, horaFinEfectiva)
-  return `${finDia}T${horaFinEfectiva}`
+  return `${finDia}T${conSegundos(horaFinEfectiva)}`
 }
 
 export function rangosSeSolapan(a: EventoWindow, b: EventoWindow): boolean {
-  const inicioA = `${a.fecha}T${a.hora_inicio}`
-  const inicioB = `${b.fecha}T${b.hora_inicio}`
+  const inicioA = `${a.fecha}T${conSegundos(a.hora_inicio)}`
+  const inicioB = `${b.fecha}T${conSegundos(b.hora_inicio)}`
   return inicioA < finInstante(b) && inicioB < finInstante(a)
 }
 
