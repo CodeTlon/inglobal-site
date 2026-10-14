@@ -24,6 +24,8 @@ import {
   catalogDelete as catalogDeleteBusiness,
   gruaDuplicada,
   empresaAgendaDuplicada,
+  reincorporarOperario as reincorporarOperarioBusiness,
+  eliminarOperarioDefinitivo as eliminarOperarioDefinitivoBusiness,
 } from '@/lib/agenda-business'
 
 export type AgendaState = { success?: boolean; error?: string; warning?: string } | undefined
@@ -379,4 +381,35 @@ export async function toggleOperario(prevState: unknown, formData: FormData) {
 }
 export async function deleteOperario(prevState: unknown, formData: FormData) {
   return catalogDelete('operarios', formData)
+}
+
+// ─── Ex operarios (baja lógica) ────────────────────────────────────────────
+// Misma lógica que la app móvil vía /api/agenda/operarios/[id].
+
+export async function reincorporarOperario(prevState: unknown, formData: FormData): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    const id = String(formData.get('id') ?? '').trim()
+    if (!id) return { error: 'ID de operario requerido.' }
+    const result = await reincorporarOperarioBusiness(supabase, id)
+    if (result.error) return { error: result.error }
+    revalidateCatalogos()
+    return { success: true }
+  } catch (e) {
+    return { error: friendlyError(e) }
+  }
+}
+
+export async function deleteOperarioDefinitivo(prevState: unknown, formData: FormData): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    const id = String(formData.get('id') ?? '').trim()
+    if (!id) return { error: 'ID de operario requerido.' }
+    const result = await eliminarOperarioDefinitivoBusiness(supabase, id)
+    if (result.error) return { error: result.error }
+    revalidateCatalogos()
+    return { success: true }
+  } catch (e) {
+    return { error: friendlyError(e) }
+  }
 }

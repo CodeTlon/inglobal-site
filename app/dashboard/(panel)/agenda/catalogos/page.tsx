@@ -5,9 +5,11 @@ import {
   createGrua, updateGrua, toggleGrua, deleteGrua,
   createEmpresaAgenda, updateEmpresaAgenda, toggleEmpresaAgenda, deleteEmpresaAgenda,
   createOperario, updateOperario, toggleOperario, deleteOperario,
+  reincorporarOperario, deleteOperarioDefinitivo,
 } from '@/app/actions/agenda'
 import PageHeader from '@/components/dashboard/PageHeader'
 import CatalogSection from './CatalogSection'
+import ExOperariosSection from './ExOperariosSection'
 import { ArrowLeft } from 'lucide-react'
 
 const TIPO_OPTIONS = TIPOS_GRUA.map((t) => ({ value: t, label: t }))
@@ -15,10 +17,11 @@ const TIPO_EMPRESA_OPTIONS = TIPOS_EMPRESA.map((t) => ({ value: t, label: t === 
 const ROL_OPTIONS = ROLES_OPERARIO.map((r) => ({ value: r, label: r }))
 
 export default async function CatalogosAgendaPage() {
-  const [gruas, empresas, operarios] = await Promise.all([
+  const [gruas, empresas, operarios, exOperarios] = await Promise.all([
     getGruas({ includeInactive: true }),
     getEmpresasAgenda({ includeInactive: true }),
     getOperarios({ includeInactive: true }),
+    getOperarios({ eliminados: true }),
   ])
 
   return (
@@ -99,6 +102,16 @@ export default async function CatalogosAgendaPage() {
           updateAction={updateOperario}
           toggleAction={toggleOperario}
           deleteAction={deleteOperario}
+        />
+
+        <ExOperariosSection
+          items={exOperarios.map((o) => ({
+            id: o.id,
+            nombre: o.nombre,
+            subtitle: [o.roles?.join(', '), o.telefono].filter(Boolean).join(' · ') || undefined,
+          }))}
+          reincorporarAction={reincorporarOperario}
+          deleteAction={deleteOperarioDefinitivo}
         />
       </div>
     </div>
