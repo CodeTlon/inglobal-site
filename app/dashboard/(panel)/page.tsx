@@ -1,16 +1,27 @@
 import Link from 'next/link'
 import { getMontajes, getClientes, getServicios, getSiteSettings } from '@/lib/content'
 import { QUICKLINK_CANDIDATES } from '@/lib/constants'
-import { Building2, Users, Wrench, ArrowRight } from 'lucide-react'
+import { getEventosAgenda } from '@/lib/agenda'
+import { getEstadoVisual, hoyArgentina } from '@/lib/agenda-view'
+import { Building2, Users, Wrench, ArrowRight, CalendarDays, Activity, Clock } from 'lucide-react'
 import AccesosRapidosEditor from '@/components/dashboard/AccesosRapidosEditor'
 
 export default async function DashboardHomePage() {
-  const [montajes, clientes, servicios, quicklinksSettings] = await Promise.all([
+  const hoy = hoyArgentina()
+  const [montajes, clientes, servicios, quicklinksSettings, eventosHoy] = await Promise.all([
     getMontajes({ includeUnpublished: true }),
     getClientes({ includeUnpublished: true }),
     getServicios({ includeUnpublished: true }),
     getSiteSettings('dashboard_quicklinks'),
+    getEventosAgenda({ desde: hoy, hasta: hoy }),
   ])
+
+  const visuales = eventosHoy.map((e) => getEstadoVisual(e))
+  const agendaHoy = [
+    { label: 'Servicios hoy', count: visuales.filter((v) => v !== 'cancelado').length, icon: CalendarDays },
+    { label: 'En curso', count: visuales.filter((v) => v === 'en_curso').length, icon: Activity },
+    { label: 'Pendientes', count: visuales.filter((v) => v === 'reserva' || v === 'programado').length, icon: Clock },
+  ]
 
   // Compat: versiones previas guardaban {href,label}[] en vez de href[].
   const rawItems: unknown[] = Array.isArray(quicklinksSettings.items) ? quicklinksSettings.items : []
@@ -77,6 +88,31 @@ export default async function DashboardHomePage() {
             <p className="text-sm text-zinc-500 font-medium mt-1">{s.label}</p>
           </Link>
         ))}
+      </div>
+
+      {/* Agenda de hoy */}
+      <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-headline font-bold text-zinc-900">Agenda de hoy</h2>
+          <Link
+            href="/dashboard/agenda/calendario"
+            prefetch={false}
+            className="text-sm font-bold text-igb-yellow-dark hover:underline"
+          >
+            Ver calendario
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {agendaHoy.map((k) => (
+            <div key={k.label} className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-3">
+              <k.icon size={18} className="text-zinc-400" />
+              <div>
+                <p className="text-2xl font-headline font-extrabold text-zinc-900 leading-none">{k.count}</p>
+                <p className="text-xs text-zinc-500 font-medium mt-1">{k.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Accesos rápidos */}

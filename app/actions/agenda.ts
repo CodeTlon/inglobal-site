@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getEventoAgendaById } from '@/lib/agenda'
 import { friendlyError } from '@/lib/friendly-error'
 import {
   eventoAgendaSchema,
@@ -10,6 +11,8 @@ import {
   gruaSchema,
   empresaAgendaSchema,
   operarioSchema,
+  ESTADOS_EVENTO,
+  type EstadoEvento,
 } from '@/lib/validations/agenda'
 import {
   type CatalogTable,
@@ -24,6 +27,9 @@ import {
   catalogDelete as catalogDeleteBusiness,
   gruaDuplicada,
   empresaAgendaDuplicada,
+  operarioDuplicado,
+  reincorporarOperario as reincorporarOperarioBusiness,
+  eliminarOperarioDefinitivo as eliminarOperarioDefinitivoBusiness,
 } from '@/lib/agenda-business'
 
 export type AgendaState = { success?: boolean; error?: string; warning?: string } | undefined
@@ -160,14 +166,17 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
 
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
 
-    const errorGrua = await validarGrua(supabase, rest.grua_id)
-    if (errorGrua) return { error: errorGrua }
+    // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
+    if (parsed.data.estado !== 'cancelado') {
+      const errorGrua = await validarGrua(supabase, rest.grua_id)
+      if (errorGrua) return { error: errorGrua }
 
-    const errorOperarios = await validarOperarios(supabase, operarioIds)
-    if (errorOperarios) return { error: errorOperarios }
+      const errorOperarios = await validarOperarios(supabase, operarioIds)
+      if (errorOperarios) return { error: errorOperarios }
 
-    const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
-    if (conflicto) return { error: conflicto }
+      const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
+      if (conflicto) return { error: conflicto }
+    }
 
     const { error } = await supabase
       .from('eventos_agenda')
@@ -184,6 +193,66 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     return { error: friendlyError(e) }
   }
   redirectConSaved(safeFrom(formData.get('from')), 'updated')
+}
+
+/**
+ * Cambio rápido de estado (equivale al PATCH de la app con el evento tal cual y
+ * solo el estado distinto). Pasa por las mismas validaciones que editar: solo
+ * transiciones hacia adelante, finalizado/cancelado no se tocan, y se re-chequea
+ * conflicto de grúa/operarios (p. ej. reserva -> programado).
+ */
+export async function cambiarEstadoEvento(id: string, estado: EstadoEvento): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    if (!id) return { error: 'ID de evento requerido.' }
+    if (!ESTADOS_EVENTO.includes(estado)) return { error: 'Estado inválido.' }
+
+    const evento = await getEventoAgendaById(id, supabase)
+    if (!evento) return { error: 'No se encontró el evento.' }
+    if (!evento.grua_id || !evento.empresa_id) return { error: 'El evento no tiene grúa o empresa asignada.' }
+
+    const parsed = eventoAgendaSchema.safeParse({
+      fecha: evento.fecha,
+      fecha_hasta: evento.fecha_hasta,
+      hora_inicio: evento.hora_inicio,
+      hora_fin: evento.hora_fin,
+      grua_id: evento.grua_id,
+      empresa_id: evento.empresa_id,
+      ubicacion: evento.ubicacion,
+      notas: evento.notas,
+      estado,
+    })
+    if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const { hora_fin, ...rest } = parsed.data
+
+    const errorEdicion = await validarEdicionEvento(supabase, id, { ...rest, hora_fin: hora_fin || null })
+    if (errorEdicion) return { error: errorEdicion }
+
+    const operarioIds = evento.operarios.map((o) => o.id)
+
+    // Mismas validaciones que el PATCH de la app (que manda el evento completo).
+    // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
+    if (estado !== 'cancelado') {
+      const errorGrua = await validarGrua(supabase, rest.grua_id)
+      if (errorGrua) return { error: errorGrua }
+      const errorOperarios = await validarOperarios(supabase, operarioIds)
+      if (errorOperarios) return { error: errorOperarios }
+
+      const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
+      if (conflicto) return { error: conflicto }
+    }
+
+    const { error } = await supabase
+      .from('eventos_agenda')
+      .update({ estado, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) return { error: friendlyError(error) }
+
+    revalidateEventos()
+    return { success: true }
+  } catch (e) {
+    return { error: friendlyError(e) }
+  }
 }
 
 export async function deleteEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {
@@ -349,6 +418,8 @@ export async function createOperario(prevState: unknown, formData: FormData): Pr
     const supabase = await requireUser()
     const parsed = parseOperarioForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const duplicado = await operarioDuplicado(supabase, parsed.data.nombre)
+    if (duplicado) return { error: duplicado }
     const { error } = await supabase.from('operarios').insert(parsed.data)
     if (error) return { error: friendlyError(error) }
     revalidateCatalogos()
@@ -364,6 +435,8 @@ export async function updateOperario(prevState: unknown, formData: FormData): Pr
     if (!id) return { error: 'ID de operario requerido.' }
     const parsed = parseOperarioForm(formData)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const duplicado = await operarioDuplicado(supabase, parsed.data.nombre, id)
+    if (duplicado) return { error: duplicado }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { roles, ...resto } = parsed.data
     const { error } = await supabase.from('operarios').update(formData.has('roles__presente') ? parsed.data : resto).eq('id', id)
@@ -379,4 +452,35 @@ export async function toggleOperario(prevState: unknown, formData: FormData) {
 }
 export async function deleteOperario(prevState: unknown, formData: FormData) {
   return catalogDelete('operarios', formData)
+}
+
+// ─── Ex operarios (baja lógica) ────────────────────────────────────────────
+// Misma lógica que la app móvil vía /api/agenda/operarios/[id].
+
+export async function reincorporarOperario(prevState: unknown, formData: FormData): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    const id = String(formData.get('id') ?? '').trim()
+    if (!id) return { error: 'ID de operario requerido.' }
+    const result = await reincorporarOperarioBusiness(supabase, id)
+    if (result.error) return { error: result.error }
+    revalidateCatalogos()
+    return { success: true }
+  } catch (e) {
+    return { error: friendlyError(e) }
+  }
+}
+
+export async function deleteOperarioDefinitivo(prevState: unknown, formData: FormData): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    const id = String(formData.get('id') ?? '').trim()
+    if (!id) return { error: 'ID de operario requerido.' }
+    const result = await eliminarOperarioDefinitivoBusiness(supabase, id)
+    if (result.error) return { error: result.error }
+    revalidateCatalogos()
+    return { success: true }
+  } catch (e) {
+    return { error: friendlyError(e) }
+  }
 }

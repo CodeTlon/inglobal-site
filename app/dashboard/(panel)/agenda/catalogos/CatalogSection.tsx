@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useFormState } from 'react-dom'
 import { TextField, SelectField, ImageUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
@@ -14,6 +15,9 @@ interface Item {
   nombre: string
   activo: boolean
   subtitle?: string
+  detailHref?: string
+  /** Disponible/Ocupado hoy (solo grúas y operarios activos). */
+  ocupacion?: { kind: 'disponible' | 'ocupado'; detail?: string }
   values?: Record<string, string | number>
 }
 
@@ -32,6 +36,8 @@ interface FieldConfig {
 interface Props {
   title: string
   items: Item[]
+  /** Muestra un buscador por nombre (lo usa Empresas, como la app). */
+  searchable?: boolean
   fields: FieldConfig[]
   createAction: (prevState: unknown, formData: FormData) => Promise<AgendaState>
   updateAction?: (prevState: unknown, formData: FormData) => Promise<AgendaState>
@@ -155,7 +161,27 @@ function CatalogRow({
   return (
     <div className="flex items-center gap-3 border border-zinc-100 rounded-lg px-3 py-2">
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-bold truncate ${item.activo ? 'text-zinc-900' : 'text-zinc-400 line-through'}`}>{item.nombre}</p>
+        <p className={`text-sm font-bold truncate ${item.activo ? 'text-zinc-900' : 'text-zinc-400 line-through'}`}>
+          {item.detailHref ? (
+            <Link href={item.detailHref} prefetch={false} className="hover:underline">{item.nombre}</Link>
+          ) : (
+            item.nombre
+          )}
+        </p>
+        {item.ocupacion && (
+          <p className="mt-0.5">
+            <span
+              className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                item.ocupacion.kind === 'ocupado' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'
+              }`}
+            >
+              {item.ocupacion.kind === 'ocupado' ? 'Ocupado' : 'Disponible'}
+            </span>
+            {item.ocupacion.kind === 'ocupado' && item.ocupacion.detail && (
+              <span className="ml-1.5 text-xs text-zinc-500">{item.ocupacion.detail}</span>
+            )}
+          </p>
+        )}
         {item.subtitle && <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>}
         {toggleError && <p className="text-xs text-red-500 truncate">{toggleError}</p>}
       </div>
@@ -192,8 +218,16 @@ function CatalogRow({
   )
 }
 
-export default function CatalogSection({ title, items, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
+export default function CatalogSection({ title, items, searchable, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
   const [createState, createFormAction] = useFormState(createAction, undefined)
+  const [query, setQuery] = useState('')
+  const norm = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  const filtrados = searchable && query.trim() ? items.filter((i) => norm(i.nombre).includes(norm(query.trim()))) : items
+  // Igual que la app: activos antes que inactivos y, dentro de los activos, disponibles antes que ocupados.
+  const visibles = [...filtrados].sort((a, b) => {
+    if (a.activo !== b.activo) return a.activo ? -1 : 1
+    return Number(a.ocupacion?.kind === 'ocupado') - Number(b.ocupacion?.kind === 'ocupado')
+  })
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -216,8 +250,19 @@ export default function CatalogSection({ title, items, fields, createAction, upd
     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
       <h2 className="font-headline font-bold text-zinc-900 mb-4">{title}</h2>
 
+      {searchable && (
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar por nombre"
+          aria-label={`Buscar en ${title}`}
+          className="w-full mb-3 rounded-md border border-zinc-200 px-3 py-2 text-sm"
+        />
+      )}
+
       <div className="space-y-2 mb-6">
-        {items.map((item) => (
+        {visibles.map((item) => (
           <CatalogRow
             key={item.id}
             item={item}
@@ -227,7 +272,7 @@ export default function CatalogSection({ title, items, fields, createAction, upd
             onRequestDelete={() => setPendingDelete({ id: item.id, nombre: item.nombre })}
           />
         ))}
-        {items.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
+        {visibles.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
       </div>
 
       {(createState?.error || deleteError) && (

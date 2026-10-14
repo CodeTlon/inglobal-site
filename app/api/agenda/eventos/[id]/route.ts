@@ -40,14 +40,17 @@ export async function PATCH(request: Request, { params }: Params) {
 
     const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((v: unknown) => typeof v === 'string') : []
 
-    const errorGrua = await validarGrua(supabase, rest.grua_id)
-    if (errorGrua) return apiError(errorGrua, 409)
+    // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
+    if (parsed.data.estado !== 'cancelado') {
+      const errorGrua = await validarGrua(supabase, rest.grua_id)
+      if (errorGrua) return apiError(errorGrua, 409)
 
-    const errorOperarios = await validarOperarios(supabase, operarioIds)
-    if (errorOperarios) return apiError(errorOperarios, 409)
+      const errorOperarios = await validarOperarios(supabase, operarioIds)
+      if (errorOperarios) return apiError(errorOperarios, 409)
 
-    const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
-    if (conflicto) return apiError(conflicto, 409)
+      const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
+      if (conflicto) return apiError(conflicto, 409)
+    }
 
     const { error } = await supabase
       .from('eventos_agenda')

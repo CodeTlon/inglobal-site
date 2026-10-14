@@ -231,3 +231,34 @@ export function layoutDayEvents<T extends { hora_inicio: string; hora_fin?: stri
 
   return layout
 }
+
+/** "Hoy" en hora de Córdoba (YYYY-MM-DD). El servidor corre en UTC (Vercel): entre las 21:00 y las 23:59 locales `new Date()` ya sería mañana. */
+export function hoyArgentina(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Cordoba' }).format(new Date())
+}
+
+const ESTADOS_VIVOS_OCUPACION = ['reserva', 'programado', 'en_curso']
+
+export type OcupacionCatalogo = { kind: 'disponible' | 'ocupado'; detail?: string }
+
+/**
+ * Disponible/Ocupado de un recurso respecto al día de hoy (misma regla que la app,
+ * `catalog-ocupacion.ts`): ocupado si algún evento VIVO (reserva/programado/en curso)
+ * que abarca hoy lo incluye. "Libera ~HH:MM" usa hora_fin, o 18:00 si no tiene (igual
+ * que la app; el default de hora_fin sigue pendiente de decisión, ver OPEN_QUESTIONS).
+ */
+export function ocupacionHoy(
+  eventos: EventoAgenda[],
+  hoy: string,
+  incluye: (ev: EventoAgenda) => boolean,
+): OcupacionCatalogo {
+  const ev = eventos.find(
+    (e) =>
+      ESTADOS_VIVOS_OCUPACION.includes(e.estado) &&
+      e.fecha <= hoy &&
+      hoy <= (e.fecha_hasta ?? e.fecha) &&
+      incluye(e),
+  )
+  if (!ev) return { kind: 'disponible' }
+  return { kind: 'ocupado', detail: `Libera ~${(ev.hora_fin ?? '18:00').slice(0, 5)}` }
+}

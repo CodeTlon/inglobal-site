@@ -25,3 +25,9 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 - **Hecho y en `main`:** migración 032 aplicada en producción, empresas por tipo, roles y ex operarios (app + sitio + panel web), mejoras de vistas mes/semana/día y TV, Supabase local con seed, documentación de entornos.
 - **Ramas:** `dev` (trabajo), `test` y `main` existen en los dos repos; las tres quedaron emparejadas al cerrar esta tanda.
 - **Pendiente:** (1) Supabase de homologación y su sitio en Vercel (Preview); (2) reclasificar a mano las empresas particulares: la 032 las dejó todas como `frecuente`; (3) decidir la política de `hora_fin` (18:00 vs 23:59); (4) revisar con el seed las vistas semana y día del sitio con el día de 9 servicios y la app móvil en un celular o emulador (solo se revisó la TV mensual y la semana web).
+
+## Paridad web / app en la agenda (2026-10-14, rama `feature/dev1-paridad-web-app`)
+- Se comparo `inglobal-agenda-app` contra el dashboard. Cerradas en el web: ex operarios (listar/reincorporar/borrado definitivo), cambio de estado con transiciones validas, bloqueo de editar/eliminar por estado, alta con `reserva`, detalle por recurso (estadisticas e historial), KPIs de hoy, duplicado de operarios, buscador de empresas.
+- Verificado a mano con Playwright contra Supabase local + seed y con `lint`, `tsc`, `build` y los 24 E2E publicos. El E2E `tests/e2e/dashboard-agenda.spec.ts` solo corre con `E2E_LOCAL_ADMIN=1` contra el Supabase local.
+- Catalogos muestra Disponible/Ocupado de hoy (`ocupacionHoy` en `lib/agenda-view.ts`, igual que `catalog-ocupacion.ts` de la app). Cancelar evento no valida operarios/grua activos.
+- Pendiente: la app todavia no tiene push, exportar ni cambio de password in-app (trabajo en `inglobal-agenda-app`). La app movil no se probo en esta tanda (la prueba es manual de Mateo).

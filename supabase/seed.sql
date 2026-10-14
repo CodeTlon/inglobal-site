@@ -36,7 +36,9 @@ insert into public.operarios (id, nombre, telefono, roles, activo, eliminado_at)
   ('00000000-0000-4000-8002-000000000008', 'ZZ-PRUEBA Hugo sin rol',       null,           '{}',                        true,  null),
   -- Ex operarios (baja lógica): se conservan en el historial de eventos.
   ('00000000-0000-4000-8002-000000000009', 'ZZ-PRUEBA Ex Ignacio',         '351 555-0209', '{Gruista}',                 false, now() - interval '30 days'),
-  ('00000000-0000-4000-8002-000000000010', 'ZZ-PRUEBA Ex Julián',          null,           '{Ayudante}',                false, now() - interval '10 days');
+  ('00000000-0000-4000-8002-000000000010', 'ZZ-PRUEBA Ex Julián',          null,           '{Ayudante}',                false, now() - interval '10 days'),
+  -- Ex operario SIN eventos: permite probar el borrado definitivo exitoso.
+  ('00000000-0000-4000-8002-000000000011', 'ZZ-PRUEBA Ex Sin Eventos',      null,           '{Ayudante}',                false, now() - interval '5 days');
 
 -- Eventos. g = índice de grúa (1-9), e = empresa (1-6), ops = operarios (9 y 10 son ex operarios).
 -- Cuidado: la misma grúa/operario no puede tener eventos que se pisen (restricción + trigger).

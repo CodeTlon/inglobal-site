@@ -47,3 +47,6 @@ La migración 032 hizo `UPDATE empresas_agenda SET tipo = 'frecuente'`. Hay que 
 
 ## Roles de operario fijos
 `ROLES_OPERARIO` está duplicado en `inglobal-site/lib/validations/agenda.ts` y en `inglobal-agenda-app/src/lib/types.ts`. Cambiarlo en un repo exige cambiarlo en el otro.
+
+## "Hoy" del servidor
+Las paginas de agenda usan `toDateInput(new Date())` (hora del servidor, UTC en Vercel). El inicio del panel y los catalogos ya usan hora de Cordoba (`hoyArgentina`); el calendario no.

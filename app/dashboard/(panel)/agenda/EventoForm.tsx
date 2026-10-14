@@ -7,13 +7,22 @@ import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { EventoAgenda, Grua, EmpresaAgenda, Operario } from '@/lib/agenda'
 import { getRecursosOcupados, type AgendaState } from '@/app/actions/agenda'
+import { TRANSICIONES_VALIDAS, type EstadoEvento } from '@/lib/validations/agenda'
 
-const ESTADOS = [
-  { value: 'programado', label: 'Programado' },
-  { value: 'en_curso', label: 'En curso' },
-  { value: 'finalizado', label: 'Finalizado' },
-  { value: 'cancelado', label: 'Cancelado' },
-]
+const ESTADO_LABELS: Record<EstadoEvento, string> = {
+  reserva: 'Reserva',
+  programado: 'Programado',
+  en_curso: 'En curso',
+  finalizado: 'Finalizado',
+  cancelado: 'Cancelado',
+}
+
+// Alta: reserva o programado (igual que la app). Edición: el estado actual más
+// las transiciones válidas hacia adelante; nunca se ofrece volver atrás.
+function estadoOptions(actual?: EstadoEvento) {
+  const values: EstadoEvento[] = actual ? [actual, ...TRANSICIONES_VALIDAS[actual]] : ['reserva', 'programado']
+  return values.map((v) => ({ value: v, label: ESTADO_LABELS[v] }))
+}
 
 // Fecha local en formato YYYY-MM-DD. OJO: d.toISOString() pasa a UTC — con
 // Argentina en UTC-3 eso corre "hoy" un día para adelante entre las 21:00 y
@@ -130,6 +139,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
 
   return (
     <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
+    <fieldset disabled={evento?.estado === 'finalizado' || evento?.estado === 'cancelado'} className="space-y-6 min-w-0 border-0 p-0 m-0">
       {evento && <input type="hidden" name="id" value={evento.id} />}
       <input type="hidden" name="from" value={from ?? ''} />
 
@@ -196,11 +206,12 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
 
       <TextArea label="Notas" name="notas" defaultValue={evento?.notas ?? undefined} rows={3} placeholder="Ej: Coordinar acceso con el encargado de obra antes de las 14hs" />
 
-      <SelectField label="Estado" name="estado" defaultValue={evento?.estado ?? 'programado'} options={ESTADOS} />
+      <SelectField label="Estado" name="estado" defaultValue={evento?.estado ?? 'programado'} options={estadoOptions(evento?.estado as EstadoEvento | undefined)} />
 
       <div className="flex justify-end pt-2">
         <SaveButton />
       </div>
+    </fieldset>
     </form>
   )
 }
