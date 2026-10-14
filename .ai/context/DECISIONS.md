@@ -71,3 +71,6 @@ Decisiones arquitectónicas clave, reconstruidas del código y del historial de 
 - Desarrollo usa Supabase local en Docker con seed ficticio y cuentas de prueba (ver `ENVIRONMENTS.md`). Los scripts locales se niegan a correr contra un Supabase que no sea local.
 - Los archivos de entorno se llaman `.env.staging.example` (no `.env.test`, que Next.js trata como `NODE_ENV=test`).
 - **Commits del sitio SIN `Co-Authored-By: Claude`** (regla del hook de `.claude/settings.json`). Tres commits del 2026-10-01 (`d3dcb68`, `5553c4d`, `548b532`) la llevan por error y ya estaban pusheados; no se reescribió historia.
+
+## 2026-10-14 — El dashboard replica las reglas de la API, no las inventa
+Toda regla nueva del panel (ex operarios, cambio de estado) llama a las funciones de `lib/agenda-business.ts` que usa la API, para que web y app no diverjan. Los botones solo ofrecen lo que el servidor aceptaria (`TRANSICIONES_VALIDAS`); la validacion real sigue siendo del servidor.
