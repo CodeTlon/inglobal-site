@@ -1,4 +1,5 @@
-// Dominio canónico. gruasinglobal.com todavía sirve el sitio viejo (Duda), no
+// Dominio canónico (sitemap, OG, canonical). En Coolify se define con NEXT_PUBLIC_SITE_URL, que
+// entra en el BUILD (build arg del compose). gruasinglobal.com todavía sirve el sitio viejo (Duda), no
 // este build — incluso el deploy de producción de Vercel (rama main, VERCEL_ENV
 // === 'production') corre en su alias *.vercel.app hasta que se haga el cutover
 // de DNS. VERCEL_URL (la inyecta Vercel solo, en todo deployment) siempre apunta
@@ -8,4 +9,4 @@
 // siendo estático en build time, no tira la ruta a render dinámico.
 const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? vercelUrl ?? 'https://gruasinglobal.com'
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || vercelUrl || 'https://gruasinglobal.com'

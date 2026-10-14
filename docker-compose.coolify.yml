@@ -4,6 +4,7 @@
 # Variables que se cargan en Coolify (Environment Variables del recurso):
 #   Obligatorias : BETTER_AUTH_SECRET            (openssl rand -base64 32; distinto por entorno)
 #   Opcionales   : RESEND_API_KEY, RESEND_FROM_EMAIL, RESEND_FROM_NAME, COMPANY_EMAIL
+#                  NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_GA_ID   (entran en el build)
 #                  NEXT_PUBLIC_TRANSCODE_SERVICE_URL, TRANSCODE_SHARED_SECRET
 # La contraseña de Postgres y el CRON_SECRET los genera Coolify (variables mágicas SERVICE_PASSWORD_*).
 # El dominio se asigna en la pestaña del recurso: `app` (puerto 3000). Los archivos subidos viven en el
@@ -18,6 +19,8 @@ services:
       args:
         # Entra a la CSP y a images.remotePatterns en el build.
         STORAGE_PUBLIC_URL: ${SERVICE_URL_APP}/media
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
     restart: unless-stopped
     depends_on:
       db:

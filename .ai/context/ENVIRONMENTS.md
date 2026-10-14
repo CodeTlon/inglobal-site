@@ -39,7 +39,9 @@ Flujo: `dev` → `test` → `main`. **Se trabaja siempre en `dev`** (vía ramas 
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION` | Alternativa a `STORAGE_DIR`: bucket S3-compatible (R2/MinIO). |
 | `STORAGE_PUBLIC_URL` | Base pública de los archivos, sin barra final (con `STORAGE_DIR`: `https://<dominio>/media`). **También como build arg** (entra en CSP e `images.remotePatterns`). |
 | `CRON_SECRET` | Lo comparten la app y el servicio `cron` del compose (lo genera Coolify). Ya no hay workflows de GitHub Actions. |
-| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME` | Formulario de contacto. |
+| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio para canonical, sitemap y Open Graph. **Build arg** (entra en el build). Vacío = `https://gruasinglobal.com`. |
+| `NEXT_PUBLIC_GA_ID` | Google Analytics. **Build arg**. Vacío = sin analytics. |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`, `COMPANY_EMAIL` | Formulario de contacto (mail a la empresa). |
 | `NEXT_PUBLIC_TRANSCODE_SERVICE_URL`, `TRANSCODE_SHARED_SECRET` | Opcionales: servicio de transcode de video (hoy sin desplegar). Escribe a S3, así que con el driver de disco no puede dejar el archivo en el volumen: antes de usarlo, hacer que devuelva el video a la app. |
 
 ## Desarrollo local (Docker)
