@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { X, MapPin, Users, Clock, Building2, Pencil } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
+import EventoEstadoActions from './EventoEstadoActions'
+import type { EstadoEvento } from '@/lib/validations/agenda'
 import { estadoColorClassesLight, formatEstado, getEstadoVisual } from '@/lib/agenda-view'
 
 /**
@@ -62,7 +64,7 @@ export default function AgendaEventModal({
             </p>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            {editHref && (
+            {editHref && !['finalizado', 'cancelado'].includes(evento.estado) && (
               <Link
                 href={editHref}
                 aria-label="Editar evento"
@@ -105,6 +107,11 @@ export default function AgendaEventModal({
           )}
           {evento.notas && (
             <p className="text-zinc-500 pt-3 border-t border-zinc-100">{evento.notas}</p>
+          )}
+          {editHref && (
+            <div className="pt-3 border-t border-zinc-100">
+              <EventoEstadoActions eventoId={evento.id} estado={evento.estado as EstadoEvento} onDone={onClose} />
+            </div>
           )}
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { getEventoAgendaById } from '@/lib/agenda'
 import { friendlyError } from '@/lib/friendly-error'
 import {
   eventoAgendaSchema,
@@ -10,6 +11,8 @@ import {
   gruaSchema,
   empresaAgendaSchema,
   operarioSchema,
+  ESTADOS_EVENTO,
+  type EstadoEvento,
 } from '@/lib/validations/agenda'
 import {
   type CatalogTable,
@@ -186,6 +189,56 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     return { error: friendlyError(e) }
   }
   redirectConSaved(safeFrom(formData.get('from')), 'updated')
+}
+
+/**
+ * Cambio rápido de estado (equivale al PATCH de la app con el evento tal cual y
+ * solo el estado distinto). Pasa por las mismas validaciones que editar: solo
+ * transiciones hacia adelante, finalizado/cancelado no se tocan, y se re-chequea
+ * conflicto de grúa/operarios (p. ej. reserva -> programado).
+ */
+export async function cambiarEstadoEvento(id: string, estado: EstadoEvento): Promise<AgendaState> {
+  try {
+    const supabase = await requireUser()
+    if (!id) return { error: 'ID de evento requerido.' }
+    if (!ESTADOS_EVENTO.includes(estado)) return { error: 'Estado inválido.' }
+
+    const evento = await getEventoAgendaById(id, supabase)
+    if (!evento) return { error: 'No se encontró el evento.' }
+    if (!evento.grua_id || !evento.empresa_id) return { error: 'El evento no tiene grúa o empresa asignada.' }
+
+    const parsed = eventoAgendaSchema.safeParse({
+      fecha: evento.fecha,
+      fecha_hasta: evento.fecha_hasta,
+      hora_inicio: evento.hora_inicio,
+      hora_fin: evento.hora_fin,
+      grua_id: evento.grua_id,
+      empresa_id: evento.empresa_id,
+      ubicacion: evento.ubicacion,
+      notas: evento.notas,
+      estado,
+    })
+    if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
+    const { hora_fin, ...rest } = parsed.data
+
+    const errorEdicion = await validarEdicionEvento(supabase, id, { ...rest, hora_fin: hora_fin || null })
+    if (errorEdicion) return { error: errorEdicion }
+
+    const operarioIds = evento.operarios.map((o) => o.id)
+    const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
+    if (conflicto) return { error: conflicto }
+
+    const { error } = await supabase
+      .from('eventos_agenda')
+      .update({ estado, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) return { error: friendlyError(error) }
+
+    revalidateEventos()
+    return { success: true }
+  } catch (e) {
+    return { error: friendlyError(e) }
+  }
 }
 
 export async function deleteEvento(prevState: unknown, formData: FormData): Promise<AgendaState> {

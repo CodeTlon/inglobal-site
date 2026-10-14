@@ -5,6 +5,8 @@ import { updateEvento, deleteEvento } from '@/app/actions/agenda'
 import PageHeader from '@/components/dashboard/PageHeader'
 import EventoForm from '../EventoForm'
 import DeleteButton from '@/components/dashboard/DeleteButton'
+import EventoEstadoActions from '@/components/agenda/EventoEstadoActions'
+import type { EstadoEvento } from '@/lib/validations/agenda'
 import { ArrowLeft } from 'lucide-react'
 
 interface Props {
@@ -23,6 +25,9 @@ export default async function EventoEditPage({ params, searchParams }: Props) {
   ])
 
   if (!evento) notFound()
+
+  const bloqueado = evento.estado === 'finalizado' || evento.estado === 'cancelado'
+  const puedeEliminar = evento.estado !== 'en_curso' && evento.estado !== 'finalizado'
 
   async function handleDelete(formData: FormData) {
     'use server'
@@ -44,15 +49,33 @@ export default async function EventoEditPage({ params, searchParams }: Props) {
         title={`Editar evento — ${evento.fecha}`}
         description={`${evento.grua?.nombre ?? ''} · ${evento.empresa?.nombre ?? ''}`}
         actions={
-          <form action={handleDelete}>
-            <input type="hidden" name="id" value={evento.id} />
-            <input type="hidden" name="from" value={from ?? ''} />
-            <DeleteButton confirmMessage="¿Eliminar este evento de la agenda? Esta acción no se puede deshacer." />
-          </form>
+          puedeEliminar ? (
+            <form action={handleDelete}>
+              <input type="hidden" name="id" value={evento.id} />
+              <input type="hidden" name="from" value={from ?? ''} />
+              <DeleteButton confirmMessage="¿Eliminar este evento de la agenda? Esta acción no se puede deshacer." />
+            </form>
+          ) : undefined
         }
       />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      {bloqueado && (
+        <p className="mb-4 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600" role="status">
+          Un evento {evento.estado} no puede editarse ni eliminarse: queda como historial.
+        </p>
+      )}
+      {evento.estado === 'en_curso' && (
+        <p className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800" role="status">
+          El evento está en curso: solo se puede cambiar el estado (finalizar o cancelar). No se puede eliminar.
+        </p>
+      )}
+      {!bloqueado && (
+        <div className="mb-4">
+          <EventoEstadoActions eventoId={evento.id} estado={evento.estado as EstadoEvento} />
+        </div>
+      )}
+
+      <div className={`bg-white rounded-xl p-6 border border-zinc-200 shadow-sm ${bloqueado ? 'opacity-60' : ''}`}>
         <EventoForm evento={evento} gruas={gruas} empresas={empresas} operarios={operarios} action={updateEvento} from={from} />
       </div>
     </div>
