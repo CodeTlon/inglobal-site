@@ -1,0 +1,32 @@
+# Backend propio en local (reemplaza al stack de Supabase local). Puertos en el rango de dev1 (41000-41999);
+# ajustalos con DB_PORT / MINIO_PORT / MINIO_CONSOLE_PORT si usás otra cuenta.
+services:
+  db:
+    image: public.ecr.aws/docker/library/postgres:17-alpine
+    environment:
+      POSTGRES_USER: inglobal
+      POSTGRES_PASSWORD: inglobal
+      POSTGRES_DB: inglobal
+    ports:
+      - '127.0.0.1:${DB_PORT:-41510}:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U inglobal']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  minio:
+    image: ghcr.io/coollabsio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: inglobal
+      MINIO_ROOT_PASSWORD: inglobal-secret
+    ports:
+      - '127.0.0.1:${MINIO_PORT:-41511}:9000'
+      - '127.0.0.1:${MINIO_CONSOLE_PORT:-41512}:9001'
+    volumes:
+      - miniodata:/data
+volumes:
+  pgdata:
+  miniodata:
