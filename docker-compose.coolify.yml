@@ -1,0 +1,134 @@
+# Sitio + Postgres + MinIO + cron de agenda, todo en un solo despliegue de Coolify
+# ("Docker Compose" como tipo de recurso, apuntando a este archivo).
+#
+# Variables que se cargan en Coolify (Environment Variables del recurso):
+#   Obligatorias : BETTER_AUTH_SECRET            (openssl rand -base64 32; distinto por entorno)
+#   Opcionales   : RESEND_API_KEY, RESEND_FROM_EMAIL, RESEND_FROM_NAME, COMPANY_EMAIL
+#                  NEXT_PUBLIC_TRANSCODE_SERVICE_URL, TRANSCODE_SHARED_SECRET
+# Las contraseñas de Postgres/MinIO y el CRON_SECRET los genera Coolify (variables mágicas
+# SERVICE_PASSWORD_*). Los dominios se asignan en la pestaña del recurso: `app` (puerto 3000) y
+# `minio` (puerto 9000, es la URL pública de las fotos/videos).
+#
+# Datos de producción: ver `.ai/context/MIGRACION_SUPABASE.md` (perfil `migracion` de este compose).
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        # Entra a la CSP y a images.remotePatterns en el build.
+        STORAGE_PUBLIC_URL: ${SERVICE_URL_MINIO}/media
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      - SERVICE_FQDN_APP_3000
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://inglobal:${SERVICE_PASSWORD_POSTGRES}@db:5432/inglobal
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?Definí BETTER_AUTH_SECRET en las variables del recurso}
+      - BETTER_AUTH_URL=${SERVICE_URL_APP}
+      - S3_ENDPOINT=http://minio:9000
+      - S3_BUCKET=media
+      - S3_REGION=us-east-1
+      - S3_ACCESS_KEY_ID=${SERVICE_USER_MINIO}
+      - S3_SECRET_ACCESS_KEY=${SERVICE_PASSWORD_MINIO}
+      - STORAGE_PUBLIC_URL=${SERVICE_URL_MINIO}/media
+      - CRON_SECRET=${SERVICE_PASSWORD_CRON}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-onboarding@resend.dev}
+      - RESEND_FROM_NAME=${RESEND_FROM_NAME:-Grúas InGlobal}
+      - COMPANY_EMAIL=${COMPANY_EMAIL:-cotizacionesinglobalsrl@gmail.com}
+      - NEXT_PUBLIC_TRANSCODE_SERVICE_URL=${NEXT_PUBLIC_TRANSCODE_SERVICE_URL:-}
+      - TRANSCODE_SHARED_SECRET=${TRANSCODE_SHARED_SECRET:-}
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/api/health || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  db:
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=inglobal
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_DB=inglobal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U inglobal -d inglobal']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: ${MINIO_IMAGE:-ghcr.io/coollabsio/minio:latest}
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - SERVICE_FQDN_MINIO_9000
+      - MINIO_ROOT_USER=${SERVICE_USER_MINIO}
+      - MINIO_ROOT_PASSWORD=${SERVICE_PASSWORD_MINIO}
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      # La imagen de MinIO no trae curl, wget ni grep: se chequea con bash y /dev/tcp.
+      test:
+        - CMD
+        - bash
+        - -c
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /minio/health/live HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && read -r l <&3 && [[ $$l == *200* ]]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Reemplaza a los workflows de GitHub Actions: pega a los crons de la app por la red interna.
+  cron:
+    image: ${CRON_IMAGE:-alpine:3.20}
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - CRON_SECRET=${SERVICE_PASSWORD_CRON}
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          for path in transicionar-estados notificar; do
+            wget -qO- --header="Authorization: Bearer $$CRON_SECRET" "http://app:3000/api/agenda/cron/$$path" >/dev/null 2>&1 \
+              || echo "[cron] $$path falló"
+          done
+          sleep 900
+        done
+
+  # Solo bajo demanda: docker compose --profile migracion run --rm import
+  # Carga el backup de producción (monta ./backup) y deja la base idéntica. Ver MIGRACION_SUPABASE.md.
+  import:
+    profiles: ['migracion']
+    build:
+      context: .
+      target: tools
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://inglobal:${SERVICE_PASSWORD_POSTGRES}@db:5432/inglobal
+      - BACKUP_DIR=/backup
+      - S3_ENDPOINT=http://minio:9000
+      - S3_BUCKET=media
+      - S3_ACCESS_KEY_ID=${SERVICE_USER_MINIO}
+      - S3_SECRET_ACCESS_KEY=${SERVICE_PASSWORD_MINIO}
+      - STORAGE_PUBLIC_URL=${SERVICE_URL_MINIO}/media
+    volumes:
+      - ./backup:/backup:ro
+
+volumes:
+  pgdata:
+  miniodata:

@@ -5,8 +5,9 @@
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return
-  if (process.env.RUN_MIGRATIONS === 'false' || !process.env.DATABASE_URL) return
   if (process.env.NEXT_PHASE === 'phase-production-build') return
+  await prepararBucket()
+  if (process.env.RUN_MIGRATIONS === 'false' || !process.env.DATABASE_URL) return
 
   const path = await import('node:path')
   const { migrate } = await import('drizzle-orm/node-postgres/migrator')
@@ -15,4 +16,16 @@ export async function register() {
 
   await migrate(drizzle({ client: db.pool() }), { migrationsFolder: path.join(process.cwd(), 'drizzle') })
   console.log('[migrate] migraciones al día')
+}
+
+async function prepararBucket() {
+  if (process.env.S3_AUTO_BUCKET === 'false' || !process.env.S3_ENDPOINT) return
+  const { ensureBucket } = await import('@/lib/storage')
+  try {
+    await ensureBucket()
+    console.log('[storage] bucket listo')
+  } catch (e) {
+    // No frena el arranque: el sitio funciona sin archivos y se reintenta en el próximo deploy.
+    console.error('[storage] no se pudo preparar el bucket:', e instanceof Error ? e.message : e)
+  }
 }

@@ -16,6 +16,12 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
+# Herramientas de migración de datos (importar-prod / verificar-paridad). No es la imagen de runtime:
+# docker build --target tools ...  (el compose la usa con el perfil `migracion`).
+FROM build AS tools
+ENV NODE_ENV=development
+CMD ["npx", "tsx", "scripts/migracion/importar-prod.ts"]
+
 FROM public.ecr.aws/docker/library/node:22-alpine AS run
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0

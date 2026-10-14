@@ -20,6 +20,8 @@ import { Pool } from 'pg'
 
 const dir = process.env.BACKUP_DIR as string
 const publicBase = (process.env.STORAGE_PUBLIC_URL ?? '').replace(/\/$/, '')
+// Desde dentro de la red del compose la URL pública no es alcanzable: STORAGE_FETCH_URL = http://minio:9000/media
+const fetchBase = (process.env.STORAGE_FETCH_URL ?? publicBase).replace(/\/$/, '')
 if (!dir || !publicBase) throw new Error('Faltan BACKUP_DIR y STORAGE_PUBLIC_URL')
 
 const SUPABASE_PUBLIC = /https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/media\//g
@@ -73,7 +75,7 @@ async function main() {
   const manifiesto = JSON.parse(fs.readFileSync(path.join(dir, 'storage_manifiesto.json'), 'utf8')) as { name: string; bytes: number; sha256: string }[]
   let okFiles = 0
   for (const m of manifiesto) {
-    const res = await fetch(`${publicBase}/${m.name.split('/').map(encodeURIComponent).join('/')}`).catch(() => null)
+    const res = await fetch(`${fetchBase}/${m.name.split('/').map(encodeURIComponent).join('/')}`).catch(() => null)
     if (!res?.ok) { fail(`archivo ${m.name}: HTTP ${res?.status ?? 'sin respuesta'}`); continue }
     const sha = crypto.createHash('sha256').update(Buffer.from(await res.arrayBuffer())).digest('hex')
     if (sha === m.sha256) okFiles++

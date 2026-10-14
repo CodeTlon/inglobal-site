@@ -7,7 +7,14 @@
  * pasa por el servidor, con credenciales.
  */
 
-import { S3Client, PutObjectCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3'
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectsCommand,
+  HeadBucketCommand,
+  CreateBucketCommand,
+  PutBucketPolicyCommand,
+} from '@aws-sdk/client-s3'
 
 const BUCKET = () => process.env.S3_BUCKET ?? 'media'
 const PUBLIC_BASE = () => (process.env.STORAGE_PUBLIC_URL ?? '').replace(/\/$/, '')
@@ -67,4 +74,27 @@ export async function removeMediaUrls(urls: (string | null | undefined)[]): Prom
     .map(extractStoragePath)
     .filter((p): p is string => Boolean(p))
   await removeMedia(paths)
+}
+
+/**
+ * Deja el bucket listo al arrancar: lo crea si no existe y le pone lectura pública de
+ * objetos (escribir/borrar sigue exigiendo credenciales). Idempotente. Así el
+ * docker-compose no necesita un contenedor extra para inicializar MinIO.
+ */
+export async function ensureBucket(): Promise<void> {
+  const Bucket = BUCKET()
+  try {
+    await s3().send(new HeadBucketCommand({ Bucket }))
+  } catch {
+    await s3().send(new CreateBucketCommand({ Bucket }))
+  }
+  await s3().send(
+    new PutBucketPolicyCommand({
+      Bucket,
+      Policy: JSON.stringify({
+        Version: '2012-10-17',
+        Statement: [{ Effect: 'Allow', Principal: '*', Action: ['s3:GetObject'], Resource: [`arn:aws:s3:::${Bucket}/*`] }],
+      }),
+    }),
+  )
 }

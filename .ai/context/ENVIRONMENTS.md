@@ -18,6 +18,16 @@ Flujo: `dev` → `test` → `main`. **Se trabaja siempre en `dev`** (vía ramas 
 - Los `.env*` reales no se versionan; solo los `*.example`. Los valores reales viven en Coolify / EAS.
 - `db/seed-local.sql` y las cuentas de prueba son solo para local: `db-local-seed.ts` se niega a correr si `DATABASE_URL` no es localhost.
 
+## Despliegue en Coolify: un solo docker compose
+`docker-compose.coolify.yml` levanta todo en un recurso de Coolify (tipo *Docker Compose*): `app` (Next standalone), `db` (Postgres 17), `minio` (archivos) y `cron` (reemplaza a los workflows de GitHub Actions). Validado localmente de cero: arranca sano, migra, crea el bucket y, con el perfil `migracion`, carga el backup de prod y pasa `verificar-paridad`.
+
+1. En Coolify: nuevo recurso → *Docker Compose* → repo `inglobal-site`, rama del entorno, archivo `docker-compose.coolify.yml`.
+2. Variables del recurso: `BETTER_AUTH_SECRET` (obligatoria) y, opcionales, `RESEND_*`, `COMPANY_EMAIL`. Postgres, MinIO y `CRON_SECRET` los genera Coolify.
+3. Dominios: `app` (puerto 3000) = sitio; `minio` (puerto 9000) = URL pública de los archivos (`STORAGE_PUBLIC_URL` sale de ahí + `/media`).
+4. Deploy. La app migra la base y crea el bucket sola al arrancar.
+5. Datos de prod: copiar el backup al servidor como `./backup` junto al compose y correr `docker compose --profile migracion run --rm import` (y luego `... run --rm -e STORAGE_FETCH_URL=http://minio:9000/media import npx tsx scripts/migracion/verificar-paridad.ts`). `backup/` está en `.gitignore`.
+6. Backups de la base: el volumen `pgdata` no se respalda solo; usar `backup-coolify.sh` de `codetlon-cloud` (`docs/BACKUPS.md`), que descubre el contenedor de Postgres.
+
 ## Variables de entorno del sitio (Coolify)
 | Variable | Qué es |
 |---|---|
@@ -27,7 +37,7 @@ Flujo: `dev` → `test` → `main`. **Se trabaja siempre en `dev`** (vía ramas 
 | `BETTER_AUTH_TRUSTED_ORIGINS` | Opcional, CSV de orígenes extra. |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION` | Bucket `media` (MinIO en Coolify o R2). |
 | `STORAGE_PUBLIC_URL` | Base pública del bucket, sin barra final. **También como build arg** (entra en CSP e `images.remotePatterns`). |
-| `CRON_SECRET` | Mismo valor que el secret de GitHub Actions (crons de agenda y notificaciones). |
+| `CRON_SECRET` | Lo comparten la app y el servicio `cron` del compose (lo genera Coolify). Ya no hay workflows de GitHub Actions. |
 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME` | Formulario de contacto. |
 | `NEXT_PUBLIC_TRANSCODE_SERVICE_URL`, `TRANSCODE_SHARED_SECRET` | Opcionales: servicio de transcode de video. El servicio usa `S3_*` y `STORAGE_PUBLIC_URL`. |
 

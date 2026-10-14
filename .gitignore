@@ -55,3 +55,6 @@ www.gruasinglobal.com-*.html
 !/public/videos/opt/
 .env*
 !.env*.example
+
+# Backup de produccion para el perfil `migracion` del compose (datos personales: nunca al repo)
+backup/
