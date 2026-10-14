@@ -39,20 +39,13 @@ const nextConfig = {
     ]
   },
   async headers() {
-    // El servicio de transcode (services/video-transcode, VPS aparte en Coolify) recibe
-    // fetch() directo del navegador (lib/client-upload.ts) cuando está configurado — sin
-    // esto en connect-src, la CSP lo bloquearía y el upload de video caería silenciosamente
-    // al fallback sin comprimir (falla "soft" por diseño, pero mejor no depender de eso).
-    const transcodeUrl = process.env.NEXT_PUBLIC_TRANSCODE_SERVICE_URL
-    const transcodeOrigin = transcodeUrl ? new URL(transcodeUrl).origin : ''
-
     const csp = [
       "default-src 'self'",
       `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com`,
       "style-src 'self' 'unsafe-inline'",
       `img-src 'self' data: blob:${storageOrigin ? ' ' + storageOrigin : ''} https://images.unsplash.com https://i.ytimg.com https://www.googletagmanager.com https://www.google-analytics.com`,
       "font-src 'self' data:",
-      `connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com${transcodeOrigin ? ' ' + transcodeOrigin : ''}`,
+      `connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com`,
       `media-src 'self'${storageOrigin ? ' ' + storageOrigin : ''}`,
       "frame-src 'self' https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com",
       "object-src 'none'",

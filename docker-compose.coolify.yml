@@ -5,7 +5,7 @@
 #   Obligatorias : BETTER_AUTH_SECRET            (openssl rand -base64 32; distinto por entorno)
 #   Opcionales   : RESEND_API_KEY, RESEND_FROM_EMAIL, RESEND_FROM_NAME, COMPANY_EMAIL
 #                  NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_GA_ID   (entran en el build)
-#                  NEXT_PUBLIC_TRANSCODE_SERVICE_URL, TRANSCODE_SHARED_SECRET
+#                  TRANSCODE_SERVICE_URL, TRANSCODE_API_KEY  (servicio global de video)
 # La contraseña de Postgres y el CRON_SECRET los genera Coolify (variables mágicas SERVICE_PASSWORD_*).
 # El dominio se asigna en la pestaña del recurso: `app` (puerto 3000). Los archivos subidos viven en el
 # volumen `storage` y los sirve la propia app en /media (igual que gc2-entrenamiento): sin MinIO.
@@ -38,8 +38,9 @@ services:
       - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-onboarding@resend.dev}
       - RESEND_FROM_NAME=${RESEND_FROM_NAME:-Grúas InGlobal}
       - COMPANY_EMAIL=${COMPANY_EMAIL:-cotizacionesinglobalsrl@gmail.com}
-      - NEXT_PUBLIC_TRANSCODE_SERVICE_URL=${NEXT_PUBLIC_TRANSCODE_SERVICE_URL:-}
-      - TRANSCODE_SHARED_SECRET=${TRANSCODE_SHARED_SECRET:-}
+      # Servicio global de compresión de video (opcional; sin él se guarda el video original).
+      - TRANSCODE_SERVICE_URL=${TRANSCODE_SERVICE_URL:-}
+      - TRANSCODE_API_KEY=${TRANSCODE_API_KEY:-}
     volumes:
       - storage:/data/storage
     healthcheck:

@@ -5,7 +5,7 @@ import sharp from 'sharp'
 import { getSessionUser, getServerDb } from '@/lib/session'
 import { friendlyError } from '@/lib/friendly-error'
 import { extractStoragePath, putMedia, removeMedia } from '@/lib/storage'
-import { transcodeVideo } from '@/lib/video-transcode'
+import { transcodeWithService } from '@/lib/transcode-client'
 import { MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MAX_DOC_BYTES } from '@/lib/upload-limits'
 
 export type SaveState = { success?: boolean; error?: string } | undefined
@@ -100,8 +100,8 @@ export async function updateSiteSettings(
 /**
  * Sube un archivo al bucket `media`.
  * - Imágenes rasterizadas: resize ≤2000px + WebP q=82 via sharp.
- * - video/mp4: re-encodeado server-side (lib/video-transcode.ts) si el runtime tiene
- *   ffmpeg disponible; si no, se sube tal cual (mismo criterio de fallback del script
+ * - video/mp4: comprimido con el servicio global (lib/transcode-client.ts) si está configurado;
+ *   si no, se sube tal cual (mismo criterio de fallback del script
  *   de build — nunca rompe el upload por faltar el binario).
  * - SVG / GIF / PDF: se suben tal cual (sin optimización).
  *
@@ -157,7 +157,8 @@ export async function uploadMediaAction(
       ext         = 'webp'
       contentType = 'image/webp'
     } else if (isVideo) {
-      buf         = await transcodeVideo(original)
+      // Servicio global de compresión; sin él (o si falla) se guarda el original.
+      buf         = (await transcodeWithService(original, 'hero')) ?? original
       ext         = 'mp4'
       contentType = 'video/mp4'
     } else {

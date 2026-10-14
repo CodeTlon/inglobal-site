@@ -1,5 +1,4 @@
 import { friendlyError } from '@/lib/friendly-error'
-import { getTranscodeUploadInfo } from '@/app/actions/transcode'
 
 /**
  * Sube un archivo al bucket `media` desde el navegador pasando por
@@ -9,10 +8,13 @@ import { getTranscodeUploadInfo } from '@/app/actions/transcode'
 export async function uploadDirectToStorage(
   file: File,
   folder: string,
+  opts: { transcode?: 'hero' | 'web' | 'mobile' } = {},
 ): Promise<{ url?: string; error?: string }> {
   const body = new FormData()
   body.append('file', file)
   body.append('folder', folder)
+  // El servidor comprime el video con el servicio global (soft-fail: si no está, guarda el original).
+  if (opts.transcode) body.append('transcode', opts.transcode)
   try {
     const res = await fetch('/api/storage/upload', { method: 'POST', body })
     const json = await res.json().catch(() => ({}))
@@ -24,38 +26,13 @@ export async function uploadDirectToStorage(
 }
 
 /**
- * Sube un video pasando primero por el servicio de transcode del VPS
- * (services/video-transcode) — recomprime H.264 CRF20 sin audio antes de
- * guardarlo en el bucket. Si el servicio no está configurado, no responde o
- * el token vence, cae a `uploadDirectToStorage` (sube el video tal cual,
- * mismo comportamiento que antes de este servicio existir) — nunca bloquea
- * la subida por un problema del VPS.
+ * Sube un video y deja que el servidor lo comprima con el servicio global de compresión
+ * (codetlon-cloud/templates/video-transcode), preset `hero`: H.264 sin audio, hasta 1920 px.
+ * Si el servicio no está configurado o falla, se guarda el original — nunca bloquea la subida.
  */
 export async function uploadVideoWithTranscode(
   file: File,
   folder: string,
 ): Promise<{ url?: string; error?: string }> {
-  const info = await getTranscodeUploadInfo().catch(() => null)
-  if (!info) return uploadDirectToStorage(file, folder)
-
-  const body = new FormData()
-  body.append('file', file)
-  body.append('folder', folder)
-
-  let res: Response
-  try {
-    res = await fetch(`${info.url}/transcode`, {
-      method: 'POST',
-      headers: { 'x-transcode-token': info.token },
-      body,
-    })
-  } catch {
-    return uploadDirectToStorage(file, folder)
-  }
-
-  if (!res.ok) return uploadDirectToStorage(file, folder)
-
-  const data = await res.json().catch(() => null)
-  if (!data?.url) return uploadDirectToStorage(file, folder)
-  return { url: data.url }
+  return uploadDirectToStorage(file, folder, { transcode: 'hero' })
 }

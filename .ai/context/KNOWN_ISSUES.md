@@ -73,3 +73,6 @@ Pendiente / a tener en cuenta:
 - Contacto: la consulta se guarda siempre en `contact_leads` (visible en `/dashboard/consultas`) y el mail es aviso; `email_enviado=false` marca los que no salieron. El SDK de Resend no lanza ante errores de la API (devuelve `{error}`): el código original los daba por enviados.
 - Resend: con `onboarding@resend.dev` solo se puede enviar al email dueño de la cuenta; para enviar a la empresa hay que verificar un dominio (gruasinglobal.com) y usar un remitente de ese dominio.
 - Existe una cuenta `...+applereview@gmail.com` en prod (revisión de Apple): conviene desactivarla cuando termine la revisión.
+
+## Compresión de video (2026-10-14)
+El servicio propio `services/video-transcode` se eliminó: ahora es un servicio **global** (`codetlon-cloud/templates/video-transcode`) que llama el servidor con `TRANSCODE_SERVICE_URL` + `TRANSCODE_API_KEY`. Soft-fail: sin servicio, el video se guarda sin comprimir. Hoy no hay una instancia desplegada; hasta entonces los videos suben tal cual (tope 20 MB desde el panel). El video del hero actual ya está optimizado (`npm run optimize:video`).

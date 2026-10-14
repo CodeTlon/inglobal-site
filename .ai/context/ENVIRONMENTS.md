@@ -42,7 +42,7 @@ Flujo: `dev` → `test` → `main`. **Se trabaja siempre en `dev`** (vía ramas 
 | `NEXT_PUBLIC_SITE_URL` | URL pública del sitio para canonical, sitemap y Open Graph. **Build arg** (entra en el build). Vacío = `https://gruasinglobal.com`. |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics. **Build arg**. Vacío = sin analytics. |
 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`, `COMPANY_EMAIL` | Formulario de contacto (mail a la empresa). |
-| `NEXT_PUBLIC_TRANSCODE_SERVICE_URL`, `TRANSCODE_SHARED_SECRET` | Opcionales: servicio de transcode de video (hoy sin desplegar). Escribe a S3, así que con el driver de disco no puede dejar el archivo en el volumen: antes de usarlo, hacer que devuelva el video a la app. |
+| `TRANSCODE_SERVICE_URL`, `TRANSCODE_API_KEY` | Opcionales: servicio **global** de compresión de video (`codetlon-cloud/templates/video-transcode`, una instancia para todos los proyectos). Server-to-server; sin ellos el video se guarda sin comprimir. |
 
 ## Desarrollo local (Docker)
 Requisitos: Docker, Node 22, y `inglobal-agenda-app` clonada al lado de este repo.
