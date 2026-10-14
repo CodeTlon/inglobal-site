@@ -28,6 +28,16 @@ Flujo: `dev` → `test` → `main`. **Se trabaja siempre en `dev`** (vía ramas 
 5. Datos de prod: copiar el backup al servidor como `./backup` junto al compose y correr `docker compose --profile migracion run --rm import` (y luego `... run --rm -e STORAGE_FETCH_URL=http://minio:9000/media import npx tsx scripts/migracion/verificar-paridad.ts`). `backup/` está en `.gitignore`.
 6. Backups: los volúmenes `pgdata` (base) y `storage` (archivos) no se respaldan solos; usar `backup-coolify.sh` de `codetlon-cloud` (`docs/BACKUPS.md`), que descubre el contenedor de Postgres y puede incluir el volumen de archivos (tar).
 
+### Cargar y verificar los datos de producción (sin depender del compose de Coolify)
+Con el sitio ya desplegado, en el servidor de Coolify (la carpeta `backup/` y el script en el mismo directorio):
+```bash
+CT=$(docker ps -qf "name=app-<UUID-DEL-RECURSO>")
+docker cp backup $CT:/tmp/backup
+docker cp importar-en-contenedor.cjs $CT:/tmp/importar.cjs
+docker exec -u root -e NODE_PATH=/app/node_modules $CT node /tmp/importar.cjs /tmp/backup
+```
+Se niega a pisar una base con usuarios salvo `--reset`, e imprime `PARIDAD COMPLETA` si tablas, hashes y archivos (sha256) coinciden con el backup. Después, desde cualquier máquina: `node scripts/migracion/comparar-sitios.mjs <URL-vercel-prod> <URL-test>` compara texto, metadatos y archivos de todas las rutas públicas.
+
 ## Variables de entorno del sitio (Coolify)
 | Variable | Qué es |
 |---|---|
