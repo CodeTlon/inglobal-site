@@ -19,6 +19,7 @@ import {
   UserCog,
   CalendarClock,
   CalendarDays,
+  Inbox,
   Menu,
   X,
 } from 'lucide-react'
@@ -58,6 +59,7 @@ const navSections = [
     links: [
       { href: '/dashboard/agenda', label: 'Agenda de Grúas', icon: CalendarClock, exact: true },
       { href: '/dashboard/agenda/calendario', label: 'Calendario (solo lectura)', icon: CalendarDays },
+      { href: '/dashboard/consultas', label: 'Consultas', icon: Inbox },
     ],
   },
   {

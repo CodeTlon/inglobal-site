@@ -105,7 +105,10 @@ export const contactLeads = pgTable('contact_leads', {
   email: text('email').notNull(),
   phone: text('phone'),
   servicio: text('servicio'),
+  ubicacion: text('ubicacion'),
   message: text('message').notNull(),
+  // true cuando el aviso por mail a la empresa salió; false = solo está en el panel.
+  emailEnviado: boolean('email_enviado').notNull().default(false),
 })
 
 export const siteSettings = pgTable('site_settings', {

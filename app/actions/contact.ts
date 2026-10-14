@@ -2,6 +2,7 @@
 import { headers } from 'next/headers'
 import { Resend } from 'resend'
 import { createRateLimiter } from '@/lib/rate-limit'
+import { db } from '@/lib/db'
 import { contactSchema } from '@/lib/validations/contact'
 
 // Escapa HTML: name/empresa/message vienen de un formulario público y se interpolan en un email
@@ -49,17 +50,33 @@ export async function sendContact(prevState: unknown, formData: FormData) {
   const { name, empresa, email, phone, servicio, ubicacion, message } = parsed.data
   const servicioLabel = servicio ? (serviciosMap[servicio] ?? servicio) : null
 
-  // Se crea acá (no a nivel de módulo): `new Resend(undefined)` lanza, y eso rompía la carga
-  // de la action completa en un entorno sin la clave.
-  if (!process.env.RESEND_API_KEY) {
-    console.error('[contact] falta RESEND_API_KEY: no se puede enviar la consulta')
-    return { error: 'No pudimos enviar tu consulta en este momento. Escribinos o llamanos por teléfono.' }
-  }
-  const resend = new Resend(process.env.RESEND_API_KEY)
-
+  // 1) La consulta se guarda SIEMPRE en la base: si el envío del mail falla (clave, cuota,
+  //    caída de Resend) no se pierde y queda visible en el panel (/dashboard/consultas).
+  let leadId: string | null = null
   try {
-    // El lead queda registrado en la casilla de cotizacionesinglobalsrl@gmail.com (sin DB)
-    await resend.emails.send({
+    const { data, error } = await db
+      .from('contact_leads')
+      .insert({ name, empresa: empresa || null, email, phone: phone || null, servicio: servicio || null, ubicacion: ubicacion || null, message })
+      .select('id')
+      .single()
+    if (error) console.error('[contact] no se pudo guardar la consulta:', error.message)
+    else leadId = data.id
+  } catch (err) {
+    console.error('[contact] no se pudo guardar la consulta:', err)
+  }
+
+  // 2) Aviso por mail a la empresa. `new Resend(undefined)` lanza, por eso se crea acá y no
+  //    a nivel de módulo.
+  let emailed = false
+  if (!process.env.RESEND_API_KEY) {
+    console.error('[contact] falta RESEND_API_KEY: la consulta se guardó pero no se envió el mail')
+  } else {
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    try {
+      // OJO: el SDK de Resend NO lanza ante un fallo de la API (403 por dominio sin verificar,
+      // cuota, clave inválida): devuelve `{ error }`. Sin chequearlo, un mail que nunca salió
+      // se daba por enviado.
+      const { error: sendError } = await resend.emails.send({
       from: `${process.env.RESEND_FROM_NAME ?? 'InGlobal'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
       to: process.env.COMPANY_EMAIL ?? 'cotizacionesinglobalsrl@gmail.com',
       replyTo: email,
@@ -122,10 +139,20 @@ export async function sendContact(prevState: unknown, formData: FormData) {
         </div>
       `,
     })
+      if (sendError) throw new Error(`${sendError.name}: ${sendError.message}`)
+      emailed = true
+    } catch (err) {
+      console.error('[contact] error al enviar el mail:', err)
+    }
+  }
 
-    return { success: true }
-  } catch (err) {
-    console.error('Contact form error:', err)
+  if (leadId && emailed) {
+    await db.from('contact_leads').update({ email_enviado: true }).eq('id', leadId)
+  }
+
+  // Éxito si la consulta quedó guardada o salió el mail; error solo si no pasó ninguna de las dos.
+  if (!leadId && !emailed) {
     return { error: 'Hubo un error al enviar tu consulta. Intentá de nuevo o comunicate por WhatsApp.' }
   }
+  return { success: true }
 }

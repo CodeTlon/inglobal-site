@@ -22,6 +22,13 @@
       "when": 1791993043161,
       "tag": "0002_usuario_ultimo_ingreso",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791998772335,
+      "tag": "0003_contact_leads_ubicacion_email",
+      "breakpoints": true
     }
   ]
 }

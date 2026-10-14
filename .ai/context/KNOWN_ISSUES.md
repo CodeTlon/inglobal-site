@@ -70,5 +70,6 @@ Pendiente / a tener en cuenta:
 - `Secure` en la cookie de sesión depende de que `BETTER_AUTH_URL` sea `https://`. Verificar en test.
 - Detrás de Coolify el IP del cliente sale de `x-forwarded-for`: confirmar que el proxy lo setea.
 - `POST /api/auth/check-email` sigue siendo un enumerador de cuentas limitado por IP (diseño heredado de la app; la app nueva no lo usa y se puede borrar).
-- El formulario de contacto no persiste en `contact_leads`; si falla Resend se pierde la consulta.
+- Contacto: la consulta se guarda siempre en `contact_leads` (visible en `/dashboard/consultas`) y el mail es aviso; `email_enviado=false` marca los que no salieron. El SDK de Resend no lanza ante errores de la API (devuelve `{error}`): el código original los daba por enviados.
+- Resend: con `onboarding@resend.dev` solo se puede enviar al email dueño de la cuenta; para enviar a la empresa hay que verificar un dominio (gruasinglobal.com) y usar un remitente de ese dominio.
 - Existe una cuenta `...+applereview@gmail.com` en prod (revisión de Apple): conviene desactivarla cuando termine la revisión.
