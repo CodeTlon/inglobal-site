@@ -6,6 +6,8 @@ Stack destino: Postgres en Coolify (una base por entorno) + Drizzle + Better Aut
 
 **Decisión de auth:** importar los hashes bcrypt de `auth.users` (sin reset masivo). Es una hipótesis hasta probarla: Better Auth hay que configurarlo con `password.hash/verify` propios compatibles con bcrypt y verificar con un usuario real en test. Si no funciona, el plan B es reset obligatorio (ya existe `must_change_password`).
 
+Orden de trabajo: fases 1 a 7 en local (Postgres y MinIO en Docker, sin tocar Supabase de prod); la infra de Coolify y el corte (fase 8) van al final.
+
 Regla de Oro #7: crear recursos en Coolify/Vercel, mover credenciales y hacer el corte lo hace Mateo; el código, scripts y guías los genera Claude.
 
 ## Inventario (2026-10-14)
@@ -21,7 +23,7 @@ Regla de Oro #7: crear recursos en Coolify/Vercel, mover credenciales y hacer el
 
 ## Fases
 
-0. **Prerrequisitos (Mateo):** Postgres test y prod en Coolify con backup a B2; bucket S3; decidir hosting del sitio (doctrina v2.13: proyecto con base va a Coolify).
+0. **Infra en Coolify (Mateo, AL FINAL):** decidido que todo queda en Coolify (sitio, base y storage) con dos entornos, test y prod, backup a B2. Se crea recién cuando el código esté listo. Mientras tanto se desarrolla y ensaya contra un Postgres local (Docker rootless de dev1) y MinIO local.
 1. **Esquema y datos:** `pg_dump --schema-only` de `public`; sanear (sin policies/RLS, sin FK a `auth.users`, sin `auth.uid()`, `gen_random_uuid()`); baseline Drizzle; migración de datos de referencia; restaurar datos en test y validar conteos. Incluir `push_tokens` y `notificaciones_enviadas` (migración 033).
 2. **Capa de datos:** reemplazar `supabase.from` por Drizzle detrás de las funciones de `lib/*` existentes (misma firma), sin tocar UI.
 3. **Auth servidor:** Better Auth + importación de hashes; reemplazar `getUser`/middleware/Server Actions; `users.ts` (alta, reset, listado) y `must_change_password`.
