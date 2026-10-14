@@ -2,15 +2,9 @@ import Link from 'next/link'
 import { getMontajes, getClientes, getServicios, getSiteSettings } from '@/lib/content'
 import { QUICKLINK_CANDIDATES } from '@/lib/constants'
 import { getEventosAgenda } from '@/lib/agenda'
-import { getEstadoVisual } from '@/lib/agenda-view'
+import { getEstadoVisual, hoyArgentina } from '@/lib/agenda-view'
 import { Building2, Users, Wrench, ArrowRight, CalendarDays, Activity, Clock } from 'lucide-react'
 import AccesosRapidosEditor from '@/components/dashboard/AccesosRapidosEditor'
-
-// "Hoy" en hora de Córdoba (en Vercel el servidor corre en UTC: entre las 21:00 y
-// las 23:59 locales new Date() ya sería el día siguiente).
-function hoyArgentina(): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Cordoba' }).format(new Date())
-}
 
 export default async function DashboardHomePage() {
   const hoy = hoyArgentina()

@@ -48,8 +48,5 @@ La migración 032 hizo `UPDATE empresas_agenda SET tipo = 'frecuente'`. Hay que 
 ## Roles de operario fijos
 `ROLES_OPERARIO` está duplicado en `inglobal-site/lib/validations/agenda.ts` y en `inglobal-agenda-app/src/lib/types.ts`. Cambiarlo en un repo exige cambiarlo en el otro.
 
-## Cancelar un evento con un operario inactivo falla (paridad con la API)
-`cambiarEstadoEvento` (web) y el PATCH de la app validan grua y operarios activos tambien al cancelar, asi que un evento con un operario desactivado despues no se puede cancelar hasta reactivarlo o sacarlo. Comportamiento heredado de la API; decidir si cancelar debe saltear esa validacion.
-
 ## "Hoy" del servidor
-Las paginas de agenda usan `toDateInput(new Date())` (hora del servidor, UTC en Vercel). El inicio del panel ya usa hora de Cordoba; el calendario no.
+Las paginas de agenda usan `toDateInput(new Date())` (hora del servidor, UTC en Vercel). El inicio del panel y los catalogos ya usan hora de Cordoba (`hoyArgentina`); el calendario no.

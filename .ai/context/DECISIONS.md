@@ -74,3 +74,6 @@ Decisiones arquitectónicas clave, reconstruidas del código y del historial de 
 
 ## 2026-10-14 — El dashboard replica las reglas de la API, no las inventa
 Toda regla nueva del panel (ex operarios, cambio de estado) llama a las funciones de `lib/agenda-business.ts` que usa la API, para que web y app no diverjan. Los botones solo ofrecen lo que el servidor aceptaria (`TRANSICIONES_VALIDAS`); la validacion real sigue siendo del servidor.
+
+## 2026-10-14 — Cancelar no valida grua/operarios activos ni conflicto
+Un evento se puede cancelar aunque su grua u operarios hayan quedado inactivos (cancelar libera recursos). Aplica al PATCH de la API y a las acciones del dashboard. Inactivar un recurso con eventos vivos ya esta bloqueado (`catalogToggle`), asi que es un caso de borde (datos viejos o cambios por fuera de la app).

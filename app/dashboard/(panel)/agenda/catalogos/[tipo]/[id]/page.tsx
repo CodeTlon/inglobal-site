@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getEventosAgenda, type EventoAgenda } from '@/lib/agenda'
-import { formatEstado, getEstadoVisual, estadoColorClassesLight } from '@/lib/agenda-view'
+import { formatEstado, getEstadoVisual, estadoColorClassesLight, hoyArgentina, ocupacionHoy } from '@/lib/agenda-view'
 import PageHeader from '@/components/dashboard/PageHeader'
 
 export const dynamic = 'force-dynamic'
@@ -42,16 +42,16 @@ export default async function RecursoDetallePage({ params }: { params: Promise<{
   const conteo = (k: string) => conEstado.filter((x) => x.visual === k).length
   const historial = [...conEstado].sort((a, b) => (a.evento.fecha < b.evento.fecha ? 1 : -1))
 
-  const enCurso = conEstado.find((x) => x.visual === 'en_curso')
   const exOperario = tipo === 'operario' && recurso.eliminado_at
   const inactivo = recurso.activo === false
+  const ocupacion = ocupacionHoy(eventos, hoyArgentina(), () => true)
 
   const estadoRecurso = exOperario
     ? 'Ex operario'
     : inactivo
       ? 'Inactivo'
-      : enCurso
-        ? `Ocupado${enCurso.evento.hora_fin ? ` — libera ~${enCurso.evento.hora_fin.slice(0, 5)}` : ''}`
+      : ocupacion.kind === 'ocupado'
+        ? `Ocupado — ${ocupacion.detail?.toLowerCase()}`
         : 'Disponible'
 
   function contraparte(e: EventoAgenda): string {

@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { getGruas, getEmpresasAgenda, getOperarios } from '@/lib/agenda'
+import { getGruas, getEmpresasAgenda, getOperarios, getEventosAgenda } from '@/lib/agenda'
+import { hoyArgentina, ocupacionHoy } from '@/lib/agenda-view'
 import { TIPOS_GRUA, TIPOS_EMPRESA, ROLES_OPERARIO } from '@/lib/validations/agenda'
 import {
   createGrua, updateGrua, toggleGrua, deleteGrua,
@@ -17,11 +18,13 @@ const TIPO_EMPRESA_OPTIONS = TIPOS_EMPRESA.map((t) => ({ value: t, label: t === 
 const ROL_OPTIONS = ROLES_OPERARIO.map((r) => ({ value: r, label: r }))
 
 export default async function CatalogosAgendaPage() {
-  const [gruas, empresas, operarios, exOperarios] = await Promise.all([
+  const hoy = hoyArgentina()
+  const [gruas, empresas, operarios, exOperarios, eventosHoy] = await Promise.all([
     getGruas({ includeInactive: true }),
     getEmpresasAgenda({ includeInactive: true }),
     getOperarios({ includeInactive: true }),
     getOperarios({ eliminados: true }),
+    getEventosAgenda({ desde: hoy, hasta: hoy }),
   ])
 
   return (
@@ -45,6 +48,7 @@ export default async function CatalogosAgendaPage() {
             detailHref: `/dashboard/agenda/catalogos/grua/${g.id}`,
             nombre: g.nombre,
             activo: g.activo,
+            ocupacion: g.activo ? ocupacionHoy(eventosHoy, hoy, (ev) => ev.grua_id === g.id) : undefined,
             subtitle: [g.tipo, g.patente, g.capacidad_toneladas ? `${g.capacidad_toneladas} tn` : null].filter(Boolean).join(' · '),
             values: { nombre: g.nombre, patente: g.patente ?? '', capacidad_toneladas: g.capacidad_toneladas ?? '', tipo: g.tipo, foto_url: g.foto_url ?? '' },
           }))}
@@ -93,6 +97,7 @@ export default async function CatalogosAgendaPage() {
             detailHref: `/dashboard/agenda/catalogos/operario/${o.id}`,
             nombre: o.nombre,
             activo: o.activo,
+            ocupacion: o.activo ? ocupacionHoy(eventosHoy, hoy, (ev) => ev.operarios.some((x) => x.id === o.id)) : undefined,
             subtitle: [o.roles?.join(', '), o.telefono].filter(Boolean).join(' · ') || undefined,
             values: { nombre: o.nombre, telefono: o.telefono ?? '', roles: (o.roles ?? []).join(','), foto_url: o.foto_url ?? '' },
           }))}

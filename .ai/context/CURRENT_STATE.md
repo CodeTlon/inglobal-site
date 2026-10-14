@@ -29,4 +29,5 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 ## Paridad web / app en la agenda (2026-10-14, rama `feature/dev1-paridad-web-app`)
 - Se comparo `inglobal-agenda-app` contra el dashboard. Cerradas en el web: ex operarios (listar/reincorporar/borrado definitivo), cambio de estado con transiciones validas, bloqueo de editar/eliminar por estado, alta con `reserva`, detalle por recurso (estadisticas e historial), KPIs de hoy, duplicado de operarios, buscador de empresas.
 - Verificado a mano con Playwright contra Supabase local + seed y con `lint`, `tsc`, `build` y los 24 E2E publicos. El E2E `tests/e2e/dashboard-agenda.spec.ts` solo corre con `E2E_LOCAL_ADMIN=1` contra el Supabase local.
-- Pendiente: no hay "ocupado/disponible ahora" en la lista de catalogos (solo en el detalle del recurso); la app todavia no tiene push, exportar ni cambio de password in-app (trabajo en `inglobal-agenda-app`).
+- Catalogos muestra Disponible/Ocupado de hoy (`ocupacionHoy` en `lib/agenda-view.ts`, igual que `catalog-ocupacion.ts` de la app). Cancelar evento no valida operarios/grua activos.
+- Pendiente: la app todavia no tiene push, exportar ni cambio de password in-app (trabajo en `inglobal-agenda-app`). La app movil no se probo en esta tanda (la prueba es manual de Mateo).

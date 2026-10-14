@@ -16,6 +16,8 @@ interface Item {
   activo: boolean
   subtitle?: string
   detailHref?: string
+  /** Disponible/Ocupado hoy (solo grúas y operarios activos). */
+  ocupacion?: { kind: 'disponible' | 'ocupado'; detail?: string }
   values?: Record<string, string | number>
 }
 
@@ -166,6 +168,20 @@ function CatalogRow({
             item.nombre
           )}
         </p>
+        {item.ocupacion && (
+          <p className="mt-0.5">
+            <span
+              className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                item.ocupacion.kind === 'ocupado' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'
+              }`}
+            >
+              {item.ocupacion.kind === 'ocupado' ? 'Ocupado' : 'Disponible'}
+            </span>
+            {item.ocupacion.kind === 'ocupado' && item.ocupacion.detail && (
+              <span className="ml-1.5 text-xs text-zinc-500">{item.ocupacion.detail}</span>
+            )}
+          </p>
+        )}
         {item.subtitle && <p className="text-xs text-zinc-400 truncate">{item.subtitle}</p>}
         {toggleError && <p className="text-xs text-red-500 truncate">{toggleError}</p>}
       </div>
@@ -206,7 +222,12 @@ export default function CatalogSection({ title, items, searchable, fields, creat
   const [createState, createFormAction] = useFormState(createAction, undefined)
   const [query, setQuery] = useState('')
   const norm = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-  const visibles = searchable && query.trim() ? items.filter((i) => norm(i.nombre).includes(norm(query.trim()))) : items
+  const filtrados = searchable && query.trim() ? items.filter((i) => norm(i.nombre).includes(norm(query.trim()))) : items
+  // Igual que la app: activos antes que inactivos y, dentro de los activos, disponibles antes que ocupados.
+  const visibles = [...filtrados].sort((a, b) => {
+    if (a.activo !== b.activo) return a.activo ? -1 : 1
+    return Number(a.ocupacion?.kind === 'ocupado') - Number(b.ocupacion?.kind === 'ocupado')
+  })
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
