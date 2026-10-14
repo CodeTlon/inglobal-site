@@ -226,6 +226,13 @@ export async function cambiarEstadoEvento(id: string, estado: EstadoEvento): Pro
     if (errorEdicion) return { error: errorEdicion }
 
     const operarioIds = evento.operarios.map((o) => o.id)
+
+    // Mismas validaciones que el PATCH de la app (que manda el evento completo).
+    const errorGrua = await validarGrua(supabase, rest.grua_id)
+    if (errorGrua) return { error: errorGrua }
+    const errorOperarios = await validarOperarios(supabase, operarioIds)
+    if (errorOperarios) return { error: errorOperarios }
+
     const conflicto = await buscarConflicto(supabase, parsed.data, rest.grua_id, operarioIds, id)
     if (conflicto) return { error: conflicto }
 
