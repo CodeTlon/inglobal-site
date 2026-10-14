@@ -1,13 +1,13 @@
-# Sitio + Postgres + MinIO + cron de agenda, todo en un solo despliegue de Coolify
+# Sitio + Postgres + cron de agenda, todo en un solo despliegue de Coolify
 # ("Docker Compose" como tipo de recurso, apuntando a este archivo).
 #
 # Variables que se cargan en Coolify (Environment Variables del recurso):
 #   Obligatorias : BETTER_AUTH_SECRET            (openssl rand -base64 32; distinto por entorno)
 #   Opcionales   : RESEND_API_KEY, RESEND_FROM_EMAIL, RESEND_FROM_NAME, COMPANY_EMAIL
 #                  NEXT_PUBLIC_TRANSCODE_SERVICE_URL, TRANSCODE_SHARED_SECRET
-# Las contraseñas de Postgres/MinIO y el CRON_SECRET los genera Coolify (variables mágicas
-# SERVICE_PASSWORD_*). Los dominios se asignan en la pestaña del recurso: `app` (puerto 3000) y
-# `minio` (puerto 9000, es la URL pública de las fotos/videos).
+# La contraseña de Postgres y el CRON_SECRET los genera Coolify (variables mágicas SERVICE_PASSWORD_*).
+# El dominio se asigna en la pestaña del recurso: `app` (puerto 3000). Los archivos subidos viven en el
+# volumen `storage` y los sirve la propia app en /media (igual que gc2-entrenamiento): sin MinIO.
 #
 # Datos de producción: ver `.ai/context/MIGRACION_SUPABASE.md` (perfil `migracion` de este compose).
 
@@ -17,12 +17,10 @@ services:
       context: .
       args:
         # Entra a la CSP y a images.remotePatterns en el build.
-        STORAGE_PUBLIC_URL: ${SERVICE_URL_MINIO}/media
+        STORAGE_PUBLIC_URL: ${SERVICE_URL_APP}/media
     restart: unless-stopped
     depends_on:
       db:
-        condition: service_healthy
-      minio:
         condition: service_healthy
     environment:
       - SERVICE_FQDN_APP_3000
@@ -30,12 +28,8 @@ services:
       - DATABASE_URL=postgres://inglobal:${SERVICE_PASSWORD_POSTGRES}@db:5432/inglobal
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?Definí BETTER_AUTH_SECRET en las variables del recurso}
       - BETTER_AUTH_URL=${SERVICE_URL_APP}
-      - S3_ENDPOINT=http://minio:9000
-      - S3_BUCKET=media
-      - S3_REGION=us-east-1
-      - S3_ACCESS_KEY_ID=${SERVICE_USER_MINIO}
-      - S3_SECRET_ACCESS_KEY=${SERVICE_PASSWORD_MINIO}
-      - STORAGE_PUBLIC_URL=${SERVICE_URL_MINIO}/media
+      - STORAGE_DIR=/data/storage
+      - STORAGE_PUBLIC_URL=${SERVICE_URL_APP}/media
       - CRON_SECRET=${SERVICE_PASSWORD_CRON}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-onboarding@resend.dev}
@@ -43,6 +37,8 @@ services:
       - COMPANY_EMAIL=${COMPANY_EMAIL:-cotizacionesinglobalsrl@gmail.com}
       - NEXT_PUBLIC_TRANSCODE_SERVICE_URL=${NEXT_PUBLIC_TRANSCODE_SERVICE_URL:-}
       - TRANSCODE_SHARED_SECRET=${TRANSCODE_SHARED_SECRET:-}
+    volumes:
+      - storage:/data/storage
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/api/health || exit 1']
       interval: 30s
@@ -64,28 +60,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-
-  minio:
-    image: ${MINIO_IMAGE:-ghcr.io/coollabsio/minio:latest}
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      - SERVICE_FQDN_MINIO_9000
-      - MINIO_ROOT_USER=${SERVICE_USER_MINIO}
-      - MINIO_ROOT_PASSWORD=${SERVICE_PASSWORD_MINIO}
-    volumes:
-      - miniodata:/data
-    healthcheck:
-      # La imagen de MinIO no trae curl, wget ni grep: se chequea con bash y /dev/tcp.
-      test:
-        - CMD
-        - bash
-        - -c
-        - |
-          exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /minio/health/live HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && read -r l <&3 && [[ $$l == *200* ]]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   # Reemplaza a los workflows de GitHub Actions: pega a los crons de la app por la red interna.
   cron:
@@ -121,14 +95,13 @@ services:
     environment:
       - DATABASE_URL=postgres://inglobal:${SERVICE_PASSWORD_POSTGRES}@db:5432/inglobal
       - BACKUP_DIR=/backup
-      - S3_ENDPOINT=http://minio:9000
-      - S3_BUCKET=media
-      - S3_ACCESS_KEY_ID=${SERVICE_USER_MINIO}
-      - S3_SECRET_ACCESS_KEY=${SERVICE_PASSWORD_MINIO}
-      - STORAGE_PUBLIC_URL=${SERVICE_URL_MINIO}/media
+      - STORAGE_DIR=/data/storage
+      - STORAGE_PUBLIC_URL=${SERVICE_URL_APP}/media
+      - HOME=/tmp
     volumes:
       - ./backup:/backup:ro
+      - storage:/data/storage
 
 volumes:
   pgdata:
-  miniodata:
+  storage:

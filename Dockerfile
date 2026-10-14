@@ -1,6 +1,6 @@
 # Imagen de producción/test para Coolify (Next.js standalone).
 # Build: docker build -t inglobal-site .
-# Runtime: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, S3_*, STORAGE_PUBLIC_URL, CRON_SECRET, RESEND_*
+# Runtime: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, STORAGE_DIR (o S3_*), STORAGE_PUBLIC_URL, CRON_SECRET, RESEND_*
 FROM public.ecr.aws/docker/library/node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -25,7 +25,9 @@ CMD ["npx", "tsx", "scripts/migracion/importar-prod.ts"]
 FROM public.ecr.aws/docker/library/node:22-alpine AS run
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
-RUN addgroup -S app && adduser -S app -G app
+# uid fijo: el servicio `import` del compose escribe en el mismo volumen con este usuario.
+RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app \
+ && mkdir -p /data/storage && chown app:app /data/storage
 COPY --from=build --chown=app:app /app/.next/standalone ./
 COPY --from=build --chown=app:app /app/.next/static ./.next/static
 COPY --from=build --chown=app:app /app/public ./public

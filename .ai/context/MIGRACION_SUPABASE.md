@@ -6,7 +6,7 @@ Falta solo la infra en Coolify (la crea Mateo) y las pruebas ahí. Verificado: `
 No verificado: login con la contraseña real de un usuario migrado (solo se probó el hash importado y el formato bcrypt), build de la imagen Docker en Coolify, app en dispositivo.
 
 ## Runbook: levantar `test` en Coolify y compararlo con prod
-1. Crear en Coolify (entorno `test`): Postgres 17, MinIO (o bucket R2) con bucket `media` de lectura pública, y la app desde el `Dockerfile` (rama `test`). Variables y build arg `STORAGE_PUBLIC_URL`: ver `ENVIRONMENTS.md`.
+1. Crear en Coolify (entorno `test`) UN recurso Docker Compose con `docker-compose.coolify.yml` (rama `test`): app, Postgres y cron. Archivos en un volumen, sin MinIO. Variables: ver `ENVIRONMENTS.md`.
 2. Las migraciones corren solas al arrancar la app (`instrumentation.ts`). Alternativa manual: `DATABASE_URL=... npm run db:migrate`.
 3. Cargar los datos reales (desde una máquina con acceso a la base y al bucket; **el backup está en `/home/dev1/migracion-prod/<fecha>/`, fuera de git**):
    ```bash
@@ -28,7 +28,7 @@ No verificado: login con la contraseña real de un usuario migrado (solo se prob
 - **Datos:** `lib/db.ts` (capa sobre `pg` con la API de consultas de antes, filas idénticas a PostgREST) + esquema/migraciones Drizzle (`db/schema.ts`, `drizzle/`). Ya no hay RLS: toda mutación pasa por `requireSessionUser()` / `requireApiUser()`.
 - **Auth:** Better Auth (`lib/auth.ts`), email + contraseña, sin signup, plugin bearer. Hashes bcrypt de Supabase importados tal cual. `must_change_password` y `last_sign_in_at` son columnas de `user`.
 - **TV pairing:** `app/api/tv-pair/exchange` crea una sesión de Better Auth directamente (sin magic link).
-- **Storage:** `lib/storage.ts` (S3). Subidas del panel y de la app por `POST /api/storage/upload` (límite 100 MB, tipos permitidos). URLs en la base reescritas a `STORAGE_PUBLIC_URL`.
+- **Storage:** `lib/storage.ts` (disco en un volumen servido por `/media`, o S3 como alternativa). Subidas del panel y de la app por `POST /api/storage/upload` (límite 100 MB, tipos permitidos). URLs en la base reescritas a `STORAGE_PUBLIC_URL`.
 - **App:** sin `@supabase/supabase-js`; login y sesión por la API (`src/lib/auth.ts`).
 - **Deploy:** `output: 'standalone'`, `Dockerfile`, `/api/health`.
 

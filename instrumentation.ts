@@ -19,11 +19,11 @@ export async function register() {
 }
 
 async function prepararBucket() {
-  if (process.env.S3_AUTO_BUCKET === 'false' || !process.env.S3_ENDPOINT) return
+  if (process.env.S3_AUTO_BUCKET === 'false' || (!process.env.STORAGE_DIR && !process.env.S3_ENDPOINT)) return
   const { ensureBucket } = await import('@/lib/storage')
   try {
     await ensureBucket()
-    console.log('[storage] bucket listo')
+    console.log('[storage] almacenamiento listo')
   } catch (e) {
     // No frena el arranque: el sitio funciona sin archivos y se reintenta en el próximo deploy.
     console.error('[storage] no se pudo preparar el bucket:', e instanceof Error ? e.message : e)

@@ -5,8 +5,8 @@
  * Uso:
  *   BACKUP_DIR=/home/dev1/migracion-prod/2026-10-14 \
  *   DATABASE_URL=postgres://... \
- *   S3_ENDPOINT=http://127.0.0.1:41511 S3_BUCKET=media S3_ACCESS_KEY_ID=... S3_SECRET_ACCESS_KEY=... \
- *   STORAGE_PUBLIC_URL=http://127.0.0.1:41511/media \
+ *   STORAGE_DIR=/data/storage            (o, con bucket S3: S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY)
+ *   STORAGE_PUBLIC_URL=https://sitio/media \
  *   npx tsx scripts/migracion/importar-prod.ts [--reset]
  *
  * --reset vacía las tablas de negocio y de usuarios antes de cargar (idempotente).
@@ -99,6 +99,26 @@ async function main() {
 }
 
 async function subirArchivos() {
+  // Driver de disco (docker-compose de Coolify): los archivos van al volumen STORAGE_DIR.
+  const storageDir = process.env.STORAGE_DIR
+  if (storageDir) {
+    const lista = read('storage_objetos.json') as { name: string }[]
+    for (const o of lista) {
+      const dest = path.join(storageDir, o.name)
+      fs.mkdirSync(path.dirname(dest), { recursive: true })
+      fs.copyFileSync(path.join(dir, 'storage', o.name), dest)
+      // Corriendo como root (contenedor `import`), los archivos tienen que quedar del usuario de
+      // la app (uid 10001, ver Dockerfile) para que pueda reemplazarlos y borrarlos.
+      if (process.getuid?.() === 0) {
+        const uid = Number(process.env.STORAGE_UID ?? 10001)
+        let d = path.dirname(dest)
+        while (d.startsWith(storageDir) && d !== storageDir) { fs.chownSync(d, uid, uid); d = path.dirname(d) }
+        fs.chownSync(dest, uid, uid)
+      }
+    }
+    console.log(`archivos copiados a ${storageDir}: ${lista.length}/${lista.length}`)
+    return
+  }
   const endpoint = process.env.S3_ENDPOINT
   const bucket = process.env.S3_BUCKET
   if (!endpoint || !bucket) {
