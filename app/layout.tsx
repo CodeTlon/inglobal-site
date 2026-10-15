@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Manrope, Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -19,19 +19,10 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { SITE_URL } from '@/lib/site'
 import { getSiteSettings } from '@/lib/content'
 
-const manrope = Manrope({
-  subsets: ['latin'],
-  variable: '--font-manrope',
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
-})
+// Fuentes autoalojadas (app/fonts, subset latin): el build no depende de Google Fonts. Ver FONTS.md.
+const manrope = localFont({ src: './fonts/manrope-latin-wght-normal.woff2', weight: '200 800', variable: '--font-manrope', display: 'swap' })
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-  weight: ['300', '400', '500', '600'],
-})
+const inter = localFont({ src: './fonts/inter-latin-wght-normal.woff2', weight: '100 900', variable: '--font-inter', display: 'swap' })
 
 export const viewport: Viewport = {
   width: 'device-width',
