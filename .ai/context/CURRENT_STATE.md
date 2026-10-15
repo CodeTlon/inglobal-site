@@ -19,7 +19,7 @@ Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo e
 ## Prioridades conocidas (no bloqueantes)
 
 - Sin tests de integración ni de RLS — solo 24 E2E de UI (`tests/e2e/inglobal.spec.ts`) y 1 unit test (`services/video-transcode/token.test.mjs`). Ver `.ai/context/KNOWN_ISSUES.md`.
-- Sin CI/CD real — el gate de calidad (`lint && tsc --noEmit && build`) depende de que alguien lo corra a mano antes de mergear/pushear.
+- CI: desde 2026-10-15 `ci.yml` corre lint, `tsc`, `test:unit`, build, audit y E2E en push/PR a `dev`, `test` y `main` (en `dev`/`test`; `main` hereda el CI al promover). Antes no había gate automático.
 
 ## Estado al 2026-10-01 (cierre de la tanda de agenda y entornos)
 - **Hecho y en `main`:** migración 032 aplicada en producción, empresas por tipo, roles y ex operarios (app + sitio + panel web), mejoras de vistas mes/semana/día y TV, Supabase local con seed, documentación de entornos.
@@ -46,4 +46,4 @@ Test en Coolify con datos reales cargados, verificado contra el backup y contra 
 - **Lo que no depende del dominio y se puede hacer ya:** crear el recurso de prod en Coolify (mismo compose, otros secretos, probado por la URL temporal), cargar los datos y archivos reales con el importador (`docker compose --profile migracion run --rm import`) y verificar paridad, dejar el backup a B2 funcionando y el simulacro de restauración, y publicar la versión nueva de la app móvil cuando se defina cómo conviven las versiones viejas.
 - **Hecho y verificado:** `test` corriendo en Coolify con datos reales de prod cargados (13 tablas, 4 usuarios con hash, 27 archivos), 39/40 rutas idénticas en texto y metadatos contra Vercel (ver `PENDIENTES.md`); `next` 15.5.28 y `npm audit` sin altas/críticas de runtime; `tsc` y `build` verdes. `dev` y `test` apuntan al mismo commit.
 - **Pruebas unitarias:** `npm run test:unit` → 8 pasan, 12 salteadas. Las salteadas son de paridad con prod y necesitan `BACKUP_DIR` + `DATABASE_URL` (base cargada); antes fallaban en CI sin datos.
-- **Brechas del estándar CodeTlon:** sin `.github/workflows` (falta CI, `entornos.yml`, `produccion.yml`, `backup-check.yml` de plantilla), `/api/health` sin `started_at`, capa `lib/db.ts` propia en lugar de Drizzle en las consultas (excepción documentada), cron de backup B2 pendiente.
+- **Brechas del estándar CodeTlon:** workflows del estándar agregados el 2026-10-15 (`ci.yml`, `entornos.yml`, `produccion.yml`, `backup-check.yml`; falta confirmar que pasen en GitHub y configurar `TEST_URL`/`PROD_URL`), `/api/health` ya devuelve `started_at`, capa `lib/db.ts` propia en lugar de Drizzle en las consultas (excepción documentada), cron de backup B2 pendiente.
