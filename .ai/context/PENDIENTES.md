@@ -22,7 +22,8 @@ Fuente única de lo que falta. Estado detallado en `CURRENT_STATE.md`; runbook e
 - [ ] Probar en la app móvil un build `preview` con `EXPO_PUBLIC_API_BASE_URL` apuntando al sitio de test (login, subir foto, notificaciones push en dispositivo con build nativo).
 - [ ] Probar a mano en test: formulario de contacto (llegada del mail y `/dashboard/consultas`), vincular una TV (`/agenda-tv/pair`), subir un video desde el panel, cookie `Secure` e IP real detrás del proxy.
 
-## 3. Corte a producción (cuando se decida; no antes)
+## 3. Corte a producción (bloqueado: el cliente todavía no dio acceso al dominio `gruasinglobal.com`)
+> Producción sigue en Vercel + Supabase. Antes del DNS se puede avanzar con el recurso de prod en Coolify, la carga de datos y el backup a B2 (ver `CURRENT_STATE.md`).
 - [ ] Crear el recurso de prod en Coolify (mismo compose, `BETTER_AUTH_SECRET` distinto, claves propias de Resend y del servicio de video).
 - [ ] Pasada delta de datos con un token nuevo de Supabase en la ventana de corte y el sitio viejo en solo lectura (`importar-en-contenedor.cjs --reset`, luego `comparar-sitios.mjs`).
 - [ ] Cambiar el DNS de `gruasinglobal.com`, desconectar Vercel (auto-deploy desde `main`) y recién entonces promover `test` -> `main` por PR.

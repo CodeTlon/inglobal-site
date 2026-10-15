@@ -76,3 +76,8 @@ Pendiente / a tener en cuenta:
 
 ## Compresión de video (2026-10-14)
 El servicio propio `services/video-transcode` se eliminó: ahora es un servicio **global** (`codetlon-cloud/templates/video-transcode`) que llama el servidor con `TRANSCODE_SERVICE_URL` + `TRANSCODE_API_KEY`. Soft-fail: sin servicio, el video se guarda sin comprimir. Hoy no hay una instancia desplegada; hasta entonces los videos suben tal cual (tope 20 MB desde el panel). El video del hero actual ya está optimizado (`npm run optimize:video`).
+
+## Actualización 2026-10-15
+- **Pruebas de paridad con prod** (`tests/unit/db.test.ts`): se saltean sin `BACKUP_DIR` y `DATABASE_URL`. No son un fallo: son herramienta del ensayo/corte. Cuando se dé de baja Supabase hay que archivarlas.
+- **Sin CI en GitHub:** el gate (`lint`, `tsc`, `build`, `npm audit`, E2E) depende de correrlo a mano. Pendiente sumar los workflows de plantilla de `codetlon-cloud/templates/backend-propio/.github/workflows/`.
+- **Dependencias:** `next` 15.5.28. Moderadas restantes solo de herramientas (`esbuild` de `drizzle-kit`), sin parche estable.

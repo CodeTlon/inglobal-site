@@ -40,3 +40,10 @@ Código listo y verificado en local; **no mergeado**. Falta: crear test en Cooli
 
 ## Cierre de sesión 2026-10-14 (migración a Coolify)
 Test en Coolify con datos reales cargados, verificado contra el backup y contra Vercel (ver `PENDIENTES.md`, sección "Dónde quedó todo"). Producción sigue en Vercel + Supabase, intacta. Lo que falta: seguridad inmediata (revocar token de Supabase, cerrar signup), backups de volúmenes, pruebas manuales con la app y el corte. Todo el detalle y las casillas están en `.ai/context/PENDIENTES.md`.
+
+## Actualización 2026-10-15 (estado de la migración a Coolify)
+- **Producción sigue en Vercel + Supabase.** El corte (DNS de `gruasinglobal.com`, desconectar Vercel, Supabase en solo lectura) **espera que el cliente dé acceso al dominio**. Hasta entonces `main` no se toca.
+- **Lo que no depende del dominio y se puede hacer ya:** crear el recurso de prod en Coolify (mismo compose, otros secretos, probado por la URL temporal), cargar los datos y archivos reales con el importador (`docker compose --profile migracion run --rm import`) y verificar paridad, dejar el backup a B2 funcionando y el simulacro de restauración, y publicar la versión nueva de la app móvil cuando se defina cómo conviven las versiones viejas.
+- **Hecho y verificado:** `test` corriendo en Coolify con datos reales de prod cargados (13 tablas, 4 usuarios con hash, 27 archivos), 39/40 rutas idénticas en texto y metadatos contra Vercel (ver `PENDIENTES.md`); `next` 15.5.28 y `npm audit` sin altas/críticas de runtime; `tsc` y `build` verdes. `dev` y `test` apuntan al mismo commit.
+- **Pruebas unitarias:** `npm run test:unit` → 8 pasan, 12 salteadas. Las salteadas son de paridad con prod y necesitan `BACKUP_DIR` + `DATABASE_URL` (base cargada); antes fallaban en CI sin datos.
+- **Brechas del estándar CodeTlon:** sin `.github/workflows` (falta CI, `entornos.yml`, `produccion.yml`, `backup-check.yml` de plantilla), `/api/health` sin `started_at`, capa `lib/db.ts` propia en lugar de Drizzle en las consultas (excepción documentada), cron de backup B2 pendiente.

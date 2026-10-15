@@ -12,7 +12,7 @@ Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúa
 | Validación | Zod **v4** + react-hook-form |
 | Datos | Postgres propio (Coolify) · esquema y migraciones con Drizzle (`db/schema.ts`, `drizzle/`) · consultas vía `lib/db.ts` |
 | Auth | Better Auth (email + contraseña, sin signup, plugin bearer para la app) |
-| Archivos | Bucket S3-compatible (MinIO/R2), `lib/storage.ts` |
+| Archivos | Volumen del servidor servido por `/media` (`lib/storage.ts`; S3-compatible solo como alternativa). Sin MinIO en Coolify |
 | Rich text | TipTap v3 |
 | Email | Resend |
 | Tests | Playwright (E2E) |
