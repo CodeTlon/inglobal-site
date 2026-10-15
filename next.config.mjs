@@ -72,8 +72,8 @@ const nextConfig = {
 
     return [
       {
-        // Aplica a todo el sitio (público + /dashboard). Deploy es siempre Vercel (HTTPS),
-        // por eso HSTS es seguro sin chequeo condicional.
+        // Aplica a todo el sitio (público + /dashboard). El deploy es siempre detrás de TLS
+        // (Coolify/Traefik; Vercel en `main` hasta el corte), por eso HSTS es seguro sin chequeo condicional.
         source: '/:path*',
         headers: securityHeaders,
       },

@@ -1,0 +1,60 @@
+name: CI
+# Gate de calidad: PR a `test` o `main` (y push a esas ramas). `dev` se verifica en local.
+on:
+  pull_request:
+    branches: [test, main]
+  push:
+    branches: [dev, test, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      # Tests unitarios (agenda, db, cliente de transcode).
+      - run: npm run test:unit
+      - run: npm run build   # sin DATABASE_URL real: lib/db.ts usa placeholder y no consulta en build
+        env:
+          BETTER_AUTH_SECRET: ci_placeholder_secret_ci_placeholder_secret
+          BETTER_AUTH_URL: http://localhost:3000
+          RESEND_API_KEY: re_placeholder
+      - run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    name: E2E (3 viewports)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+        env:
+          BETTER_AUTH_SECRET: ci_placeholder_secret_ci_placeholder_secret
+          BETTER_AUTH_URL: http://localhost:3000
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7

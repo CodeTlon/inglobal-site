@@ -1,6 +1,6 @@
 /**
- * Rate limit en memoria del proceso. En Vercel cada instancia serverless tiene
- * el suyo, así que es un guard "best effort", no una garantía dura — alcanza
+ * Rate limit en memoria del proceso. Cada proceso (y cada instancia, si
+ * se escala o corre serverless) tiene el suyo, así que es un guard "best effort", no una garantía dura — alcanza
  * para que un endpoint/action público no sea trivialmente abusable. Si algún
  * día hace falta algo real, mover a Upstash/Redis.
  *
