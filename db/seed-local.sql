@@ -17,6 +17,12 @@ insert into public.gruas (id, nombre, patente, capacidad_toneladas, tipo, activo
   ('00000000-0000-4000-8000-000000000008', 'ZZ-PRUEBA Camión Ford',   'ZZ008AA',  48, 'Camión',    true),
   ('00000000-0000-4000-8000-000000000009', 'ZZ-PRUEBA Grúa inactiva', 'ZZ009AA',  25, 'Grúa',      false);
 
+-- Clientes de la web pública (para /clientes y el E2E de logos). Logos que ya están en public/images/logos.
+insert into public.clientes (id, slug, name, logo, bio, featured, work_rank, published) values
+  ('00000000-0000-4000-8004-000000000001', 'zz-prueba-habika', 'ZZ-PRUEBA Habika', '/images/logos/HABIKA-logo.png', 'Cliente ficticio de desarrollo.', true, 1, true),
+  ('00000000-0000-4000-8004-000000000002', 'zz-prueba-tecsma', 'ZZ-PRUEBA Tecsma', '/images/logos/TECSMA-logo.png', 'Cliente ficticio de desarrollo.', true, 2, true)
+on conflict (slug) do nothing;
+
 insert into public.empresas_agenda (id, nombre, contacto, telefono, notas, tipo, activo) values
   ('00000000-0000-4000-8001-000000000001', 'ZZ-PRUEBA Constructora Sur',   'Laura Gómez',   '351 555-0101', 'Cliente de obra grande',     'frecuente',  true),
   ('00000000-0000-4000-8001-000000000002', 'ZZ-PRUEBA Refinería Centro',   null,            '351 555-0102', null,                         'frecuente',  true),

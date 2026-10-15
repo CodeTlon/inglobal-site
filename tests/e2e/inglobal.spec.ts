@@ -65,9 +65,10 @@ test('página /aviso-legal carga', async ({ page }) => {
 
 test('formulario tiene todos los campos obligatorios', async ({ page }) => {
   await page.goto('/contacto')
-  await expect(page.locator('input[name="name"]')).toBeVisible()
-  await expect(page.locator('input[name="email"]')).toBeVisible()
-  await expect(page.locator('textarea[name="message"]')).toBeVisible()
+  // `.first()`: mientras Suspense resuelve, el formulario de respaldo y el real conviven un instante.
+  await expect(page.locator('input[name="name"]').first()).toBeVisible()
+  await expect(page.locator('input[name="email"]').first()).toBeVisible()
+  await expect(page.locator('textarea[name="message"]').first()).toBeVisible()
   await expect(page.getByRole('button', { name: /enviar/i })).toBeVisible()
 })
 
@@ -129,6 +130,8 @@ test('responsive tablet (768px) — servicios muestra cards', async ({ page }) =
 
 test('responsive tablet (768px) — clientes muestra logos', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 })
+  // El marquee de logos anima sin parar y Playwright espera que el elemento esté estable: con reduced-motion se frena.
+  await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/clientes')
   const logos = page.locator('img[alt*="Logo"]')
   await logos.first().scrollIntoViewIfNeeded()
