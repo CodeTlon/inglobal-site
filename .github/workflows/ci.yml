@@ -45,6 +45,12 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      # El servidor de Playwright usa el build standalone (scripts/start-standalone.mjs): hay que generarlo antes.
+      - run: npm run build
+        env:
+          BETTER_AUTH_SECRET: ci_placeholder_secret_ci_placeholder_secret
+          BETTER_AUTH_URL: http://localhost:3000
+          RESEND_API_KEY: re_placeholder
       - run: npx playwright test
         env:
           BETTER_AUTH_SECRET: ci_placeholder_secret_ci_placeholder_secret
