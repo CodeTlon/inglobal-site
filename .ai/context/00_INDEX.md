@@ -20,3 +20,5 @@ Qué leer según el tipo de tarea. Leé solo lo que necesites — no cargues tod
 | deps / vulnerabilidades, seguridad de código, accesibilidad, CI/CD, observabilidad | Módulos de la fábrica en `codetlon-cloud/.claude/modules/` — ver tabla al final de `AGENTS.md` |
 
 Para QA manual paso a paso: `MANUAL-PRUEBAS.md` (raíz). Para causas raíz de bugs ya resueltos: `.claude/ERRORES.md`. Ninguno de los dos se duplica acá.
+
+| Qué falta de la migración a Coolify (seguridad, test, corte, deuda) | `.ai/context/PENDIENTES.md` |

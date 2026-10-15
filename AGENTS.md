@@ -69,3 +69,6 @@ Este archivo es la entrada corta. El detalle real vive en `.ai/context/` — ver
 | Deps/seguridad/accesibilidad/CI/observabilidad (módulos compartidos de la fábrica) | `codetlon-cloud/.claude/modules/*.md` — leer solo el que aplique a lo que se está tocando |
 
 `.claude/CLAUDE.md` y `ARCHITECTURE.md` (raíz) son ahora stubs cortos que apuntan acá — no son fuente de verdad.
+
+## Pendientes
+Lo que falta de la migración a Coolify (seguridad, test, corte a producción): `.ai/context/PENDIENTES.md`.
