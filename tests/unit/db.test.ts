@@ -10,12 +10,15 @@ import path from 'node:path'
 import { db, parseSelect } from '../../lib/db'
 
 const dir = process.env.BACKUP_DIR!
+// Sin backup de prod (CI, desarrollo normal) no hay contra que comparar: se saltean en vez de fallar. Se usan en el ensayo y el corte.
+const hayBackup = Boolean(process.env.BACKUP_DIR && process.env.DATABASE_URL)
+const omitir = !hayBackup && 'requiere BACKUP_DIR y DATABASE_URL (base cargada con datos de prod)'
 const prod = (t: string) => JSON.parse(fs.readFileSync(path.join(dir, 'tablas', `${t}.json`), 'utf8')) as Record<string, unknown>[]
 const norm = (v: unknown) => JSON.parse(JSON.stringify(v).replace(/https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/media\//g, '@@/').replace(/http:\/\/127\.0\.0\.1:41511\/media\//g, '@@/'))
 const key = (r: Record<string, unknown>) => String(r.id ?? r.key)
 
 for (const t of ['clientes', 'montajes', 'servicios', 'galeria', 'gruas', 'empresas_agenda', 'operarios', 'eventos_agenda', 'site_settings']) {
-  test(`${t}: select('*') idéntico a prod`, async () => {
+  test(`${t}: select('*') idéntico a prod`, { skip: omitir }, async () => {
     const { data, error } = await db.from(t).select('*')
     assert.equal(error, null)
     const a = (norm(data) as Record<string, unknown>[]).sort((x, y) => key(x).localeCompare(key(y)))
@@ -24,7 +27,7 @@ for (const t of ['clientes', 'montajes', 'servicios', 'galeria', 'gruas', 'empre
   })
 }
 
-test('relaciones anidadas como PostgREST', async () => {
+test('relaciones anidadas como PostgREST', { skip: omitir }, async () => {
   const { data, error } = await db
     .from('eventos_agenda')
     .select('*, grua:gruas(nombre), empresa:empresas_agenda(nombre), eventos_operarios(operario:operarios(id, nombre, roles, eliminado_at))')
@@ -36,7 +39,7 @@ test('relaciones anidadas como PostgREST', async () => {
   assert.ok(ev.eventos_operarios.every((eo: { operario: { id: string } }) => typeof eo.operario.id === 'string'))
 })
 
-test('single / maybeSingle / count / filtros', async () => {
+test('single / maybeSingle / count / filtros', { skip: omitir }, async () => {
   const { data: g } = await db.from('gruas').select('id').limit(1)
   const id = g![0].id
   assert.equal((await db.from('gruas').select('id').eq('id', id).single()).data.id, id)
@@ -50,7 +53,7 @@ test('single / maybeSingle / count / filtros', async () => {
   assert.equal((await db.from('operarios').select('id').is('eliminado_at', null).in('activo', [true, false])).error, null)
 })
 
-test('insert/update/upsert/delete con returning y errores de PG', async () => {
+test('insert/update/upsert/delete con returning y errores de PG', { skip: omitir }, async () => {
   const ins = await db.from('empresas_agenda').insert({ nombre: 'ZZ-TEST', tipo: 'particular' }).select('id, nombre, activo, created_at').single()
   assert.equal(ins.error, null)
   assert.equal(ins.data.activo, true) // default
@@ -68,9 +71,10 @@ test('insert/update/upsert/delete con returning y errores de PG', async () => {
 
 test('parseSelect y rechazo de identificadores peligrosos', async () => {
   assert.deepEqual(parseSelect('id, a:gruas(nombre)').embeds[0], { alias: 'a', table: 'gruas', node: { columns: ['nombre'], embeds: [] } })
+  if (omitir) return // lo que sigue consulta la base
   const r = await db.from('gruas').select('id').eq('id; drop table gruas', 'x')
   assert.ok(r.error)
   assert.equal((await db.from('gruas').select('id', { count: 'exact', head: true })).count, 9)
 })
 
-test.after(async () => { await db.pool().end() })
+test.after(async () => { if (!omitir) await db.pool().end() })
