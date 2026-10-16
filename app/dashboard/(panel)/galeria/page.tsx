@@ -29,9 +29,9 @@ export default async function GaleriaDashboardPage() {
             <Link
               key={item.id}
               href={`/dashboard/galeria/${item.id}`}
-              className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
+              className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
             >
-              <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-100 relative">
+              <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-zinc-100 relative">
                 <Image
                   src={isRemote ? item.imagen : `/images/opt/${item.imagen}-md.webp`}
                   alt={item.alt}

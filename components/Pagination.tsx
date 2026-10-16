@@ -20,7 +20,7 @@ export default function Pagination({
         onClick={() => onChange(page - 1)}
         disabled={page === 1}
         aria-label="Página anterior"
-        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all hover:border-igb-yellow-dark/40 hover:bg-zinc-50 active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-200 disabled:hover:bg-white disabled:active:scale-100"
+        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all hover:border-igb-yellow-dark/40 hover:bg-zinc-50 active:scale-90 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-200 disabled:hover:bg-white disabled:active:scale-100"
       >
         <ChevronLeft size={16} className="text-zinc-500" />
       </button>
@@ -36,7 +36,7 @@ export default function Pagination({
             onClick={() => onChange(p as number)}
             aria-label={`Ir a la página ${p}`}
             aria-current={p === page ? 'page' : undefined}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold transition-all border active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow ${
+            className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold transition-all border active:scale-90 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow ${
               p === page
                 ? 'bg-igb-yellow border-igb-yellow text-igb-on-yellow'
                 : 'bg-white border-zinc-200 text-zinc-500 hover:border-igb-yellow-dark/40 hover:text-igb-yellow-dark'
@@ -51,7 +51,7 @@ export default function Pagination({
         onClick={() => onChange(page + 1)}
         disabled={page === totalPages}
         aria-label="Página siguiente"
-        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all hover:border-igb-yellow-dark/40 hover:bg-zinc-50 active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-200 disabled:hover:bg-white disabled:active:scale-100"
+        className="w-9 h-9 rounded-lg flex items-center justify-center border border-zinc-200 bg-white transition-all hover:border-igb-yellow-dark/40 hover:bg-zinc-50 active:scale-90 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-200 disabled:hover:bg-white disabled:active:scale-100"
       >
         <ChevronRight size={16} className="text-zinc-500" />
       </button>

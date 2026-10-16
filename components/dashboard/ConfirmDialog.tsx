@@ -37,7 +37,7 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-200 flex items-center justify-center bg-black/40 p-4"
       onClick={onCancel}
     >
       <div
@@ -46,7 +46,7 @@ export default function ConfirmDialog({
       >
         <div className="flex items-start gap-3 mb-4">
           {danger && (
-            <div className="flex-shrink-0 w-9 h-9 rounded-full bg-red-50 flex items-center justify-center">
+            <div className="shrink-0 w-9 h-9 rounded-full bg-red-50 flex items-center justify-center">
               <AlertTriangle size={18} className="text-red-500" />
             </div>
           )}

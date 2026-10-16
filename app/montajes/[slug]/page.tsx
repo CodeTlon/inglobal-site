@@ -96,7 +96,7 @@ export default async function MontajeDetailPage({ params }: Props) {
 
         {/* Banner image (o portada si no hay banner propio) */}
         {heroImage && (
-          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[280px] md:min-h-[420px] overflow-hidden">
+          <div className="relative w-full aspect-video md:aspect-21/9 min-h-[280px] md:min-h-[420px] overflow-hidden">
             {isRemoteImg ? (
               <Image
                 src={heroImage}
@@ -118,7 +118,7 @@ export default async function MontajeDetailPage({ params }: Props) {
                 style={focalStyle}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
           </div>
         )}
       </section>
@@ -171,7 +171,7 @@ export default async function MontajeDetailPage({ params }: Props) {
                   className="group block"
                   data-animate="fade-up"
                 >
-                  <div className="relative overflow-hidden rounded-xl bg-zinc-200 aspect-[16/10] mb-4">
+                  <div className="relative overflow-hidden rounded-xl bg-zinc-200 aspect-16/10 mb-4">
                     {m.cover_image && (
                       m.cover_image.startsWith('http') ? (
                         <Image

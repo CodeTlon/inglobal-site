@@ -74,7 +74,7 @@ export default async function ContactoPage() {
 
             {/* Form column */}
             <div
-              className="order-1 lg:order-2 lg:col-span-7 bg-zinc-50 rounded-3xl p-8 md:p-12 border border-zinc-100 shadow-sm
+              className="order-1 lg:order-2 lg:col-span-7 bg-zinc-50 rounded-3xl p-8 md:p-12 border border-zinc-100 shadow-xs
                           [&_input]:px-5 [&_input]:py-3 [&_textarea]:p-5"
               data-animate="from-left"
             >

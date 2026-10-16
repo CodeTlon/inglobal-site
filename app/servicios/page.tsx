@@ -163,7 +163,7 @@ export default async function ServiciosPage() {
                           height={600}
                           sizes="(max-width: 1024px) 100vw, 60vw"
                           priority={i === 0}
-                          className="object-cover w-full aspect-[16/10] hover:scale-105 transition-transform duration-1000"
+                          className="object-cover w-full aspect-16/10 hover:scale-105 transition-transform duration-1000"
                         />
                       ) : (
                         <Picture
@@ -173,11 +173,11 @@ export default async function ServiciosPage() {
                           height={600}
                           sizes="(max-width: 1024px) 100vw, 60vw"
                           priority={i === 0}
-                          className="object-cover w-full aspect-[16/10] hover:scale-105 transition-transform duration-1000"
+                          className="object-cover w-full aspect-16/10 hover:scale-105 transition-transform duration-1000"
                         />
                       )
                     ) : (
-                      <div className="w-full aspect-[16/10] bg-zinc-100 flex items-center justify-center">
+                      <div className="w-full aspect-16/10 bg-zinc-100 flex items-center justify-center">
                         <Icon className="w-16 h-16 text-zinc-300" />
                       </div>
                     )}

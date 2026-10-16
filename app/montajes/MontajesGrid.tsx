@@ -28,7 +28,7 @@ export default function MontajesGrid({ montajes }: { montajes: Montaje[] }) {
               data-animate="fade-up"
             >
               {/* Image */}
-              <div className="relative overflow-hidden rounded-2xl bg-zinc-100 aspect-[16/10] mb-8">
+              <div className="relative overflow-hidden rounded-2xl bg-zinc-100 aspect-16/10 mb-8">
                 {montaje.cover_image ? (
                   isRemoteImg ? (
                     <Image
@@ -53,7 +53,7 @@ export default function MontajesGrid({ montajes }: { montajes: Montaje[] }) {
               </div>
 
               {/* Content */}
-              <div className="flex flex-col flex-grow">
+              <div className="flex flex-col grow">
                 <h2 className="text-2xl font-headline font-bold text-zinc-900 mb-4 tracking-tight group-hover:text-igb-yellow-dark transition-colors duration-300">
                   {montaje.title}
                 </h2>

@@ -22,7 +22,7 @@ export default function OfflineBanner() {
 
   return (
     <div
-      className="fixed top-0 inset-x-0 z-[200] bg-zinc-900 text-white text-xs font-bold text-center py-1.5 flex items-center justify-center gap-2"
+      className="fixed top-0 inset-x-0 z-200 bg-zinc-900 text-white text-xs font-bold text-center py-1.5 flex items-center justify-center gap-2"
       style={{ paddingTop: 'calc(0.375rem + env(safe-area-inset-top))' }}
     >
       <WifiOff size={12} /> Sin conexión — mostrando la última información guardada

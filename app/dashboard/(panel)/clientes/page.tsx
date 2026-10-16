@@ -28,10 +28,10 @@ export default async function ClientesDashboardPage() {
             key={c.slug}
             href={`/dashboard/clientes/${c.slug}`}
             prefetch={false}
-            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
+            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
             {/* Logo */}
-            <div className="w-16 h-10 flex-shrink-0 flex items-center justify-center bg-zinc-50 rounded border border-zinc-100">
+            <div className="w-16 h-10 shrink-0 flex items-center justify-center bg-zinc-50 rounded-sm border border-zinc-100">
               {c.logo ? (
                 <Image
                   src={c.logo}
@@ -41,7 +41,7 @@ export default async function ClientesDashboardPage() {
                   className="max-h-8 w-auto object-contain"
                 />
               ) : (
-                <div className="w-8 h-8 bg-zinc-200 rounded" />
+                <div className="w-8 h-8 bg-zinc-200 rounded-sm" />
               )}
             </div>
 
@@ -52,8 +52,8 @@ export default async function ClientesDashboardPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="hidden sm:inline text-xs font-bold text-zinc-400 bg-zinc-50 px-2 py-1 rounded">
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="hidden sm:inline text-xs font-bold text-zinc-400 bg-zinc-50 px-2 py-1 rounded-sm">
                 rank {c.work_rank}
               </span>
               <ChevronRight

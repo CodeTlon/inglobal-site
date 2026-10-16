@@ -41,7 +41,7 @@ export default function ShareButton({ title, text, url, className }: ShareButton
       onClick={handleShare}
       className={
         className ??
-        'inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-700 transition-colors hover:border-igb-yellow/40 hover:text-igb-yellow-dark active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow'
+        'inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-5 py-3 text-sm font-bold text-zinc-700 transition-colors hover:border-igb-yellow/40 hover:text-igb-yellow-dark active:scale-[0.98] focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-yellow'
       }
       aria-label="Compartir"
     >

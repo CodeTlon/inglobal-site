@@ -42,8 +42,8 @@ export default function SavedToast() {
   if (!message) return null
 
   return (
-    <div className="fixed bottom-6 right-6 z-[200] flex items-center gap-2.5 bg-zinc-900 text-white text-sm font-bold px-4 py-3 rounded-lg shadow-lg animate-[igb-fade-up_0.25s_ease-out]">
-      <CheckCircle size={16} className="text-green-400 flex-shrink-0" />
+    <div className="fixed bottom-6 right-6 z-200 flex items-center gap-2.5 bg-zinc-900 text-white text-sm font-bold px-4 py-3 rounded-lg shadow-lg animate-[igb-fade-up_0.25s_ease-out]">
+      <CheckCircle size={16} className="text-green-400 shrink-0" />
       {message}
     </div>
   )

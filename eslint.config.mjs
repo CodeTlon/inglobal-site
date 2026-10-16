@@ -5,8 +5,8 @@ const config = [
   ...coreWebVitals,
   ...typescript,
   // Patrones de hidratación existentes (leer localStorage/URL tras montar): se mantienen como aviso.
-  { rules: { 'react-hooks/set-state-in-effect': 'warn', 'react-hooks/purity': 'warn' } },
-  { ignores: ['.next/**', 'node_modules/**', 'drizzle/**', 'supabase/**', 'services/**', 'scripts/migracion/out/**', 'next-env.d.ts', 'test-results/**', 'playwright-report/**'] },
+  { files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'], rules: { 'react-hooks/set-state-in-effect': 'warn', 'react-hooks/purity': 'warn' } },
+  { ignores: ['.next/**', 'node_modules/**', 'drizzle/**', 'supabase/**', 'services/**', 'scripts/migracion/**', 'next-env.d.ts', 'test-results/**', 'playwright-report/**'] },
 ]
 
 export default config

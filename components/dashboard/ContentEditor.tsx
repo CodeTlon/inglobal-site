@@ -206,7 +206,7 @@ export default function ContentEditor({
         <div className="w-px h-4 bg-zinc-200 mx-1" />
 
         <label
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold cursor-pointer transition-colors ml-1 bg-igb-yellow/10 text-igb-yellow-dark"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-bold cursor-pointer transition-colors ml-1 bg-igb-yellow/10 text-igb-yellow-dark"
           title="Subir e insertar imagen"
         >
           {busy ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
@@ -217,7 +217,7 @@ export default function ContentEditor({
         <button
           type="button"
           onClick={() => { setShowYt(!showYt); setErr(null) }}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold transition-colors text-red-600 bg-red-50"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-bold transition-colors text-red-600 bg-red-50"
           title="Insertar video de YouTube"
         >
           <YoutubeIcon size={13} />
@@ -225,7 +225,7 @@ export default function ContentEditor({
         </button>
 
         <label
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold cursor-pointer transition-colors bg-igb-yellow/10 text-igb-yellow-dark"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-bold cursor-pointer transition-colors bg-igb-yellow/10 text-igb-yellow-dark"
           title="Subir e insertar video propio (MP4, hasta 20 MB)"
         >
           {videoBusy ? <Loader2 size={13} className="animate-spin" /> : <Film size={13} />}
@@ -245,16 +245,16 @@ export default function ContentEditor({
             onChange={(e) => setYtInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), insertYoutube())}
             placeholder="Pegá el link de YouTube o Short…"
-            className="flex-1 bg-white border border-zinc-200 rounded px-2.5 py-1.5 text-sm"
+            className="flex-1 bg-white border border-zinc-200 rounded-sm px-2.5 py-1.5 text-sm"
             autoFocus
           />
-          <button type="button" onClick={insertYoutube} className="px-3 py-1.5 rounded text-xs font-bold flex-shrink-0 bg-igb-yellow text-igb-on-yellow">
+          <button type="button" onClick={insertYoutube} className="px-3 py-1.5 rounded-sm text-xs font-bold shrink-0 bg-igb-yellow text-igb-on-yellow">
             Insertar
           </button>
           <button
             type="button"
             onClick={() => { setShowYt(false); setYtInput(''); setErr(null) }}
-            className="px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-700 border border-zinc-200 flex-shrink-0"
+            className="px-2 py-1.5 rounded-sm text-zinc-400 hover:text-zinc-700 border border-zinc-200 shrink-0"
           >
             <X size={14} />
           </button>
@@ -264,7 +264,7 @@ export default function ContentEditor({
       {/* Editor area */}
       <EditorContent
         editor={editor}
-        className="tiptap-editor border border-zinc-200 rounded-b-md px-3 py-2.5 min-h-[240px] text-sm text-zinc-900 overflow-hidden [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[220px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-zinc-400 [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none"
+        className="tiptap-editor border border-zinc-200 rounded-b-md px-3 py-2.5 min-h-[240px] text-sm text-zinc-900 overflow-hidden [&_.ProseMirror]:outline-hidden [&_.ProseMirror]:min-h-[220px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-zinc-400 [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none"
       />
     </div>
   )

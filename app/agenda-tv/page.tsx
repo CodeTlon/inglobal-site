@@ -39,7 +39,7 @@ export default async function AgendaTvPage({
   const navBtn = 'flex items-center gap-2 rounded-full border border-zinc-200 px-5 py-3 text-base font-semibold text-zinc-600 hover:bg-zinc-50 active:scale-95 transition-transform'
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-100 bg-white overflow-hidden flex flex-col">
       <AgendaKioskHeader title="Agenda de Grúas" theme="light" />
       <AgendaTvRefresher />
       <main className="flex-1 min-h-0 flex flex-col px-4 sm:px-10 py-8">

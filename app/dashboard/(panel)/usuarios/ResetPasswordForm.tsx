@@ -46,7 +46,7 @@ export default function ResetPasswordForm({ userId }: { userId: string }) {
           required
           minLength={6}
           placeholder="Nueva contraseña (mín. 6)"
-          className={`${fieldInput} !py-1.5 !text-xs max-w-[220px]`}
+          className={`${fieldInput} py-1.5! text-xs! max-w-[220px]`}
         />
         <SubmitButton />
       </div>

@@ -50,8 +50,8 @@ export default async function AgendaCalendarioPage({
   const nextDay = toDateInput(addDays(dayDate, 1))
 
   return (
-    // z-[110]: por encima del shell fijo del panel (z-[100]) — misma técnica que /agenda-tv usa para tapar Navbar/Footer del layout raíz.
-    <div className="fixed inset-0 z-[110] bg-white overflow-y-auto">
+    // z-110: por encima del shell fijo del panel (z-[100]) — misma técnica que /agenda-tv usa para tapar Navbar/Footer del layout raíz.
+    <div className="fixed inset-0 z-110 bg-white overflow-y-auto">
       <AgendaKioskHeader title="Calendario" backHref="/dashboard/agenda" theme="light" />
       <main className="px-4 sm:px-8 py-6">
         {/* Mobile: un día a la vez — una grilla de franjas horarias de la semana entera

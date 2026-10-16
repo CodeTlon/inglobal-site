@@ -87,7 +87,7 @@ export default async function RecursoDetallePage({ params }: { params: Promise<{
         ))}
       </section>
 
-      <section className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6" aria-label="Historial de eventos">
+      <section className="bg-white rounded-xl border border-zinc-200 shadow-xs p-6" aria-label="Historial de eventos">
         <h2 className="font-headline font-bold text-zinc-900 mb-4">Historial de eventos</h2>
         {historial.length === 0 ? (
           <p className="text-sm text-zinc-400">Sin eventos asociados.</p>
@@ -109,7 +109,7 @@ export default async function RecursoDetallePage({ params }: { params: Promise<{
                     </p>
                     <p className="text-xs text-zinc-500 truncate">{contraparte(evento)}</p>
                   </div>
-                  <span className={`text-xs font-bold px-2 py-1 rounded flex-shrink-0 ${estadoColorClassesLight(visual)}`}>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-sm shrink-0 ${estadoColorClassesLight(visual)}`}>
                     {formatEstado(visual)}
                   </span>
                 </Link>
