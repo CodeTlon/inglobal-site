@@ -2,7 +2,7 @@
 
 import { useFormState } from 'react-dom'
 import { updateSiteSettings } from '@/app/actions/settings'
-import { TextField, TextArea } from '@/components/dashboard/Field'
+import { TextField, TextArea, ImageUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
@@ -38,6 +38,14 @@ export default function ContactoHeaderForm({ settings }: { settings: Record<stri
         rows={2}
         placeholder="Asesoramiento técnico especializado para operaciones de alta complejidad."
       />
+      <ImageUpload
+        label="Foto del encabezado"
+        name="image"
+        defaultValue={settings.image as string | null}
+        folder="contacto"
+        hint="Se muestra a la derecha del título en /contacto. Si no se carga, usa una foto por defecto del sitio."
+      />
+      <TextField label="Texto alternativo de la foto" name="image_alt" defaultValue={settings.image_alt as string} placeholder="Grúa telescópica de Grúas InGlobal en operación" hint="Describe la foto para lectores de pantalla y buscadores." />
       <TextField label="Título del formulario" name="form_title" defaultValue={settings.form_title as string} placeholder="Envianos tu consulta" />
       <TextField label="Subtítulo del formulario" name="form_subtitle" defaultValue={settings.form_subtitle as string} placeholder="Complete el formulario y un asesor técnico le responderá a la brevedad." />
       <TextField label="Link de WhatsApp" name="whatsapp" defaultValue={settings.whatsapp as string} placeholder="https://wa.me/5493513454244" hint="URL completa, con https://" />

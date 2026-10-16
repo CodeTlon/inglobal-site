@@ -48,19 +48,19 @@ export default function HeroForm({ settings }: { settings: Record<string, unknow
         placeholder="Ej: Contamos con la flota y la experiencia para acompañar tus proyectos de izaje, montaje y transporte pesado."
       />
 
-      <div className="grid grid-cols-2 gap-4">
-        <TextField
-          label="CTA primario"
-          name="cta_primary"
-          defaultValue={settings.cta_primary as string}
-          placeholder="Solicitar Presupuesto"
-        />
-        <TextField
-          label="CTA secundario"
-          name="cta_secondary"
-          defaultValue={settings.cta_secondary as string}
-          placeholder="Ver Servicios"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <TextField label="Recuadro 1 — título" name="card1_title" defaultValue={settings.card1_title as string} placeholder="Qué ofrecemos" hint="Lleva a /servicios." />
+        <TextField label="Recuadro 1 — descripción" name="card1_desc" defaultValue={settings.card1_desc as string} placeholder="Nuestros equipos y servicios" />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <TextField label="Recuadro 2 — título" name="card2_title" defaultValue={settings.card2_title as string} placeholder="Solicitar presupuesto" hint="Lleva a /contacto." />
+        <TextField label="Recuadro 2 — descripción" name="card2_desc" defaultValue={settings.card2_desc as string} placeholder="Contanos tu proyecto" />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <TextField label="Recuadro 3 — título" name="card3_title" defaultValue={settings.card3_title as string} placeholder="Solicitar por WhatsApp" hint="Abre WhatsApp. El link del WhatsApp se edita en Contacto — encabezado." />
+        <TextField label="Recuadro 3 — descripción" name="card3_desc" defaultValue={settings.card3_desc as string} placeholder="Respuesta directa" />
       </div>
 
       <VideoUpload

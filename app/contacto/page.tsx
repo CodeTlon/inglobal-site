@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Phone, Mail } from 'lucide-react'
+import Image from 'next/image'
+import Picture from '@/components/Picture'
 import ContactFormWrapper from '@/components/ContactFormWrapper'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
 import { getSiteSettings, getServicios } from '@/lib/content'
@@ -23,7 +25,7 @@ export default async function ContactoPage() {
   const hoursSaturday =
     (settings.hours_saturday as string) || 'Sáb 8:00 — 13:00h'
   const phone = (settings.phone as string) || '0351 345-4244'
-  const phoneSecondary = settings.phone_secondary as string | undefined
+  const phoneSecondary = (settings.phone_secondary as string) || '0351 645-0657'
   const email = (settings.email as string) || 'cotizacionesinglobalsrl@gmail.com'
 
   const addressLines = address.split('\n')
@@ -31,6 +33,8 @@ export default async function ContactoPage() {
   const phoneSecondaryHref = phoneSecondary ? `tel:${phoneSecondary.replace(/[\s-]/g, '')}` : null
 
   const headingLines = ((s.heading as string) || 'Hablemos de su\npróximo proyecto.').split('\n')
+  const headerImage = (s.image as string) || 'igb-1'
+  const headerImageAlt = (s.image_alt as string) || 'Grúa telescópica de Grúas InGlobal en operación'
   const whatsapp = (s.whatsapp as string) || 'https://wa.me/5493513454244'
   const instagram = (s.instagram as string) || 'https://www.instagram.com/gruasinglobal'
 
@@ -38,32 +42,46 @@ export default async function ContactoPage() {
     <main className="bg-white">
       {/* Page Header */}
       <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
-        <div className="container-igb">
-          <span
-            className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+        <div className="container-igb grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div>
+            <span
+              className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+              data-animate="fade-up"
+            >
+              {(s.label as string) || 'Contacto Directo'}
+            </span>
+            <h1
+              className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
+              data-animate="blur-up"
+              data-delay="100"
+            >
+              {headingLines.map((line, i) => (
+                <span key={i}>
+                  {i > 0 && <br />}
+                  {line}
+                </span>
+              ))}
+            </h1>
+            <p
+              className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
+              data-animate="fade-up"
+              data-delay="200"
+            >
+              {(s.subheading as string) || 'Asesoramiento técnico especializado para operaciones de alta complejidad.'}
+            </p>
+          </div>
+
+          <div
+            className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-igb"
             data-animate="fade-up"
+            data-delay="150"
           >
-            {(s.label as string) || 'Contacto Directo'}
-          </span>
-          <h1
-            className="text-5xl md:text-6xl font-headline font-extrabold text-zinc-900 tracking-tight mb-6 leading-tight"
-            data-animate="blur-up"
-            data-delay="100"
-          >
-            {headingLines.map((line, i) => (
-              <span key={i}>
-                {i > 0 && <br />}
-                {line}
-              </span>
-            ))}
-          </h1>
-          <p
-            className="text-xl text-zinc-500 max-w-2xl leading-relaxed"
-            data-animate="fade-up"
-            data-delay="200"
-          >
-            {(s.subheading as string) || 'Asesoramiento técnico especializado para operaciones de alta complejidad.'}
-          </p>
+            {headerImage.startsWith('http') || headerImage.startsWith('/') ? (
+              <Image src={headerImage} alt={headerImageAlt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+            ) : (
+              <Picture src={headerImage} alt={headerImageAlt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+            )}
+          </div>
         </div>
       </section>
 
@@ -126,6 +144,24 @@ export default async function ContactoPage() {
                 <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-600 mb-8">
                   Canales de comunicación
                 </p>
+                <ul className="space-y-2 mb-8">
+                  {[
+                    { number: phone, href: phoneHref },
+                    ...(phoneSecondaryHref && phoneSecondary
+                      ? [{ number: phoneSecondary, href: phoneSecondaryHref }]
+                      : []),
+                  ].map((p) => (
+                    <li key={p.href}>
+                      <a
+                        href={p.href}
+                        className="inline-flex items-center gap-3 text-2xl font-headline font-bold text-zinc-900 hover:text-igb-yellow-dark transition-colors"
+                      >
+                        <Phone className="w-5 h-5 text-igb-yellow-dark" aria-hidden="true" />
+                        {p.number}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
                 <div className="flex items-center gap-10">
                   <a
                     href={whatsapp}
@@ -172,22 +208,6 @@ export default async function ContactoPage() {
                   >
                     <Mail className="w-7 h-7" aria-hidden="true" />
                   </a>
-                  <a
-                    href={phoneHref}
-                    aria-label="Llamar a Grúas InGlobal"
-                    className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
-                  >
-                    <Phone className="w-7 h-7" aria-hidden="true" />
-                  </a>
-                  {phoneSecondaryHref && (
-                    <a
-                      href={phoneSecondaryHref}
-                      aria-label="Llamar a Grúas InGlobal (línea secundaria)"
-                      className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
-                    >
-                      <Phone className="w-7 h-7" aria-hidden="true" />
-                    </a>
-                  )}
                 </div>
               </div>
             </div>
