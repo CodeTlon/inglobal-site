@@ -4,7 +4,8 @@ import Picture from '@/components/Picture'
 import HeroVideo from '@/components/HeroVideo'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
 import ClientesCarousel from '@/components/ClientesCarousel'
-import { ClipboardList, FileText, MessageCircle } from 'lucide-react'
+import { ClipboardList, FileText } from 'lucide-react'
+import WhatsAppIcon from '@/components/WhatsAppIcon'
 import { getSiteSettings, getServicios, getClientes } from '@/lib/content'
 
 // El layout bento (cantidad de tiles y su span) queda fijo en código; src/alt/label
@@ -77,7 +78,7 @@ export default async function HomePage() {
   const heroQuickActions = [
     { title: (heroSettings.card1_title as string) || 'Qué ofrecemos', desc: (heroSettings.card1_desc as string) || 'Nuestros equipos y servicios', href: '/servicios', Icon: ClipboardList, external: false },
     { title: (heroSettings.card2_title as string) || 'Solicitar presupuesto', desc: (heroSettings.card2_desc as string) || 'Contanos tu proyecto', href: '/contacto', Icon: FileText, external: false },
-    { title: (heroSettings.card3_title as string) || 'Solicitar por WhatsApp', desc: (heroSettings.card3_desc as string) || 'Respuesta directa', href: heroWhatsapp, Icon: MessageCircle, external: true },
+    { title: (heroSettings.card3_title as string) || 'Solicitar por WhatsApp', desc: (heroSettings.card3_desc as string) || 'Respuesta directa', href: heroWhatsapp, Icon: WhatsAppIcon, external: true },
   ]
 
   // Stats
