@@ -24,7 +24,7 @@ export default function TLDRBox({ items, heading = 'En resumen', className }: TL
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item} className="flex items-start gap-2 text-sm leading-relaxed text-igb-on-surface">
-            <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-igb-yellow-dark" aria-hidden="true" />
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-igb-yellow-dark" aria-hidden="true" />
             {item}
           </li>
         ))}

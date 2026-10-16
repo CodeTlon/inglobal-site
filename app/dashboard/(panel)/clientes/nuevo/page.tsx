@@ -18,7 +18,7 @@ export default function NuevoClientePage() {
 
       <PageHeader title="Nuevo Cliente" description="Registrá una empresa cliente para mostrar en el sitio." />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <ClienteForm action={createCliente} />
       </div>
     </div>

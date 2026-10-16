@@ -47,14 +47,14 @@ export default function AgendaEventModal({
     : null
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
         className="w-full max-w-sm bg-white rounded-xl shadow-xl border border-zinc-200 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <span className={`inline-block text-xs font-bold px-2 py-1 rounded mb-2 ${estadoColorClassesLight(getEstadoVisual(evento))}`}>
+            <span className={`inline-block text-xs font-bold px-2 py-1 rounded-sm mb-2 ${estadoColorClassesLight(getEstadoVisual(evento))}`}>
               {formatEstado(getEstadoVisual(evento))}
             </span>
             <h2 className="font-headline font-bold text-lg text-zinc-900">{evento.grua?.nombre ?? 'Grúa'}</h2>
@@ -63,7 +63,7 @@ export default function AgendaEventModal({
               {fechaHasta && <> hasta el {fechaHasta}</>}
             </p>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             {editHref && !['finalizado', 'cancelado'].includes(evento.estado) && (
               <Link
                 href={editHref}
@@ -86,22 +86,22 @@ export default function AgendaEventModal({
 
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-2 text-zinc-600">
-            <Clock size={16} className="text-zinc-400 flex-shrink-0" />
+            <Clock size={16} className="text-zinc-400 shrink-0" />
             {evento.hora_inicio.slice(0, 5)}{evento.hora_fin ? ` – ${evento.hora_fin.slice(0, 5)}` : ''}
           </div>
           <div className="flex items-center gap-2 text-zinc-600">
-            <Building2 size={16} className="text-zinc-400 flex-shrink-0" />
+            <Building2 size={16} className="text-zinc-400 shrink-0" />
             {evento.empresa?.nombre ?? 'Empresa'}
           </div>
           {evento.ubicacion && (
             <div className="flex items-center gap-2 text-zinc-600">
-              <MapPin size={16} className="text-zinc-400 flex-shrink-0" />
+              <MapPin size={16} className="text-zinc-400 shrink-0" />
               {evento.ubicacion}
             </div>
           )}
           {evento.operarios.length > 0 && (
             <div className="flex items-start gap-2 text-zinc-600">
-              <Users size={16} className="text-zinc-400 flex-shrink-0 mt-0.5" />
+              <Users size={16} className="text-zinc-400 shrink-0 mt-0.5" />
               {evento.operarios.map((o) => `${o.nombre}${o.roles?.length ? ` (${o.roles.join(', ')})` : ''}${o.eliminado_at ? ' — ex operario' : ''}`).join(', ')}
             </div>
           )}

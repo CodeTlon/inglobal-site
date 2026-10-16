@@ -93,7 +93,7 @@ export default function PairQr() {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6 w-[352px] h-[352px] flex items-center justify-center">
+      <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 w-[352px] h-[352px] flex items-center justify-center">
         {qrDataUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={qrDataUrl} alt="Código QR para vincular la app" width={320} height={320} />

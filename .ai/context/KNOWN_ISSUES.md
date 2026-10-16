@@ -1,5 +1,11 @@
 # KNOWN_ISSUES — Grúas InGlobal
 
+## Vigente (2026-10-16)
+- `npm audit` completo conserva 5 altas de herramientas de desarrollo: `braces` <= 3.0.3 via `eslint-config-next` -> `fast-glob` -> `micromatch`. Sin version corregida publicada; no entra al runtime (`npm audit --omit=dev` = 0).
+- 17 problemas de lint (13 avisos): reglas nuevas de React (`set-state-in-effect`, `purity`) bajadas de error a aviso. `scripts/migracion/**` esta fuera del lint.
+- Con Tailwind 4 las paginas de escritorio quedan entre 15 y 250 px mas altas que antes (los textos legales y `/servicios` respetan `max-w-3xl` y el orden de utilidades cambio).
+- `docs/*.md` siguen marcados como obsoletos (Next 14, abril 2026).
+
 > **Nota 2026-10-14:** las entradas sobre Supabase, RLS, `is_admin()` y el auto-deploy de Vercel son históricas (la migración las reemplazó). Issues nuevos de esta etapa al final del archivo.
 
 

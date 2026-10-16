@@ -93,7 +93,7 @@ export default async function QuienesSomosPage() {
                   width={620}
                   height={480}
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="rounded-xl object-cover w-full aspect-[4/3]"
+                  className="rounded-xl object-cover w-full aspect-4/3"
                 />
               ) : (
                 <Picture
@@ -102,7 +102,7 @@ export default async function QuienesSomosPage() {
                   width={620}
                   height={480}
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="rounded-xl object-cover w-full aspect-[4/3]"
+                  className="rounded-xl object-cover w-full aspect-4/3"
                 />
               )}
             </div>
@@ -141,7 +141,7 @@ export default async function QuienesSomosPage() {
               >
                 {features.map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-3">
-                    <Icon className="w-5 h-5 text-igb-yellow-dark flex-shrink-0" />
+                    <Icon className="w-5 h-5 text-igb-yellow-dark shrink-0" />
                     <span className="text-igb-on-surface/80 text-sm">{text}</span>
                   </li>
                 ))}

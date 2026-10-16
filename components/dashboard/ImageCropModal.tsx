@@ -97,7 +97,7 @@ export default function ImageCropModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[300] bg-black/70 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-300 bg-black/70 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-xl">
         <div className="relative w-full h-80 bg-zinc-900">
           <Cropper

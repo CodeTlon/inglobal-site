@@ -135,7 +135,7 @@ export default async function HomePage() {
             className="object-cover object-[70%_center] md:object-center"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-b from-igb-surface via-igb-surface/85 to-igb-surface/30 md:bg-transparent md:bg-gradient-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
+            className="absolute inset-0 bg-linear-to-b from-igb-surface via-igb-surface/85 to-igb-surface/30 md:bg-transparent md:bg-linear-to-r md:from-igb-surface md:via-igb-surface/95 md:via-igb-surface/80 md:to-transparent"
             style={{ opacity: heroOverlayOpacity }}
           />
         </div>
@@ -221,7 +221,7 @@ export default async function HomePage() {
                 >
                   {/* Service image */}
                   {servicio.img && (
-                    <div className="relative overflow-hidden rounded-lg mb-5 aspect-[4/3]">
+                    <div className="relative overflow-hidden rounded-lg mb-5 aspect-4/3">
                       {isRemoteImg ? (
                         <Image
                           src={servicio.img}
@@ -242,7 +242,7 @@ export default async function HomePage() {
                     </div>
                   )}
 
-                  <h3 className="text-2xl font-headline font-bold text-igb-on-surface leading-tight line-clamp-2 min-h-[3.75rem]">
+                  <h3 className="text-2xl font-headline font-bold text-igb-on-surface leading-tight line-clamp-2 min-h-15">
                     {servicio.title}
                   </h3>
                   <p className="text-sm text-igb-secondary mt-2 leading-relaxed line-clamp-4 min-h-[5.7rem]">
@@ -281,7 +281,7 @@ export default async function HomePage() {
               className="object-cover object-center opacity-30"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-slate-950 via-slate-950/70 to-transparent" />
         </div>
 
         <div className="relative z-10 container-igb">
@@ -327,7 +327,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/galeria"
-              className="flex items-center gap-2 text-igb-yellow-dark font-bold font-headline text-sm hover:gap-3 transition-all flex-shrink-0"
+              className="flex items-center gap-2 text-igb-yellow-dark font-bold font-headline text-sm hover:gap-3 transition-all shrink-0"
             >
               {galLinkText}
             </Link>
@@ -352,7 +352,7 @@ export default async function HomePage() {
                   }
                   className="object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
-                <div className="absolute bottom-0 left-0 p-5 bg-gradient-to-t from-black/70 to-transparent w-full text-white">
+                <div className="absolute bottom-0 left-0 p-5 bg-linear-to-t from-black/70 to-transparent w-full text-white">
                   <p className="text-xs uppercase tracking-widest font-bold opacity-70 mb-1">
                     {item.label}
                   </p>

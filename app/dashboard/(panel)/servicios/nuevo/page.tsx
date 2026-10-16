@@ -18,7 +18,7 @@ export default function NuevoServicioPage() {
 
       <PageHeader title="Nuevo servicio" description="Completá los campos para publicar un nuevo servicio." />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <ServicioForm action={createServicio} />
       </div>
     </div>

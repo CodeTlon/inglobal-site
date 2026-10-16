@@ -45,7 +45,7 @@ export default async function ServicioEditPage({ params }: Props) {
         }
       />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <ServicioForm servicio={servicio} entityId={servicio.id} action={updateServicio} />
       </div>
     </div>

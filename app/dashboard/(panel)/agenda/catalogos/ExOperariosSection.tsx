@@ -47,7 +47,7 @@ export default function ExOperariosSection({ items, reincorporarAction, deleteAc
   }
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+    <div className="bg-white rounded-xl border border-zinc-200 shadow-xs p-6">
       <h2 className="font-headline font-bold text-zinc-900 mb-1">Ex operarios</h2>
       <p className="text-xs text-zinc-500 mb-4">
         Operarios dados de baja. Siguen apareciendo en el historial de eventos. Al reincorporarlos vuelven como inactivos.
@@ -55,7 +55,7 @@ export default function ExOperariosSection({ items, reincorporarAction, deleteAc
 
       {error && (
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3 mb-4" role="alert">
-          <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <p className="text-red-700 text-xs">{error}</p>
         </div>
       )}
@@ -76,7 +76,7 @@ export default function ExOperariosSection({ items, reincorporarAction, deleteAc
               type="button"
               onClick={() => run(reincorporarAction, item.id)}
               disabled={busyId !== null}
-              className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-igb-yellow/15 text-igb-yellow-dark transition-colors disabled:opacity-60"
+              className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-sm bg-igb-yellow/15 text-igb-yellow-dark transition-colors disabled:opacity-60"
             >
               {busyId === item.id ? <Loader2 size={12} className="animate-spin" /> : <RotateCcw size={12} />}
               Reincorporar

@@ -80,7 +80,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
       {/* Hero */}
       {heroImage ? (
         <section
-          className="relative overflow-hidden aspect-[16/9] md:aspect-[21/9] min-h-[280px] md:min-h-[420px]"
+          className="relative overflow-hidden aspect-video md:aspect-21/9 min-h-[280px] md:min-h-[420px]"
           data-navbar="hidden"
         >
           <Image
@@ -96,7 +96,7 @@ export default async function TrabajoDetailPage({ params }: Props) {
             } as React.CSSProperties}
           />
           <div
-            className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/85 overlay-responsive"
+            className="absolute inset-0 bg-linear-to-b from-black/60 via-black/50 to-black/85 overlay-responsive"
             style={{
               '--overlay-desktop': overlayOpacity,
               '--overlay-mobile': overlayOpacityMobile ?? undefined,

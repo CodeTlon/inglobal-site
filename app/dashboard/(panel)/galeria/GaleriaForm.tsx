@@ -28,7 +28,7 @@ export default function GaleriaForm({ item, entityId, action }: Props) {
 
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
-          <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
           <p className="text-red-700 text-sm">{state.error}</p>
         </div>
       )}

@@ -71,7 +71,7 @@ export default async function DashboardHomePage() {
           <Link
             key={s.label}
             href={s.href}
-            className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm hover:shadow-igb hover:-translate-y-0.5 transition-all group"
+            className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs hover:shadow-igb hover:-translate-y-0.5 transition-all group"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${s.color}`}>
@@ -91,7 +91,7 @@ export default async function DashboardHomePage() {
       </div>
 
       {/* Agenda de hoy */}
-      <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm mb-8">
+      <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-xs mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-headline font-bold text-zinc-900">Agenda de hoy</h2>
           <Link
@@ -116,7 +116,7 @@ export default async function DashboardHomePage() {
       </div>
 
       {/* Accesos rápidos */}
-      <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm">
+      <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-headline font-bold text-zinc-900">
             Accesos rápidos
@@ -133,7 +133,7 @@ export default async function DashboardHomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center bg-zinc-50 hover:bg-igb-yellow/10 border border-zinc-200 hover:border-igb-yellow/40 hover:shadow-sm px-4 py-3.5 rounded-lg transition-all group"
+                className="flex items-center bg-zinc-50 hover:bg-igb-yellow/10 border border-zinc-200 hover:border-igb-yellow/40 hover:shadow-xs px-4 py-3.5 rounded-lg transition-all group"
               >
                 <span className="text-sm font-bold text-zinc-700 group-hover:text-igb-yellow-dark transition-colors">
                   {link.label}

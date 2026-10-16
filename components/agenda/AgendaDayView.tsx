@@ -45,7 +45,7 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
             onClick={() => setSelected(ev)}
             className={`w-full flex items-start gap-3 rounded-lg border px-3 py-3 text-left transition-all hover:brightness-95 ${estadoColorClassesLight(visual)}`}
           >
-            <div className="flex-shrink-0 w-14 text-sm font-bold">
+            <div className="shrink-0 w-14 text-sm font-bold">
               {esDiaInicio ? ev.hora_inicio.slice(0, 5) : 'Cont.'}
               {esUltimoDia && ev.hora_fin && <span className="block text-xs font-normal opacity-70">a {ev.hora_fin.slice(0, 5)}</span>}
             </div>

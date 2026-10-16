@@ -75,7 +75,7 @@ export default async function EventoEditPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      <div className={`bg-white rounded-xl p-6 border border-zinc-200 shadow-sm ${bloqueado ? 'opacity-60' : ''}`}>
+      <div className={`bg-white rounded-xl p-6 border border-zinc-200 shadow-xs ${bloqueado ? 'opacity-60' : ''}`}>
         <EventoForm evento={evento} gruas={gruas} empresas={empresas} operarios={operarios} action={updateEvento} from={from} />
       </div>
     </div>

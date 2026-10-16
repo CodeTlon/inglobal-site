@@ -26,7 +26,7 @@ export default async function UsuariosPage() {
           href="/dashboard/cambiar-password"
           className="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-igb border border-zinc-100 hover:border-igb-yellow/40 transition-colors"
         >
-          <div className="w-9 h-9 rounded-lg bg-igb-yellow/10 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-igb-yellow/10 flex items-center justify-center shrink-0">
             <KeyRound size={16} className="text-igb-yellow-dark" />
           </div>
           <div>

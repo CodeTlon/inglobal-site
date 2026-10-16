@@ -48,7 +48,7 @@ export default async function Footer() {
 
           {/* Brand */}
           <div className="lg:col-span-1 space-y-6">
-            <Link href="/" className="inline-block border-none outline-none">
+            <Link href="/" className="inline-block border-none outline-hidden">
               <Image
                 src="/images/logo.png"
                 alt="Grúas InGlobal S.R.L."
@@ -122,7 +122,7 @@ export default async function Footer() {
                   href={phoneHref}
                   className="flex items-center gap-3 text-sm text-slate-400 hover:text-igb-yellow transition-colors group"
                 >
-                  <Phone className="w-4 h-4 flex-shrink-0 text-igb-yellow" />
+                  <Phone className="w-4 h-4 shrink-0 text-igb-yellow" />
                   {phone}
                 </a>
               </li>
@@ -133,14 +133,14 @@ export default async function Footer() {
                     href={phoneSecondaryHref}
                     className="flex items-center gap-3 text-sm text-slate-400 hover:text-igb-yellow transition-colors group"
                   >
-                    <Phone className="w-4 h-4 flex-shrink-0 text-igb-yellow" />
+                    <Phone className="w-4 h-4 shrink-0 text-igb-yellow" />
                     {phoneSecondary}
                   </a>
                 </li>
               )}
 
               <li className="flex items-start gap-3 text-sm text-slate-400">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-igb-yellow" />
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-igb-yellow" />
                 <span>
                   {addressLines.map((line, i) => (
                     <span key={i}>
@@ -156,13 +156,13 @@ export default async function Footer() {
                   href={`mailto:${email}`}
                   className="flex items-center gap-3 text-sm text-slate-400 hover:text-igb-yellow transition-colors"
                 >
-                  <Mail className="w-4 h-4 flex-shrink-0 text-igb-yellow" />
+                  <Mail className="w-4 h-4 shrink-0 text-igb-yellow" />
                   {email}
                 </a>
               </li>
 
               <li className="flex items-start gap-3 text-sm text-slate-400">
-                <Clock className="w-4 h-4 mt-0.5 flex-shrink-0 text-igb-yellow" />
+                <Clock className="w-4 h-4 mt-0.5 shrink-0 text-igb-yellow" />
                 <span>{hours}</span>
               </li>
             </ul>

@@ -18,7 +18,7 @@ function formatMB(bytes: number) {
 export const fieldLabel =
   'block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5'
 export const fieldInput =
-  'w-full bg-white border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors'
+  'w-full bg-white border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-hidden focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors'
 
 // ─── TextField ──────────────────────────────────────────────────────────────
 
@@ -344,7 +344,7 @@ export function ImageUpload({
 
       <div className="flex flex-col sm:flex-row gap-3 items-stretch">
         {/* Preview thumbnail */}
-        <div className="flex-shrink-0 w-full sm:w-32 flex flex-col gap-1.5">
+        <div className="shrink-0 w-full sm:w-32 flex flex-col gap-1.5">
           {focalMobileName && url && (
             <div className="flex gap-1 text-[10px] font-bold">
               <button
@@ -388,7 +388,7 @@ export function ImageUpload({
                 />
                 {focalName && (
                   <span
-                    className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow-sm -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                     style={{ left: activeFocal.split(' ')[0], top: activeFocal.split(' ')[1] }}
                   />
                 )}
@@ -594,7 +594,7 @@ export function VideoUpload({
             />
             {focalName && (
               <span
-                className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                className="absolute w-3 h-3 rounded-full border-2 border-igb-yellow bg-igb-yellow/60 shadow-sm -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                 style={{ left: focal.split(' ')[0], top: focal.split(' ')[1] }}
               />
             )}
@@ -731,7 +731,7 @@ export function FileUpload({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold bg-zinc-50 border border-zinc-200 text-zinc-700 hover:text-igb-yellow-dark hover:border-igb-yellow/40 transition-colors truncate max-w-[220px]"
           >
-            <FileText size={14} className="flex-shrink-0" />
+            <FileText size={14} className="shrink-0" />
             <span className="truncate">{fileName}</span>
           </a>
         ) : (
@@ -907,7 +907,7 @@ export function Checkbox({
           type="checkbox"
           name={name}
           defaultChecked={defaultChecked}
-          className="w-4 h-4 rounded accent-igb-yellow"
+          className="w-4 h-4 rounded-sm accent-igb-yellow"
         />
         <span className="text-sm font-bold text-zinc-700">{label}</span>
       </label>

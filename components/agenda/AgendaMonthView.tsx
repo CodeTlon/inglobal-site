@@ -122,7 +122,7 @@ export default function AgendaMonthView({
                       setSelected(ev)
                     }}
                     title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
-                    className={`w-full rounded border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                    className={`w-full rounded-sm border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
                       {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'}
@@ -137,7 +137,7 @@ export default function AgendaMonthView({
       )}
 
       {selectedDay && (
-        <div className="fixed inset-0 z-[200] bg-black/40 p-4 flex items-start justify-center overflow-y-auto" onClick={() => setSelectedDay(null)}>
+        <div className="fixed inset-0 z-200 bg-black/40 p-4 flex items-start justify-center overflow-y-auto" onClick={() => setSelectedDay(null)}>
           <div
             className="mt-16 w-full max-w-md rounded-2xl bg-white border border-zinc-200 p-6 max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
@@ -150,7 +150,7 @@ export default function AgendaMonthView({
                 type="button"
                 onClick={() => setSelectedDay(null)}
                 aria-label="Cerrar"
-                className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors flex-shrink-0"
+                className="rounded-full p-2.5 -m-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors shrink-0"
               >
                 <X size={24} />
               </button>

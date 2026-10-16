@@ -28,10 +28,10 @@ export default async function MontajesDashboardPage() {
             key={m.slug}
             href={`/dashboard/montajes/${m.slug}`}
             prefetch={false}
-            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
+            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
             {/* Cover thumbnail */}
-            <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-100">
+            <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-zinc-100">
               {m.cover_image ? (
                 <Image
                   src={m.cover_image.startsWith('http') ? m.cover_image : `/images/opt/${m.cover_image.replace(/^.*\//, '').replace(/\.[^.]+$/, '')}-md.webp`}
@@ -51,7 +51,7 @@ export default async function MontajesDashboardPage() {
                 {m.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
-                    className="text-[10px] font-bold text-zinc-400 border border-zinc-200 px-2 py-0.5 rounded"
+                    className="text-[10px] font-bold text-zinc-400 border border-zinc-200 px-2 py-0.5 rounded-sm"
                   >
                     {tag}
                   </span>
@@ -61,7 +61,7 @@ export default async function MontajesDashboardPage() {
 
             <ChevronRight
               size={16}
-              className="text-zinc-300 group-hover:text-igb-yellow-dark group-hover:translate-x-1 transition-all flex-shrink-0"
+              className="text-zinc-300 group-hover:text-igb-yellow-dark group-hover:translate-x-1 transition-all shrink-0"
             />
           </Link>
         ))}

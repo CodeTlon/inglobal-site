@@ -1,5 +1,7 @@
 # CURRENT_STATE — Grúas InGlobal
 
+**Actualizacion 2026-10-16:** la rama `feature/dev2-estandar-2026` (integrada en `dev` y `test`) lleva el proyecto al estandar de versiones de la flota: Next 16.4.2, React 19.3.1, Tailwind 4.3.3, TypeScript 6.0.3, ESLint 10.13.0, `proxy.ts`. Verificado: `tsc`, lint (0 errores), 8 tests unitarios, build, imagen Docker Alpine, `npm audit --omit=dev` en 0. **Sin verificar:** E2E (los corre el CI), despliegue de `test` con esta version. Produccion (`main`) sigue en Vercel + Supabase; el corte espera el acceso al dominio.
+
 Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo esto varios meses después de la fecha de arriba, verificá contra el código antes de confiar ciegamente.
 
 ## Pendiente / bloqueado

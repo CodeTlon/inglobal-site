@@ -32,7 +32,7 @@ export default function LazyGoogleMap() {
     <button
       type="button"
       onClick={() => setLoaded(true)}
-      className="w-full h-[450px] bg-igb-surface-low hover:bg-igb-surface-high transition-colors flex flex-col items-center justify-center gap-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-igb-yellow-dark"
+      className="w-full h-[450px] bg-igb-surface-low hover:bg-igb-surface-high transition-colors flex flex-col items-center justify-center gap-4 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-igb-yellow-dark"
       aria-label="Cargar mapa interactivo de Google Maps"
     >
       <MapPin className="w-10 h-10 text-igb-yellow-dark" aria-hidden="true" />

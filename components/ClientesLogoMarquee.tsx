@@ -5,7 +5,7 @@ import type { Cliente } from '@/lib/content'
 // contenedor de tamaño indefinido no resuelve — el browser cae a "auto" y cada
 // card termina midiendo lo que mide el logo (bug real, entraba solo una).
 const cardClass =
-  'bg-white rounded-xl p-4 flex items-center justify-center h-20 w-32 sm:w-36 shrink-0 border border-slate-100 shadow-sm grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300'
+  'bg-white rounded-xl p-4 flex items-center justify-center h-20 w-32 sm:w-36 shrink-0 border border-slate-100 shadow-xs grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300'
 
 function LogoCard({ cliente }: { cliente: Cliente }) {
   return (

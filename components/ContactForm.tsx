@@ -39,7 +39,7 @@ function SubmitButton() {
 }
 
 const inputClass =
-  'w-full bg-igb-surface-low border-b-2 border-igb-outline focus:border-igb-yellow-dark outline-none px-0 py-3 text-igb-on-surface text-sm placeholder:text-igb-secondary/50 transition-colors'
+  'w-full bg-igb-surface-low border-b-2 border-igb-outline focus:border-igb-yellow-dark outline-hidden px-0 py-3 text-igb-on-surface text-sm placeholder:text-igb-secondary/50 transition-colors'
 
 const labelClass = 'block text-xs font-bold text-igb-secondary uppercase tracking-wider mb-1'
 
@@ -72,7 +72,7 @@ export default function ContactForm({ defaultService, services }: ContactFormPro
     <form action={action} className="space-y-6">
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <p className="text-red-700 text-sm">{state.error}</p>
         </div>
       )}

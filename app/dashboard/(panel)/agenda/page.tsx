@@ -48,9 +48,9 @@ export default async function AgendaDashboardPage() {
           <Link
             key={ev.id}
             href={`/dashboard/agenda/${ev.id}`}
-            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
+            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
-            <div className="flex-shrink-0 w-16 text-center">
+            <div className="shrink-0 w-16 text-center">
               <p className="text-xs font-bold text-zinc-400 uppercase">
                 {new Date(`${ev.fecha}T00:00:00`).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
                 {ev.fecha_hasta && (
@@ -71,20 +71,20 @@ export default async function AgendaDashboardPage() {
                   </span>
                 )}
                 {ev.operarios.length > 0 && (
-                  <span className="flex items-center gap-1 flex-shrink-0">
+                  <span className="flex items-center gap-1 shrink-0">
                     <Users size={12} /> {ev.operarios.length}
                   </span>
                 )}
               </div>
             </div>
 
-            <span className={`text-xs font-bold px-2 py-1 rounded flex-shrink-0 ${ESTADO_STYLES[ev.estado] ?? ESTADO_STYLES.programado}`}>
+            <span className={`text-xs font-bold px-2 py-1 rounded-sm shrink-0 ${ESTADO_STYLES[ev.estado] ?? ESTADO_STYLES.programado}`}>
               {formatEstado(ev.estado)}
             </span>
 
             <ChevronRight
               size={16}
-              className="text-zinc-300 group-hover:text-igb-yellow-dark group-hover:translate-x-1 transition-all flex-shrink-0"
+              className="text-zinc-300 group-hover:text-igb-yellow-dark group-hover:translate-x-1 transition-all shrink-0"
             />
           </Link>
         ))}
