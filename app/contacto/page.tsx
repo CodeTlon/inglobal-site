@@ -35,7 +35,7 @@ export default async function ContactoPage() {
   const headingLines = ((s.heading as string) || 'Hablemos de su\npróximo proyecto.').split('\n')
   const headerImage = (s.image as string) || 'igb-1'
   const headerImageAlt = (s.image_alt as string) || 'Grúa telescópica de Grúas InGlobal en operación'
-  const headerImageFocal = (s.image_focal as string) || null
+  const headerImageFocal = (s.image_focal as string) || '50% 100%' // centrado abajo: no corta el camion de la foto por defecto
   const headerImageStyle = headerImageFocal ? { objectPosition: headerImageFocal } : undefined
   const whatsapp = (s.whatsapp as string) || 'https://wa.me/5493513454244'
   const instagram = (s.instagram as string) || 'https://www.instagram.com/gruasinglobal'

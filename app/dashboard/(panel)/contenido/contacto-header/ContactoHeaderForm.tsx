@@ -44,7 +44,7 @@ export default function ContactoHeaderForm({ settings }: { settings: Record<stri
         defaultValue={settings.image as string | null}
         folder="contacto"
         focalName="image_focal"
-        focalDefaultValue={settings.image_focal as string | null}
+        focalDefaultValue={(settings.image_focal as string | null) ?? "50% 100%"}
         hint="Se muestra en la mitad derecha del encabezado de /contacto, con la mitad izquierda en blanco. Marcá en la foto qué parte querés que se vea. Si no se carga, usa una foto por defecto del sitio."
       />
       <TextField label="Texto alternativo de la foto" name="image_alt" defaultValue={settings.image_alt as string} placeholder="Grúa telescópica de Grúas InGlobal en operación" hint="Describe la foto para lectores de pantalla y buscadores." />
