@@ -35,15 +35,17 @@ export default async function ContactoPage() {
   const headingLines = ((s.heading as string) || 'Hablemos de su\npróximo proyecto.').split('\n')
   const headerImage = (s.image as string) || 'igb-1'
   const headerImageAlt = (s.image_alt as string) || 'Grúa telescópica de Grúas InGlobal en operación'
+  const headerImageFocal = (s.image_focal as string) || null
+  const headerImageStyle = headerImageFocal ? { objectPosition: headerImageFocal } : undefined
   const whatsapp = (s.whatsapp as string) || 'https://wa.me/5493513454244'
   const instagram = (s.instagram as string) || 'https://www.instagram.com/gruasinglobal'
 
   return (
     <main className="bg-white">
       {/* Page Header */}
-      <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
-        <div className="container-igb grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div>
+      <section className="relative overflow-hidden pt-40 pb-0 lg:pb-20 lg:min-h-[32rem] lg:flex lg:items-center bg-zinc-50 border-b border-zinc-100">
+        <div className="container-igb relative z-10 w-full">
+          <div className="max-w-xl">
             <span
               className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
               data-animate="fade-up"
@@ -70,18 +72,19 @@ export default async function ContactoPage() {
               {(s.subheading as string) || 'Asesoramiento técnico especializado para operaciones de alta complejidad.'}
             </p>
           </div>
+        </div>
 
+        {/* Foto: debajo del texto en mobile; en desktop ocupa la mitad derecha y el banner se funde de blanco a imagen */}
+        <div className="relative mt-10 h-72 sm:h-96 lg:mt-0 lg:h-auto lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+          {headerImage.startsWith('http') || headerImage.startsWith('/') ? (
+            <Image src={headerImage} alt={headerImageAlt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" style={headerImageStyle} />
+          ) : (
+            <Picture src={headerImage} alt={headerImageAlt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" style={headerImageStyle} />
+          )}
           <div
-            className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-igb"
-            data-animate="fade-up"
-            data-delay="150"
-          >
-            {headerImage.startsWith('http') || headerImage.startsWith('/') ? (
-              <Image src={headerImage} alt={headerImageAlt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-            ) : (
-              <Picture src={headerImage} alt={headerImageAlt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-            )}
-          </div>
+            className="absolute inset-0 bg-gradient-to-b from-zinc-50 from-0% to-transparent to-30% lg:bg-gradient-to-r lg:from-zinc-50 lg:from-0% lg:to-transparent lg:to-35%"
+            aria-hidden="true"
+          />
         </div>
       </section>
 
