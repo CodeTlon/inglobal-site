@@ -170,10 +170,10 @@ export default async function HomePage() {
             <ul className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 hero-anim hero-anim-d3">
               {heroQuickActions.map(({ title, desc, href, Icon, external }) => {
                 const cls =
-                  'group flex h-full items-start gap-3 rounded-xl border border-igb-outline/60 bg-white/90 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-igb-yellow-dark hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-navy'
+                  'group flex h-full items-center gap-3 rounded-xl border border-igb-outline/60 bg-white/90 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-igb-yellow-dark hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-navy'
                 const body = (
                   <>
-                    <Icon className="mt-0.5 h-6 w-6 shrink-0 text-igb-yellow-dark" aria-hidden="true" />
+                    <Icon className="h-6 w-6 shrink-0 text-igb-yellow-dark" aria-hidden="true" />
                     <span>
                       <span className="block text-sm font-bold text-zinc-900">{title}</span>
                       <span className="block text-xs text-igb-secondary">{desc}</span>
