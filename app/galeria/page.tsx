@@ -68,7 +68,7 @@ export default async function GaleriaPage() {
               return (
                 <div
                   key={item.id}
-                  className={`relative overflow-hidden rounded-2xl bg-zinc-100 group shadow-sm ${span}`}
+                  className={`relative overflow-hidden rounded-2xl bg-zinc-100 group shadow-xs ${span}`}
                   data-animate="scale"
                 >
                   {isRemote ? (

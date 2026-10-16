@@ -13,7 +13,7 @@ const AUTOPLAY_MS = 3500
 // Ancho exacto por breakpoint (2/3/5 tarjetas a la vista, mismo patrón calc que ClientesGrid)
 // para que nunca asome un "pico" fraccionario del próximo cliente.
 const cardClass =
-  'bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-sm grayscale opacity-70 transition-all duration-300 group shrink-0 snap-start w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-1rem)] md:w-[calc(20%-1.2rem)]'
+  'bg-white rounded-xl p-6 flex items-center justify-center h-28 border border-slate-100 shadow-xs grayscale opacity-70 transition-all duration-300 group shrink-0 snap-start w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-1rem)] md:w-[calc(20%-1.2rem)]'
 const clickableClass = 'hover:grayscale-0 hover:opacity-100 hover:shadow-md'
 const imgClass = 'object-contain h-full w-full max-h-12 transition-transform duration-300'
 
@@ -106,7 +106,7 @@ export default function ClientesCarousel({ clientes }: { clientes: Cliente[] }) 
     >
       <div
         ref={scrollerRef}
-        className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth items-center pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth items-center pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {clientes.map((cliente) => (
           <ClienteCard key={cliente.slug} cliente={cliente} />

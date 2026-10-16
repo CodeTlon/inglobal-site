@@ -44,7 +44,7 @@ export default function Navbar({ labels }: { labels?: Record<string, unknown> })
         hiddenMode ? 'opacity-0 pointer-events-none' : 'opacity-100'
       } ${
         scrolled || open
-          ? 'bg-white/90 backdrop-blur-md shadow-sm'
+          ? 'bg-white/90 backdrop-blur-md shadow-xs'
           : darkMode
             ? 'bg-zinc-900/90 backdrop-blur-md'
             : 'bg-white/80 backdrop-blur-md'
@@ -52,7 +52,7 @@ export default function Navbar({ labels }: { labels?: Record<string, unknown> })
     >
       <nav className="container-igb flex items-center justify-between h-16 lg:h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+        <Link href="/" className="flex items-center gap-3 shrink-0">
         {/* Un solo logo siempre — logo.png y logo.webp no son la misma
             marca en clara/oscura, son dos diseños distintos (uno apilado en
             2 líneas, otro en 1 línea con más aire), así que el swap se veía

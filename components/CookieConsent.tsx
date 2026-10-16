@@ -67,7 +67,7 @@ export default function CookieConsent() {
       onKeyDown={(e) => {
         if (e.key === 'Escape') decidir('denied')
       }}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-igb-outline bg-igb-on-surface/95 px-4 py-4 backdrop-blur sm:px-6"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-igb-outline bg-igb-on-surface/95 px-4 py-4 backdrop-blur-sm sm:px-6"
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-body text-sm text-white/80">

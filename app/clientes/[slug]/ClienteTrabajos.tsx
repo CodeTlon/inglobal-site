@@ -30,7 +30,7 @@ export default function ClienteTrabajos({ clienteSlug, trabajos }: { clienteSlug
             <Link
               key={t.id}
               href={`/clientes/${clienteSlug}/${t.slug}`}
-              className="group rounded-xl overflow-hidden border border-zinc-200 bg-white shadow-sm hover:shadow-igb hover:-translate-y-0.5 transition-all"
+              className="group rounded-xl overflow-hidden border border-zinc-200 bg-white shadow-xs hover:shadow-igb hover:-translate-y-0.5 transition-all"
             >
               <div className="relative w-full aspect-video bg-zinc-100 overflow-hidden">
                 {thumb ? (

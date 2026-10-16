@@ -31,7 +31,7 @@ export default function ServicioForm({ servicio, entityId, action }: Props) {
 
       {state?.error && (
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <p className="text-red-700 text-sm">{state.error}</p>
         </div>
       )}
@@ -62,7 +62,7 @@ export default function ServicioForm({ servicio, entityId, action }: Props) {
         <select
           name="icon"
           defaultValue={servicio?.icon ?? ICON_OPTIONS[0]}
-          className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors"
+          className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2.5 text-sm text-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-igb-yellow/50 focus:border-igb-yellow-dark transition-colors"
         >
           {ICON_OPTIONS.map((opt) => (
             <option key={opt} value={opt}>

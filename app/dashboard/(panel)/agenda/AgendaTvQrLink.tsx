@@ -17,14 +17,14 @@ export default function AgendaTvQrLink() {
   if (!url) return null
 
   return (
-    <div className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm">
+    <div className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(url)}`}
         alt="QR para abrir la Agenda en la TV"
         width={100}
         height={100}
-        className="rounded flex-shrink-0"
+        className="rounded-sm shrink-0"
       />
       <div className="min-w-0">
         <p className="text-sm font-headline font-bold text-zinc-900">Agenda en TV</p>

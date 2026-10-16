@@ -9,7 +9,7 @@ import type { Cliente } from '@/lib/content'
 const PER_PAGE = 20
 
 const cardClass =
-  'w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-1rem)] md:w-[calc(25%-1.125rem)] lg:w-[calc(20%-1.2rem)] bg-white rounded-xl p-6 flex items-center justify-center shadow-sm border border-zinc-100 aspect-[3/2] cursor-pointer hover:-translate-y-1 transition-all duration-300'
+  'w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-1rem)] md:w-[calc(25%-1.125rem)] lg:w-[calc(20%-1.2rem)] bg-white rounded-xl p-6 flex items-center justify-center shadow-xs border border-zinc-100 aspect-3/2 cursor-pointer hover:-translate-y-1 transition-all duration-300'
 
 function ClienteCard({ cliente }: { cliente: Cliente }) {
   return (

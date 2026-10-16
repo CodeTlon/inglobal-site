@@ -135,7 +135,7 @@ function CatalogRow({
       <div className="border border-igb-yellow/40 bg-igb-yellow/5 rounded-lg px-3 py-3">
         {updateState?.error && (
           <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-2 mb-3">
-            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
             <p className="text-red-700 text-xs">{updateState.error}</p>
           </div>
         )}
@@ -247,7 +247,7 @@ export default function CatalogSection({ title, items, searchable, fields, creat
   }
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
+    <div className="bg-white rounded-xl border border-zinc-200 shadow-xs p-6">
       <h2 className="font-headline font-bold text-zinc-900 mb-4">{title}</h2>
 
       {searchable && (
@@ -277,7 +277,7 @@ export default function CatalogSection({ title, items, searchable, fields, creat
 
       {(createState?.error || deleteError) && (
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-          <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <p className="text-red-700 text-xs">{createState?.error ?? deleteError}</p>
         </div>
       )}

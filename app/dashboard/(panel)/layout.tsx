@@ -94,9 +94,9 @@ function SidebarLink({
           : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
       }`}
     >
-      <Icon size={16} className="flex-shrink-0" />
+      <Icon size={16} className="shrink-0" />
       <span className="truncate">{label}</span>
-      {active && <ChevronRight size={14} className="ml-auto flex-shrink-0 opacity-60" />}
+      {active && <ChevronRight size={14} className="ml-auto shrink-0 opacity-60" />}
     </Link>
   )
 }
@@ -109,8 +109,8 @@ export default function DashboardPanelLayout({
   const [navOpen, setNavOpen] = useState(false)
 
   return (
-    /* Cubre la Navbar/Footer del layout raíz — z-[100] > z-50 del Navbar */
-    <div className="fixed inset-0 z-[100] flex bg-zinc-100 overflow-hidden">
+    /* Cubre la Navbar/Footer del layout raíz — z-100 > z-50 del Navbar */
+    <div className="fixed inset-0 z-100 flex bg-zinc-100 overflow-hidden">
       <Suspense fallback={null}>
         <SavedToast />
       </Suspense>
@@ -125,7 +125,7 @@ export default function DashboardPanelLayout({
 
       {/* Sidebar — drawer off-canvas en mobile, fija en lg+ */}
       <aside
-        className={`fixed inset-y-0 left-0 z-20 w-72 max-w-[85vw] flex-shrink-0 bg-slate-900 flex flex-col overflow-hidden transition-transform duration-200 lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-20 w-72 max-w-[85vw] shrink-0 bg-slate-900 flex flex-col overflow-hidden transition-transform duration-200 lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0 ${
           navOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -188,7 +188,7 @@ export default function DashboardPanelLayout({
               type="submit"
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all"
             >
-              <LogOut size={16} className="flex-shrink-0" />
+              <LogOut size={16} className="shrink-0" />
               Cerrar sesión
             </button>
           </form>
@@ -199,7 +199,7 @@ export default function DashboardPanelLayout({
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Topbar */}
         <header
-          className="h-14 flex-shrink-0 bg-white border-b border-zinc-200 flex items-center px-4 sm:px-6 gap-3"
+          className="h-14 shrink-0 bg-white border-b border-zinc-200 flex items-center px-4 sm:px-6 gap-3"
           style={{ paddingTop: 'env(safe-area-inset-top)', height: 'calc(3.5rem + env(safe-area-inset-top))' }}
         >
           <button

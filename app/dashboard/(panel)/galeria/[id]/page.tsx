@@ -52,7 +52,7 @@ export default async function GaleriaEditPage({ params }: Props) {
         }
       />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <GaleriaForm item={item} entityId={item.id} action={updateGaleriaItem} />
       </div>
     </div>

@@ -45,7 +45,7 @@ export default async function ClienteTrabajosDashboardPage({ params }: Props) {
             key={t.slug}
             href={`/dashboard/clientes/${cliente.slug}/trabajos/${t.id}`}
             prefetch={false}
-            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
+            className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
           >
             <div className="flex-1 min-w-0">
               <p className="font-headline font-bold text-zinc-900 text-sm">{t.title}</p>
@@ -54,7 +54,7 @@ export default async function ClienteTrabajosDashboardPage({ params }: Props) {
 
             <ChevronRight
               size={16}
-              className="text-zinc-300 group-hover:text-igb-yellow-dark group-hover:translate-x-1 transition-all flex-shrink-0"
+              className="text-zinc-300 group-hover:text-igb-yellow-dark group-hover:translate-x-1 transition-all shrink-0"
             />
           </Link>
         ))}

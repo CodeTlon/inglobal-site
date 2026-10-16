@@ -33,10 +33,10 @@ export default async function ServiciosDashboardPage() {
               key={s.slug}
               href={`/dashboard/servicios/${s.slug}`}
               prefetch={false}
-              className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-sm hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
+              className="flex items-center gap-4 bg-white rounded-xl p-4 border border-zinc-200 shadow-xs hover:shadow-igb hover:border-igb-yellow/40 transition-all group"
             >
               {/* Image or icon */}
-              <div className="w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-100 flex items-center justify-center">
+              <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 bg-zinc-100 flex items-center justify-center">
                 {s.img ? (
                   <Image
                     src={isRemote ? s.img : `/images/opt/${s.img.replace(/^.*\//, '').replace(/\.[^.]+$/, '')}-md.webp`}
@@ -55,8 +55,8 @@ export default async function ServiciosDashboardPage() {
                 <p className="text-xs text-zinc-500 truncate mt-0.5">{s.desc}</p>
               </div>
 
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <span className="hidden sm:inline text-xs font-bold text-zinc-400 bg-zinc-50 px-2 py-1 rounded">
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="hidden sm:inline text-xs font-bold text-zinc-400 bg-zinc-50 px-2 py-1 rounded-sm">
                   Orden {s.display_order}
                 </span>
                 <ChevronRight

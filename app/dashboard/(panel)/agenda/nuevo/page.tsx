@@ -30,7 +30,7 @@ export default async function NuevoEventoPage({
 
       <PageHeader title="Nuevo Evento" description="Programá una grúa para una empresa en un horario y ubicación." />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <EventoForm gruas={gruas} empresas={empresas} operarios={operarios} action={createEvento} from={from} fechaInicial={fecha} />
       </div>
     </div>

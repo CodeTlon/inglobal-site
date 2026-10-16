@@ -4,10 +4,10 @@ Sitio institucional de **Grúas InGlobal S.R.L.** (alquiler de grúas y montajes
 
 ## Stack
 
-- **Next.js 15.5** (App Router) + TypeScript + **Tailwind CSS**
+- **Next.js 16.4.2** (App Router) + React 19 + TypeScript 6 + **Tailwind CSS 4** (tokens `igb-*` en `@theme`)
 - **Postgres propio** (Coolify) + Drizzle, **Better Auth**, bucket S3-compatible `media`
 - **Resend** (formulario de contacto) · Zod + Server Actions
-- **Playwright** (E2E, puerto dedicado 3310) · Deploy en **Vercel**
+- **Playwright** (E2E, puerto dedicado 3310) · Deploy en **Coolify** (`dev`/`test`); la produccion (`main`) sigue en Vercel + Supabase hasta el corte, bloqueado por el acceso al dominio
 
 ## Setup
 
@@ -38,7 +38,7 @@ Ver `.env.example` y `.ai/context/ENVIRONMENTS.md`: `DATABASE_URL`, `BETTER_AUTH
 - `app/dashboard/` — login + CMS admin (`site_settings`, montajes, clientes, servicios)
 - `lib/content.ts` — fetchers con fallbacks tipados (fuente de datos de las páginas públicas)
 - `app/actions/` — Server Actions (mutaciones del dashboard + contacto)
-- `middleware.ts` — auth gate de `/dashboard/**`
+- `proxy.ts` — auth gate de `/dashboard/**` (antes `middleware.ts`, Next 16)
 - `drizzle/` — migraciones SQL (Drizzle) · `db/schema.ts` — esquema
 
 Ver [`ARCHITECTURE.md`](./ARCHITECTURE.md) para el mapa de dónde tocar cada cosa.

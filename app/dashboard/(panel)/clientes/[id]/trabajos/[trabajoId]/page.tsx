@@ -54,7 +54,7 @@ export default async function TrabajoEditPage({ params }: Props) {
         }
       />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <TrabajoForm clienteId={cliente.id} trabajo={trabajo} entityId={trabajo.id} action={updateTrabajo} />
       </div>
     </div>

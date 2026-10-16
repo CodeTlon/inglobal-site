@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export default function AgendaTvPairPage() {
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto">
+    <div className="fixed inset-0 z-100 bg-white overflow-y-auto">
       <AgendaKioskHeader title="Vincular esta TV" theme="light" />
       <div className="px-10 py-16 flex items-center justify-center">
         <PairQr />

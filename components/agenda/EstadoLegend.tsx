@@ -16,14 +16,14 @@ export default function EstadoLegend() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Referencias de colores"
-        className="fixed bottom-6 right-6 z-[150] flex items-center justify-center rounded-full border border-zinc-200 bg-white w-9 h-9 text-zinc-400 opacity-60 hover:opacity-100 hover:bg-zinc-50 active:scale-95 transition-all"
+        className="fixed bottom-6 right-6 z-150 flex items-center justify-center rounded-full border border-zinc-200 bg-white w-9 h-9 text-zinc-400 opacity-60 hover:opacity-100 hover:bg-zinc-50 active:scale-95 transition-all"
       >
         <Info size={18} />
       </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-[200] bg-black/40 flex items-center justify-center px-6"
+          className="fixed inset-0 z-200 bg-black/40 flex items-center justify-center px-6"
           onClick={() => setOpen(false)}
         >
           <div className="bg-white rounded-2xl p-6 w-full max-w-xs space-y-3" onClick={(e) => e.stopPropagation()}>

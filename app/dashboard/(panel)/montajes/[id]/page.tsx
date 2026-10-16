@@ -52,7 +52,7 @@ export default async function MontajeEditPage({ params }: Props) {
         }
       />
 
-      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
+      <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-xs">
         <MontajeForm montaje={montaje} entityId={montaje.id} action={updateMontaje} />
       </div>
     </div>
