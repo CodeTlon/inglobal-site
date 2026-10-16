@@ -18,7 +18,7 @@ function redirectTo(request: NextRequest, pathname: string, params?: Record<stri
   return NextResponse.redirect(url)
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   type U = { id: string; mustChangePassword?: boolean }
   let user: U | null = null
   let sessionError = false
@@ -64,6 +64,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  runtime: 'nodejs',
-  matcher: ['/dashboard/:path*', '/agenda-tv/:path*'],
+  matcher: ['/dashboard/:path*', '/agenda-tv/:path*']
 }
