@@ -4,6 +4,8 @@ import Picture from '@/components/Picture'
 import HeroVideo from '@/components/HeroVideo'
 import LazyGoogleMap from '@/components/LazyGoogleMap'
 import ClientesCarousel from '@/components/ClientesCarousel'
+import { ClipboardList, FileText } from 'lucide-react'
+import WhatsAppIcon from '@/components/WhatsAppIcon'
 import { getSiteSettings, getServicios, getClientes } from '@/lib/content'
 
 // El layout bento (cantidad de tiles y su span) queda fijo en código; src/alt/label
@@ -42,9 +44,10 @@ const defaultStats = [
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const [heroSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, gallerySettings, servicios, clientes] =
+  const [heroSettings, contactoHeaderSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, gallerySettings, servicios, clientes] =
     await Promise.all([
       getSiteSettings('hero'),
+      getSiteSettings('contacto_header'),
       getSiteSettings('stats'),
       getSiteSettings('que_hacemos'),
       getSiteSettings('cta_banner'),
@@ -63,14 +66,20 @@ export default async function HomePage() {
     (heroSettings.subheadline as string) ||
     'Líderes en alquiler de grúas y montajes industriales de alta complejidad. Operadores y equipos certificados en toda Argentina.'
   const heroHighlightWord = (heroSettings.highlight_word as string) || 'seguridad'
-  const heroCtaPrimary = (heroSettings.cta_primary as string) || 'Solicitar Presupuesto'
-  const heroCtaSecondary = (heroSettings.cta_secondary as string) || 'Ver Servicios'
   const heroVideoUrl = (heroSettings.video_url as string | null | undefined) || null
   const heroVideoUrlMobile = (heroSettings.video_url_mobile as string | null | undefined) || null
   const heroVideoFocal = (heroSettings.video_focal as string | null | undefined) || null
   const heroFallbackImage = (heroSettings.fallback_image as string) || 'igb-3'
   // default 100 = comportamiento idéntico al fijo de antes (los alphas ya están en las clases bg-igb-surface/90 etc.)
   const heroOverlayOpacity = Number(heroSettings.overlay_opacity ?? 100) / 100
+
+  const heroWhatsapp =
+    (contactoHeaderSettings.whatsapp as string) || 'https://wa.me/5493513454244'
+  const heroQuickActions = [
+    { title: (heroSettings.card1_title as string) || 'Qué ofrecemos', desc: (heroSettings.card1_desc as string) || 'Nuestros equipos y servicios', href: '/servicios', Icon: ClipboardList, external: false },
+    { title: (heroSettings.card2_title as string) || 'Solicitar presupuesto', desc: (heroSettings.card2_desc as string) || 'Contanos tu proyecto', href: '/contacto', Icon: FileText, external: false },
+    { title: (heroSettings.card3_title as string) || 'Solicitar por WhatsApp', desc: (heroSettings.card3_desc as string) || 'Respuesta directa', href: heroWhatsapp, Icon: WhatsAppIcon, external: true },
+  ]
 
   // Stats
   const statsItems: { number: string; label: string }[] = Array.isArray(statsSettings.items)
@@ -158,17 +167,34 @@ export default async function HomePage() {
               {heroSubheadline}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 hero-anim hero-anim-d3">
-              <Link href="/contacto" className="btn-primary text-center">
-                {heroCtaPrimary}
-              </Link>
-              <Link
-                href="/servicios"
-                className="btn-outline text-center bg-white/90 sm:bg-transparent inline-flex items-center justify-center"
-              >
-                {heroCtaSecondary}
-              </Link>
-            </div>
+            <ul className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 hero-anim hero-anim-d3">
+              {heroQuickActions.map(({ title, desc, href, Icon, external }) => {
+                const cls =
+                  'group flex h-full items-center gap-3 rounded-xl border border-igb-outline/60 bg-white/90 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-igb-yellow-dark hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-igb-navy'
+                const body = (
+                  <>
+                    <Icon className="h-6 w-6 shrink-0 text-igb-yellow-dark" aria-hidden="true" />
+                    <span>
+                      <span className="block text-sm font-bold text-zinc-900">{title}</span>
+                      <span className="block text-xs text-igb-secondary">{desc}</span>
+                    </span>
+                  </>
+                )
+                return (
+                  <li key={title}>
+                    {external ? (
+                      <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+                        {body}
+                      </a>
+                    ) : (
+                      <Link href={href} className={cls}>
+                        {body}
+                      </Link>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
           </div>
         </div>
       </section>
