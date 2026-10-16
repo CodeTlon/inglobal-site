@@ -1,5 +1,7 @@
 # ARCHITECTURE — Grúas InGlobal
 
+> **Vigente al 2026-10-16** (lo demas de este archivo conserva texto historico de la epoca Supabase, ver la nota de abajo): Next.js 16.4.2 + React 19.3.1 + TypeScript 6 + Tailwind 4.3.3 (tokens `igb-*` en `@theme` de `app/globals.css`), Zod 4, Postgres 17 + Drizzle + Better Auth 1.7.10 (excepcion documentada: capa propia `lib/db.ts` sobre `pg`), archivos en `STORAGE_DIR` servidos por `/media` (o bucket S3-compatible), Resend. `proxy.ts` (antes `middleware.ts`) es el auth gate de `/dashboard/**`. La capa `app/api/**` para la app mobile usa Bearer token (`lib/api-auth.ts`). No quedan clientes de Supabase en el codigo de `dev`/`test`: `lib/` no tiene `supabase*.ts`.
+
 > **Nota 2026-10-14:** el proyecto salió de Supabase y Vercel (ver `MIGRACION_SUPABASE.md`). Donde este documento dice Supabase, RLS, `supabase-js` o Vercel, leer: Postgres propio + `lib/db.ts`, autorización en el servidor (`requireSessionUser`/`requireApiUser`), Better Auth, bucket S3 y Coolify. La descripción de reglas de negocio sigue vigente.
 
 

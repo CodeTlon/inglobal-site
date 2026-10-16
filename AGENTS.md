@@ -1,14 +1,14 @@
 # AGENTS.md — Grúas InGlobal
 
-Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúas/montajes, Córdoba AR). Next.js 15 en Coolify (Docker), con una app mobile satélite que consume una capa REST propia (`app/api/**`) para la agenda de flota. Reescritura de un sitio PHP legacy.
+Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúas/montajes, Córdoba AR). Next.js 16 en Coolify (Docker), con una app mobile satélite que consume una capa REST propia (`app/api/**`) para la agenda de flota. Reescritura de un sitio PHP legacy.
 
 ## Stack
 
 | Capa | Tecnología |
 |---|---|
-| Framework | Next.js 15.5 (App Router, RSC) |
+| Framework | Next.js 16.4.2 (App Router, RSC) + React 19.3.1 |
 | Lenguaje | TypeScript 5 (`strict: true`) |
-| UI | Tailwind CSS 3.4 + tokens custom `igb-*` |
+| UI | Tailwind CSS 4.3.3 + tokens custom `igb-*` en `@theme` (sin `tailwind.config.ts`) |
 | Validación | Zod **v4** + react-hook-form |
 | Datos | Postgres propio (Coolify) · esquema y migraciones con Drizzle (`db/schema.ts`, `drizzle/`) · consultas vía `lib/db.ts` |
 | Auth | Better Auth (email + contraseña, sin signup, plugin bearer para la app) |
@@ -43,7 +43,7 @@ npm run test:unit            # capa de datos (paridad con el backup de prod)
 - **Esquema:** se cambia en `db/schema.ts` + migración Drizzle; lo que Drizzle no expresa va en una migración SQL manual (`drizzle-kit generate --custom`). Nunca editar una migración ya aplicada en prod.
 - **`lib/friendly-error.ts` obligatorio** en todo `catch`/`if(error)` de Server Actions — nunca `error.message` de Supabase crudo a la UI.
 - **Un solo tipo de cuenta** (sin roles) — cualquier cuenta autenticada tiene acceso total al panel web y a la app mobile vía `app/api/**`. El sistema de roles `admin`/`trabajador` que existió brevemente se eliminó (ver `.ai/context/DECISIONS.md`) — no reintroducirlo sin discutirlo primero.
-- **`prefetch={false}`** en todo `Link` nuevo dentro de `/dashboard/**` — el middleware llama `auth.getUser()` en cada ruta del panel, y el prefetch automático de Next multiplica esas llamadas.
+- **`prefetch={false}`** en todo `Link` nuevo dentro de `/dashboard/**` — el `proxy.ts` (antes `middleware.ts`) llama `auth.getUser()` en cada ruta del panel, y el prefetch automático de Next multiplica esas llamadas.
 - **CSP solo corre en producción** — no asumir que un bloqueo de CSP aparece en `npm run dev`.
 - **Server Actions vs `app/api/**`**: si la mutación la usa el sitio público o el dashboard web, es un Server Action; si la consume la app mobile, es un Route Handler con auth Bearer en `app/api/**`.
 - Todo el contenido y la UI son en español (es_AR).

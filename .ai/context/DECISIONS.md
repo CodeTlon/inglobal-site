@@ -87,3 +87,8 @@ Un evento se puede cancelar aunque su grua u operarios hayan quedado inactivos (
 - *Sin RLS:* la autorización es solo del servidor. Es el mismo modelo que ya había (cuenta única autenticada = acceso total), pero ahora un olvido de `requireSessionUser()` expone datos; por eso es regla crítica en `AGENTS.md`.
 - *Signup deshabilitado* a nivel de Better Auth: en el Supabase de prod estaba habilitado y las policies daban escritura a cualquier autenticado (hallazgo del 2026-10-14). La migración lo cierra.
 - *TV pairing sin magic link:* el servidor crea la sesión directamente tras validar el código de un solo uso (se consume antes de crear la sesión).
+
+## Estandar de versiones de la flota: Next 16 + React 19 + Tailwind 4 (2026-10-16)
+**Decision**: seguir el conjunto de `codetlon-cloud/.claude/modules/stack-versions.md` (versiones exactas) en `dev` y `test`. Se mantiene la excepcion de la capa `lib/db.ts` sobre `pg` (sin Drizzle en runtime).
+**Por que**: reducir vulnerabilidades (Tailwind 3 arrastraba `chokidar`/`braces`) y tener la flota en un solo conjunto.
+**Consecuencias**: `middleware.ts` pasa a `proxy.ts`; `next lint` se reemplaza por `eslint .` con `eslint.config.mjs`; se retiran `tailwind.config.ts` y `autoprefixer`; se quitan los overrides `sharp` y `next.postcss`.
