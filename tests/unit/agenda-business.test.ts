@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { rangosSeSolapan } from '../../lib/agenda-business'
+import { estadoTransicionado, rangosSeSolapan } from '../../lib/agenda-business'
 import { crearEventoSchema, eventoAgendaSchema } from '../../lib/validations/agenda'
 
 const w = (fecha: string, hora_inicio: string, hora_fin: string | null, fecha_hasta: string | null = null) => ({ fecha, hora_inicio, hora_fin, fecha_hasta })
@@ -26,4 +26,23 @@ test('validación de formatos y estado inicial', () => {
   assert.equal(crearEventoSchema.safeParse({ ...base, hora_inicio: '25:99' }).success, false)
   assert.equal(crearEventoSchema.safeParse({ ...base, estado: 'finalizado' }).success, false)
   assert.equal(eventoAgendaSchema.safeParse({ ...base, fecha: '2020-01-01', estado: 'finalizado' }).success, true)
+})
+
+// Las horas del evento son de Córdoba (UTC-3); el servidor corre en UTC. Los instantes se dan con offset explícito
+// para que el test pase igual en cualquier zona de la máquina.
+const enCurso = { estado: 'en_curso' as const, fecha: '2030-01-10', fecha_hasta: null, hora_inicio: '09:00:00', hora_fin: '12:00:00' }
+
+test('un evento no se finaliza antes de su hora de fin en Córdoba', () => {
+  assert.equal(estadoTransicionado(enCurso, new Date('2030-01-10T11:30:00-03:00')), null)
+  assert.equal(estadoTransicionado(enCurso, new Date('2030-01-10T14:30:00Z')), null) // 11:30 en Córdoba
+})
+
+test('un evento se finaliza pasada su hora de fin en Córdoba', () => {
+  assert.equal(estadoTransicionado(enCurso, new Date('2030-01-10T12:01:00-03:00')), 'finalizado')
+})
+
+test('una reserva se cancela recién al llegar su hora de inicio en Córdoba', () => {
+  const reserva = { ...enCurso, estado: 'reserva' as const }
+  assert.equal(estadoTransicionado(reserva, new Date('2030-01-10T11:00:00Z')), null) // 08:00 en Córdoba
+  assert.equal(estadoTransicionado(reserva, new Date('2030-01-10T12:00:00Z')), 'cancelado') // 09:00
 })

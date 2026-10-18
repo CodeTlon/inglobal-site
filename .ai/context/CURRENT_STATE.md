@@ -1,5 +1,7 @@
 # CURRENT_STATE — Grúas InGlobal
 
+**Actualizacion 2026-10-18 (v2.1.2):** corregido el calculo de estado de los eventos de agenda (`estadoTransicionado`, `getEstadoVisual`): las horas son de Cordoba y se interpretaban en UTC, asi que un evento se finalizaba 3 horas antes (y las reservas se cancelaban antes). Ahora usan `OFFSET_AR` (`-03:00`). Era la causa real del E2E `disponible/ocupado hoy` que fallaba por la tarde. E2E de agenda 6/6 y unit tests verdes. Los eventos ya finalizados de mas en la base de produccion, si los hubo, no se corrigen solos (el estado se persiste al leer).
+
 **Actualizacion 2026-10-18:** `dev` y `test` contienen `origin/main` (PR #8, ajustes de cliente en contacto/hero/servicios). E2E corridos contra el build de produccion con Postgres 17 y el seed: 29 de 30 pasan; `catalogos muestra disponible/ocupado hoy` falla fuera del horario del seed (eventos de hoy hasta las 19:00 Cordoba). Sin verificar: CI en GitHub tras el merge y el despliegue de `test` en Coolify.
 
 **Actualizacion 2026-10-16:** la rama `feature/dev2-estandar-2026` (integrada en `dev` y `test`) lleva el proyecto al estandar de versiones de la flota: Next 16.4.2, React 19.3.1, Tailwind 4.3.3, TypeScript 6.0.3, ESLint 10.13.0, `proxy.ts`. Verificado: `tsc`, lint (0 errores), 8 tests unitarios, build, imagen Docker Alpine, `npm audit --omit=dev` en 0. **Sin verificar:** E2E (los corre el CI), despliegue de `test` con esta version. Produccion (`main`) sigue en Vercel + Supabase; el corte espera el acceso al dominio.
