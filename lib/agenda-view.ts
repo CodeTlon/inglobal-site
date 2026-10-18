@@ -5,6 +5,11 @@
 
 import type { EventoAgenda } from './agenda'
 
+// Las horas de los eventos son de pared de Córdoba. Sin offset, `new Date('2026-10-18T18:00:00')` se interpreta
+// en la zona del servidor (UTC en Coolify/Vercel) y el evento termina 3 horas antes de lo real. Argentina no
+// tiene horario de verano, así que el offset es fijo.
+export const OFFSET_AR = '-03:00'
+
 // Fecha local en formato YYYY-MM-DD. OJO: d.toISOString() pasa a UTC — con
 // Argentina en UTC-3 eso corre la fecha "hoy" un día para adelante entre las
 // 21:00 y las 23:59 locales (el reloj UTC ya cruzó medianoche). Por eso se arma
@@ -165,9 +170,9 @@ export function finDiaEfectivoEvento(ev: {
 export function getEstadoVisual(evento: EventoAgenda, now = new Date()): string {
   const horaInicioStr = evento.hora_inicio.slice(0, 8)
   const horaFinEfectiva = (evento.hora_fin ?? '23:59:59').slice(0, 8)
-  const inicio = new Date(`${evento.fecha}T${horaInicioStr}`)
+  const inicio = new Date(`${evento.fecha}T${horaInicioStr}${OFFSET_AR}`)
   const finDiaStr = finDiaEfectivo(evento.fecha, evento.fecha_hasta, horaInicioStr, horaFinEfectiva)
-  const fin = new Date(`${finDiaStr}T${horaFinEfectiva}`)
+  const fin = new Date(`${finDiaStr}T${horaFinEfectiva}${OFFSET_AR}`)
   if (evento.estado === 'reserva') {
     if (inicio <= now) return 'cancelado'
   } else if (evento.estado === 'programado') {

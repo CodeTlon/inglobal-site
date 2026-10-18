@@ -12,7 +12,7 @@
 import type { Db } from '@/lib/db'
 import { friendlyError } from '@/lib/friendly-error'
 import { TRANSICIONES_VALIDAS, type EstadoEvento } from '@/lib/validations/agenda'
-import { finDiaEfectivo } from '@/lib/agenda-view'
+import { finDiaEfectivo, OFFSET_AR } from '@/lib/agenda-view'
 
 export type CatalogTable = 'gruas' | 'empresas_agenda' | 'operarios'
 
@@ -313,14 +313,14 @@ export function estadoTransicionado(evento: EventoEstadoWindow, now = new Date()
   if (evento.estado !== 'reserva' && evento.estado !== 'programado' && evento.estado !== 'en_curso') return null
   const horaInicioStr = evento.hora_inicio.slice(0, 8)
   const horaFinEfectiva = (evento.hora_fin ?? '23:59:59').slice(0, 8)
-  const inicio = new Date(`${evento.fecha}T${horaInicioStr}`)
+  const inicio = new Date(`${evento.fecha}T${horaInicioStr}${OFFSET_AR}`)
   // finDiaEfectivo (lib/agenda-view.ts): turno nocturno sin `fecha_hasta`
   // (22:00→02:00) calculaba `fin` en el MISMO día, antes que `inicio` — con
   // eso `fin < now` daba true casi todo el tiempo y esta función lo pasaba a
   // 'finalizado' EN LA BASE apenas pasaban las 2am del día que arrancó,
   // aunque el turno siguiera en curso.
   const finDiaStr = finDiaEfectivo(evento.fecha, evento.fecha_hasta, horaInicioStr, horaFinEfectiva)
-  const fin = new Date(`${finDiaStr}T${horaFinEfectiva}`)
+  const fin = new Date(`${finDiaStr}T${horaFinEfectiva}${OFFSET_AR}`)
   // reserva: es tentativa, nadie la confirmó a "programado". Si ya llegó el
   // día/hora para el que se pidió, se cancela sola y libera la grúa/operario
   // — no espera a que termine la ventana como programado/en_curso, porque
