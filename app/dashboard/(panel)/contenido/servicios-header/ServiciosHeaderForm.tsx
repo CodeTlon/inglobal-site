@@ -2,7 +2,7 @@
 
 import { useFormState } from 'react-dom'
 import { updateSiteSettings } from '@/app/actions/settings'
-import { TextField, TextArea } from '@/components/dashboard/Field'
+import { TextField, TextArea, ImageUpload, VideoUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
@@ -31,6 +31,29 @@ export default function ServiciosHeaderForm({ settings }: { settings: Record<str
         rows={3}
         hint="Párrafo de apoyo debajo del título."
         placeholder="Soluciones de ingeniería en movimiento con equipos certificados y operadores expertos en toda Argentina."
+      />
+      <VideoUpload
+        label="Video de fondo — desktop (MP4)"
+        name="video_url"
+        defaultValue={settings.video_url as string | null}
+        folder="servicios"
+        focalName="video_focal"
+        focalDefaultValue={settings.video_focal as string | null}
+        hint="Opcional. Video de fondo del encabezado de /servicios. Si no se carga, usa el video del hero del inicio."
+      />
+      <VideoUpload
+        label="Video de fondo — mobile (MP4, opcional)"
+        name="video_url_mobile"
+        defaultValue={settings.video_url_mobile as string | null}
+        folder="servicios"
+        hint="Opcional. Si no se carga, en mobile se usa el video de desktop."
+      />
+      <ImageUpload
+        label="Imagen de fondo (fallback)"
+        name="fallback_image"
+        defaultValue={settings.fallback_image as string | null}
+        folder="servicios"
+        hint="Se muestra si no hay video o el usuario prefiere movimiento reducido."
       />
       <TextField label="Título del CTA final" name="cta_heading" defaultValue={settings.cta_heading as string} placeholder="¿Listo para comenzar su proyecto?" />
       <TextArea

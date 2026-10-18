@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
+import HeroVideo from '@/components/HeroVideo'
 import { getServicios, getSiteSettings } from '@/lib/content'
 import { JsonLd } from '@/components/seo/JsonLd'
 import TLDRBox from '@/components/TLDRBox'
@@ -90,8 +91,19 @@ export default async function ServiciosPage() {
       />
 
       {/* Page Header */}
-      <section className="pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
-        <div className="container-igb">
+      <section className="relative overflow-hidden pt-40 pb-20 bg-zinc-50 border-b border-zinc-100">
+        <div className="absolute inset-0 z-0" aria-hidden="true">
+          <HeroVideo
+            videoUrl={(s.video_url as string) || '/videos/opt/hero-desktop.mp4'}
+            mobileVideoUrl={(s.video_url_mobile as string) || '/videos/opt/hero-mobile.mp4'}
+            videoFocal={(s.video_focal as string) || null}
+            fallbackImageSrc={(s.fallback_image as string) || 'igb-3'}
+            fallbackImageAlt=""
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-50 via-zinc-50/90 to-zinc-50/60 md:bg-gradient-to-r md:from-zinc-50 md:via-zinc-50/90 md:to-zinc-50/20" />
+        </div>
+        <div className="container-igb relative z-10">
           <span
             className="text-igb-yellow-dark text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
             data-animate="fade-up"

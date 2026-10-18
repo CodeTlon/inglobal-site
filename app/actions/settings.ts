@@ -26,7 +26,7 @@ const SETTING_PATHS: Record<string, string[]> = {
   montajes_header:    ['/montajes'],
   galeria_header:     ['/galeria'],
   clientes_cta:       ['/clientes'],
-  contacto_header:    ['/contacto'],
+  contacto_header:    ['/contacto', '/'], // el home usa su link de WhatsApp en el recuadro del hero
   navbar:             ['/'],
   footer_extra:       ['/'],
   home_gallery:       ['/'],
