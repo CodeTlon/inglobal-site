@@ -18,5 +18,6 @@ Al cerrar una sesión de mantenimiento (`/cerrar`), actualizar `.ai/context/` (y
 ## Historial de Cambios
 | Fecha | Rama | Cambio |
 |-------|------|--------|
+| 2026-10-18 | feature/dev2-sync-main | v2.1.1 — `origin/main` (PR #8) mergeado en `dev` y `test`; E2E 29/30 contra build de produccion + Postgres 17 con seed (el fallo depende de la hora del seed, ver README). Sin cambios de codigo. |
 | 2026-10-16 | feature/dev2-estandar-2026 | v2.1.0 — estandar de versiones de la flota (Next 16, React 19, Tailwind 4, ESLint 10, `proxy.ts`). 8 tests unitarios, audit de runtime en 0, imagen Docker verificada. |
 | 2026-10-15 | dev/test | v2.0.x — workflows del estandar, fuentes autoalojadas, salida de Supabase y Vercel en `dev`/`test`. |
