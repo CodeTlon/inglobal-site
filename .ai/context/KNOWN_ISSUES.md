@@ -58,7 +58,7 @@ La migración 032 hizo `UPDATE empresas_agenda SET tipo = 'frecuente'`. Hay que 
 `ROLES_OPERARIO` está duplicado en `inglobal-site/lib/validations/agenda.ts` y en `inglobal-agenda-app/src/lib/types.ts`. Cambiarlo en un repo exige cambiarlo en el otro.
 
 ## "Hoy" del servidor
-Las paginas de agenda usan `toDateInput(new Date())` (hora del servidor, UTC en Vercel). El inicio del panel y los catalogos ya usan hora de Cordoba (`hoyArgentina`); el calendario no.
+Las paginas de agenda usan `toDateInput(new Date())` (hora del servidor, UTC en Vercel). El inicio del panel y los catalogos ya usan hora de Cordoba (`hoyArgentina`); el calendario no. Las horas de los eventos (inicio/fin) si se comparan con offset `-03:00` (`OFFSET_AR`) desde v2.1.2.
 
 ## Capa de datos propia (`lib/db.ts`) en vez de un ORM tipado (2026-10-14)
 Para que la migración no tocara las ~128 consultas ni la forma de las filas, `lib/db.ts` imita la API de consultas de Supabase sobre `pg` (solo el subconjunto que se usa). Las filas no están tipadas por esquema (son `any`). Drizzle se usa para esquema y migraciones, no para consultas. Mover consultas a Drizzle, módulo por módulo, es una mejora posible; cualquier relación nueva en `select()` hay que agregarla a `RELATIONS` en `lib/db.ts`.
