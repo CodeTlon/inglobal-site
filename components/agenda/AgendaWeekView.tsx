@@ -131,7 +131,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                   {esDiaInicio ? horaInicioDelDia.slice(0, 5) : 'cont.'} {ev.empresa?.nombre ?? 'Empresa'}
                 </p>
                 {/* Con 3+ carriles el ancho no alcanza: solo hora y empresa; el detalle va en el tooltip/modal. */}
-                {slot.lanes < 3 && <p className="text-[11px] truncate opacity-80">{nombresGruas(ev)}</p>}
+                {slot.lanes < 3 && <p className="text-[11px] line-clamp-2 opacity-80">{nombresGruas(ev)}</p>}
                 {slot.lanes < 3 && rowEnd - rowStart >= 3 && ev.operarios.length > 0 && (
                   <p className="text-[11px] truncate opacity-80">{ev.operarios.map((o) => o.nombre).join(', ')}</p>
                 )}

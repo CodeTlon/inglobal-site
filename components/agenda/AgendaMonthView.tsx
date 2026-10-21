@@ -127,7 +127,7 @@ export default function AgendaMonthView({
                     <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
                       {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'}
                     </p>
-                    <p className={`truncate opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{nombresGruas(ev)}</p>
+                    <p className={`line-clamp-2 opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{nombresGruas(ev)}</p>
                   </button>
                 ))}
               </div>
