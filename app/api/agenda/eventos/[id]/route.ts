@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { eventoAgendaSchema } from '@/lib/validations/agenda'
 import { getEventoAgendaById } from '@/lib/agenda'
-import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento, validarBorradoEvento } from '@/lib/agenda-business'
+import { validarGruas, resolverGruaIdsEdicion, syncEventoGruas, validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento, validarBorradoEvento } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -33,31 +33,35 @@ export async function PATCH(request: Request, { params }: Params) {
     const parsed = eventoAgendaSchema.safeParse(body)
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
-    const { hora_fin, ...rest } = parsed.data
+    const { hora_fin, grua_ids, ...rest } = parsed.data
+    const gruaIds = await resolverGruaIdsEdicion(db, id, grua_ids, rest.grua_id)
 
-    const errorEdicion = await validarEdicionEvento(db, id, { ...rest, hora_fin: hora_fin || null })
+    const errorEdicion = await validarEdicionEvento(db, id, { ...rest, grua_id: gruaIds[0], grua_ids: gruaIds, hora_fin: hora_fin || null })
     if (errorEdicion) return apiError(errorEdicion, 409)
 
     const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((v: unknown) => typeof v === 'string') : []
 
     // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
     if (parsed.data.estado !== 'cancelado') {
-      const errorGrua = await validarGrua(db, rest.grua_id)
+      const errorGrua = await validarGruas(db, gruaIds)
       if (errorGrua) return apiError(errorGrua, 409)
 
       const errorOperarios = await validarOperarios(db, operarioIds)
       if (errorOperarios) return apiError(errorOperarios, 409)
 
-      const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds, id)
+      const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds, id)
       if (conflicto) return apiError(conflicto, 409)
     }
 
     const { error } = await db
       .from('eventos_agenda')
-      .update({ ...rest, hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
+      .update({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return apiError(friendlyError(error), 500)
+
+    const syncGruasError = await syncEventoGruas(db, id, gruaIds)
+    if (syncGruasError) return apiError(syncGruasError, 500)
 
     const syncError = await syncEventoOperarios(db, id, operarioIds)
     if (syncError) return apiError(syncError, 500)

@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { crearEventoSchema } from '@/lib/validations/agenda'
 import { getEventosAgenda } from '@/lib/agenda'
-import { validarGrua, validarOperarios, buscarConflicto, syncEventoOperarios } from '@/lib/agenda-business'
+import { validarGruas, resolverGruaIds, syncEventoGruas, validarOperarios, buscarConflicto, syncEventoOperarios } from '@/lib/agenda-business'
 
 export async function GET(request: Request) {
   try {
@@ -37,25 +37,29 @@ export async function POST(request: Request) {
     const parsed = crearEventoSchema.safeParse(body)
     if (!parsed.success) return apiError(parsed.error.issues[0]?.message ?? 'Datos inválidos.', 400)
 
-    const { hora_fin, ...rest } = parsed.data
+    const { hora_fin, grua_ids, ...rest } = parsed.data
+    const gruaIds = resolverGruaIds(grua_ids, rest.grua_id)
     const operarioIds = Array.isArray(body.operario_ids) ? body.operario_ids.filter((id: unknown) => typeof id === 'string') : []
 
-    const errorGrua = await validarGrua(db, rest.grua_id)
+    const errorGrua = await validarGruas(db, gruaIds)
     if (errorGrua) return apiError(errorGrua, 409)
 
     const errorOperarios = await validarOperarios(db, operarioIds)
     if (errorOperarios) return apiError(errorOperarios, 409)
 
-    const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds)
+    const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds)
     if (conflicto) return apiError(conflicto, 409)
 
     const { data, error } = await db
       .from('eventos_agenda')
-      .insert({ ...rest, hora_fin: hora_fin || null })
+      .insert({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null })
       .select('id')
       .single()
 
     if (error || !data) return apiError(error ? friendlyError(error) : 'No se pudo crear el evento.', 500)
+
+    const syncGruasError = await syncEventoGruas(db, data.id, gruaIds)
+    if (syncGruasError) return apiError(syncGruasError, 500)
 
     const syncError = await syncEventoOperarios(db, data.id, operarioIds)
     if (syncError) return apiError(syncError, 500)

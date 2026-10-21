@@ -7,7 +7,7 @@ import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
 import type { EventoAgenda, Grua, EmpresaAgenda, Operario } from '@/lib/agenda'
 import { getRecursosOcupados, type AgendaState } from '@/app/actions/agenda'
-import { TRANSICIONES_VALIDAS, type EstadoEvento } from '@/lib/validations/agenda'
+import { TRANSICIONES_VALIDAS, MAX_GRUAS_EVENTO, type EstadoEvento } from '@/lib/validations/agenda'
 
 const ESTADO_LABELS: Record<EstadoEvento, string> = {
   reserva: 'Reserva',
@@ -121,6 +121,22 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
         return
       }
     }
+    let gruaIds: unknown[] = []
+    try {
+      gruaIds = JSON.parse((formData.get('grua_ids') as string | null) || '[]')
+    } catch {
+      gruaIds = []
+    }
+    if (!Array.isArray(gruaIds) || gruaIds.length === 0) {
+      e.preventDefault()
+      setClientError('Elegí al menos una grúa.')
+      return
+    }
+    if (gruaIds.length > MAX_GRUAS_EVENTO) {
+      e.preventDefault()
+      setClientError(`Máximo ${MAX_GRUAS_EVENTO} grúas por servicio.`)
+      return
+    }
     const operarioIdsRaw = formData.get('operario_ids') as string | null
     let operarioIds: unknown[] = []
     try {
@@ -169,26 +185,25 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
         <TextField label="Hora fin" name="hora_fin" type="time" defaultValue={evento?.hora_fin ?? undefined} onChange={setHoraFin} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <SelectField
-          label="Grúa"
-          name="grua_id"
-          defaultValue={evento?.grua_id ?? undefined}
-          options={gruas.map((g) => ({
-            value: g.id,
-            label: ocupados.gruaIds.includes(g.id) ? `${g.nombre} (ocupada en ese horario)` : g.nombre,
-            disabled: ocupados.gruaIds.includes(g.id),
-          }))}
-          placeholder="Seleccioná una grúa"
-        />
-        <SelectField
-          label="Empresa"
-          name="empresa_id"
-          defaultValue={evento?.empresa_id ?? undefined}
-          options={empresas.map((e) => ({ value: e.id, label: e.nombre }))}
-          placeholder="Seleccioná una empresa"
-        />
-      </div>
+      <SelectField
+        label="Empresa"
+        name="empresa_id"
+        defaultValue={evento?.empresa_id ?? undefined}
+        options={empresas.map((e) => ({ value: e.id, label: e.nombre }))}
+        placeholder="Seleccioná una empresa"
+      />
+
+      <CheckboxGroup
+        label="Grúas"
+        name="grua_ids"
+        options={gruas.map((g) => ({
+          value: g.id,
+          label: ocupados.gruaIds.includes(g.id) ? `${g.nombre} (ocupada en ese horario)` : g.nombre,
+          disabled: ocupados.gruaIds.includes(g.id),
+        }))}
+        defaultValue={evento?.gruas.map((g) => g.id)}
+        hint={`Obligatorio: elegí al menos una grúa (máximo ${MAX_GRUAS_EVENTO}). La primera que marques es la principal.`}
+      />
 
       <CheckboxGroup
         label="Operarios asignados"

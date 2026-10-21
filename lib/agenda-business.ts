@@ -63,6 +63,60 @@ export async function validarGrua(db: Db, gruaId: string): Promise<string | null
   return null
 }
 
+/** Valida TODAS las grúas del servicio (existen y están activas). */
+export async function validarGruas(db: Db, gruaIds: string[]): Promise<string | null> {
+  if (gruaIds.length === 0) return 'Seleccioná al menos una grúa.'
+  for (const id of gruaIds) {
+    const error = await validarGrua(db, id)
+    if (error) return error
+  }
+  return null
+}
+
+/**
+ * Lista final de grúas de un servicio NUEVO: si vino `grua_ids` se usa tal cual (sin repetidos,
+ * la primera es la principal); si no (cliente viejo) es solo `grua_id`.
+ */
+export function resolverGruaIds(gruaIds: string[] | undefined, gruaId: string): string[] {
+  const lista = gruaIds && gruaIds.length > 0 ? gruaIds : [gruaId]
+  return [...new Set(lista)]
+}
+
+/** Grúas actuales de un evento (por orden). Si no tiene filas, cae a la principal. */
+export async function getGruaIdsDeEvento(db: Db, eventoId: string): Promise<string[]> {
+  const { data } = await db.from('eventos_gruas').select('grua_id, orden').eq('evento_id', eventoId)
+  const ids = [...(data ?? [])].sort((a, b) => a.orden - b.orden).map((r) => r.grua_id as string)
+  if (ids.length > 0) return ids
+  const { data: ev } = await db.from('eventos_agenda').select('grua_id').eq('id', eventoId).maybeSingle()
+  return ev?.grua_id ? [ev.grua_id as string] : []
+}
+
+/**
+ * Lista final de grúas al EDITAR. Si vino `grua_ids`, es la lista nueva. Si vino solo `grua_id` (app vieja,
+ * p. ej. al cambiar el estado desde el detalle) y esa grúa YA es del evento, no se toca la lista: así un
+ * servicio con 2 grúas no pierde la segunda en silencio. Si no estaba, el cliente cambió la grúa a propósito.
+ */
+export async function resolverGruaIdsEdicion(
+  db: Db,
+  eventoId: string,
+  gruaIds: string[] | undefined,
+  gruaId: string,
+): Promise<string[]> {
+  if (gruaIds && gruaIds.length > 0) return resolverGruaIds(gruaIds, gruaId)
+  const actuales = await getGruaIdsDeEvento(db, eventoId)
+  return actuales.includes(gruaId) ? actuales : [gruaId]
+}
+
+export async function syncEventoGruas(db: Db, eventoId: string, gruaIds: string[]): Promise<string | null> {
+  const { error: delError } = await db.from('eventos_gruas').delete().eq('evento_id', eventoId)
+  if (delError) return friendlyError(delError)
+  if (gruaIds.length === 0) return null
+  const { error: insError } = await db
+    .from('eventos_gruas')
+    .insert(gruaIds.map((grua_id, orden) => ({ evento_id: eventoId, grua_id, orden })))
+  return insError ? friendlyError(insError) : null
+}
+
 export async function syncEventoOperarios(
   db: Db,
   eventoId: string,
@@ -129,25 +183,29 @@ export function rangosSeSolapan(a: EventoWindow, b: EventoWindow): boolean {
 export async function buscarConflicto(
   db: Db,
   ventana: EventoWindow,
-  gruaId: string,
+  gruaIdOrIds: string | string[],
   operarioIds: string[],
   excludeId?: string,
 ): Promise<string | null> {
-  let gruaQuery = db
-    .from('eventos_agenda')
-    .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado')
-    .eq('grua_id', gruaId)
-    .neq('estado', 'cancelado')
-  if (excludeId) gruaQuery = gruaQuery.neq('id', excludeId)
-  const { data: eventosGrua, error: errorGrua } = await gruaQuery
-  if (errorGrua) throw new Error(`No se pudo verificar disponibilidad de la grúa: ${friendlyError(errorGrua)}`)
-  for (const ev of eventosGrua ?? []) {
-    // Mismo motivo que en getRecursosOcupados: el filtro de arriba es sobre
-    // el estado crudo, hace falta el efectivo para no bloquear contra una
-    // reserva que ya se canceló sola.
-    if ((estadoTransicionado(ev) ?? ev.estado) === 'cancelado') continue
-    if (rangosSeSolapan(ventana, ev)) {
-      return `La grúa seleccionada ya está asignada el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
+  const gruaIds = Array.isArray(gruaIdOrIds) ? gruaIdOrIds : [gruaIdOrIds]
+  if (gruaIds.length > 0) {
+    const { data: filasGruas, error: errorGrua } = await db
+      .from('eventos_gruas')
+      .select('evento_id, grua:gruas(nombre), evento:eventos_agenda(id, fecha, fecha_hasta, hora_inicio, hora_fin, estado)')
+      .in('grua_id', gruaIds)
+    if (errorGrua) throw new Error(`No se pudo verificar disponibilidad de la grúa: ${friendlyError(errorGrua)}`)
+    for (const fila of filasGruas ?? []) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ev = fila.evento as any
+      // Mismo motivo que en getRecursosOcupados: hace falta el estado efectivo para no bloquear
+      // contra una reserva que ya se canceló sola.
+      if (!ev || (estadoTransicionado(ev) ?? ev.estado) === 'cancelado') continue
+      if (excludeId && ev.id === excludeId) continue
+      if (rangosSeSolapan(ventana, ev)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const nombreGrua = (fila.grua as any)?.nombre ?? 'La grúa seleccionada'
+        return `${nombreGrua} ya está asignada el ${formatFechaCorta(ev.fecha)} de ${ev.hora_inicio.slice(0, 5)} a ${ev.hora_fin ? ev.hora_fin.slice(0, 5) : 'sin definir'}.`
+      }
     }
   }
 
@@ -192,7 +250,7 @@ export async function getRecursosOcupados(
 
     let query = db
       .from('eventos_agenda')
-      .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado, grua_id, eventos_operarios(operario_id)')
+      .select('id, fecha, fecha_hasta, hora_inicio, hora_fin, estado, grua_id, eventos_gruas(grua_id), eventos_operarios(operario_id)')
       .neq('estado', 'cancelado')
     if (excludeEventoId) query = query.neq('id', excludeEventoId)
     const { data, error } = await query
@@ -209,6 +267,10 @@ export async function getRecursosOcupados(
       if ((estadoTransicionado(ev) ?? ev.estado) === 'cancelado') continue
       if (!rangosSeSolapan(ventana, ev)) continue
       if (ev.grua_id) gruaIds.add(ev.grua_id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      for (const rel of (ev.eventos_gruas as any[]) ?? []) {
+        if (rel?.grua_id) gruaIds.add(rel.grua_id)
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       for (const rel of (ev.eventos_operarios as any[]) ?? []) {
         if (rel?.operario_id) operarioIds.add(rel.operario_id)
@@ -244,7 +306,7 @@ function normalizaCampo(campo: (typeof CAMPOS_COMPARABLES)[number], valor: unkno
 export async function validarEdicionEvento(
   db: Db,
   id: string,
-  nuevo: { estado: EstadoEvento; [key: string]: unknown },
+  nuevo: { estado: EstadoEvento; grua_ids?: string[]; [key: string]: unknown },
 ): Promise<string | null> {
   const { data: actual, error } = await db
     .from('eventos_agenda')
@@ -269,6 +331,12 @@ export async function validarEdicionEvento(
     )
     if (cambioAlgoMasQueEstado) {
       return 'Un evento en curso solo permite cambiar el estado.'
+    }
+    if (nuevo.grua_ids) {
+      const actuales = [...(await getGruaIdsDeEvento(db, id))].sort().join(',')
+      if (actuales !== [...new Set(nuevo.grua_ids)].sort().join(',')) {
+        return 'Un evento en curso solo permite cambiar el estado.'
+      }
     }
   }
 
@@ -350,11 +418,11 @@ export async function estadosDeEventosDelRecurso(
   table: CatalogTable,
   id: string,
 ): Promise<string[]> {
-  if (table === 'operarios') {
+  if (table === 'operarios' || table === 'gruas') {
     const { data } = await db
-      .from('eventos_operarios')
+      .from(table === 'operarios' ? 'eventos_operarios' : 'eventos_gruas')
       .select(`evento:eventos_agenda(${CAMPOS_ESTADO_EFECTIVO})`)
-      .eq('operario_id', id)
+      .eq(table === 'operarios' ? 'operario_id' : 'grua_id', id)
     return (data ?? [])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((fila: any) => fila.evento as EventoEstadoWindow | null)

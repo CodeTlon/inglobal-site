@@ -267,3 +267,13 @@ export function ocupacionHoy(
   if (!ev) return { kind: 'disponible' }
   return { kind: 'ocupado', detail: `Libera ~${(ev.hora_fin ?? '18:00').slice(0, 5)}` }
 }
+
+/** Nombres de todas las grúas de un servicio, para tarjetas y detalle (cae a la principal si `gruas` viene vacío). */
+export function nombresGruas(
+  ev: { gruas?: { nombre: string }[]; grua?: { nombre: string } | null },
+  sep = ' · ',
+): string {
+  const nombres = (ev.gruas ?? []).map((g) => g.nombre)
+  if (nombres.length > 0) return nombres.join(sep)
+  return ev.grua?.nombre ?? 'Grúa'
+}

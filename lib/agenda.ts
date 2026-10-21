@@ -69,6 +69,8 @@ export interface EventoAgenda {
   created_at: string
   updated_at: string
   grua: { nombre: string } | null
+  /** Todas las grúas del servicio (la primera es la principal = grua_id). Nunca vacío si hay grua_id. */
+  gruas: { id: string; nombre: string }[]
   empresa: { nombre: string } | null
   operarios: { id: string; nombre: string; roles: string[]; eliminado_at: string | null }[]
 }
@@ -102,12 +104,19 @@ export async function getOperarios({ includeInactive = false, eliminados = false
 }
 
 const EVENTO_SELECT =
-  '*, grua:gruas(nombre), empresa:empresas_agenda(nombre), eventos_operarios(operario:operarios(id, nombre, roles, eliminado_at))'
+  '*, grua:gruas(nombre), empresa:empresas_agenda(nombre), eventos_gruas(orden, grua:gruas(id, nombre)), eventos_operarios(operario:operarios(id, nombre, roles, eliminado_at))'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapEvento(row: any): EventoAgenda {
+  const gruas: EventoAgenda['gruas'] = [...(row.eventos_gruas ?? [])]
+    .sort((a: { orden: number }, b: { orden: number }) => a.orden - b.orden)
+    .map((eg: { grua: { id: string; nombre: string } | null }) => eg.grua)
+    .filter((g: { id: string; nombre: string } | null): g is { id: string; nombre: string } => Boolean(g))
+  // Eventos sin filas en eventos_gruas (no deberían existir tras la migración 0004): se muestra la grúa principal.
+  if (gruas.length === 0 && row.grua_id && row.grua) gruas.push({ id: row.grua_id, nombre: row.grua.nombre })
   return {
     ...row,
+    gruas,
     operarios: (row.eventos_operarios ?? []).map((eo: { operario: EventoAgenda['operarios'][number] }) => eo.operario).filter(Boolean),
   }
 }
@@ -155,7 +164,13 @@ export async function getEventosAgenda(
     const desdePrev = toDateInput(addDays(new Date(`${desde}T00:00:00`), -1))
     query = query.or(`fecha_hasta.gte.${desde},and(fecha_hasta.is.null,fecha.gte.${desdePrev})`)
   }
-  if (gruaId) query = query.eq('grua_id', gruaId)
+  if (gruaId) {
+    // M2M vía eventos_gruas: una grúa secundaria también cuenta en su historial/ocupación.
+    const { data: relsGrua } = await client.from('eventos_gruas').select('evento_id').eq('grua_id', gruaId)
+    const eventoIdsGrua = (relsGrua ?? []).map((r) => r.evento_id)
+    if (eventoIdsGrua.length === 0) return []
+    query = query.in('id', eventoIdsGrua)
+  }
   if (empresaId) query = query.eq('empresa_id', empresaId)
   if (operarioId) {
     // M2M vía eventos_operarios, no una columna de eventos_agenda — hay que
