@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { X, MapPin, Users, Clock, Building2, Pencil } from 'lucide-react'
+import { X, MapPin, Users, Clock, Pencil, Truck } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
 import EventoEstadoActions from './EventoEstadoActions'
 import type { EstadoEvento } from '@/lib/validations/agenda'
@@ -57,7 +57,7 @@ export default function AgendaEventModal({
             <span className={`inline-block text-xs font-bold px-2 py-1 rounded-sm mb-2 ${estadoColorClassesLight(getEstadoVisual(evento))}`}>
               {formatEstado(getEstadoVisual(evento))}
             </span>
-            <h2 className="font-headline font-bold text-lg text-zinc-900">{evento.grua?.nombre ?? 'Grúa'}</h2>
+            <h2 className="font-headline font-bold text-lg text-zinc-900">{evento.empresa?.nombre ?? 'Empresa'}</h2>
             <p className="text-sm text-zinc-500 capitalize">
               {fecha}
               {fechaHasta && <> hasta el {fechaHasta}</>}
@@ -90,8 +90,8 @@ export default function AgendaEventModal({
             {evento.hora_inicio.slice(0, 5)}{evento.hora_fin ? ` – ${evento.hora_fin.slice(0, 5)}` : ''}
           </div>
           <div className="flex items-center gap-2 text-zinc-600">
-            <Building2 size={16} className="text-zinc-400 shrink-0" />
-            {evento.empresa?.nombre ?? 'Empresa'}
+            <Truck size={16} className="text-zinc-400 shrink-0" />
+            {evento.grua?.nombre ?? 'Grúa'}
           </div>
           {evento.ubicacion && (
             <div className="flex items-center gap-2 text-zinc-600">

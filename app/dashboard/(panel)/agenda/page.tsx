@@ -62,7 +62,7 @@ export default async function AgendaDashboardPage() {
 
             <div className="flex-1 min-w-0">
               <p className="font-headline font-bold text-zinc-900 text-sm truncate">
-                {ev.grua?.nombre ?? 'Grúa'} · {ev.empresa?.nombre ?? 'Empresa'}
+                {ev.empresa?.nombre ?? 'Empresa'} · {ev.grua?.nombre ?? 'Grúa'}
               </p>
               <div className="flex items-center gap-4 mt-1 text-xs text-zinc-400">
                 {ev.ubicacion && (

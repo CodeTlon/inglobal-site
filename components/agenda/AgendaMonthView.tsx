@@ -121,13 +121,13 @@ export default function AgendaMonthView({
                       e.stopPropagation()
                       setSelected(ev)
                     }}
-                    title={`${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`}
+                    title={`${ev.empresa?.nombre ?? 'Empresa'} · ${ev.grua?.nombre ?? 'Grúa'}`}
                     className={`w-full rounded-sm border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
-                      {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'}
+                      {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'}
                     </p>
-                    <p className={`truncate opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{ev.empresa?.nombre ?? 'Empresa'}</p>
+                    <p className={`truncate opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{ev.grua?.nombre ?? 'Grúa'}</p>
                   </button>
                 ))}
               </div>
@@ -166,8 +166,8 @@ export default function AgendaMonthView({
                   }}
                   className={`w-full text-base font-semibold truncate rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                 >
-                  {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.grua?.nombre ?? 'Grúa'} ·{' '}
-                  {ev.empresa?.nombre ?? 'Empresa'}
+                  {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'} ·{' '}
+                  {ev.grua?.nombre ?? 'Grúa'}
                 </button>
               ))}
             </div>

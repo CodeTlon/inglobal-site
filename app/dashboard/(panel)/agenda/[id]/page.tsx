@@ -47,7 +47,7 @@ export default async function EventoEditPage({ params, searchParams }: Props) {
 
       <PageHeader
         title={`Editar evento — ${evento.fecha}`}
-        description={`${evento.grua?.nombre ?? ''} · ${evento.empresa?.nombre ?? ''}`}
+        description={`${evento.empresa?.nombre ?? ''} · ${evento.grua?.nombre ?? ''}`}
         actions={
           puedeEliminar ? (
             <form action={handleDelete}>

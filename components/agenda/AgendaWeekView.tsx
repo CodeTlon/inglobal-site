@@ -122,16 +122,16 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                   ...laneStyle,
                 }}
                 title={[
-                  `${ev.grua?.nombre ?? 'Grúa'} · ${ev.empresa?.nombre ?? 'Empresa'}`,
+                  `${ev.empresa?.nombre ?? 'Empresa'} · ${ev.grua?.nombre ?? 'Grúa'}`,
                   formatEstado(visual),
                   ev.operarios.length > 0 ? ev.operarios.map((o) => o.nombre).join(', ') : null,
                 ].filter(Boolean).join('\n')}
               >
                 <p className="text-xs font-bold truncate">
-                  {esDiaInicio ? horaInicioDelDia.slice(0, 5) : 'cont.'} {ev.grua?.nombre ?? 'Grúa'}
+                  {esDiaInicio ? horaInicioDelDia.slice(0, 5) : 'cont.'} {ev.empresa?.nombre ?? 'Empresa'}
                 </p>
-                {/* Con 3+ carriles el ancho no alcanza: solo hora y grúa; el detalle va en el tooltip/modal. */}
-                {slot.lanes < 3 && <p className="text-[11px] truncate opacity-80">{ev.empresa?.nombre ?? 'Empresa'}</p>}
+                {/* Con 3+ carriles el ancho no alcanza: solo hora y empresa; el detalle va en el tooltip/modal. */}
+                {slot.lanes < 3 && <p className="text-[11px] truncate opacity-80">{ev.grua?.nombre ?? 'Grúa'}</p>}
                 {slot.lanes < 3 && rowEnd - rowStart >= 3 && ev.operarios.length > 0 && (
                   <p className="text-[11px] truncate opacity-80">{ev.operarios.map((o) => o.nombre).join(', ')}</p>
                 )}
