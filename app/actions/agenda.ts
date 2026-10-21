@@ -16,7 +16,10 @@ import {
 } from '@/lib/validations/agenda'
 import {
   type CatalogTable,
-  validarGrua,
+  validarGruas,
+  resolverGruaIds,
+  resolverGruaIdsEdicion,
+  syncEventoGruas,
   validarOperarios,
   syncEventoOperarios,
   buscarConflicto,
@@ -77,13 +80,26 @@ function parseOperarioIds(raw: FormDataEntryValue | null): string[] {
   }
 }
 
+function parseGruaIds(raw: FormDataEntryValue | null): string[] | undefined {
+  if (!raw) return undefined
+  try {
+    const parsed = JSON.parse(String(raw))
+    return Array.isArray(parsed) ? parsed.filter((id) => typeof id === 'string') : undefined
+  } catch {
+    return undefined
+  }
+}
+
 function parseEventoForm(formData: FormData, schema: typeof eventoAgendaSchema | typeof crearEventoSchema) {
+  // El form manda `grua_ids` (JSON, la primera es la principal); `grua_id` suelto queda para clientes viejos.
+  const gruaIds = parseGruaIds(formData.get('grua_ids'))
   return schema.safeParse({
     fecha:       formData.get('fecha'),
     fecha_hasta: formData.get('fecha_hasta'),
     hora_inicio: formData.get('hora_inicio'),
     hora_fin:    formData.get('hora_fin'),
-    grua_id:     formData.get('grua_id'),
+    grua_id:     gruaIds?.[0] ?? formData.get('grua_id'),
+    grua_ids:    gruaIds,
     empresa_id:  formData.get('empresa_id'),
     ubicacion:   formData.get('ubicacion'),
     notas:       formData.get('notas'),
@@ -120,25 +136,29 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
     const parsed = parseEventoForm(formData, crearEventoSchema)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 
-    const { hora_fin, ...rest } = parsed.data
+    const { hora_fin, grua_ids, ...rest } = parsed.data
+    const gruaIds = resolverGruaIds(grua_ids, rest.grua_id)
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
 
-    const errorGrua = await validarGrua(db, rest.grua_id)
+    const errorGrua = await validarGruas(db, gruaIds)
     if (errorGrua) return { error: errorGrua }
 
     const errorOperarios = await validarOperarios(db, operarioIds)
     if (errorOperarios) return { error: errorOperarios }
 
-    const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds)
+    const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds)
     if (conflicto) return { error: conflicto }
 
     const { data, error } = await db
       .from('eventos_agenda')
-      .insert({ ...rest, hora_fin: hora_fin || null })
+      .insert({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null })
       .select('id')
       .single()
 
     if (error || !data) return { error: error ? friendlyError(error) : 'No se pudo crear el evento.' }
+
+    const syncGruasError = await syncEventoGruas(db, data.id, gruaIds)
+    if (syncGruasError) return { error: syncGruasError }
 
     const syncError = await syncEventoOperarios(db, data.id, operarioIds)
     if (syncError) return { error: syncError }
@@ -159,31 +179,35 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
     const parsed = parseEventoForm(formData, eventoAgendaSchema)
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
 
-    const { hora_fin, ...rest } = parsed.data
+    const { hora_fin, grua_ids, ...rest } = parsed.data
+    const gruaIds = await resolverGruaIdsEdicion(db, id, grua_ids, rest.grua_id)
 
-    const errorEdicion = await validarEdicionEvento(db, id, { ...rest, hora_fin: hora_fin || null })
+    const errorEdicion = await validarEdicionEvento(db, id, { ...rest, grua_id: gruaIds[0], grua_ids: gruaIds, hora_fin: hora_fin || null })
     if (errorEdicion) return { error: errorEdicion }
 
     const operarioIds = parseOperarioIds(formData.get('operario_ids'))
 
     // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
     if (parsed.data.estado !== 'cancelado') {
-      const errorGrua = await validarGrua(db, rest.grua_id)
+      const errorGrua = await validarGruas(db, gruaIds)
       if (errorGrua) return { error: errorGrua }
 
       const errorOperarios = await validarOperarios(db, operarioIds)
       if (errorOperarios) return { error: errorOperarios }
 
-      const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds, id)
+      const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds, id)
       if (conflicto) return { error: conflicto }
     }
 
     const { error } = await db
       .from('eventos_agenda')
-      .update({ ...rest, hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
+      .update({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) return { error: friendlyError(error) }
+
+    const syncGruasError = await syncEventoGruas(db, id, gruaIds)
+    if (syncGruasError) return { error: syncGruasError }
 
     const syncError = await syncEventoOperarios(db, id, operarioIds)
     if (syncError) return { error: syncError }
@@ -224,6 +248,8 @@ export async function cambiarEstadoEvento(id: string, estado: EstadoEvento): Pro
     })
     if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' }
     const { hora_fin, ...rest } = parsed.data
+    // Cambiar el estado conserva TODAS las grúas del servicio.
+    const gruaIds = evento.gruas.length > 0 ? evento.gruas.map((g) => g.id) : [rest.grua_id]
 
     const errorEdicion = await validarEdicionEvento(db, id, { ...rest, hora_fin: hora_fin || null })
     if (errorEdicion) return { error: errorEdicion }
@@ -233,12 +259,12 @@ export async function cambiarEstadoEvento(id: string, estado: EstadoEvento): Pro
     // Mismas validaciones que el PATCH de la app (que manda el evento completo).
     // Cancelar libera recursos: no se exige grúa/operarios activos ni se re-chequea conflicto.
     if (estado !== 'cancelado') {
-      const errorGrua = await validarGrua(db, rest.grua_id)
+      const errorGrua = await validarGruas(db, gruaIds)
       if (errorGrua) return { error: errorGrua }
       const errorOperarios = await validarOperarios(db, operarioIds)
       if (errorOperarios) return { error: errorOperarios }
 
-      const conflicto = await buscarConflicto(db, parsed.data, rest.grua_id, operarioIds, id)
+      const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds, id)
       if (conflicto) return { error: conflicto }
     }
 

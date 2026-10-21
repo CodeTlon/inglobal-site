@@ -6,7 +6,7 @@ import { X, MapPin, Users, Clock, Pencil, Truck } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
 import EventoEstadoActions from './EventoEstadoActions'
 import type { EstadoEvento } from '@/lib/validations/agenda'
-import { estadoColorClassesLight, formatEstado, getEstadoVisual } from '@/lib/agenda-view'
+import { estadoColorClassesLight, formatEstado, getEstadoVisual, nombresGruas } from '@/lib/agenda-view'
 
 /**
  * Panel de detalle al clickear un evento en la grilla semanal/diaria. Solo
@@ -91,7 +91,7 @@ export default function AgendaEventModal({
           </div>
           <div className="flex items-center gap-2 text-zinc-600">
             <Truck size={16} className="text-zinc-400 shrink-0" />
-            {evento.grua?.nombre ?? 'Grúa'}
+            {nombresGruas(evento, ', ')}
           </div>
           {evento.ubicacion && (
             <div className="flex items-center gap-2 text-zinc-600">

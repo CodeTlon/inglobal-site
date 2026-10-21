@@ -30,7 +30,7 @@ export default function AgendaTvQrLink() {
         <p className="text-sm font-headline font-bold text-zinc-900">Agenda en TV</p>
         <p className="text-xs text-zinc-400 mt-1">
           Escaneá con el celu para conseguir la URL y abrirla en el navegador de la tele.
-          Login único con Supabase Auth — después la sesión queda guardada.
+          Se inicia sesión una sola vez y después la sesión queda guardada.
         </p>
         <p className="text-xs text-zinc-500 mt-1 break-all">{url}</p>
       </div>

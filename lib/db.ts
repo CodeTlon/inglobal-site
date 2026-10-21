@@ -41,7 +41,7 @@ function getPool(): Pool {
 
 export const TABLES = [
   'contact_leads', 'site_settings', 'clientes', 'montajes', 'servicios', 'trabajos', 'galeria',
-  'gruas', 'empresas_agenda', 'operarios', 'eventos_agenda', 'eventos_operarios',
+  'gruas', 'empresas_agenda', 'operarios', 'eventos_agenda', 'eventos_operarios', 'eventos_gruas',
   'tv_pairing_codes', 'push_tokens', 'notificaciones_enviadas',
   'user', 'session', 'account', 'verification',
 ] as const
@@ -55,13 +55,21 @@ const RELATIONS: Record<string, Record<string, Relation>> = {
     gruas: { kind: 'one', local: 'grua_id', foreign: 'id' },
     empresas_agenda: { kind: 'one', local: 'empresa_id', foreign: 'id' },
     eventos_operarios: { kind: 'many', local: 'id', foreign: 'evento_id' },
+    eventos_gruas: { kind: 'many', local: 'id', foreign: 'evento_id' },
+  },
+  eventos_gruas: {
+    eventos_agenda: { kind: 'one', local: 'evento_id', foreign: 'id' },
+    gruas: { kind: 'one', local: 'grua_id', foreign: 'id' },
   },
   eventos_operarios: {
     eventos_agenda: { kind: 'one', local: 'evento_id', foreign: 'id' },
     operarios: { kind: 'one', local: 'operario_id', foreign: 'id' },
   },
   operarios: { eventos_operarios: { kind: 'many', local: 'id', foreign: 'operario_id' } },
-  gruas: { eventos_agenda: { kind: 'many', local: 'id', foreign: 'grua_id' } },
+  gruas: {
+    eventos_agenda: { kind: 'many', local: 'id', foreign: 'grua_id' },
+    eventos_gruas: { kind: 'many', local: 'id', foreign: 'grua_id' },
+  },
   empresas_agenda: { eventos_agenda: { kind: 'many', local: 'id', foreign: 'empresa_id' } },
   clientes: { trabajos: { kind: 'many', local: 'id', foreign: 'cliente_id' } },
   trabajos: { clientes: { kind: 'one', local: 'cliente_id', foreign: 'id' } },

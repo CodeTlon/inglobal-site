@@ -291,6 +291,21 @@ export const eventosOperarios = pgTable(
   (t) => [primaryKey({ columns: [t.eventoId, t.operarioId] })],
 )
 
+/** Grúas de un servicio (M2M, igual que eventos_operarios). `eventos_agenda.grua_id` queda como grúa principal (orden 0). */
+export const eventosGruas = pgTable(
+  'eventos_gruas',
+  {
+    eventoId: uuid('evento_id')
+      .notNull()
+      .references(() => eventosAgenda.id, { onDelete: 'cascade' }),
+    gruaId: uuid('grua_id')
+      .notNull()
+      .references(() => gruas.id, { onDelete: 'cascade' }),
+    orden: smallint('orden').notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.eventoId, t.gruaId] }), index('eventos_gruas_grua_id_idx').on(t.gruaId)],
+)
+
 // ─── TV pairing y notificaciones ───────────────────────────────────────────
 
 export const tvPairingCodes = pgTable(

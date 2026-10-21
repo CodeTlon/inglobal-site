@@ -879,7 +879,7 @@ export function CheckboxGroup({
           </button>
         ))}
         {options.length === 0 && (
-          <p className="text-xs text-zinc-400">No hay operarios activos cargados en el catálogo.</p>
+          <p className="text-xs text-zinc-400">No hay opciones activas cargadas en el catálogo.</p>
         )}
       </div>
       {hint && <p className="text-zinc-400 text-xs mt-1.5">{hint}</p>}

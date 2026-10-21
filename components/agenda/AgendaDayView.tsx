@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { CalendarX2 } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { estadoColorClassesLight, getEstadoVisual, formatEstado, finDiaEfectivoEvento } from '@/lib/agenda-view'
+import { estadoColorClassesLight, getEstadoVisual, formatEstado, finDiaEfectivoEvento, nombresGruas } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 /**
@@ -51,7 +51,7 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold truncate">{ev.empresa?.nombre ?? 'Empresa'}</p>
-              <p className="text-xs truncate opacity-80">{ev.grua?.nombre ?? 'Grúa'}</p>
+              <p className="text-xs truncate opacity-80">{nombresGruas(ev)}</p>
               {ev.ubicacion && <p className="text-xs truncate opacity-80">{ev.ubicacion}</p>}
               <p className="text-[11px] mt-1 opacity-70">{formatEstado(visual)}</p>
             </div>

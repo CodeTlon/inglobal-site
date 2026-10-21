@@ -35,6 +35,8 @@ const fechaIso = z
   .refine((v) => !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) && new Date(`${v}T00:00:00Z`).toISOString().startsWith(v), 'La fecha no es válida')
 const horaHHMM = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/, 'La hora no es válida')
 
+export const MAX_GRUAS_EVENTO = 6
+
 const eventoBase = z.object({
   fecha:       fechaIso,
   fecha_hasta: z.union([fechaIso, z.literal('')]).nullable().optional(),
@@ -42,6 +44,8 @@ const eventoBase = z.object({
   // '' = sin hora de fin (los formularios mandan el campo vacío).
   hora_fin:    z.union([horaHHMM, z.literal('')]).nullable().optional(),
   grua_id:     z.string().uuid('Seleccioná una grúa'),
+  // Opcional (clientes viejos mandan solo grua_id). Si viene, la primera es la principal y debe coincidir con grua_id.
+  grua_ids:    z.array(z.string().uuid('Grúa inválida')).min(1, 'Seleccioná al menos una grúa').max(MAX_GRUAS_EVENTO, `Máximo ${MAX_GRUAS_EVENTO} grúas por servicio`).optional(),
   empresa_id:  z.string().uuid('Seleccioná una empresa'),
   ubicacion:   z.string().nullable().optional(),
   notas:       z.string().nullable().optional(),

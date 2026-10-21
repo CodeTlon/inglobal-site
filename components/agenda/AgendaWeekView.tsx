@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput, finDiaEfectivoEvento, formatEstado } from '@/lib/agenda-view'
+import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput, finDiaEfectivoEvento, formatEstado, nombresGruas } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
 const START_HOUR = 7
@@ -122,7 +122,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                   ...laneStyle,
                 }}
                 title={[
-                  `${ev.empresa?.nombre ?? 'Empresa'} · ${ev.grua?.nombre ?? 'Grúa'}`,
+                  `${ev.empresa?.nombre ?? 'Empresa'} · ${nombresGruas(ev)}`,
                   formatEstado(visual),
                   ev.operarios.length > 0 ? ev.operarios.map((o) => o.nombre).join(', ') : null,
                 ].filter(Boolean).join('\n')}
@@ -131,7 +131,7 @@ export default function AgendaWeekView({ eventos, weekStart }: { eventos: Evento
                   {esDiaInicio ? horaInicioDelDia.slice(0, 5) : 'cont.'} {ev.empresa?.nombre ?? 'Empresa'}
                 </p>
                 {/* Con 3+ carriles el ancho no alcanza: solo hora y empresa; el detalle va en el tooltip/modal. */}
-                {slot.lanes < 3 && <p className="text-[11px] truncate opacity-80">{ev.grua?.nombre ?? 'Grúa'}</p>}
+                {slot.lanes < 3 && <p className="text-[11px] truncate opacity-80">{nombresGruas(ev)}</p>}
                 {slot.lanes < 3 && rowEnd - rowStart >= 3 && ev.operarios.length > 0 && (
                   <p className="text-[11px] truncate opacity-80">{ev.operarios.map((o) => o.nombre).join(', ')}</p>
                 )}
