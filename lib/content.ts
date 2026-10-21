@@ -155,7 +155,7 @@ export async function getSiteSettings(key: SiteSettingsKey): Promise<any> {
       .from('site_settings')
       .select('value')
       .eq('key', key)
-      .single()
+      .maybeSingle()
 
     if (error || !data) {
       if (error) console.error(`site_settings[${key}] fetch error:`, error.message)
