@@ -1,159 +1,187 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getWeekDays, estadoColorClassesLight, getEstadoVisual, layoutDayEvents, toDateInput, finDiaEfectivoEvento, formatEstado, nombresGruas } from '@/lib/agenda-view'
+import { getWeekDays, getEstadoVisual, toDateInput, finDiaEfectivoEvento, formatEstado, nombresGruas, estadoStripColor } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 
-const START_HOUR = 7
-const END_HOUR = 19
-const SLOT_MINUTES = 30 // ponytail: única constante a tocar si se pide otra granularidad
-const SLOTS = ((END_HOUR - START_HOUR) * 60) / SLOT_MINUTES
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
-function timeToSlot(time: string): number {
-  const [h, m] = time.slice(0, 5).split(':').map(Number)
-  const minutes = h * 60 + m - START_HOUR * 60
-  return Math.min(Math.max(minutes / SLOT_MINUTES, 0), SLOTS)
+/** Eventos del día `key` (incluye los que vienen de días anteriores), ordenados por hora de arranque de ESE día. */
+function eventosDelDia(eventos: EventoAgenda[], key: string): EventoAgenda[] {
+  // finDiaEfectivo (no `fecha_hasta ?? fecha`): un turno nocturno sin `fecha_hasta`
+  // (22:00→02:00) sigue vigente al día siguiente.
+  const delDia = eventos.filter((ev) => key >= ev.fecha && key <= finDiaEfectivoEvento(ev))
+  const arranque = (ev: EventoAgenda) => (key === ev.fecha ? ev.hora_inicio : '00:00').slice(0, 5)
+  const fin = (ev: EventoAgenda) => (ev.hora_fin ?? '23:59').slice(0, 5)
+  // Hora de inicio, luego de fin, luego empresa: orden estable cuando varios arrancan a la misma hora.
+  return delDia.sort(
+    (a, b) =>
+      arranque(a).localeCompare(arranque(b)) ||
+      fin(a).localeCompare(fin(b)) ||
+      (a.empresa?.nombre ?? '').localeCompare(b.empresa?.nombre ?? ''),
+  )
+}
+
+function horaLabel(ev: EventoAgenda, key: string): string {
+  if (key !== ev.fecha) return 'cont.'
+  const ini = ev.hora_inicio.slice(0, 5)
+  return key === finDiaEfectivoEvento(ev) && ev.hora_fin ? `${ini}–${ev.hora_fin.slice(0, 5)}` : ini
+}
+
+function EventoCard({
+  ev,
+  dayKey,
+  dayIdx,
+  idx,
+  onClick,
+}: {
+  ev: EventoAgenda
+  dayKey: string
+  dayIdx: number
+  idx: number
+  onClick: (el: HTMLElement) => void
+}) {
+  const visual = getEstadoVisual(ev)
+  const apagado = visual === 'finalizado' || visual === 'cancelado'
+  return (
+    <button
+      type="button"
+      data-day={dayIdx}
+      data-idx={idx}
+      onClick={(e) => onClick(e.currentTarget)}
+      // Foco bien visible: en la tele se navega con las flechas del control y hay que saber dónde se está parado.
+      className={`relative flex w-full shrink-0 flex-col justify-center gap-[0.15em] overflow-hidden rounded-[0.6em] border border-zinc-200 bg-white py-[0.55em] pl-[1em] pr-[0.6em] text-left shadow-xs transition-colors hover:border-zinc-400 cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-igb-navy focus-visible:ring-offset-2 ${apagado ? 'opacity-60 focus-visible:opacity-100' : ''}`}
+      title={[
+        `${ev.empresa?.nombre ?? 'Empresa'} · ${nombresGruas(ev)}`,
+        `${horaLabel(ev, dayKey)} · ${formatEstado(visual)}`,
+        ev.operarios.length > 0 ? ev.operarios.map((o) => o.nombre).join(', ') : null,
+      ].filter(Boolean).join('\n')}
+    >
+      <span className={`absolute inset-y-0 left-0 w-[0.4em] ${estadoStripColor(visual)}`} />
+      <span className={`truncate text-[1em] font-bold leading-tight text-zinc-900 ${visual === 'cancelado' ? 'line-through' : ''}`}>
+        {ev.empresa?.nombre ?? 'Empresa'}
+      </span>
+      <span className="truncate text-[0.85em] leading-tight text-zinc-500">
+        <span className="font-semibold text-zinc-700">{horaLabel(ev, dayKey)}</span> · {nombresGruas(ev, ', ')}
+      </span>
+    </button>
+  )
 }
 
 /**
- * Grilla semanal (columnas = días, filas = franjas horarias) — solo lectura, click en un
- * evento abre su detalle en AgendaEventModal. Tema claro (calendario de jefes).
- * Mobile: mismo componente, el contenedor scrollea horizontal (min-w fijo en el grid).
+ * Semana en 7 columnas que ENTRAN en la pantalla: la página no scrollea ni a lo ancho ni a lo
+ * alto a 100% de zoom (es la vista de la TV). No es una grilla horaria proporcional: con muchos
+ * servicios simultáneos esa grilla se vuelve ilegible. Cada día lista sus servicios por hora
+ * (empresa primero, grúa debajo) y, si no entran, ESA columna scrollea por dentro.
+ *
+ * Pensada para control remoto: flechas ↑↓ recorren los servicios del día, ←→ saltan al día
+ * vecino con servicios, OK (Enter) abre el detalle y Esc/Atrás lo cierra. El foco se ve grande
+ * y la columna scrollea sola para mantener visible el servicio enfocado. Los tamaños son `em`
+ * sobre un font-size que escala con el ancho de pantalla, así sirve en cualquier tele.
  */
-export default function AgendaWeekView({ eventos, weekKey }: { eventos: EventoAgenda[]; weekKey: string }) {
+export default function AgendaWeekView({ eventos, weekKey, hoy }: { eventos: EventoAgenda[]; weekKey: string; hoy: string }) {
+  const rootRef = useRef<HTMLDivElement>(null)
+  const volverA = useRef<HTMLElement | null>(null)
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
   // weekKey (YYYY-MM-DD) y no un Date: un Date serializado server->client llega como
   // medianoche UTC y en el navegador (UTC-3) cae el día anterior, corriendo toda la grilla.
   const [y, m, d0] = weekKey.split('-').map(Number)
-  const weekStart = new Date(y, m - 1, d0)
-  const days = getWeekDays(weekStart)
+  const days = getWeekDays(new Date(y, m - 1, d0))
   const dayKeys = days.map(toDateInput)
+  const porDia = dayKeys.map((k) => eventosDelDia(eventos, k))
+
+  // Al entrar, el foco cae en el primer servicio de hoy (o del primer día con servicios): con el
+  // control remoto las flechas funcionan de una, sin tener que "entrar" a la grilla.
+  useEffect(() => {
+    const hoyIdx = dayKeys.indexOf(hoy)
+    const orden = [...(hoyIdx >= 0 ? [hoyIdx] : []), ...dayKeys.keys()]
+    const dia = orden.find((i) => porDia[i].length > 0)
+    if (dia !== undefined) rootRef.current?.querySelector<HTMLElement>(`[data-day="${dia}"][data-idx="0"]`)?.focus({ preventScroll: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weekKey])
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const t = e.target as HTMLElement
+    if (t.dataset.day === undefined) return
+    const dia = Number(t.dataset.day)
+    const idx = Number(t.dataset.idx)
+    const foco = (d: number, i: number) =>
+      rootRef.current?.querySelector<HTMLElement>(`[data-day="${d}"][data-idx="${i}"]`)?.focus()
+    if (e.key === 'ArrowDown' && idx + 1 < porDia[dia].length) foco(dia, idx + 1)
+    else if (e.key === 'ArrowUp' && idx > 0) foco(dia, idx - 1)
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      const paso = e.key === 'ArrowRight' ? 1 : -1
+      for (let d = dia + paso; d >= 0 && d < porDia.length; d += paso) {
+        if (porDia[d].length > 0) {
+          foco(d, Math.min(idx, porDia[d].length - 1))
+          break
+        }
+      }
+    } else return
+    e.preventDefault()
+  }
+
+  function cerrar() {
+    setSelected(null)
+    // Devuelve el foco al servicio que se abrió, para seguir navegando desde ahí.
+    queueMicrotask(() => volverA.current?.focus({ preventScroll: true }))
+  }
 
   return (
-    <div className="overflow-x-auto dashboard-scroll-light">
-      <div
-        className="grid min-w-[900px]"
-        style={{
-          gridTemplateColumns: `64px repeat(7, minmax(140px, 1fr))`,
-          gridTemplateRows: `48px repeat(${SLOTS}, 32px)`,
-        }}
-      >
-        <div className="sticky left-0 z-10 bg-white" style={{ gridColumn: 1, gridRow: 1 }} />
-        {days.map((d, i) => (
-          <div
+    <div
+      ref={rootRef}
+      onKeyDown={onKeyDown}
+      className="grid min-h-0 flex-1 grid-cols-7 grid-rows-[minmax(0,1fr)] gap-[0.6em]"
+      // Escala con la pantalla: ~14px en un monitor chico, ~21px en una tele 1080p, tope 32px en 4K.
+      style={{ fontSize: 'clamp(13px, 1.1vw, 32px)' }}
+    >
+      {days.map((d, i) => {
+        const esHoy = dayKeys[i] === hoy
+        const lista = porDia[i]
+        return (
+          <section
             key={dayKeys[i]}
-            className="flex flex-col items-center justify-center border-b border-zinc-200"
-            style={{ gridColumn: i + 2, gridRow: 1 }}
+            className={`flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[0.9em] border ${esHoy ? 'border-igb-navy/40 bg-igb-yellow/10' : 'border-zinc-200 bg-zinc-50/60'}`}
           >
-            <span className="text-xs uppercase tracking-widest text-zinc-400">{DIA_LABEL[i]}</span>
-            <span className="text-sm font-bold text-zinc-900">{d.getDate()}</span>
-          </div>
-        ))}
-
-        {Array.from({ length: SLOTS }, (_, i) => {
-          const totalMin = START_HOUR * 60 + i * SLOT_MINUTES
-          const isHour = totalMin % 60 === 0
-          return (
-            <div
-              key={`t-${i}`}
-              className="sticky left-0 z-10 bg-white text-[11px] text-zinc-400 text-right pr-2 border-t border-zinc-100"
-              style={{ gridColumn: 1, gridRow: i + 2 }}
-            >
-              {isHour ? `${String(Math.floor(totalMin / 60)).padStart(2, '0')}:00` : ''}
+            <header className="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-200/80 px-[0.8em] py-[0.5em]">
+              <span className="flex items-baseline gap-[0.5em]">
+                <span className="text-[0.8em] font-bold uppercase tracking-widest text-zinc-400">{DIA_LABEL[i]}</span>
+                <span
+                  className={`inline-flex min-w-[1.7em] items-center justify-center rounded-full px-[0.2em] py-[0.1em] text-[1.3em] font-bold leading-none ${esHoy ? 'bg-igb-navy text-white' : 'text-zinc-900'}`}
+                >
+                  {d.getDate()}
+                </span>
+              </span>
+              {lista.length > 0 && (
+                <span className="rounded-full bg-zinc-200/70 px-[0.6em] py-[0.15em] text-[0.8em] font-bold text-zinc-600">{lista.length}</span>
+              )}
+            </header>
+            <div className="dashboard-scroll-light flex min-h-0 flex-1 scroll-py-[0.6em] flex-col gap-[0.4em] overflow-y-auto overflow-x-hidden p-[0.5em]">
+              {lista.map((ev, j) => (
+                <EventoCard
+                  key={`${ev.id}-${dayKeys[i]}`}
+                  ev={ev}
+                  dayKey={dayKeys[i]}
+                  dayIdx={i}
+                  idx={j}
+                  onClick={(el) => {
+                    volverA.current = el
+                    setSelected(ev)
+                  }}
+                />
+              ))}
             </div>
-          )
-        })}
-
-        {days.map((_, dayIdx) =>
-          Array.from({ length: SLOTS }, (_, i) => (
-            <div
-              key={`bg-${dayIdx}-${i}`}
-              className="border-t border-zinc-100"
-              style={{ gridColumn: dayIdx + 2, gridRow: i + 2 }}
-            />
-          )),
-        )}
-
-        {dayKeys.flatMap((key, dayIdx) => {
-          // Evento de varios días (fecha_hasta) — se repite en cada columna de
-          // día que caiga dentro de su rango y también sea parte de la semana visible.
-          // finDiaEfectivo (no `fecha_hasta ?? fecha`): un turno nocturno sin
-          // `fecha_hasta` (22:00→02:00) sigue vigente al día siguiente — con el
-          // bound viejo esa columna nunca entraba acá y el evento desaparecía
-          // de su día de continuación en la semana.
-          const dayEventos = eventos.filter((ev) => key >= ev.fecha && key <= finDiaEfectivoEvento(ev))
-          const layout = layoutDayEvents(dayEventos)
-          return dayEventos.map((ev) => {
-            // Turno nocturno (22:00→02:00) con o sin `fecha_hasta`: la
-            // columna de un día intermedio/final de su rango NO arranca a
-            // `ev.hora_inicio` (eso ya pasó un día anterior) ni termina a
-            // `ev.hora_fin` salvo que ESTE sea el último día — antes se
-            // usaban esos dos valores tal cual en cada columna, dibujando en
-            // el día de continuación una card clavada en "22:00" con un
-            // alto de un solo slot (el clamp de más abajo), en vez del
-            // pedazo real [00:00, hora_fin) de ese día.
-            const horaFinEfectiva = ev.hora_fin ?? '23:59'
-            const finDia = finDiaEfectivoEvento(ev)
-            const esDiaInicio = key === ev.fecha
-            const esUltimoDia = key === finDia
-            const horaInicioDelDia = esDiaInicio ? ev.hora_inicio : '00:00'
-            const horaFinDelDia = esUltimoDia ? horaFinEfectiva : '23:59'
-            const rowStart = Math.floor(timeToSlot(horaInicioDelDia)) + 2
-            const rowEnd = Math.max(rowStart + 1, Math.ceil(timeToSlot(horaFinDelDia)) + 2)
-            const visual = getEstadoVisual(ev)
-            // Eventos que se solapan en horario el mismo día van lado a lado
-            // (carriles), no apilados encima uno del otro.
-            const slot = layout.get(ev) ?? { lane: 0, lanes: 1 }
-            const widthPct = 100 / slot.lanes
-            const laneStyle =
-              slot.lanes > 1
-                ? {
-                    width: `calc(${widthPct}% - 0.25rem)`,
-                    marginLeft: `calc(${widthPct * slot.lane}% + 0.25rem)`,
-                  }
-                : {}
-            return (
-              <button
-                key={`${ev.id}-${key}`}
-                type="button"
-                onClick={() => setSelected(ev)}
-                className={`m-1 flex flex-col items-stretch justify-start rounded-lg border px-2 py-1 overflow-hidden text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(visual)}`}
-                style={{
-                  gridColumn: dayIdx + 2,
-                  gridRow: `${rowStart} / ${rowEnd}`,
-                  ...laneStyle,
-                }}
-                title={[
-                  `${ev.empresa?.nombre ?? 'Empresa'} · ${nombresGruas(ev)}`,
-                  formatEstado(visual),
-                  ev.operarios.length > 0 ? ev.operarios.map((o) => o.nombre).join(', ') : null,
-                ].filter(Boolean).join('\n')}
-              >
-                <p className="text-xs font-bold truncate">
-                  {esDiaInicio ? horaInicioDelDia.slice(0, 5) : 'cont.'} {ev.empresa?.nombre ?? 'Empresa'}
-                </p>
-                {/* Con 3+ carriles el ancho no alcanza: solo hora y empresa; el detalle va en el tooltip/modal. */}
-                {slot.lanes < 3 && <p className="text-[11px] line-clamp-2 opacity-80">{nombresGruas(ev)}</p>}
-                {slot.lanes < 3 && rowEnd - rowStart >= 3 && ev.operarios.length > 0 && (
-                  <p className="text-[11px] truncate opacity-80">{ev.operarios.map((o) => o.nombre).join(', ')}</p>
-                )}
-                {slot.lanes < 3 && rowEnd - rowStart >= 4 && <p className="text-[11px] font-semibold">{formatEstado(visual)}</p>}
-              </button>
-            )
-          })
-        })}
-      </div>
-
-      {eventos.length === 0 && <p className="text-center text-zinc-400 py-16">No hay eventos programados esta semana.</p>}
+          </section>
+        )
+      })}
 
       <AgendaEventModal
         evento={selected}
-        onClose={() => setSelected(null)}
+        onClose={cerrar}
         editHref={
           selected
-            ? `/dashboard/agenda/${selected.id}?from=${encodeURIComponent(`/dashboard/agenda/calendario?week=${toDateInput(weekStart)}`)}`
+            ? `/dashboard/agenda/${selected.id}?from=${encodeURIComponent(`/dashboard/agenda/calendario?week=${weekKey}`)}`
             : undefined
         }
       />
