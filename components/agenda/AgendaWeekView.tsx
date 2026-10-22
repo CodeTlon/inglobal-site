@@ -22,8 +22,12 @@ function timeToSlot(time: string): number {
  * evento abre su detalle en AgendaEventModal. Tema claro (calendario de jefes).
  * Mobile: mismo componente, el contenedor scrollea horizontal (min-w fijo en el grid).
  */
-export default function AgendaWeekView({ eventos, weekStart }: { eventos: EventoAgenda[]; weekStart: Date }) {
+export default function AgendaWeekView({ eventos, weekKey }: { eventos: EventoAgenda[]; weekKey: string }) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
+  // weekKey (YYYY-MM-DD) y no un Date: un Date serializado server->client llega como
+  // medianoche UTC y en el navegador (UTC-3) cae el día anterior, corriendo toda la grilla.
+  const [y, m, d0] = weekKey.split('-').map(Number)
+  const weekStart = new Date(y, m - 1, d0)
   const days = getWeekDays(weekStart)
   const dayKeys = days.map(toDateInput)
 

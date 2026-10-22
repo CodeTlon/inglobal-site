@@ -27,7 +27,7 @@ async function DayPanel({ dayKey }: { dayKey: string }) {
 async function WeekPanel({ weekStart }: { weekStart: Date }) {
   const weekEnd = addDays(weekStart, 6)
   const eventosSemana = await getEventosAgenda({ desde: toDateInput(weekStart), hasta: toDateInput(weekEnd) })
-  return <AgendaWeekView eventos={eventosSemana} weekStart={weekStart} />
+  return <AgendaWeekView eventos={eventosSemana} weekKey={toDateInput(weekStart)} />
 }
 
 export default async function AgendaCalendarioPage({
