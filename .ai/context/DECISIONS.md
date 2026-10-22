@@ -1,5 +1,9 @@
 # DECISIONS — Grúas InGlobal
 
+## Calendario semanal para tele: columnas por dia, no grilla horaria (2026-10-21)
+
+**Contexto**: el cliente vio la grilla horaria semanal «cortada y rara»: con muchos servicios simultaneos las tarjetas quedaban angostas (carriles), el texto truncado y los eventos sin `hora_fin` se estiraban hasta el final. Ademas la pagina se usa en una tele: no puede tener scroll horizontal ni vertical a 100 % de zoom y se maneja con control remoto. **Decision**: 7 columnas (una por dia) con tarjetas compactas ordenadas por hora; la altura NO es proporcional a la duracion. Cada columna scrollea por dentro si no entra. **Alternativas descartadas**: mantener la grilla horaria con mas ancho (no resuelve la superposicion); «+N mas» con popup (reemplazado por scroll interno a pedido del cliente). **Consecuencias**: se pierde la lectura visual de duracion y de huecos horarios; se gana legibilidad con 10+ servicios al dia. Navegacion por teclado/flechas en el propio componente (`AgendaWeekView`).
+
 Decisiones arquitectónicas clave, reconstruidas del código y del historial de git. No es un changelog exhaustivo commit-por-commit — para eso está `git log`; esto es "por qué se hizo así" para las decisiones con consecuencias que todavía importan.
 
 ## Reescritura PHP → Next.js 15 con dashboard CMS (2026-07-04)

@@ -1,5 +1,7 @@
 # CURRENT_STATE — Grúas InGlobal
 
+**Actualizacion 2026-10-21 (v2.2.0):** el calendario semanal del dashboard (`/dashboard/agenda/calendario`) se rediseño para la tele: 7 columnas sin scroll de pagina, scroll interno por dia y navegacion con control remoto. Corregido ademas el corrimiento de un dia de la semana (Date serializado en UTC). Pendiente: probarlo en una tele real.
+
 **Actualizacion 2026-10-18 (v2.1.2):** corregido el calculo de estado de los eventos de agenda (`estadoTransicionado`, `getEstadoVisual`): las horas son de Cordoba y se interpretaban en UTC, asi que un evento se finalizaba 3 horas antes (y las reservas se cancelaban antes). Ahora usan `OFFSET_AR` (`-03:00`). Era la causa real del E2E `disponible/ocupado hoy` que fallaba por la tarde. E2E de agenda 6/6 y unit tests verdes. Los eventos ya finalizados de mas en la base de produccion, si los hubo, no se corrigen solos (el estado se persiste al leer).
 
 **Actualizacion 2026-10-18:** `dev` y `test` contienen `origin/main` (PR #8, ajustes de cliente en contacto/hero/servicios). E2E corridos contra el build de produccion con Postgres 17 y el seed: 29 de 30 pasan; `catalogos muestra disponible/ocupado hoy` falla fuera del horario del seed (eventos de hoy hasta las 19:00 Cordoba). Sin verificar: CI en GitHub tras el merge y el despliegue de `test` en Coolify.
