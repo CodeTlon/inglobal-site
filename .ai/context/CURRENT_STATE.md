@@ -8,26 +8,25 @@
 
 **Actualizacion 2026-10-16:** la rama `feature/dev2-estandar-2026` (integrada en `dev` y `test`) lleva el proyecto al estandar de versiones de la flota: Next 16.4.2, React 19.3.1, Tailwind 4.3.3, TypeScript 6.0.3, ESLint 10.13.0, `proxy.ts`. Verificado: `tsc`, lint (0 errores), 8 tests unitarios, build, imagen Docker Alpine, `npm audit --omit=dev` en 0. **Sin verificar:** E2E (los corre el CI), despliegue de `test` con esta version. Produccion (`main`) sigue en Vercel + Supabase; el corte espera el acceso al dominio.
 
-Qué es verdad ahora (2026-09-11). Esto envejece rápido — si estás leyendo esto varios meses después de la fecha de arriba, verificá contra el código antes de confiar ciegamente.
 
-## Pendiente / bloqueado
-
-- **`RESEND_API_KEY`/`RESEND_FROM_EMAIL` de producción**: todavía sin completar, esperando que Mateo pase la key real. El formulario de contacto en prod usa el default de Resend (`onboarding@resend.dev`) hasta entonces.
-- **Dominio `gruasinglobal.com`**: todavía no cortado a la producción real de Vercel — el deploy de la rama `main` sigue sirviendo desde su alias `*.vercel.app`.
-- **Deploy**: Vercel tiene auto-deploy desde `main` (corregido; antes decía manual). Un push a `main` despliega a producción. Sigue sin haber gate de calidad automático (lint/tsc/build/tests en push o PR) — `.github/workflows/` sí existe desde el 2026-09-06, pero solo para el cron de agenda (`cron-transicionar-estados.yml`), no como CI.
-- **Hosting del microservicio `services/video-transcode/`**: la integración en el código principal (`lib/transcode-token.ts`, `app/actions/transcode.ts`) ya está completa; no está confirmado si el microservicio ya corre en algún lado (Coolify u otro) o si sigue con el soft-fail activo (sube sin transcodificar). Ver `.ai/context/OPEN_QUESTIONS.md`.
-
-## En desarrollo activo
-
-- **Fix `must_change_password` en `app/api/**`** (rama `fix/must-change-password-api`, commit `ee7d4ff`, 2026-09-12): `middleware.ts` ya bloqueaba a un usuario con contraseña forzada en el dashboard web, pero su matcher nunca incluyó `/api/**` — la app mobile podía operar indefinidamente con una contraseña temporal. `requireApiUser` (`lib/supabase-api.ts`) ahora devuelve 403 en las 14 rutas de `app/api/**` si `must_change_password: true`. Verificado contra una cuenta de prueba real en el proyecto Supabase de **dev** (nunca en prod): antes del fix, `GET /api/agenda/gruas` con su access_token devolvía 200; después, 403. Confirmado sin regresión (cuenta normal sigue en 200, sin token sigue en 401). **Todavía no mergeado a `main`** — no marcar como resuelto hasta el merge. **Ya está en `main`** (incluido en `dc3f9a0`); no es trabajo pendiente.
-- **App mobile `inglobal-agenda-app`** (repo aparte): consume `app/api/**` vía Bearer token para que el personal de campo gestione la agenda desde el celular, con las mismas cuentas que el panel web (sin distinción de rol desde 2026-09-11). Usa el **mismo proyecto Supabase** que el web (confirmado por Mateo, 2026-09-11).
-- **Migración `031_drop_trabajador_role.sql`**: aplicada a dev (`db-sync-dev.mjs --yes`, 2026-09-11) y a **prod** (pegada a mano en el SQL Editor de Supabase, 2026-09-12, excepción puntual al flujo normal porque `is_admin()` era una redefinición de función sin riesgo de dato — no un wipe). El `is_admin()` de prod ya no chequea rol. **Resuelto (2026-09-12)**: `refactor/eliminar-rol-trabajador` (`ed67163`, `c9cfa39`, `1a96f75`) se mergeó a `main` (fast-forward, sin conflictos — `main` no había avanzado desde el punto de la rama). La inconsistencia entre RLS (ya aflojado) y `middleware.ts` (todavía bloqueando `trabajador`) que existió entre el 2026-09-12 (migración en prod) y este merge queda cerrada del lado del código en `main`. Verificado localmente contra `main` post-merge con una cuenta de prueba real `app_metadata.role = 'trabajador'` (creada y luego borrada en el proyecto Supabase de **dev**, nunca en prod): login entra directo a `/dashboard` sin redirect a `?sin_acceso=1`, y un `UPDATE` real sobre `clientes` (antes bloqueado por RLS para ese rol) se persistió — confirma que el checklist de `MANUAL-PRUEBAS.md` ("Eliminación del rol `trabajador`") pasa en `main`. Falta desplegar `main` a prod para que el código deployado deje de estar un commit atrás de la DB.
-- **Esta misma restructuración de contexto** (`AGENTS.md` + `.ai/context/`, en curso desde 2026-09-11): reemplaza el patrón anterior de un único `.claude/CLAUDE.md` monolítico que se había desincronizado del código real en varios puntos (roles, `app/api/**`, TV pairing, SEO/Analytics, entre otros — ver `.ai/context/DECISIONS.md`). `.claude/CLAUDE.md` y `ARCHITECTURE.md` (raíz) pasan a ser stubs cortos que apuntan acá.
+## Estado vigente (2026-10-23)
+- **Producción corre en Coolify** (`main`, deploy automático): `https://inglobal.51.91.253.54.sslip.io`, base Postgres propia, archivos en volumen servido por `/media`. Vercel y Supabase ya no sirven tráfico (Vercel quedó roto a propósito); Supabase sigue vivo solo como respaldo 1-2 semanas antes de apagarlo. Todo push a `main` despliega prod y la migración corre al arrancar: respaldar la base antes de mergear una migración.
+- **`main` está en v2.2.0** (calendario semanal para tele). `dev` y `test` tienen el mismo código; `dev` suma solo docs.
+- **Backup diario de prod a B2**: cron en `codetlon-vps`; restauración de prueba hecha el 2026-10-23, repetir cada trimestre.
+- **CI** (`ci.yml`): corre lint, `tsc`, `test:unit`, build, audit y E2E en push/PR a `dev`, `test` y `main`. Verde en `dev` y `main` al 2026-10-23.
+- **Dominio `gruasinglobal.com`**: sin cortar, falta el acceso al DNS. Al cortar hay que rehacer el build de la app móvil (la URL va fija en el binario).
+- **Resend de producción**: sin `RESEND_API_KEY`/`RESEND_FROM_EMAIL` propios; el formulario de contacto usa `onboarding@resend.dev`.
+- **Video**: el microservicio local `services/video-transcode/` no existe más; se usa el servicio global (`codetlon-cloud/templates/video-transcode`) con soft-fail si no responde.
+- **App móvil `inglobal-agenda-app`** (repo aparte): perfil EAS `production` apunta a prod en Coolify; falta sacar el build nuevo y subirlo a TestFlight / Play.
+- Lo que falta, con responsable: `PENDIENTES.md`.
 
 ## Prioridades conocidas (no bloqueantes)
+- Sin tests de integración ni de RLS. Ver `KNOWN_ISSUES.md`.
 
-- Sin tests de integración ni de RLS — solo 24 E2E de UI (`tests/e2e/inglobal.spec.ts`) y 1 unit test (`services/video-transcode/token.test.mjs`). Ver `.ai/context/KNOWN_ISSUES.md`.
-- CI: desde 2026-10-15 `ci.yml` corre lint, `tsc`, `test:unit`, build, audit y E2E en push/PR a `dev`, `test` y `main` (en `dev`/`test`; `main` hereda el CI al promover). Antes no había gate automático.
+---
+# Historial (superado, queda como referencia)
+Las secciones siguientes y lo que dicen de Vercel/Supabase describen etapas anteriores de la migración.
+
 
 ## Estado al 2026-10-01 (cierre de la tanda de agenda y entornos)
 - **Hecho y en `main`:** migración 032 aplicada en producción, empresas por tipo, roles y ex operarios (app + sitio + panel web), mejoras de vistas mes/semana/día y TV, Supabase local con seed, documentación de entornos.
