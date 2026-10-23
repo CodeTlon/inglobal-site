@@ -1,12 +1,34 @@
 # PENDIENTES — migración a Coolify (cierre de sesión 2026-10-14)
 
+## LISTA CLARA DE LO QUE FALTA (actualizada 2026-10-23) — empezar por acá
+Producción ya corre en Coolify (`main`, deploy automático). Calendario v2.2.0 ya está en `main`. Backup diario a B2 hecho.
+
+**Para Mateo (necesitan una persona o un dato externo):**
+- [ ] Mañana: mirar `~/backups/backup.log` en `codetlon-vps` (ssh de **Windows**/PowerShell) y confirmar una corrida nueva de `inglobal` en `b2:backups-codetlon/prod/inglobal/`.
+- [ ] `RESEND_API_KEY` y `RESEND_FROM_EMAIL` de producción (hoy el formulario de contacto usa `onboarding@resend.dev`) y verificar `gruasinglobal.com` en Resend.
+- [ ] Corte del dominio `gruasinglobal.com` a Coolify (bloqueado por el acceso al DNS). Al cortar, rehacer el build móvil (la URL va fija en el binario).
+- [ ] Build nuevo de la app móvil (`eas.json`, perfil `production`) y subirlo a TestFlight / Play.
+- [ ] Probar el calendario semanal nuevo (`/dashboard/agenda/calendario`) en una tele real con control remoto.
+- [ ] Probar push de la app en un dispositivo real (build nativo).
+- [ ] Decidir con el dueño la política de `hora_fin` (18:00 vs 23:59) y reclasificar a mano las empresas particulares (la 032 las dejó todas como `frecuente`).
+- [ ] Apagar el proyecto Supabase tras 1–2 semanas de prod estable (el token/`service_role`/signup dejan de importar al apagarlo; no se rotan).
+
+**Para Claude (hechos sin bloqueo externo):**
+- [ ] Limpiar `CURRENT_STATE.md`: las secciones que dicen "producción en Vercel + Supabase" son históricas.
+- [ ] Confirmar que el CI de GitHub pase en `dev`/`main` y el despliegue de `test` en Coolify.
+- [ ] Confirmar dónde corre `services/video-transcode/` (hoy sin trackear en git) o si se quita.
+- [ ] Quitar `eventos_agenda.grua_id` solo cuando no queden apps viejas.
+- [ ] Repetir la restauración de prueba del backup cada trimestre (próxima: enero 2027).
+
+**Notas:** `npm run dev:local` falla en Windows (`spawn npx ENOENT`); alternativa: arrancar `npx next dev -p 3200` con las variables del script. Servidor de Coolify: ssh de Windows (ver `~/.claude/CLAUDE.md`).
+
 ## Estado al 2026-10-21 (sesión de la noche del 20/10) — LEER PRIMERO
 - **Producción corre en Coolify**: `https://inglobal.51.91.253.54.sslip.io` (recurso `p3wqid5ntkim0uw6h4ctd06e`, rama `main`, deploy automático). Datos de Supabase prod del 20/10 cargados y verificados (paridad completa: tablas, hashes, 30 archivos sha256). `main` = `test` = `dev` (`70bf75e`). **Vercel quedó roto a propósito** (el push a `main` lo redesplegó con el código nuevo, sin Supabase); ya no es referencia.
 - **Pedidos de Bruno hechos** (sitio + app): (1) varias grúas por servicio — tabla `eventos_gruas`, migración `0004` (aplicada en prod: 12/12 eventos con backfill); (2) empresa primero y grúa(s) debajo. Ver `DOMAIN.md`.
 - **`test` quedó con datos ficticios** (seed `ZZ-PRUEBA` + un solo admin con contraseña aleatoria). No hay datos reales ahí.
 - **App**: `dev` = `test` = `main` (`0f04fb5`). `eas.json`: perfil `production` -> `https://inglobal.51.91.253.54.sslip.io`, `preview` -> test. **Falta sacar el build nuevo y subirlo a TestFlight / Play** (la URL va fija en el binario: al pasar a `gruasinglobal.com` hay que rehacerlo).
 - **Backup diario a B2 de prod: hecho (2026-10-23).** Cron `35 3 * * *` en `codetlon-vps` (`PROJECT=inglobal`, `FILES_MODE=volume`, credenciales en `/etc/backup/inglobal.env`), destino `b2:backups-codetlon/prod/inglobal/{postgres,files}/`. Primera corrida manual OK y `restore-test.sh` restauró 21 tablas desde B2 el 2026-10-23. Falta confirmar la primera corrida del cron (`~/backups/backup.log`) y repetir la restauración cada trimestre. Los respaldos puntuales de `/home/ubuntu` (`prod-db-pre-0004`, `test-db-pre-reset`) se borraron.
-- Pendiente de este bloque: verificar `gruasinglobal.com` en Resend, DNS, rotar la `service_role` de Supabase y las claves pegadas en chats, apagar Supabase tras 1–2 semanas, quitar `eventos_agenda.grua_id` solo cuando no queden apps viejas.
+- Pendiente de este bloque: verificar `gruasinglobal.com` en Resend, DNS, apagar Supabase tras 1–2 semanas, quitar `eventos_agenda.grua_id` solo cuando no queden apps viejas.
 - Gotcha de proceso: **todo push a `main` despliega prod en Coolify solo**, y la migración corre al arrancar. Respaldar la base antes de mergear una migración nueva.
 
 
