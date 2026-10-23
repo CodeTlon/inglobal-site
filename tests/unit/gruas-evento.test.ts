@@ -10,6 +10,7 @@ import { db } from '../../lib/db'
 import {
   buscarConflicto,
   getRecursosOcupados,
+  guardarEventoConRelaciones,
   resolverGruaIds,
   resolverGruaIdsEdicion,
   syncEventoGruas,
@@ -95,6 +96,50 @@ test('gruas por evento: conflicto en cualquiera de las grúas, compat. cliente v
     for (const id of eventos) await db.from('eventos_agenda').delete().eq('id', id)
     await db.from('empresas_agenda').delete().eq('id', emp)
     for (const id of [g1, g2, g3]) await db.from('gruas').delete().eq('id', id)
+  }
+})
+
+test('guardarEventoConRelaciones: si una grúa choca se deshace todo (evento, grúas y operarios)', { skip: omitir }, async () => {
+  const mes = '2099-07'
+  const g1 = await insertar('gruas', { nombre: 'ZZ-PRUEBA-GRUAS TX 1', tipo: 'Grúa', activo: true })
+  const g2 = await insertar('gruas', { nombre: 'ZZ-PRUEBA-GRUAS TX 2', tipo: 'Grúa', activo: true })
+  const emp = await insertar('empresas_agenda', { nombre: 'ZZ-PRUEBA-GRUAS TX EMPRESA', tipo: 'particular', activo: true })
+  const op = await insertar('operarios', { nombre: 'ZZ-PRUEBA-GRUAS TX OPERARIO', activo: true })
+  const eventos: string[] = []
+  const fila = (dia: string, desde: string, hasta: string, grua: string) =>
+    ({ fecha: `${mes}-${dia}`, fecha_hasta: '', hora_inicio: desde, hora_fin: hasta, grua_id: grua, empresa_id: emp, estado: 'programado' })
+  try {
+    // Alta: evento + 2 grúas + operario de una
+    const a = await guardarEventoConRelaciones(db, null, fila('10', '08:00', '12:00', g1), [g1, g2], [op])
+    assert.equal(a.error, null)
+    eventos.push(a.id!)
+    const { data: gruasA } = await db.from('eventos_gruas').select('grua_id').eq('evento_id', a.id!)
+    assert.equal(gruasA?.length, 2)
+
+    // B en otro día, solo g1
+    const b = await guardarEventoConRelaciones(db, null, fila('11', '08:00', '12:00', g1), [g1], [])
+    assert.equal(b.error, null)
+    eventos.push(b.id!)
+
+    // Editar B al mismo horario que A pidiendo g2 (saltea buscarConflicto, como una carrera): el trigger lo rechaza...
+    const edit = await guardarEventoConRelaciones(db, b.id!, fila('10', '09:00', '11:00', g1), [g1, g2], [])
+    assert.ok(edit.error)
+    // ...y B queda exactamente como estaba: mismo día y su grúa de siempre
+    const { data: bDb } = await db.from('eventos_agenda').select('fecha').eq('id', b.id!).single()
+    assert.equal(bDb?.fecha, `${mes}-11`)
+    const { data: gruasB } = await db.from('eventos_gruas').select('grua_id').eq('evento_id', b.id!)
+    assert.deepEqual(gruasB?.map((r) => r.grua_id), [g1])
+
+    // Un alta que choca no deja un evento huérfano
+    const antes = (await db.from('eventos_agenda').select('id').eq('empresa_id', emp)).data?.length
+    const c = await guardarEventoConRelaciones(db, null, fila('10', '10:00', '11:00', g2), [g2], [])
+    assert.ok(c.error)
+    assert.equal((await db.from('eventos_agenda').select('id').eq('empresa_id', emp)).data?.length, antes)
+  } finally {
+    for (const id of eventos) await db.from('eventos_agenda').delete().eq('id', id)
+    await db.from('operarios').delete().eq('id', op)
+    await db.from('empresas_agenda').delete().eq('id', emp)
+    for (const id of [g1, g2]) await db.from('gruas').delete().eq('id', id)
   }
 })
 
