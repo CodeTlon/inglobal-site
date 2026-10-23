@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getEventosAgenda } from '@/lib/agenda'
 import { formatEstado, toDateInput, nombresGruas } from '@/lib/agenda-view'
+import GruasResumen from '@/components/agenda/GruasResumen'
 import PageHeader from '@/components/dashboard/PageHeader'
 import AgendaTvQrLink from './AgendaTvQrLink'
 import { ChevronRight, Plus, Settings2, MapPin, Users } from 'lucide-react'
@@ -61,9 +62,10 @@ export default async function AgendaDashboardPage() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="font-headline font-bold text-zinc-900 text-sm truncate">
-                {ev.empresa?.nombre ?? 'Empresa'} · {nombresGruas(ev)}
+              <p className="font-headline font-bold text-zinc-900 text-sm truncate" title={`${ev.empresa?.nombre ?? 'Empresa'} · ${nombresGruas(ev)}`}>
+                {ev.empresa?.nombre ?? 'Empresa'}
               </p>
+              <GruasResumen ev={ev} className="text-xs text-zinc-500" />
               <div className="flex items-center gap-4 mt-1 text-xs text-zinc-400">
                 {ev.ubicacion && (
                   <span className="flex items-center gap-1 truncate">

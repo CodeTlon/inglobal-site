@@ -51,7 +51,7 @@ export default function AgendaDayView({ eventos, dayKey }: { eventos: EventoAgen
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold truncate">{ev.empresa?.nombre ?? 'Empresa'}</p>
-              <p className="text-xs line-clamp-2 opacity-80">{nombresGruas(ev)}</p>
+              <p className="text-xs line-clamp-3 opacity-80" title={nombresGruas(ev)}>{nombresGruas(ev)}</p>
               {ev.ubicacion && <p className="text-xs truncate opacity-80">{ev.ubicacion}</p>}
               <p className="text-[11px] mt-1 opacity-70">{formatEstado(visual)}</p>
             </div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
 import { getWeekDays, getEstadoVisual, toDateInput, finDiaEfectivoEvento, formatEstado, nombresGruas, estadoStripColor } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
+import GruasResumen from './GruasResumen'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
@@ -62,8 +63,10 @@ function EventoCard({
       <span className={`truncate text-[1em] font-bold leading-tight text-zinc-900 ${visual === 'cancelado' ? 'line-through' : ''}`}>
         {ev.empresa?.nombre ?? 'Empresa'}
       </span>
-      <span className="truncate text-[0.85em] leading-tight text-zinc-500">
-        <span className="font-semibold text-zinc-700">{horaLabel(ev, dayKey)}</span> · {nombresGruas(ev, ', ')}
+      <span className="flex min-w-0 items-baseline gap-[0.3em] text-[0.85em] leading-tight text-zinc-500">
+        <span className="shrink-0 font-semibold text-zinc-700">{horaLabel(ev, dayKey)}</span>
+        <span className="shrink-0">·</span>
+        <GruasResumen ev={ev} sep=", " />
       </span>
     </button>
   )
