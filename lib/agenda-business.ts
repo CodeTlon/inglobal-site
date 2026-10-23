@@ -131,6 +131,55 @@ export async function syncEventoOperarios(
   return insError ? friendlyError(insError) : null
 }
 
+/**
+ * Crea (eventoId null) o edita el evento junto con sus grúas y operarios en UNA transacción. Antes eran tres
+ * escrituras sueltas: si el trigger anti-solapamiento rechazaba una grúa/operario (dos personas guardando a la
+ * vez), el evento quedaba con los datos nuevos y sin sus grúas/operarios. Ahora se deshace todo junto.
+ */
+export async function guardarEventoConRelaciones(
+  db: Db,
+  eventoId: string | null,
+  fila: Record<string, unknown>,
+  gruaIds: string[],
+  operarioIds: string[],
+): Promise<{ id: string; error: null } | { id: null; error: string }> {
+  const columnas = Object.keys(fila).filter((c) => fila[c] !== undefined)
+  // fecha_hasta llega como '' desde los formularios cuando no se completó.
+  const valores = columnas.map((c) => (c === 'fecha_hasta' && fila[c] === '' ? null : fila[c]))
+  const ident = (c: string) => `"${c.replace(/"/g, '""')}"`
+  const client = await db.pool().connect()
+  try {
+    await client.query('BEGIN')
+    let id = eventoId
+    if (id) {
+      const sets = columnas.map((c, i) => `${ident(c)} = $${i + 1}`).join(', ')
+      const res = await client.query(`UPDATE eventos_agenda SET ${sets} WHERE id = $${columnas.length + 1}`, [...valores, id])
+      if (res.rowCount === 0) throw { code: 'PGRST116', message: 'evento no encontrado' }
+    } else {
+      const res = await client.query<{ id: string }>(
+        `INSERT INTO eventos_agenda (${columnas.map(ident).join(', ')}) VALUES (${columnas.map((_, i) => `$${i + 1}`).join(', ')}) RETURNING id`,
+        valores,
+      )
+      id = res.rows[0].id
+    }
+    await client.query('DELETE FROM eventos_gruas WHERE evento_id = $1', [id])
+    for (const [orden, gruaId] of gruaIds.entries()) {
+      await client.query('INSERT INTO eventos_gruas (evento_id, grua_id, orden) VALUES ($1, $2, $3)', [id, gruaId, orden])
+    }
+    await client.query('DELETE FROM eventos_operarios WHERE evento_id = $1', [id])
+    for (const operarioId of operarioIds) {
+      await client.query('INSERT INTO eventos_operarios (evento_id, operario_id) VALUES ($1, $2)', [id, operarioId])
+    }
+    await client.query('COMMIT')
+    return { id, error: null }
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { id: null, error: friendlyError(e) }
+  } finally {
+    client.release()
+  }
+}
+
 // ─── Validación de solapamiento (grúa/operario reservados dos veces) ───────
 
 export type EventoWindow = { fecha: string; fecha_hasta?: string | null; hora_inicio: string; hora_fin?: string | null }

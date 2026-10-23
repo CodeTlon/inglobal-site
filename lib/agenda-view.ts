@@ -277,3 +277,14 @@ export function nombresGruas(
   if (nombres.length > 0) return nombres.join(sep)
   return ev.grua?.nombre ?? 'Grúa'
 }
+
+/** Para tarjetas: las primeras `max` grúas y cuántas quedan afuera, por separado (el "+N" va aparte para que `truncate` no se lo coma). */
+export function partesResumenGruas(
+  ev: { gruas?: { nombre: string }[]; grua?: { nombre: string } | null },
+  max = 2,
+  sep = ' · ',
+): { texto: string; resto: number } {
+  const nombres = (ev.gruas ?? []).map((g) => g.nombre)
+  if (nombres.length === 0) return { texto: ev.grua?.nombre ?? 'Grúa', resto: 0 }
+  return { texto: nombres.slice(0, max).join(sep), resto: Math.max(0, nombres.length - max) }
+}
