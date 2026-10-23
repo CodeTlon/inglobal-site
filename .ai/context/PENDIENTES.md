@@ -14,9 +14,9 @@ Producción ya corre en Coolify (`main`, deploy automático). Calendario v2.2.0 
 - [ ] Apagar el proyecto Supabase tras 1–2 semanas de prod estable (el token/`service_role`/signup dejan de importar al apagarlo; no se rotan).
 
 **Para Claude (hechos sin bloqueo externo):**
-- [ ] Limpiar `CURRENT_STATE.md`: las secciones que dicen "producción en Vercel + Supabase" son históricas.
-- [ ] Confirmar que el CI de GitHub pase en `dev`/`main` y el despliegue de `test` en Coolify.
-- [ ] Confirmar dónde corre `services/video-transcode/` (hoy sin trackear en git) o si se quita.
+- [x] CI de GitHub verde en `dev` y `main` (confirmado 2026-10-23). **Falta** confirmar el despliegue de `test` en Coolify: respondía 503 justo antes de mergear `dev` en `test`.
+- [x] `services/video-transcode/` ya no existe en el repo (se usa el servicio global de `codetlon-cloud`); nada que decidir.
+- [x] `CURRENT_STATE.md` limpiado (2026-10-23): estado vigente arriba, el resto marcado como historial.
 - [ ] Quitar `eventos_agenda.grua_id` solo cuando no queden apps viejas.
 - [ ] Repetir la restauración de prueba del backup cada trimestre (próxima: enero 2027).
 
