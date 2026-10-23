@@ -19,9 +19,8 @@ import {
   validarGruas,
   resolverGruaIds,
   resolverGruaIdsEdicion,
-  syncEventoGruas,
+  guardarEventoConRelaciones,
   validarOperarios,
-  syncEventoOperarios,
   buscarConflicto,
   getRecursosOcupados as getRecursosOcupadosBusiness,
   validarEdicionEvento,
@@ -149,19 +148,8 @@ export async function createEvento(prevState: unknown, formData: FormData): Prom
     const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds)
     if (conflicto) return { error: conflicto }
 
-    const { data, error } = await db
-      .from('eventos_agenda')
-      .insert({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null })
-      .select('id')
-      .single()
-
-    if (error || !data) return { error: error ? friendlyError(error) : 'No se pudo crear el evento.' }
-
-    const syncGruasError = await syncEventoGruas(db, data.id, gruaIds)
-    if (syncGruasError) return { error: syncGruasError }
-
-    const syncError = await syncEventoOperarios(db, data.id, operarioIds)
-    if (syncError) return { error: syncError }
+    const { error } = await guardarEventoConRelaciones(db, null, { ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null }, gruaIds, operarioIds)
+    if (error) return { error }
 
     revalidateEventos()
   } catch (e) {
@@ -199,18 +187,14 @@ export async function updateEvento(prevState: unknown, formData: FormData): Prom
       if (conflicto) return { error: conflicto }
     }
 
-    const { error } = await db
-      .from('eventos_agenda')
-      .update({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
-      .eq('id', id)
-
-    if (error) return { error: friendlyError(error) }
-
-    const syncGruasError = await syncEventoGruas(db, id, gruaIds)
-    if (syncGruasError) return { error: syncGruasError }
-
-    const syncError = await syncEventoOperarios(db, id, operarioIds)
-    if (syncError) return { error: syncError }
+    const { error } = await guardarEventoConRelaciones(
+      db,
+      id,
+      { ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null, updated_at: new Date().toISOString() },
+      gruaIds,
+      operarioIds,
+    )
+    if (error) return { error }
 
     revalidateEventos()
   } catch (e) {
