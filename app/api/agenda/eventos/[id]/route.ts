@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { eventoAgendaSchema } from '@/lib/validations/agenda'
 import { getEventoAgendaById } from '@/lib/agenda'
-import { validarGruas, resolverGruaIdsEdicion, syncEventoGruas, validarOperarios, buscarConflicto, syncEventoOperarios, validarEdicionEvento, validarBorradoEvento } from '@/lib/agenda-business'
+import { validarGruas, resolverGruaIdsEdicion, validarOperarios, buscarConflicto, guardarEventoConRelaciones, validarEdicionEvento, validarBorradoEvento } from '@/lib/agenda-business'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -53,18 +53,14 @@ export async function PATCH(request: Request, { params }: Params) {
       if (conflicto) return apiError(conflicto, 409)
     }
 
-    const { error } = await db
-      .from('eventos_agenda')
-      .update({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null, updated_at: new Date().toISOString() })
-      .eq('id', id)
-
-    if (error) return apiError(friendlyError(error), 500)
-
-    const syncGruasError = await syncEventoGruas(db, id, gruaIds)
-    if (syncGruasError) return apiError(syncGruasError, 500)
-
-    const syncError = await syncEventoOperarios(db, id, operarioIds)
-    if (syncError) return apiError(syncError, 500)
+    const { error } = await guardarEventoConRelaciones(
+      db,
+      id,
+      { ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null, updated_at: new Date().toISOString() },
+      gruaIds,
+      operarioIds,
+    )
+    if (error) return apiError(error, 409)
 
     return apiData({ id })
   } catch (e) {
