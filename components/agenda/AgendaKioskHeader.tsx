@@ -20,8 +20,8 @@ export default function AgendaKioskHeader({
   const isLight = theme === 'light'
   return (
     <header
-      className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 sm:px-10 py-4 sm:py-6 border-b ${
-        isLight ? 'bg-white border-zinc-200' : 'border-white/10'
+      className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 sm:px-10 border-b ${
+        isLight ? 'bg-white border-zinc-200 py-2 sm:py-3' : 'border-white/10 py-4 sm:py-6'
       }`}
     >
       <Image

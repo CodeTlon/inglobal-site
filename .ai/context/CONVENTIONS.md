@@ -5,6 +5,10 @@
 
 Convenciones ya establecidas en el código (no inventadas). Antes de escribir un patrón nuevo para algo que ya tiene un patrón acá, replicá el existente.
 
+## Fechas server → client: pasar `YYYY-MM-DD`, nunca un `Date`
+
+Un `Date` que un Server Component le pasa por props a un Client Component se serializa como instante UTC. El servidor corre en UTC y el navegador en Cordoba (UTC-3): `new Date(2026, 9, 19)` del servidor llega como el domingo 18 a las 21:00 y `getDate()` devuelve 18 (la grilla semanal del calendario salio corrida un dia por esto). Pasar el string `toDateInput(...)` y reconstruir con `new Date(y, m - 1, d)` en el cliente. Para «hoy» usar `hoyArgentina()` desde el servidor.
+
 ## Uploads grandes: nunca crudos por un Server Action
 
 **Causa raíz**: Vercel cappea el body de CUALQUIER función serverless (incluidos Server Actions) a **4.5MB de forma dura** — el `experimental.serverActions.bodySizeLimit: '20mb'` de `next.config.mjs` solo afecta el parseo interno de Next, no el límite real de la plataforma, y no hay forma de overridearlo desde la app.
