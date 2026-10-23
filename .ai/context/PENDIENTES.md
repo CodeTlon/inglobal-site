@@ -5,8 +5,8 @@
 - **Pedidos de Bruno hechos** (sitio + app): (1) varias grúas por servicio — tabla `eventos_gruas`, migración `0004` (aplicada en prod: 12/12 eventos con backfill); (2) empresa primero y grúa(s) debajo. Ver `DOMAIN.md`.
 - **`test` quedó con datos ficticios** (seed `ZZ-PRUEBA` + un solo admin con contraseña aleatoria). No hay datos reales ahí.
 - **App**: `dev` = `test` = `main` (`0f04fb5`). `eas.json`: perfil `production` -> `https://inglobal.51.91.253.54.sslip.io`, `preview` -> test. **Falta sacar el build nuevo y subirlo a TestFlight / Play** (la URL va fija en el binario: al pasar a `gruasinglobal.com` hay que rehacerlo).
-- **Respaldos puntuales en el servidor** (`/home/ubuntu`): `prod-db-pre-0004-*.sql.gz` (prod antes de la 0004) y `test-db-pre-reset-*.sql.gz`. Borrarlos cuando haya backup a B2.
-- Pendiente de este bloque: backup diario a B2 de prod (hoy NO hay), verificar `gruasinglobal.com` en Resend, DNS, rotar la `service_role` de Supabase y las claves pegadas en chats, apagar Supabase tras 1–2 semanas, quitar `eventos_agenda.grua_id` solo cuando no queden apps viejas.
+- **Backup diario a B2 de prod: hecho (2026-10-23).** Cron `35 3 * * *` en `codetlon-vps` (`PROJECT=inglobal`, `FILES_MODE=volume`, credenciales en `/etc/backup/inglobal.env`), destino `b2:backups-codetlon/prod/inglobal/{postgres,files}/`. Primera corrida manual OK y `restore-test.sh` restauró 21 tablas desde B2 el 2026-10-23. Falta confirmar la primera corrida del cron (`~/backups/backup.log`) y repetir la restauración cada trimestre. Los respaldos puntuales de `/home/ubuntu` (`prod-db-pre-0004`, `test-db-pre-reset`) se borraron.
+- Pendiente de este bloque: verificar `gruasinglobal.com` en Resend, DNS, rotar la `service_role` de Supabase y las claves pegadas en chats, apagar Supabase tras 1–2 semanas, quitar `eventos_agenda.grua_id` solo cuando no queden apps viejas.
 - Gotcha de proceso: **todo push a `main` despliega prod en Coolify solo**, y la migración corre al arrancar. Respaldar la base antes de mergear una migración nueva.
 
 
@@ -28,7 +28,7 @@ Fuente única de lo que falta. Estado detallado en `CURRENT_STATE.md`; runbook e
 ## 2. Test: completar y probar a mano
 - [ ] Verificar el dominio `gruasinglobal.com` en Resend y usar un remitente de ese dominio; hasta entonces los mails solo llegan a `codetloncordoba+prueba@gmail.com`.
 - [ ] Decidir `NEXT_PUBLIC_GA_ID` en test (vacío = sin banner de cookies = única diferencia visual con producción).
-- [ ] Backups: programar respaldo de los volúmenes `pgdata` (base) y `storage` (archivos) con `backup-coolify.sh` de `codetlon-cloud` (`docs/BACKUPS.md`) a B2 y hacer un simulacro de restauración. Sin esto no se debe tocar producción.
+- [x] Backups (hecho 2026-10-23): programar respaldo de los volúmenes `pgdata` (base) y `storage` (archivos) con `backup-coolify.sh` de `codetlon-cloud` (`docs/BACKUPS.md`) a B2 y hacer un simulacro de restauración. Sin esto no se debe tocar producción.
 - [ ] Probar en la app móvil un build `preview` con `EXPO_PUBLIC_API_BASE_URL` apuntando al sitio de test (login, subir foto, notificaciones push en dispositivo con build nativo).
 - [ ] Probar a mano en test: formulario de contacto (llegada del mail y `/dashboard/consultas`), vincular una TV (`/agenda-tv/pair`), subir un video desde el panel, cookie `Secure` e IP real detrás del proxy.
 
