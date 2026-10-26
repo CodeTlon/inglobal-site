@@ -1,7 +1,12 @@
 # Auditoría profunda 2026-10-26 (inglobal-site + inglobal-agenda-app)
 
 Reemplaza la pasada rápida del mismo día. Método: lectura de código, gate automático (tsc, lint, tests con base local, audit) y pruebas con Playwright en 2 tamaños del sitio y 5 de la app (web exportada). **No es un pentest y la app no se probó en dispositivos reales**: lo nativo (teclado, safe areas reales, video, pushes) queda marcado como "a verificar".
-Capturas: `screenshots/auditoria/` en cada repo. Nada de esto está corregido todavía.
+Capturas: `screenshots/auditoria/` en cada repo.
+
+## Estado de las correcciones (2026-10-26, `dev` y `test`)
+**Corregido:** 1 (canonical por página), 2 (pestañas), 3 (teclado Android, cambio hecho, **sin verificar en dispositivo**), 4 (IP real: `lib/client-ip.ts`), 5 (`check-email` eliminado y el login conserva siempre el email), 6 (`filtrosEventosSchema`), 7 (subidas: lista blanca + firma de archivo), 8 (lista de agenda del panel por día, rango 7/14/30/60 y filtros), 9 (320 px), 10 (tope de fuente), 11 (`lib/cron-auth.ts`), `npm audit` en 0, `/agenda-tv` fuera del sitemap y en `disallow`, ojito en los 4 formularios, labels del menú, `useFormState` → `useActionState`, paginación de consultas, galería (pública y panel) y empresas del catálogo.
+**Pendiente:** OG por ficha, paginación en servidor de clientes/montajes públicos (hoy en el navegador), rate limits compartidos entre réplicas, rotación de sesiones, 12 warnings de lint (`setState` en efectos), diseño ancho para iPad/tablets, verificación en dispositivos reales (teclado, safe areas, video, pushes).
+(El texto de abajo describe los hallazgos tal como se encontraron.)
 
 ## Gate automático (sitio)
 - `tsc` 0 errores; lint 0 errores y 13 warnings (11 `setState` dentro de efectos, 1 `window.location.href`, 1 eslint-disable sobrante).
