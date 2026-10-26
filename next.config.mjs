@@ -3,8 +3,13 @@
 const storageUrl = process.env.STORAGE_PUBLIC_URL ? new URL(process.env.STORAGE_PUBLIC_URL) : null
 const storageOrigin = storageUrl ? storageUrl.origin : ''
 
+// Solo `next dev`: Next bloquea los recursos de desarrollo (y con ellos la hidratación de React) si se abre desde
+// un host distinto de localhost, p. ej. la IP de Tailscale de la VPS. Se habilita con DEV_ALLOWED_ORIGINS=ip1,host2.
+const devOrigins = (process.env.DEV_ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean)
+
 const nextConfig = {
   output: 'standalone',
+  ...(devOrigins.length ? { allowedDevOrigins: devOrigins } : {}),
   experimental: {
     // Server Actions default a 1MB de body — uploadMediaAction acepta imágenes
     // hasta 12MB y videos hasta 20MB (ver app/actions/settings.ts), así que sin
