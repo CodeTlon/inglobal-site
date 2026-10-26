@@ -5,7 +5,7 @@ import { getEventosAgenda } from '@/lib/agenda'
 import AgendaWeekView from '@/components/agenda/AgendaWeekView'
 import AgendaDayView from '@/components/agenda/AgendaDayView'
 import AgendaKioskHeader from '@/components/agenda/AgendaKioskHeader'
-import { getWeekStart, addDays, toDateInput, hoyArgentina, estadoStripColor } from '@/lib/agenda-view'
+import { getWeekStart, addDays, toDateInput, fromDateInput, hoyArgentina, estadoStripColor } from '@/lib/agenda-view'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,14 +37,17 @@ export default async function AgendaCalendarioPage({
 }) {
   const { week, day } = await searchParams
 
-  const base = week ? new Date(`${week}T00:00:00`) : new Date()
+  // hoyArgentina() y no `new Date()`: el servidor corre en UTC y después de las
+  // 21:00 de Córdoba el default abría la semana/el día de MAÑANA. El prop `hoy`
+  // que recibe AgendaWeekView ya usaba este criterio; los defaults no.
+  const base = fromDateInput(week ?? hoyArgentina())
   const weekStart = getWeekStart(base)
   const weekEnd = addDays(weekStart, 6)
   const weekKey = toDateInput(weekStart)
   const prevWeek = toDateInput(addDays(weekStart, -7))
   const nextWeek = toDateInput(addDays(weekStart, 7))
 
-  const dayDate = day ? new Date(`${day}T00:00:00`) : new Date()
+  const dayDate = fromDateInput(day ?? hoyArgentina())
   const dayKey = toDateInput(dayDate)
   const prevDay = toDateInput(addDays(dayDate, -1))
   const nextDay = toDateInput(addDays(dayDate, 1))
@@ -88,7 +91,7 @@ export default async function AgendaCalendarioPage({
               <Link href={`?week=${prevWeek}`} className="flex items-center gap-1 rounded-full border border-zinc-200 px-3 py-1.5 text-sm font-semibold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900">
                 <ChevronLeft size={16} /> Anterior
               </Link>
-              <Link href={`?week=${toDateInput(getWeekStart(new Date()))}`} className="text-sm font-semibold text-zinc-400 hover:text-zinc-900">
+              <Link href={`?week=${toDateInput(getWeekStart(fromDateInput(hoyArgentina())))}`} className="text-sm font-semibold text-zinc-400 hover:text-zinc-900">
                 Hoy
               </Link>
             </div>

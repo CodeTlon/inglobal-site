@@ -21,6 +21,25 @@ export function toDateInput(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
+/**
+ * Inversa de `toDateInput`: parsea 'YYYY-MM-DD' como fecha LOCAL (medianoche de
+ * la zona de quien ejecuta), nunca como UTC. `new Date('2026-10-19')` —sin
+ * hora— lo interpreta como UTC y en Argentina (UTC-3) eso es el 18 a las 21:00,
+ * así que `getDate()` devuelve 18. Con el sufijo `T00:00:00` el motor usa la
+ * zona local y la fecha civil se preserva.
+ *
+ * Por qué importa: **nunca se pasa un `Date` de un Server Component a un
+ * componente cliente.** Un `Date` cruza ese límite serializado como INSTANTE
+ * (epoch), no como fecha civil: el servidor corre en UTC y manda
+ * `2026-10-19T00:00:00Z`, que el navegador argentino lee como sábado 18 a las
+ * 21:00. La regla es pasar la fecha como string 'YYYY-MM-DD' (o 'YYYY-MM') y
+ * reconstruir el `Date` del lado cliente con este helper: un string no se corre
+ * de zona.
+ */
+export function fromDateInput(key: string): Date {
+  return new Date(`${key}T00:00:00`)
+}
+
 export function addDays(d: Date, days: number): Date {
   const copy = new Date(d)
   copy.setDate(copy.getDate() + days)
@@ -240,6 +259,27 @@ export function layoutDayEvents<T extends { hora_inicio: string; hora_fin?: stri
 /** "Hoy" en hora de Córdoba (YYYY-MM-DD). El servidor corre en UTC (Vercel): entre las 21:00 y las 23:59 locales `new Date()` ya sería mañana. */
 export function hoyArgentina(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Cordoba' }).format(new Date())
+}
+
+/** Mes del "hoy" del negocio (YYYY-MM) — mismo criterio que `hoyArgentina`. */
+export function mesActualArgentina(): string {
+  return hoyArgentina().slice(0, 7)
+}
+
+// Indexado por `getDay()` (0=Dom..6=Sáb), no por posición de columna.
+const DIA_CORTO_POR_GETDAY = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+
+/**
+ * Nombre corto del día DERIVADO de la fecha ("Lun", "Mar", "Mié"…), para
+ * rotular una fecha concreta sin que el nombre pueda desalinearse del número.
+ *
+ * Tabla propia y no `toLocaleDateString('es-AR', { weekday: 'short' })`: esto
+ * se renderiza en el servidor y en el cliente, y el nombre abreviado depende
+ * del ICU de cada runtime (Node puede devolver "lun." con punto donde el
+ * navegador devuelve "lun") — esa diferencia es un mismatch de hidratación.
+ */
+export function nombreDiaCorto(d: Date): string {
+  return DIA_CORTO_POR_GETDAY[d.getDay()]
 }
 
 const ESTADOS_VIVOS_OCUPACION = ['reserva', 'programado', 'en_curso']

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays, finDiaEfectivoEvento, nombresGruas } from '@/lib/agenda-view'
+import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, fromDateInput, hoyArgentina, addDays, finDiaEfectivoEvento, nombresGruas } from '@/lib/agenda-view'
 import GruasResumen from './GruasResumen'
 import AgendaEventModal from './AgendaEventModal'
 
@@ -16,11 +16,11 @@ const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
  */
 export default function AgendaMonthView({
   eventos,
-  month,
+  monthKey,
   className = '',
 }: {
   eventos: EventoAgenda[]
-  month: Date
+  monthKey: string
   className?: string
 }) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
@@ -35,7 +35,14 @@ export default function AgendaMonthView({
     return () => window.removeEventListener('keydown', onKey)
   }, [selectedDay])
 
-  const todayKey = toDateInput(new Date())
+  // hoyArgentina() y no `new Date()`: este componente también se renderiza en
+  // el servidor (UTC), donde después de las 21:00 de Argentina "hoy" ya es
+  // mañana — el recuadro caía en el día equivocado en el HTML del server.
+  const todayKey = hoyArgentina()
+  // monthKey ('YYYY-MM') y no un Date: un Date cruza el límite server→cliente
+  // como instante UTC y el navegador argentino leía el mes anterior — con
+  // ?month=2026-11 el header decía "noviembre" y la grilla dibujaba octubre.
+  const month = fromDateInput(`${monthKey}-01`)
   const weeks = getMonthMatrix(month)
   // Antes esto solo se achicaba en meses de 6 semanas — pero 5 y 6 semanas
   // reparten una altura casi igual (6 filas son ~17% más bajas que 5), así
@@ -53,7 +60,7 @@ export default function AgendaMonthView({
     // `fecha_hasta` (22:00→02:00) sigue vigente al día siguiente — con el
     // bound viejo el bucketing nunca llegaba a esa columna del mes.
     const finEv = finDiaEfectivoEvento(ev)
-    for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(new Date(`${d}T00:00:00`), 1))) {
+    for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(fromDateInput(d), 1))) {
       const list = byDay.get(d) ?? []
       list.push(ev)
       byDay.set(d, list)
@@ -145,7 +152,7 @@ export default function AgendaMonthView({
           >
             <div className="flex items-start justify-between mb-4">
               <p className="text-lg font-bold text-zinc-900 capitalize">
-                {new Date(`${selectedDay.key}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                {fromDateInput(selectedDay.key).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
               <button
                 type="button"

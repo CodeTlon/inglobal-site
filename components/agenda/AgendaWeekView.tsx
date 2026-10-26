@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getWeekDays, getEstadoVisual, toDateInput, finDiaEfectivoEvento, formatEstado, nombresGruas, estadoStripColor } from '@/lib/agenda-view'
+import { getWeekDays, getEstadoVisual, toDateInput, fromDateInput, nombreDiaCorto, finDiaEfectivoEvento, formatEstado, nombresGruas, estadoStripColor } from '@/lib/agenda-view'
 import AgendaEventModal from './AgendaEventModal'
 import GruasResumen from './GruasResumen'
 
@@ -24,10 +24,30 @@ function eventosDelDia(eventos: EventoAgenda[], key: string): EventoAgenda[] {
   )
 }
 
+/**
+ * Etiqueta horaria de la tarjeta. Los tres casos que no son un rango normal se
+ * nombran en palabras y no con un glifo suelto:
+ *  - Día de continuación: "cont." a secas no ataba la tarjeta a ningún servicio
+ *    concreto y en un día con ocho había que adivinar de cuál venía; se nombra
+ *    el día de ORIGEN.
+ *  - Servicio que sigue al día siguiente: se nombra el día de DESTINO, así la
+ *    tarjeta y la continuación de mañana se leen como una sola pieza.
+ *  - Servicio sin `hora_fin`: antes se veía igual que uno que termina a esa
+ *    misma hora. El default de negocio ("abierto hasta fin del día") no se
+ *    toca; esto es solo cómo se rotula.
+ */
 function horaLabel(ev: EventoAgenda, key: string): string {
-  if (key !== ev.fecha) return 'cont.'
+  const finDia = finDiaEfectivoEvento(ev)
+  if (key !== ev.fecha) {
+    const inicio = fromDateInput(ev.fecha)
+    return `← del ${nombreDiaCorto(inicio).toLowerCase()} ${inicio.getDate()}`
+  }
   const ini = ev.hora_inicio.slice(0, 5)
-  return key === finDiaEfectivoEvento(ev) && ev.hora_fin ? `${ini}–${ev.hora_fin.slice(0, 5)}` : ini
+  if (key !== finDia) {
+    const destino = fromDateInput(finDia)
+    return `${ini} → ${nombreDiaCorto(destino).toLowerCase()} ${destino.getDate()}`
+  }
+  return ev.hora_fin ? `${ini}–${ev.hora_fin.slice(0, 5)}` : `${ini} · sin fin`
 }
 
 function EventoCard({
