@@ -22,6 +22,7 @@ export default function Navbar({ labels }: { labels?: Record<string, unknown> })
   }, [pathname])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lee el DOM de la página nueva (data-navbar) después de cada navegación
     setOpen(false)
     setHasDarkHero(!!document.querySelector('[data-navbar="dark"]'))
     setHasHiddenHero(!!document.querySelector('[data-navbar="hidden"]'))

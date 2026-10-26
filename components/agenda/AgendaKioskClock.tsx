@@ -16,6 +16,7 @@ export default function AgendaKioskClock({ isLight }: { isLight: boolean }) {
   const [now, setNow] = useState<Date | null>(null)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- arranca en null y completa la hora tras montar para no provocar el error de hidratación (ver el comentario de arriba)
     setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 30_000)
     return () => clearInterval(id)

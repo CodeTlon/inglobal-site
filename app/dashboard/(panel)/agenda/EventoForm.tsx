@@ -65,6 +65,7 @@ export default function EventoForm({ evento, gruas, empresas, operarios, action,
 
   useEffect(() => {
     if (!fecha || !horaInicio) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- vacía los recursos ocupados mientras falta fecha u hora; se vuelven a pedir al completarlas
       setOcupados({ gruaIds: [], operarioIds: [] })
       return
     }

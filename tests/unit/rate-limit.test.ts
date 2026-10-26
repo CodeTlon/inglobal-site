@@ -30,3 +30,11 @@ test('rate limit en Postgres: los contadores se comparten entre instancias y ven
   await new Promise((r) => setTimeout(r, 1_150))
   assert.equal(await a('3.3.3.3'), false)
 })
+
+test('consumirContador: devuelve cuántos segundos faltan para que se libere la ventana', { skip: !hayBase && 'sin base local' }, async () => {
+  const { consumirContador } = await import('../../lib/rate-limit')
+  assert.equal((await consumirContador(`${PREFIJO}c`, 30, 1)).permitido, true)
+  const r = await consumirContador(`${PREFIJO}c`, 30, 1)
+  assert.equal(r.permitido, false)
+  assert.ok(r.reintentarEnSeg >= 1 && r.reintentarEnSeg <= 30)
+})

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 /**
  * QR con la URL absoluta de /agenda-tv — solo para no tener que tipear la URL
@@ -8,11 +8,13 @@ import { useEffect, useState } from 'react'
  * igual hace login una vez con Supabase Auth y la sesión queda persistida.
  */
 export default function AgendaTvQrLink() {
-  const [url, setUrl] = useState('')
-
-  useEffect(() => {
-    setUrl(`${window.location.origin}/agenda-tv`)
-  }, [])
+  // El origen solo existe en el navegador: en el servidor queda vacío y el QR aparece tras hidratar.
+  const origen = useSyncExternalStore(
+    () => () => {},
+    () => window.location.origin,
+    () => '',
+  )
+  const url = origen ? `${origen}/agenda-tv` : ''
 
   if (!url) return null
 
