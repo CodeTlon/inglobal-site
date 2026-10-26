@@ -36,6 +36,13 @@
       "when": 1792553990012,
       "tag": "0004_eventos_gruas",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793023971331,
+      "tag": "0005_rate_limits",
+      "breakpoints": true
     }
   ]
 }

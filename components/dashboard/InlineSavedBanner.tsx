@@ -7,7 +7,7 @@ import { CheckCircle } from 'lucide-react'
  * Banner de éxito para los forms de site_settings (singleton, sin crear/editar/borrar
  * separados). A diferencia de SavedToast (que redirige y limpia ?saved= de la URL), acá el
  * form no redirige — por eso el banner necesita su propio timeout para no quedar fijo en
- * pantalla para siempre. `trigger` es el objeto que devuelve useFormState: una referencia
+ * pantalla para siempre. `trigger` es el objeto que devuelve useActionState: una referencia
  * nueva en cada submit, así el efecto se vuelve a disparar aunque `success` sea true las dos veces.
  */
 export default function InlineSavedBanner({ trigger }: { trigger: { success?: boolean } | null | undefined }) {

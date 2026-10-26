@@ -1,3 +1,4 @@
+import { cronAutorizado } from '@/lib/cron-auth'
 import { db } from '@/lib/db'
 import { estadoTransicionado } from '@/lib/agenda-business'
 import { apiData, apiError } from '@/lib/api-auth'
@@ -29,8 +30,7 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: Request) {
   try {
-    const auth = request.headers.get('authorization')
-    if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!cronAutorizado(request)) {
       return apiError('No autorizado.', 401)
     }
     // Ventana acotada — eventos más viejos que esto ya fueron transicionados

@@ -1,15 +1,25 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getClientes, getSiteSettings } from '@/lib/content'
-import ClientesGrid from './ClientesGrid'
+import ClientesGrid, { CLIENTES_POR_PAGINA } from './ClientesGrid'
+import { paginaPedida } from '@/lib/paginacion'
+import { canonicalPagina, paginaEfectiva } from '@/lib/seo'
 import ClientesLogoMarquee from '@/components/ClientesLogoMarquee'
 
-export const metadata: Metadata = {
-  title: 'Clientes',
-  description: 'Empresas que confían en Grúas InGlobal S.R.L. para sus trabajos de elevación, montaje y transporte pesado en Argentina.',
+type SearchParams = Promise<{ pagina?: string }>
+
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const conBlog = (await getClientes()).filter((c) => c.tiene_blog)
+  const pagina = paginaEfectiva(conBlog.length, (await searchParams).pagina, CLIENTES_POR_PAGINA)
+  return {
+    title: pagina > 1 ? `Clientes · Página ${pagina}` : 'Clientes',
+    alternates: { canonical: canonicalPagina('/clientes', pagina) },
+    description: 'Empresas que confían en Grúas InGlobal S.R.L. para sus trabajos de elevación, montaje y transporte pesado en Argentina.',
+  }
 }
 
-export default async function ClientesPage() {
+export default async function ClientesPage({ searchParams }: { searchParams: SearchParams }) {
+  const pagina = paginaPedida((await searchParams).pagina)
   const [clientes, settings, cta] = await Promise.all([
     getClientes(),
     getSiteSettings('clientes_destacados'),
@@ -61,7 +71,7 @@ export default async function ClientesPage() {
               <span className="label-tag">Casos de éxito</span>
               <h2 className="heading-display">Clientes con historia propia</h2>
             </div>
-            <ClientesGrid clientes={conBlog} />
+            <ClientesGrid clientes={conBlog} page={pagina} basePath="/clientes" />
           </div>
         </section>
       )}

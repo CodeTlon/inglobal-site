@@ -80,7 +80,7 @@ export default function Picture({
     <picture>
       <source type="image/avif" srcSet={buildSrcSet(name, 'avif')} sizes={sizes} />
       <source type="image/webp" srcSet={buildSrcSet(name, 'webp')} sizes={sizes} />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
+      { }
       <img
         src={fallbackSrc}
         alt={alt}

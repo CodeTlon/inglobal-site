@@ -8,6 +8,7 @@ import { getSiteSettings, getServicios } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Contacto',
+  alternates: { canonical: '/contacto' },
   description: 'Contactá a Grúas InGlobal S.R.L. en Córdoba. Ingeniería aplicada a desafíos de elevación.',
 }
 

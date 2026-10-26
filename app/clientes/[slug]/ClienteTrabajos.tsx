@@ -1,23 +1,21 @@
-'use client'
-
 // Lista paginada de trabajos de un cliente. Patrón simplificado de
 // gc2/src/app/(public)/blog/BlogList.tsx (sin búsqueda/categorías/sidebar).
 
-import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PlayCircle } from 'lucide-react'
 import { parseYoutubeId } from '@/lib/youtube'
 import type { Trabajo } from '@/lib/content'
-import Pagination from '@/components/Pagination'
+import PaginationLinks from '@/components/PaginationLinks'
+import { paginar } from '@/lib/paginacion'
 
 const PER_PAGE = 6
 
-export default function ClienteTrabajos({ clienteSlug, trabajos }: { clienteSlug: string; trabajos: Trabajo[] }) {
-  const [page, setPage] = useState(1)
+export const TRABAJOS_POR_PAGINA = PER_PAGE
 
-  const totalPages = Math.ceil(trabajos.length / PER_PAGE)
-  const paginated = trabajos.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+export default function ClienteTrabajos({ clienteSlug, trabajos, page }: { clienteSlug: string; trabajos: Trabajo[]; page: number }) {
+  const basePath = `/clientes/${clienteSlug}`
+  const { items: paginated, pagina, totalPaginas } = paginar(trabajos, page, PER_PAGE)
 
   return (
     <div>
@@ -67,13 +65,11 @@ export default function ClienteTrabajos({ clienteSlug, trabajos }: { clienteSlug
         })}
       </div>
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={(p) => {
-          setPage(p)
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }}
+      <PaginationLinks
+        page={pagina}
+        totalPages={totalPaginas}
+        href={(n) => (n === 1 ? basePath : `${basePath}?pagina=${n}`)}
+        label="Páginas"
       />
     </div>
   )

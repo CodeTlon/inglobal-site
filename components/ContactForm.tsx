@@ -1,5 +1,6 @@
 'use client'
-import { useFormState, useFormStatus } from 'react-dom'
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { sendContact } from '@/app/actions/contact'
 import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -49,7 +50,7 @@ interface ContactFormProps {
 }
 
 export default function ContactForm({ defaultService, services }: ContactFormProps) {
-  const [state, action] = useFormState(sendContact, null)
+  const [state, action] = useActionState(sendContact, null)
 
   if (state?.success) {
     return (

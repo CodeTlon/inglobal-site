@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ogImages } from '@/lib/seo'
 import { getMontaje, getMontajes } from '@/lib/content'
 import { sanitizeHtml } from '@/lib/sanitize'
 import TLDRBox from '@/components/TLDRBox'
@@ -29,13 +30,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const tagsText = montaje.tags?.length ? ` — ${montaje.tags.join(', ')}` : ''
     return {
       title: `${montaje.title} | Caso de éxito`,
+      alternates: { canonical: `/montajes/${slug}` },
       description: `${montaje.excerpt ?? ''}${tagsText} Servicio de montaje industrial realizado por Grúas InGlobal S.R.L.`.trim(),
       openGraph: {
         title: montaje.title,
         description: montaje.excerpt ?? undefined,
-        images: (montaje.banner_image ?? montaje.cover_image)
-          ? [{ url: (montaje.banner_image ?? montaje.cover_image)! }]
-          : [],
+        type: 'article',
+        images: ogImages(montaje.banner_image, montaje.cover_image),
       },
     }
   } catch {

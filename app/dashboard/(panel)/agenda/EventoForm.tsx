@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useEffect, useState, useActionState } from 'react'
 import { TextField, TextArea, SelectField, CheckboxGroup } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import { AlertCircle } from 'lucide-react'
@@ -55,7 +54,7 @@ interface Props {
 }
 
 export default function EventoForm({ evento, gruas, empresas, operarios, action, from, fechaInicial }: Props) {
-  const [state, formAction] = useFormState(action, undefined)
+  const [state, formAction] = useActionState(action, undefined)
   const [clientError, setClientError] = useState<string | null>(null)
 
   const [fecha, setFecha] = useState(evento?.fecha ?? fechaInicial ?? '')

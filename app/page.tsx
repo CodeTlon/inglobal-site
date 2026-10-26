@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import Picture from '@/components/Picture'
@@ -42,6 +43,11 @@ const defaultStats = [
 ]
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: { url: '/' },
+}
 
 export default async function HomePage() {
   const [heroSettings, contactoHeaderSettings, statsSettings, queHacemosSettings, ctaBannerSettings, clientesDestSettings, ubicacionSettings, gallerySettings, servicios, clientes] =

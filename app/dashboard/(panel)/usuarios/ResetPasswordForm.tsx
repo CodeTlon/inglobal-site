@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState, useFormStatus } from 'react-dom'
+import PasswordInput from '@/components/dashboard/PasswordInput'
+import { useState, useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { KeyRound, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { resetAdminPassword } from '@/app/actions/users'
 import { fieldInput } from '@/components/dashboard/Field'
@@ -21,7 +22,7 @@ function SubmitButton() {
 }
 
 export default function ResetPasswordForm({ userId }: { userId: string }) {
-  const [state, action] = useFormState(resetAdminPassword, undefined)
+  const [state, action] = useActionState(resetAdminPassword, undefined)
   const [open, setOpen] = useState(false)
 
   if (!open) {
@@ -40,8 +41,7 @@ export default function ResetPasswordForm({ userId }: { userId: string }) {
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="userId" value={userId} />
       <div className="flex items-center gap-2">
-        <input
-          type="password"
+        <PasswordInput
           name="password"
           required
           minLength={6}

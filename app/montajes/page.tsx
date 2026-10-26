@@ -1,15 +1,24 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getMontajes, getSiteSettings } from '@/lib/content'
-import MontajesGrid from './MontajesGrid'
+import MontajesGrid, { MONTAJES_POR_PAGINA } from './MontajesGrid'
+import { paginaPedida } from '@/lib/paginacion'
+import { canonicalPagina, paginaEfectiva } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Montajes Industriales',
-  description: 'Casos de estudio y proyectos de montajes industriales realizados por Grúas InGlobal S.R.L.',
+type SearchParams = Promise<{ pagina?: string }>
+
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const pagina = paginaEfectiva((await getMontajes()).length, (await searchParams).pagina, MONTAJES_POR_PAGINA)
+  return {
+    title: pagina > 1 ? `Montajes Industriales · Página ${pagina}` : 'Montajes Industriales',
+    alternates: { canonical: canonicalPagina('/montajes', pagina) },
+    description: 'Casos de estudio y proyectos de montajes industriales realizados por Grúas InGlobal S.R.L.',
+  }
 }
 
-export default async function MontajesPage() {
+export default async function MontajesPage({ searchParams }: { searchParams: SearchParams }) {
   const montajes = await getMontajes()
+  const pagina = paginaPedida((await searchParams).pagina)
   const s = await getSiteSettings('montajes_header')
 
   return (
@@ -43,7 +52,7 @@ export default async function MontajesPage() {
       {/* Montajes Grid */}
       <section className="py-24">
         <div className="container-igb">
-          <MontajesGrid montajes={montajes} />
+          <MontajesGrid montajes={montajes} page={pagina} basePath="/montajes" />
         </div>
       </section>
 

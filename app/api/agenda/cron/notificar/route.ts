@@ -1,3 +1,4 @@
+import { cronAutorizado } from '@/lib/cron-auth'
 import { db } from '@/lib/db'
 import { apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
@@ -16,7 +17,7 @@ export const dynamic = 'force-dynamic'
 
 type EventoRow = EventoParaAviso & { id: string; fecha: string }
 
-const SELECT = 'id, fecha, hora_inicio, grua:gruas(nombre), empresa:empresas_agenda(nombre)'
+const SELECT = 'id, fecha, hora_inicio, grua:gruas(nombre), eventos_gruas(orden, grua:gruas(nombre)), empresa:empresas_agenda(nombre)'
 
 /**
  * Cron (ver .github/workflows/cron-notificar.yml, cada 15 min) — manda dos avisos
@@ -31,8 +32,7 @@ const SELECT = 'id, fecha, hora_inicio, grua:gruas(nombre), empresa:empresas_age
  */
 export async function GET(request: Request) {
   try {
-    const auth = request.headers.get('authorization')
-    if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (!cronAutorizado(request)) {
       return apiError('No autorizado.', 401)
     }
 

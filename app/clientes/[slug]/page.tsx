@@ -2,11 +2,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCliente, getClientes, getTrabajos } from '@/lib/content'
-import ClienteTrabajos from './ClienteTrabajos'
+import ClienteTrabajos, { TRABAJOS_POR_PAGINA } from './ClienteTrabajos'
+import { paginaPedida } from '@/lib/paginacion'
+import { canonicalPagina, ogImages, paginaEfectiva } from '@/lib/seo'
 import ShareButton from '@/components/ShareButton'
 
 interface Props {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ pagina?: string }>
 }
 
 export async function generateStaticParams() {
@@ -18,24 +21,29 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
     const cliente = await getCliente(slug)
     if (!cliente) return { title: 'Cliente no encontrado' }
+    const pagina = paginaEfectiva((await getTrabajos(cliente.id)).length, (await searchParams).pagina, TRABAJOS_POR_PAGINA)
+    const description =
+      cliente.bio ||
+      `Trabajos y proyectos realizados junto a ${cliente.name}: montajes, izajes y movimientos pesados a cargo de Grúas InGlobal S.R.L.`
     return {
-      title: `Caso de éxito — ${cliente.name}`,
-      description:
-        cliente.bio ||
-        `Trabajos y proyectos realizados junto a ${cliente.name}: montajes, izajes y movimientos pesados a cargo de Grúas InGlobal S.R.L.`,
+      title: pagina > 1 ? `Caso de éxito — ${cliente.name} · Página ${pagina}` : `Caso de éxito — ${cliente.name}`,
+      alternates: { canonical: canonicalPagina(`/clientes/${slug}`, pagina) },
+      description,
+      openGraph: { type: 'article', title: `Caso de éxito — ${cliente.name}`, description, images: ogImages(cliente.logo) },
     }
   } catch {
     return { title: 'Cliente' }
   }
 }
 
-export default async function ClienteDetailPage({ params }: Props) {
+export default async function ClienteDetailPage({ params, searchParams }: Props) {
   const { slug } = await params
+  const pagina = paginaPedida((await searchParams).pagina)
   const cliente = await getCliente(slug)
 
   if (!cliente || !cliente.tiene_blog) notFound()
@@ -96,7 +104,7 @@ export default async function ClienteDetailPage({ params }: Props) {
             <span className="label-tag">Trabajos realizados</span>
             <h2 className="heading-display mb-10">Proyectos con {cliente.name}</h2>
 
-            <ClienteTrabajos clienteSlug={cliente.slug} trabajos={trabajos} />
+            <ClienteTrabajos clienteSlug={cliente.slug} trabajos={trabajos} page={pagina} />
 
             <div className="mt-16 pt-10 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <div className="flex flex-wrap items-center gap-4">

@@ -3,8 +3,20 @@
 const storageUrl = process.env.STORAGE_PUBLIC_URL ? new URL(process.env.STORAGE_PUBLIC_URL) : null
 const storageOrigin = storageUrl ? storageUrl.origin : ''
 
+// Solo `next dev`: Next bloquea los recursos de desarrollo (y con ellos la hidratación de React) si se abre desde
+// un host distinto de localhost, p. ej. la IP de Tailscale de la VPS. Se habilita con DEV_ALLOWED_ORIGINS=ip1,host2.
+const devOrigins = (process.env.DEV_ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean)
+
 const nextConfig = {
   output: 'standalone',
+  ...(devOrigins.length ? { allowedDevOrigins: devOrigins } : {}),
+  // `next dev` escribe solo un bloque <!-- BEGIN:nextjs-agent-rules --> al final
+  // de AGENTS.md cada vez que detecta un agente, así que el archivo aparecía
+  // modificado en el working tree sin que nadie lo tocara. Acá el contexto para
+  // agentes es nuestro (AGENTS.md + .ai/context/), no el genérico de Next.
+  // Desde 16.4 poner esto en false además BORRA el bloque ya escrito en el
+  // próximo `next dev`, respetando el resto del archivo.
+  agentRules: false,
   experimental: {
     // Server Actions default a 1MB de body — uploadMediaAction acepta imágenes
     // hasta 12MB y videos hasta 20MB (ver app/actions/settings.ts), así que sin

@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useActionState } from 'react'
 import Link from 'next/link'
-import { useFormState } from 'react-dom'
 import { TextField, SelectField, ImageUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
@@ -38,6 +37,8 @@ interface Props {
   items: Item[]
   /** Muestra un buscador por nombre (lo usa Empresas, como la app). */
   searchable?: boolean
+  /** Si se indica, la lista se corta en páginas de ese tamaño (Empresas, que puede crecer a cientos). */
+  pageSize?: number
   fields: FieldConfig[]
   createAction: (prevState: unknown, formData: FormData) => Promise<AgendaState>
   updateAction?: (prevState: unknown, formData: FormData) => Promise<AgendaState>
@@ -115,7 +116,7 @@ function CatalogRow({
   onRequestDelete: () => void
 }) {
   const [editing, setEditing] = useState(false)
-  const [updateState, updateFormAction] = useFormState(updateAction ?? (async () => undefined), undefined)
+  const [updateState, updateFormAction] = useActionState(updateAction ?? (async () => undefined), undefined)
   const [toggling, setToggling] = useState(false)
   const [toggleError, setToggleError] = useState<string | null>(null)
 
@@ -218,9 +219,10 @@ function CatalogRow({
   )
 }
 
-export default function CatalogSection({ title, items, searchable, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
-  const [createState, createFormAction] = useFormState(createAction, undefined)
+export default function CatalogSection({ title, items, searchable, pageSize, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
+  const [createState, createFormAction] = useActionState(createAction, undefined)
   const [query, setQuery] = useState('')
+  const [pagina, setPagina] = useState(1)
   const norm = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   const filtrados = searchable && query.trim() ? items.filter((i) => norm(i.nombre).includes(norm(query.trim()))) : items
   // Igual que la app: activos antes que inactivos y, dentro de los activos, disponibles antes que ocupados.
@@ -228,6 +230,9 @@ export default function CatalogSection({ title, items, searchable, fields, creat
     if (a.activo !== b.activo) return a.activo ? -1 : 1
     return Number(a.ocupacion?.kind === 'ocupado') - Number(b.ocupacion?.kind === 'ocupado')
   })
+  const totalPaginas = pageSize ? Math.max(1, Math.ceil(visibles.length / pageSize)) : 1
+  const paginaActual = Math.min(pagina, totalPaginas)
+  const enPagina = pageSize ? visibles.slice((paginaActual - 1) * pageSize, paginaActual * pageSize) : visibles
   const [pendingDelete, setPendingDelete] = useState<{ id: string; nombre: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -254,7 +259,10 @@ export default function CatalogSection({ title, items, searchable, fields, creat
         <input
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setPagina(1)
+          }}
           placeholder="Buscar por nombre"
           aria-label={`Buscar en ${title}`}
           className="w-full mb-3 rounded-md border border-zinc-200 px-3 py-2 text-sm"
@@ -262,7 +270,7 @@ export default function CatalogSection({ title, items, searchable, fields, creat
       )}
 
       <div className="space-y-2 mb-6">
-        {visibles.map((item) => (
+        {enPagina.map((item) => (
           <CatalogRow
             key={item.id}
             item={item}
@@ -274,6 +282,30 @@ export default function CatalogSection({ title, items, searchable, fields, creat
         ))}
         {visibles.length === 0 && <p className="text-xs text-zinc-400">Sin registros.</p>}
       </div>
+
+      {totalPaginas > 1 && (
+        <nav aria-label={`Páginas de ${title}`} className="-mt-3 mb-6 flex items-center justify-between text-sm">
+          <button
+            type="button"
+            onClick={() => setPagina(paginaActual - 1)}
+            disabled={paginaActual === 1}
+            className="font-bold text-igb-navy disabled:cursor-not-allowed disabled:text-zinc-300 hover:underline"
+          >
+            ← Anteriores
+          </button>
+          <span className="text-zinc-500">
+            Página {paginaActual} de {totalPaginas} · {visibles.length} registros
+          </span>
+          <button
+            type="button"
+            onClick={() => setPagina(paginaActual + 1)}
+            disabled={paginaActual === totalPaginas}
+            className="font-bold text-igb-navy disabled:cursor-not-allowed disabled:text-zinc-300 hover:underline"
+          >
+            Siguientes →
+          </button>
+        </nav>
+      )}
 
       {(createState?.error || deleteError) && (
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3 mb-4">

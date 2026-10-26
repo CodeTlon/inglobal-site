@@ -3,11 +3,24 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
-import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays, finDiaEfectivoEvento, nombresGruas } from '@/lib/agenda-view'
+import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, fromDateInput, nombreDiaCorto, hoyArgentina, addDays, finDiaEfectivoEvento, nombresGruas } from '@/lib/agenda-view'
 import GruasResumen from './GruasResumen'
 import AgendaEventModal from './AgendaEventModal'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+
+/**
+ * Rótulo horario de un servicio dentro de una celda del mes. Un servicio que
+ * viene de un día anterior decía "Cont." a secas, que no lo ataba a nada: en un
+ * día con varios había que adivinar de cuál venía. Se nombra el día de ORIGEN,
+ * igual que en la vista semanal. Forma corta ("← dom 18") porque la celda del
+ * mes es angosta y el nombre de la empresa va en el mismo renglón.
+ */
+function horaOCont(ev: { fecha: string; hora_inicio: string }, key: string): string {
+  if (key === ev.fecha) return ev.hora_inicio.slice(0, 5)
+  const inicio = fromDateInput(ev.fecha)
+  return `← ${nombreDiaCorto(inicio).toLowerCase()} ${inicio.getDate()}`
+}
 
 /**
  * Grilla mensual clásica (semanas x días) — cada celda muestra cantidad + primeros eventos.
@@ -16,11 +29,11 @@ const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
  */
 export default function AgendaMonthView({
   eventos,
-  month,
+  monthKey,
   className = '',
 }: {
   eventos: EventoAgenda[]
-  month: Date
+  monthKey: string
   className?: string
 }) {
   const [selected, setSelected] = useState<EventoAgenda | null>(null)
@@ -35,7 +48,14 @@ export default function AgendaMonthView({
     return () => window.removeEventListener('keydown', onKey)
   }, [selectedDay])
 
-  const todayKey = toDateInput(new Date())
+  // hoyArgentina() y no `new Date()`: este componente también se renderiza en
+  // el servidor (UTC), donde después de las 21:00 de Argentina "hoy" ya es
+  // mañana — el recuadro caía en el día equivocado en el HTML del server.
+  const todayKey = hoyArgentina()
+  // monthKey ('YYYY-MM') y no un Date: un Date cruza el límite server→cliente
+  // como instante UTC y el navegador argentino leía el mes anterior — con
+  // ?month=2026-11 el header decía "noviembre" y la grilla dibujaba octubre.
+  const month = fromDateInput(`${monthKey}-01`)
   const weeks = getMonthMatrix(month)
   // Antes esto solo se achicaba en meses de 6 semanas — pero 5 y 6 semanas
   // reparten una altura casi igual (6 filas son ~17% más bajas que 5), así
@@ -53,7 +73,7 @@ export default function AgendaMonthView({
     // `fecha_hasta` (22:00→02:00) sigue vigente al día siguiente — con el
     // bound viejo el bucketing nunca llegaba a esa columna del mes.
     const finEv = finDiaEfectivoEvento(ev)
-    for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(new Date(`${d}T00:00:00`), 1))) {
+    for (let d = ev.fecha; d <= finEv; d = toDateInput(addDays(fromDateInput(d), 1))) {
       const list = byDay.get(d) ?? []
       list.push(ev)
       byDay.set(d, list)
@@ -92,9 +112,11 @@ export default function AgendaMonthView({
                 isToday ? 'border-igb-yellow border-2 bg-igb-yellow/5' : 'border-zinc-200'
               } ${isCurrentMonth ? 'bg-white' : 'bg-zinc-50 opacity-50'} ${dayEventos.length > 0 ? 'cursor-pointer' : ''}`}
             >
-              <div className={`flex items-center justify-between ${compact ? 'mb-0.5' : 'mb-2'}`}>
-                <p className={`font-bold text-zinc-900 ${compact ? 'text-base' : 'text-2xl'}`}>{day.getDate()}</p>
-                {/* El "+N más" va en la fila del día: debajo de las tarjetas el overflow-hidden lo cortaba. */}
+              <div className={`flex items-center justify-between gap-1.5 ${compact ? 'mb-0.5' : 'mb-2'}`}>
+                <p className={`shrink-0 font-bold text-zinc-900 ${compact ? 'text-base' : 'text-2xl'}`}>{day.getDate()}</p>
+                {/* El "+N más" va en la fila del día: debajo de las tarjetas el overflow-hidden lo cortaba.
+                    `whitespace-nowrap` + `shrink-0`: en una celda angosta el texto se partía en dos
+                    renglones y la píldora se volvía un círculo alto que se montaba sobre el número. */}
                 {dayEventos.length > maxVisible && (
                   <button
                     type="button"
@@ -102,7 +124,7 @@ export default function AgendaMonthView({
                       e.stopPropagation()
                       setSelectedDay({ key, eventos: dayEventos })
                     }}
-                    className="rounded-full bg-igb-navy px-2 py-0.5 text-sm font-bold text-white cursor-pointer hover:brightness-110"
+                    className="shrink-0 whitespace-nowrap rounded-full bg-igb-navy px-2 py-0.5 text-sm font-bold text-white cursor-pointer hover:brightness-110"
                   >
                     +{dayEventos.length - maxVisible} más
                   </button>
@@ -126,7 +148,7 @@ export default function AgendaMonthView({
                     className={`w-full rounded-sm border text-left cursor-pointer hover:brightness-95 transition-all ${compact ? 'px-1.5 py-1' : 'px-2 py-1.5'} ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                   >
                     <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
-                      {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'}
+                      {horaOCont(ev, key)} {ev.empresa?.nombre ?? 'Empresa'}
                     </p>
                     <GruasResumen ev={ev} max={compact ? 1 : 2} className={`opacity-80 ${compact ? 'text-sm' : 'text-base'}`} />
                   </button>
@@ -145,7 +167,7 @@ export default function AgendaMonthView({
           >
             <div className="flex items-start justify-between mb-4">
               <p className="text-lg font-bold text-zinc-900 capitalize">
-                {new Date(`${selectedDay.key}T00:00:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                {fromDateInput(selectedDay.key).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
               <button
                 type="button"
@@ -169,7 +191,7 @@ export default function AgendaMonthView({
                   className={`w-full text-base font-semibold rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                 >
                   <span className="block truncate">
-                    {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'}
+                    {horaOCont(ev, selectedDay.key)} {ev.empresa?.nombre ?? 'Empresa'}
                   </span>
                   <GruasResumen ev={ev} className="text-sm font-normal opacity-80" />
                 </button>

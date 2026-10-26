@@ -4,7 +4,7 @@ import { SITE_URL as BASE_URL } from '@/lib/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
-    '', '/servicios', '/montajes', '/galeria', '/clientes', '/quienes-somos', '/contacto', '/agenda-tv', '/aviso-legal',
+    '', '/servicios', '/montajes', '/galeria', '/clientes', '/quienes-somos', '/contacto',
   ].map((path) => ({
     url: `${BASE_URL}${path}`,
     changeFrequency: path === '' ? 'weekly' : 'monthly',

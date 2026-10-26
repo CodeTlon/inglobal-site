@@ -1,6 +1,8 @@
 'use client'
 
-import { useFormState, useFormStatus } from 'react-dom'
+import { useActionState } from 'react'
+import PasswordInput from '@/components/dashboard/PasswordInput'
+import { useFormStatus } from 'react-dom'
 import { changePassword } from '@/app/actions/auth'
 import { Loader2, KeyRound, AlertCircle } from 'lucide-react'
 
@@ -19,7 +21,7 @@ function SubmitButton() {
 }
 
 export default function CambiarPasswordForm({ forced }: { forced: boolean }) {
-  const [state, action] = useFormState(changePassword, null)
+  const [state, action] = useActionState(changePassword, null)
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-igb-lg border border-zinc-100">
@@ -44,10 +46,9 @@ export default function CambiarPasswordForm({ forced }: { forced: boolean }) {
           <label htmlFor="password" className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
             Contraseña nueva
           </label>
-          <input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             required
             minLength={6}
             placeholder="••••••••"
@@ -59,10 +60,9 @@ export default function CambiarPasswordForm({ forced }: { forced: boolean }) {
           <label htmlFor="confirmPassword" className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
             Repetir contraseña
           </label>
-          <input
+          <PasswordInput
             id="confirmPassword"
             name="confirmPassword"
-            type="password"
             required
             minLength={6}
             placeholder="••••••••"

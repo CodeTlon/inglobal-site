@@ -3,10 +3,21 @@ import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
 import { getGaleria, getSiteSettings } from '@/lib/content'
+import PaginationLinks from '@/components/PaginationLinks'
+import { paginaPedida, paginar } from '@/lib/paginacion'
 
-export const metadata: Metadata = {
-  title: 'Galería de Trabajos',
-  description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas InGlobal S.R.L.',
+const POR_PAGINA = 12
+
+type SearchParams = Promise<{ pagina?: string }>
+
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  // Una página fuera de rango muestra la última: su canonical apunta a esa, no a la pedida.
+  const { pagina } = paginar(await getGaleria(), paginaPedida((await searchParams).pagina), POR_PAGINA)
+  return {
+    title: pagina > 1 ? `Galería de Trabajos · Página ${pagina}` : 'Galería de Trabajos',
+    alternates: { canonical: pagina > 1 ? `/galeria?pagina=${pagina}` : '/galeria' },
+    description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas InGlobal S.R.L.',
+  }
 }
 
 const COL_SPAN_DESKTOP: Record<number, string> = {
@@ -20,8 +31,9 @@ const ROW_SPAN_DESKTOP: Record<number, string> = { 1: '', 2: 'md:row-span-2' }
 const COL_SPAN_MOBILE: Record<number, string> = { 1: '', 2: 'col-span-2' }
 const ROW_SPAN_MOBILE: Record<number, string> = { 1: '', 2: 'row-span-2' }
 
-export default async function GaleriaPage() {
-  const galeria = await getGaleria()
+export default async function GaleriaPage({ searchParams }: { searchParams: SearchParams }) {
+  const todas = await getGaleria()
+  const { items: galeria, pagina, totalPaginas } = paginar(todas, paginaPedida((await searchParams).pagina), POR_PAGINA)
   const s = await getSiteSettings('galeria_header')
 
   return (
@@ -101,6 +113,7 @@ export default async function GaleriaPage() {
               )
             })}
           </div>
+          <PaginationLinks page={pagina} totalPages={totalPaginas} href={(n) => (n === 1 ? '/galeria' : `/galeria?pagina=${n}`)} label="Páginas de la galería" />
         </div>
       </section>
 

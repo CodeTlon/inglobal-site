@@ -39,10 +39,10 @@ const navSections = [
     label: 'Contenido',
     links: [
       { href: '/dashboard/contenido/inicio', label: 'Página de Inicio', icon: Settings },
-      { href: '/dashboard/contenido/paginas', label: 'Páginas (Quiénes somos, Servicios, Montajes, Galería)', icon: Settings },
+      { href: '/dashboard/contenido/paginas', label: 'Páginas', icon: Settings },
       { href: '/dashboard/contenido/contacto', label: 'Contacto', icon: Settings },
       { href: '/dashboard/contenido/clientes-cta', label: 'Clientes', icon: Settings },
-      { href: '/dashboard/contenido/navbar', label: 'Navbar y footer (todo el sitio)', icon: Settings },
+      { href: '/dashboard/contenido/navbar', label: 'Navbar y footer', icon: Settings },
     ],
   },
   {
@@ -58,7 +58,7 @@ const navSections = [
     label: 'Operaciones',
     links: [
       { href: '/dashboard/agenda', label: 'Agenda de Grúas', icon: CalendarClock, exact: true },
-      { href: '/dashboard/agenda/calendario', label: 'Calendario (solo lectura)', icon: CalendarDays },
+      { href: '/dashboard/agenda/calendario', label: 'Calendario', icon: CalendarDays },
       { href: '/dashboard/consultas', label: 'Consultas', icon: Inbox },
     ],
   },

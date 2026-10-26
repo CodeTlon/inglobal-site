@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { updateSiteSettings } from '@/app/actions/settings'
 import { TextField, TextArea } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
@@ -10,7 +10,7 @@ import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
 const action = updateSiteSettings.bind(null, 'footer')
 
 export default function FooterForm({ settings }: { settings: Record<string, unknown> }) {
-  const [state, formAction] = useFormState(action, null)
+  const [state, formAction] = useActionState(action, null)
 
   return (
     <form action={formAction} className="space-y-6">

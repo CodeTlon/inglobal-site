@@ -11,6 +11,9 @@ console.log(`[dev:local] Postgres 127.0.0.1:${dbPort}  ·  MinIO 127.0.0.1:${s3P
 
 spawn('npx', ['next', 'dev', '-p', port], {
   stdio: 'inherit',
+  // shell: true por Windows — ahí `npx` es `npx.cmd` y `spawn` sin shell no
+  // resuelve la extensión: tiraba ENOENT y el script no arrancaba nunca.
+  shell: true,
   env: {
     ...process.env,
     DATABASE_URL: `postgres://inglobal:inglobal@127.0.0.1:${dbPort}/inglobal`,
