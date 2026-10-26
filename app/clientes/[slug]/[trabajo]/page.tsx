@@ -1,3 +1,4 @@
+import { ogImages } from '@/lib/seo'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -45,7 +46,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: trabajo.title,
         description: trabajo.excerpt ?? undefined,
-        images: (trabajo.banner_image ?? trabajo.cover_image) ? [{ url: (trabajo.banner_image ?? trabajo.cover_image)! }] : [],
+        type: 'article',
+        images: ogImages(trabajo.banner_image, trabajo.cover_image),
       },
     }
   } catch {

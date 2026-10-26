@@ -1,9 +1,7 @@
-'use client'
-
-import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import Pagination from '@/components/Pagination'
+import PaginationLinks from '@/components/PaginationLinks'
+import { paginar } from '@/lib/paginacion'
 import type { Cliente } from '@/lib/content'
 
 const PER_PAGE = 20
@@ -28,13 +26,12 @@ function ClienteCard({ cliente }: { cliente: Cliente }) {
   )
 }
 
-export default function ClientesGrid({ clientes }: { clientes: Cliente[] }) {
-  const [page, setPage] = useState(1)
+export const CLIENTES_POR_PAGINA = PER_PAGE
 
+export default function ClientesGrid({ clientes, page, basePath }: { clientes: Cliente[]; page: number; basePath: string }) {
   if (clientes.length === 0) return null
 
-  const totalPages = Math.ceil(clientes.length / PER_PAGE)
-  const paginated = clientes.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+  const { items: paginated, pagina, totalPaginas } = paginar(clientes, page, PER_PAGE)
 
   return (
     <div>
@@ -44,13 +41,11 @@ export default function ClientesGrid({ clientes }: { clientes: Cliente[] }) {
         ))}
       </div>
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={(p) => {
-          setPage(p)
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }}
+      <PaginationLinks
+        page={pagina}
+        totalPages={totalPaginas}
+        href={(n) => (n === 1 ? basePath : `${basePath}?pagina=${n}`)}
+        label="Páginas"
       />
     </div>
   )
