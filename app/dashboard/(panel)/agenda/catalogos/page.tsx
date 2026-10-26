@@ -68,6 +68,7 @@ export default async function CatalogosAgendaPage() {
         <CatalogSection
           title="Empresas"
           searchable
+          pageSize={15}
           items={empresas.map((e) => ({
             id: e.id,
             detailHref: `/dashboard/agenda/catalogos/empresa/${e.id}`,

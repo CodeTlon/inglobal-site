@@ -2,16 +2,21 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getGaleria } from '@/lib/content'
 import PageHeader from '@/components/dashboard/PageHeader'
+import PaginationLinks from '@/components/PaginationLinks'
+import { paginaPedida, paginar } from '@/lib/paginacion'
 import { Plus } from 'lucide-react'
 
-export default async function GaleriaDashboardPage() {
-  const items = await getGaleria({ includeUnpublished: true })
+const POR_PAGINA = 20
+
+export default async function GaleriaDashboardPage({ searchParams }: { searchParams: Promise<{ pagina?: string }> }) {
+  const todas = await getGaleria({ includeUnpublished: true })
+  const { items, pagina, totalPaginas } = paginar(todas, paginaPedida((await searchParams).pagina), POR_PAGINA)
 
   return (
     <div className="max-w-3xl">
       <PageHeader
         title="Galería"
-        description={`${items.length} imágenes en el portafolio operativo.`}
+        description={`${todas.length} imágenes en el portafolio operativo.`}
         actions={
           <Link
             href="/dashboard/galeria/nuevo"
@@ -63,6 +68,8 @@ export default async function GaleriaDashboardPage() {
           </div>
         )}
       </div>
+
+      <PaginationLinks page={pagina} totalPages={totalPaginas} href={(n) => (n === 1 ? '/dashboard/galeria' : `/dashboard/galeria?pagina=${n}`)} label="Páginas de la galería" />
     </div>
   )
 }
