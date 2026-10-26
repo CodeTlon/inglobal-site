@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic'
 
 type EventoRow = EventoParaAviso & { id: string; fecha: string }
 
-const SELECT = 'id, fecha, hora_inicio, grua:gruas(nombre), empresa:empresas_agenda(nombre)'
+const SELECT = 'id, fecha, hora_inicio, grua:gruas(nombre), eventos_gruas(orden, grua:gruas(nombre)), empresa:empresas_agenda(nombre)'
 
 /**
  * Cron (ver .github/workflows/cron-notificar.yml, cada 15 min) — manda dos avisos
