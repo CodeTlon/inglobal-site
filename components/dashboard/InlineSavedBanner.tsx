@@ -16,6 +16,7 @@ export default function InlineSavedBanner({ trigger }: { trigger: { success?: bo
 
   useEffect(() => {
     if (!trigger?.success) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- muestra el aviso en respuesta a un submit y lo oculta con un temporizador
     setShow(true)
     const t = setTimeout(() => setShow(false), 3000)
     return () => clearTimeout(t)

@@ -35,6 +35,7 @@ export default function CookieConsent() {
     } catch {
       prev = null
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lee localStorage (solo existe en el navegador) tras hidratar para decidir si mostrar el banner
     if (prev !== 'granted' && prev !== 'denied') setVisible(true)
   }, [])
 
