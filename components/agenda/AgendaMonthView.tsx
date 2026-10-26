@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import type { EventoAgenda } from '@/lib/agenda'
 import { getMonthMatrix, estadoColorClassesLight, getEstadoVisual, toDateInput, addDays, finDiaEfectivoEvento, nombresGruas } from '@/lib/agenda-view'
+import GruasResumen from './GruasResumen'
 import AgendaEventModal from './AgendaEventModal'
 
 const DIA_LABEL = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
@@ -127,7 +128,7 @@ export default function AgendaMonthView({
                     <p className={`font-bold truncate ${compact ? 'text-sm' : 'text-base'}`}>
                       {key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'}
                     </p>
-                    <p className={`line-clamp-2 opacity-80 ${compact ? 'text-sm' : 'text-base'}`}>{nombresGruas(ev)}</p>
+                    <GruasResumen ev={ev} max={compact ? 1 : 2} className={`opacity-80 ${compact ? 'text-sm' : 'text-base'}`} />
                   </button>
                 ))}
               </div>
@@ -164,10 +165,13 @@ export default function AgendaMonthView({
                     setSelected(ev)
                     setSelectedDay(null)
                   }}
-                  className={`w-full text-base font-semibold truncate rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
+                  title={`${ev.empresa?.nombre ?? 'Empresa'} · ${nombresGruas(ev)}`}
+                  className={`w-full text-base font-semibold rounded-lg px-3 py-3 border text-left cursor-pointer hover:brightness-95 transition-all ${estadoColorClassesLight(getEstadoVisual(ev))}`}
                 >
-                  {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'} ·{' '}
-                  {nombresGruas(ev)}
+                  <span className="block truncate">
+                    {selectedDay.key === ev.fecha ? ev.hora_inicio.slice(0, 5) : 'Cont.'} {ev.empresa?.nombre ?? 'Empresa'}
+                  </span>
+                  <GruasResumen ev={ev} className="text-sm font-normal opacity-80" />
                 </button>
               ))}
             </div>

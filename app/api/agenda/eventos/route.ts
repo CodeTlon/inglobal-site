@@ -2,7 +2,7 @@ import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { crearEventoSchema } from '@/lib/validations/agenda'
 import { getEventosAgenda } from '@/lib/agenda'
-import { validarGruas, resolverGruaIds, syncEventoGruas, validarOperarios, buscarConflicto, syncEventoOperarios } from '@/lib/agenda-business'
+import { validarGruas, resolverGruaIds, validarOperarios, buscarConflicto, guardarEventoConRelaciones } from '@/lib/agenda-business'
 
 export async function GET(request: Request) {
   try {
@@ -50,21 +50,10 @@ export async function POST(request: Request) {
     const conflicto = await buscarConflicto(db, parsed.data, gruaIds, operarioIds)
     if (conflicto) return apiError(conflicto, 409)
 
-    const { data, error } = await db
-      .from('eventos_agenda')
-      .insert({ ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null })
-      .select('id')
-      .single()
+    const { id, error } = await guardarEventoConRelaciones(db, null, { ...rest, grua_id: gruaIds[0], hora_fin: hora_fin || null }, gruaIds, operarioIds)
+    if (error) return apiError(error, 409)
 
-    if (error || !data) return apiError(error ? friendlyError(error) : 'No se pudo crear el evento.', 500)
-
-    const syncGruasError = await syncEventoGruas(db, data.id, gruaIds)
-    if (syncGruasError) return apiError(syncGruasError, 500)
-
-    const syncError = await syncEventoOperarios(db, data.id, operarioIds)
-    if (syncError) return apiError(syncError, 500)
-
-    return apiData({ id: data.id }, 201)
+    return apiData({ id }, 201)
   } catch (e) {
     return apiError(friendlyError(e), 500)
   }

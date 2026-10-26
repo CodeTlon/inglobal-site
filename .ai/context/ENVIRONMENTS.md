@@ -67,7 +67,7 @@ npm run db:down          # apaga el stack
 Cambiá los puertos con `DB_PORT`, `MINIO_PORT`, `MINIO_CONSOLE_PORT` (ver `/etc/dev-ports.conf` en la VPS).
 
 - **Cuentas de prueba** (solo locales): `admin-local@inglobal.test` y `operador-local@inglobal.test`, contraseña `Local-Test-1234`.
-- **Seed** (`db/seed-local.sql`): 9 grúas, 6 empresas, 10 operarios (2 ex operarios) y 43 eventos con fechas relativas a hoy en Córdoba. Todo lo ficticio lleva el prefijo `ZZ-PRUEBA`.
+- **Seed** (`db/seed-local.sql`): 9 grúas, 6 empresas, 10 operarios (2 ex operarios) y 43 eventos con fechas relativas a hoy en Córdoba; 3 con varias grúas (`eventos_gruas`, hasta 4 en uno) para probar el resumen "+N". Todo lo ficticio lleva el prefijo `ZZ-PRUEBA`.
 - **Datos reales de prod en local** (para ensayar): `BACKUP_DIR=... npm run db:import-prod -- --reset` y `verificar-paridad.ts`. Los backups son datos personales: fuera de git.
 - TV: iniciar sesión en el sitio local y abrir `/agenda-tv`.
 - App móvil: ver "Entorno local" en `inglobal-agenda-app/AGENTS.md`.
