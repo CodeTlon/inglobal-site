@@ -341,3 +341,11 @@ export const notificacionesEnviadas = pgTable('notificaciones_enviadas', {
   clave: text('clave').primaryKey(),
   enviadaAt: timestamp('enviada_at', { withTimezone: true }).notNull().defaultNow(),
 })
+
+// Contadores del rate limit (lib/rate-limit.ts): compartidos entre instancias y sobreviven a un reinicio.
+// `clave` = "<limitador>:<ip>". Sin RLS ni acceso desde la app móvil: solo el servidor.
+export const rateLimits = pgTable('rate_limits', {
+  clave: text('clave').primaryKey(),
+  cuenta: integer('cuenta').notNull().default(1),
+  venceAt: timestamp('vence_at', { withTimezone: true }).notNull(),
+})

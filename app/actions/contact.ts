@@ -16,7 +16,7 @@ function esc(v: string): string {
 // o inunda la casilla. Mismo mecanismo que `app/api/auth/check-email/route.ts`
 // (ver `lib/rate-limit.ts`), con un tope más chico porque acá cada hit real
 // dispara un email de verdad, no solo una consulta a la DB.
-const isRateLimited = createRateLimiter(60_000, 3)
+const isRateLimited = createRateLimiter('contacto', 60_000, 3)
 
 const serviciosMap: Record<string, string> = {
   'gruas-telescopicas': 'Grúas Telescópicas',
@@ -29,7 +29,7 @@ const serviciosMap: Record<string, string> = {
 
 export async function sendContact(prevState: unknown, formData: FormData) {
   const ip = clientIp(await headers())
-  if (isRateLimited(ip)) {
+  if (await isRateLimited(ip)) {
     return { error: 'Demasiadas consultas. Esperá un minuto e intentá de nuevo.' }
   }
 

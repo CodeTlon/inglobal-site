@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ogImages } from '@/lib/seo'
 import { getMontaje, getMontajes } from '@/lib/content'
 import { sanitizeHtml } from '@/lib/sanitize'
 import TLDRBox from '@/components/TLDRBox'
@@ -34,9 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: montaje.title,
         description: montaje.excerpt ?? undefined,
-        images: (montaje.banner_image ?? montaje.cover_image)
-          ? [{ url: (montaje.banner_image ?? montaje.cover_image)! }]
-          : [],
+        type: 'article',
+        images: ogImages(montaje.banner_image, montaje.cover_image),
       },
     }
   } catch {

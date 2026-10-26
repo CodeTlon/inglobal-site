@@ -10,11 +10,11 @@ const TTL_MS = 5 * 60 * 1000
 
 // Endpoint público (la TV todavía no tiene sesión): sin tope, cualquiera podía llenar la
 // tabla de códigos. Una TV real pide uno cada pocos minutos.
-const isRateLimited = createRateLimiter(60_000, 6)
+const isRateLimited = createRateLimiter('tv-pair-start', 60_000, 6)
 
 export async function POST(request: Request) {
   const ip = clientIp(request.headers)
-  if (isRateLimited(ip)) return apiError('Demasiados intentos. Esperá un minuto.', 429)
+  if (await isRateLimited(ip)) return apiError('Demasiados intentos. Esperá un minuto.', 429)
 
   const admin = db
   // Limpieza oportunista: códigos de más de un día ya no sirven para nada.

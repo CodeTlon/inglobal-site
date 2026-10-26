@@ -1,19 +1,16 @@
-'use client'
-
-import { useState } from 'react'
 import Image from 'next/image'
 import Picture from '@/components/Picture'
 import Link from 'next/link'
-import Pagination from '@/components/Pagination'
+import PaginationLinks from '@/components/PaginationLinks'
+import { paginar } from '@/lib/paginacion'
 import type { Montaje } from '@/lib/content'
 
 const PER_PAGE = 8
 
-export default function MontajesGrid({ montajes }: { montajes: Montaje[] }) {
-  const [page, setPage] = useState(1)
+export const MONTAJES_POR_PAGINA = PER_PAGE
 
-  const totalPages = Math.ceil(montajes.length / PER_PAGE)
-  const paginated = montajes.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+export default function MontajesGrid({ montajes, page, basePath }: { montajes: Montaje[]; page: number; basePath: string }) {
+  const { items: paginated, pagina, totalPaginas } = paginar(montajes, page, PER_PAGE)
 
   return (
     <div>
@@ -66,13 +63,11 @@ export default function MontajesGrid({ montajes }: { montajes: Montaje[] }) {
         })}
       </div>
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={(p) => {
-          setPage(p)
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }}
+      <PaginationLinks
+        page={pagina}
+        totalPages={totalPaginas}
+        href={(n) => (n === 1 ? basePath : `${basePath}?pagina=${n}`)}
+        label="Páginas"
       />
     </div>
   )
