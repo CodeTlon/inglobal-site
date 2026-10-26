@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Inbox, Mail, Phone, MapPin } from 'lucide-react'
 import PageHeader from '@/components/dashboard/PageHeader'
 import { db } from '@/lib/db'
@@ -27,13 +28,18 @@ const SERVICIOS: Record<string, string> = {
 }
 
 /** Consultas del formulario de contacto del sitio (las más recientes primero). */
-export default async function ConsultasPage() {
-  const { data, error } = await db
+const POR_PAGINA = 25
+
+export default async function ConsultasPage({ searchParams }: { searchParams: Promise<{ pagina?: string }> }) {
+  const pagina = Math.max(1, Math.floor(Number((await searchParams).pagina)) || 1)
+  const { data, error, count } = await db
     .from('contact_leads')
-    .select('id, created_at, name, empresa, email, phone, servicio, ubicacion, message, email_enviado')
+    .select('id, created_at, name, empresa, email, phone, servicio, ubicacion, message, email_enviado', { count: 'exact' })
     .order('created_at', { ascending: false })
-    .limit(200)
+    .limit(POR_PAGINA)
+    .offset((pagina - 1) * POR_PAGINA)
   const consultas: Consulta[] = data ?? []
+  const totalPaginas = Math.max(1, Math.ceil((count ?? 0) / POR_PAGINA))
 
   return (
     <div className="max-w-3xl">
@@ -84,6 +90,18 @@ export default async function ConsultasPage() {
           </li>
         ))}
       </ul>
+
+      {totalPaginas > 1 && (
+        <nav aria-label="Paginación de consultas" className="mt-6 flex items-center justify-between text-sm">
+          {pagina > 1 ? (
+            <Link href={`/dashboard/consultas?pagina=${pagina - 1}`} className="font-bold text-igb-navy hover:underline">← Más recientes</Link>
+          ) : <span />}
+          <span className="text-zinc-500">Página {pagina} de {totalPaginas}</span>
+          {pagina < totalPaginas ? (
+            <Link href={`/dashboard/consultas?pagina=${pagina + 1}`} className="font-bold text-igb-navy hover:underline">Más antiguas →</Link>
+          ) : <span />}
+        </nav>
+      )}
     </div>
   )
 }

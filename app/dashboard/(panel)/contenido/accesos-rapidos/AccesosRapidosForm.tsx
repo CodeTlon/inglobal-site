@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { updateSiteSettings } from '@/app/actions/settings'
 import { CheckboxGroup } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
@@ -11,7 +11,7 @@ import InlineSavedBanner from '@/components/dashboard/InlineSavedBanner'
 const action = updateSiteSettings.bind(null, 'dashboard_quicklinks')
 
 export default function AccesosRapidosForm({ settings }: { settings: Record<string, unknown> }) {
-  const [state, formAction] = useFormState(action, null)
+  const [state, formAction] = useActionState(action, null)
   // Compat: versiones previas guardaban {href,label}[] en vez de href[].
   const rawItems = Array.isArray(settings.items) ? settings.items : []
   const selectedHrefs = rawItems.map((it) => (typeof it === 'string' ? it : (it as { href: string }).href))

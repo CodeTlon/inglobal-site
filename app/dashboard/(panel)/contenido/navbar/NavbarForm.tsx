@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { updateSiteSettings } from '@/app/actions/settings'
 import { TextField } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
@@ -22,7 +22,7 @@ const ITEMS: { id: string; route: string; placeholder: string }[] = [
 ]
 
 export default function NavbarForm({ settings }: { settings: Record<string, unknown> }) {
-  const [state, formAction] = useFormState(action, null)
+  const [state, formAction] = useActionState(action, null)
 
   return (
     <form action={formAction} className="space-y-6">

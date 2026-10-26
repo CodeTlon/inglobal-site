@@ -228,6 +228,7 @@ class Query<T = any[]> implements PromiseLike<DbResult<T>> { // eslint-disable-l
   private filters: Filter[] = []
   private orders: { col: string; asc: boolean; nullsFirst?: boolean }[] = []
   private limitN: number | null = null
+  private offsetN = 0
   private payload: Record<string, unknown>[] | Record<string, unknown> | null = null
   private conflict: string | null = null
   private countExact = false
@@ -313,6 +314,12 @@ class Query<T = any[]> implements PromiseLike<DbResult<T>> { // eslint-disable-l
     return this
   }
 
+  /** Salta `n` filas (paginación); va junto con `limit` y un `order` estable. */
+  offset(n: number) {
+    this.offsetN = Math.max(0, Math.floor(n))
+    return this
+  }
+
   single(): Query<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     this.shape = 'single'
     return this as unknown as Query<any> // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -338,6 +345,7 @@ class Query<T = any[]> implements PromiseLike<DbResult<T>> { // eslint-disable-l
         .join(', ')
     }
     if (this.limitN !== null) sql += ` limit ${Math.max(0, Math.floor(this.limitN))}`
+    if (this.offsetN > 0) sql += ` offset ${this.offsetN}`
     return sql
   }
 

@@ -6,6 +6,7 @@ import ClientesLogoMarquee from '@/components/ClientesLogoMarquee'
 
 export const metadata: Metadata = {
   title: 'Clientes',
+  alternates: { canonical: '/clientes' },
   description: 'Empresas que confían en Grúas InGlobal S.R.L. para sus trabajos de elevación, montaje y transporte pesado en Argentina.',
 }
 

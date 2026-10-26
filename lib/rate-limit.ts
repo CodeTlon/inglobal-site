@@ -4,8 +4,7 @@
  * para que un endpoint/action público no sea trivialmente abusable. Si algún
  * día hace falta algo real, mover a Upstash/Redis.
  *
- * Extraído de `app/api/auth/check-email/route.ts` (primer consumidor) para
- * reusar el mismo mecanismo en `app/actions/contact.ts`.
+ * Primer consumidor: `app/actions/contact.ts`; también lo usa `app/api/tv-pair/start`.
  */
 export function createRateLimiter(windowMs: number, maxRequests: number) {
   const hits = new Map<string, { count: number; resetAt: number }>()

@@ -6,6 +6,7 @@ import { getGaleria, getSiteSettings } from '@/lib/content'
 
 export const metadata: Metadata = {
   title: 'Galería de Trabajos',
+  alternates: { canonical: '/galeria' },
   description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas InGlobal S.R.L.',
 }
 

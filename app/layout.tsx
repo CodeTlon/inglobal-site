@@ -41,12 +41,10 @@ export const metadata: Metadata = {
   description: 'Empresa líder en servicios de grúas, hidrogrúas y movimientos especiales pesados en Córdoba, Argentina. Más de 40 años de experiencia.',
   keywords: ['grúas Córdoba', 'alquiler grúas', 'hidrogrúas', 'movimientos pesados', 'montajes industriales', 'grúas telescópicas', 'InGlobal'],
   authors: [{ name: 'CodeTlon' }],
-  alternates: { canonical: '/' },
   robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
     locale: 'es_AR',
-    url: SITE_URL,
     siteName: 'Grúas InGlobal S.R.L.',
     title: 'Grúas InGlobal S.R.L. | Servicios de Grúas en Córdoba',
     description: OG_DESCRIPTION,

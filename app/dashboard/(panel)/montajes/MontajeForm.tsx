@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useState, useActionState } from 'react'
 import {
   TextField,
   TextArea,
@@ -23,7 +22,7 @@ interface Props {
 }
 
 export default function MontajeForm({ montaje, entityId, action }: Props) {
-  const [state, formAction] = useFormState(action, undefined)
+  const [state, formAction] = useActionState(action, undefined)
   const [content, setContent] = useState(montaje?.content ?? '')
 
   return (

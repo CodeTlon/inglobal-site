@@ -1,3 +1,4 @@
+import { clientIp } from '@/lib/client-ip'
 import crypto from 'crypto'
 import { db } from '@/lib/db'
 import { apiData, apiError } from '@/lib/api-auth'
@@ -12,7 +13,7 @@ const TTL_MS = 5 * 60 * 1000
 const isRateLimited = createRateLimiter(60_000, 6)
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const ip = clientIp(request.headers)
   if (isRateLimited(ip)) return apiError('Demasiados intentos. Esperá un minuto.', 429)
 
   const admin = db

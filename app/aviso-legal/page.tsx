@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Aviso Legal',
+  alternates: { canonical: '/aviso-legal' },
   description: 'Aviso legal e información institucional de Grúas InGlobal S.R.L.',
   robots: { index: false, follow: false },
 }

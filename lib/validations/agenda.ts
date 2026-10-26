@@ -139,3 +139,12 @@ export const operarioSchema = z.object({
   roles:    z.array(z.enum(ROLES_OPERARIO)).default([]),
   foto_url: z.string().url().nullable().optional(),
 })
+
+/** Query string de `GET /api/agenda/eventos`: `desde` entra a un filtro `.or()`, así que solo se aceptan fechas reales. */
+export const filtrosEventosSchema = z.object({
+  desde: fechaIso.optional(),
+  hasta: fechaIso.optional(),
+  gruaId: z.string().uuid().optional(),
+  empresaId: z.string().uuid().optional(),
+  operarioId: z.string().uuid().optional(),
+})

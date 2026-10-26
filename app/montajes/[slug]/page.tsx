@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const tagsText = montaje.tags?.length ? ` — ${montaje.tags.join(', ')}` : ''
     return {
       title: `${montaje.title} | Caso de éxito`,
+      alternates: { canonical: `/montajes/${slug}` },
       description: `${montaje.excerpt ?? ''}${tagsText} Servicio de montaje industrial realizado por Grúas InGlobal S.R.L.`.trim(),
       openGraph: {
         title: montaje.title,
