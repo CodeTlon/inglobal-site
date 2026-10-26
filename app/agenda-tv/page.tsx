@@ -5,7 +5,7 @@ import AgendaMonthView from '@/components/agenda/AgendaMonthView'
 import AgendaKioskHeader from '@/components/agenda/AgendaKioskHeader'
 import AgendaTvRefresher from './AgendaTvRefresher'
 import EstadoLegend from '@/components/agenda/EstadoLegend'
-import { toDateInput } from '@/lib/agenda-view'
+import { toDateInput, fromDateInput, mesActualArgentina } from '@/lib/agenda-view'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +15,12 @@ export default async function AgendaTvPage({
   searchParams: Promise<{ month?: string }>
 }) {
   const { month: monthParam } = await searchParams
-  const month = monthParam ? new Date(`${monthParam}-01T00:00:00`) : new Date()
+  // mesActualArgentina() y no `new Date()`: el servidor corre en UTC, así que
+  // el último día del mes después de las 21:00 de Córdoba la TV abría el mes
+  // siguiente. `monthKey` es lo que recibe AgendaMonthView ('use client'):
+  // nunca un `Date`, ver `fromDateInput` en lib/agenda-view.ts.
+  const monthKey = monthParam ?? mesActualArgentina()
+  const month = fromDateInput(`${monthKey}-01`)
   const first = new Date(month.getFullYear(), month.getMonth(), 1)
   const last = new Date(month.getFullYear(), month.getMonth() + 1, 0)
   let eventos: Awaited<ReturnType<typeof getEventosAgenda>> = []
@@ -28,11 +33,13 @@ export default async function AgendaTvPage({
 
   const prevMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() - 1, 1)).slice(0, 7)
   const nextMonth = toDateInput(new Date(month.getFullYear(), month.getMonth() + 1, 1)).slice(0, 7)
-  const hoy = new Date()
-  const esMesActual = month.getFullYear() === hoy.getFullYear() && month.getMonth() === hoy.getMonth()
+  // Comparación por string 'YYYY-MM' (no contra `new Date()` del server, que
+  // en UTC puede estar un día —y a fin de mes, un mes— adelantado).
+  const mesHoy = mesActualArgentina()
+  const esMesActual = monthKey === mesHoy
   // Si estoy viendo un mes pasado, "hoy" queda para adelante (flecha a la
   // derecha) — si estoy en el futuro, "hoy" queda para atrás (izquierda).
-  const hoyQuedaAdelante = month < hoy
+  const hoyQuedaAdelante = monthKey < mesHoy
 
   // Botones grandes a propósito: esta pantalla se maneja desde lejos (remoto/puntero de TV),
   // no con mouse de cerca como el dashboard — el target chico de un link de texto no sirve acá.
@@ -80,7 +87,7 @@ export default async function AgendaTvPage({
         {!cargaFallida && eventos.length === 0 && (
           <p className="shrink-0 pb-3 text-center text-xl font-medium text-zinc-500">No hay servicios cargados este mes.</p>
         )}
-        <AgendaMonthView eventos={eventos} month={month} className="flex-1 min-h-0" />
+        <AgendaMonthView eventos={eventos} monthKey={monthKey} className="flex-1 min-h-0" />
       </main>
     </div>
   )
