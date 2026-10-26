@@ -108,6 +108,28 @@ select ('00000000-0000-4000-8003-' || lpad(n::text, 12, '0'))::uuid,
        ubic, notas, estado
 from _ev order by n;
 
+-- Grúas por servicio (migración 0004): la principal de cada evento más algunas extra para probar el resumen "+N".
+insert into public.eventos_gruas (evento_id, grua_id, orden)
+select id, grua_id, 0 from public.eventos_agenda where grua_id is not null;
+
+-- Extras: grúas libres en la ventana completa del evento (el trigger chequear_solapamiento_grua rechaza dobles reservas).
+with rng as (
+  select id, tsrange(fecha + hora_inicio,
+                     coalesce(fecha_hasta, fecha) + coalesce(hora_fin, '23:59'::time)
+                       + case when fecha_hasta is null and hora_fin is not null and hora_fin <= hora_inicio then interval '1 day' else interval '0' end) as r
+  from public.eventos_agenda
+), objetivo(n, cuantas) as (values (12, 3), (34, 1), (42, 1)), cand as (
+  select t.id as evento_id, g.id as grua_id, o.cuantas,
+         row_number() over (partition by t.id order by g.id) as rn
+  from objetivo o
+  join rng t on t.id = ('00000000-0000-4000-8003-' || lpad(o.n::text, 12, '0'))::uuid
+  join public.gruas g on not exists (
+    select 1 from public.eventos_gruas og join rng x on x.id = og.evento_id
+    where og.grua_id = g.id and x.r && t.r)
+)
+insert into public.eventos_gruas (evento_id, grua_id, orden)
+select evento_id, grua_id, rn::smallint from cand where rn <= cuantas;
+
 insert into public.eventos_operarios (evento_id, operario_id)
 select ('00000000-0000-4000-8003-' || lpad(n::text, 12, '0'))::uuid,
        ('00000000-0000-4000-8002-' || lpad(o::text, 12, '0'))::uuid
