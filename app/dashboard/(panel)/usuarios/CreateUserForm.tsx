@@ -1,6 +1,8 @@
 'use client'
 
-import { useFormState, useFormStatus } from 'react-dom'
+import { useActionState } from 'react'
+import PasswordInput from '@/components/dashboard/PasswordInput'
+import { useFormStatus } from 'react-dom'
 import { UserPlus, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { createAdminUser } from '@/app/actions/users'
 import { fieldLabel, fieldInput } from '@/components/dashboard/Field'
@@ -20,7 +22,7 @@ function SubmitButton() {
 }
 
 export default function CreateUserForm() {
-  const [state, action] = useFormState(createAdminUser, undefined)
+  const [state, action] = useActionState(createAdminUser, undefined)
 
   return (
     <form action={action} className="bg-white rounded-2xl p-6 shadow-igb border border-zinc-100 space-y-4">
@@ -46,7 +48,7 @@ export default function CreateUserForm() {
         </div>
         <div>
           <label htmlFor="password" className={fieldLabel}>Contraseña</label>
-          <input id="password" name="password" type="password" required minLength={6} placeholder="mín. 6 caracteres" className={fieldInput} />
+          <PasswordInput id="password" name="password" required minLength={6} placeholder="mín. 6 caracteres" className={fieldInput} />
         </div>
       </div>
 

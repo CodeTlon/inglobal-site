@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad',
+  alternates: { canonical: '/politica-de-privacidad' },
   description:
     'Política de privacidad de Grúas InGlobal S.R.L.: qué datos recolectan el sitio web y la app InGlobal Agenda, y para qué se usan.',
   robots: { index: true, follow: true },

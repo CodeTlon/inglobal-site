@@ -58,7 +58,7 @@ function parseFieldValue(raw: string): unknown {
 /**
  * Upsert de una clave en site_settings.
  * Primer arg = key (string, prefijado via .bind(null, key) desde el cliente).
- * Segundo arg = prevState (inyectado por useFormState).
+ * Segundo arg = prevState (inyectado por useActionState).
  * Tercer arg = formData con los campos del form — se arma un objeto JSON con
  * todos ellos (cada campo lista ya viene serializado, ver parseFieldValue).
  */
@@ -135,8 +135,19 @@ export async function uploadMediaAction(
       }
     }
 
-    const id       = crypto.randomUUID()
     const original = Buffer.from(await file.arrayBuffer())
+
+    // El tipo declarado por el navegador no es de fiar: se exige que sea uno de los admitidos y que el
+    // contenido (firma del archivo) coincida. Las imágenes rasterizadas las valida sharp al reprocesarlas.
+    const esGif = mime === 'image/gif'
+    if (!isVideo && !isDoc && !esGif && !mime.startsWith('image/')) {
+      return { error: 'Tipo de archivo no admitido. Subí una imagen, un video MP4 o un PDF.' }
+    }
+    if (isVideo && original.subarray(4, 8).toString('latin1') !== 'ftyp') return { error: 'El archivo no es un video MP4 válido.' }
+    if (isDoc && original.subarray(0, 5).toString('latin1') !== '%PDF-') return { error: 'El archivo no es un PDF válido.' }
+    if (esGif && original.subarray(0, 4).toString('latin1') !== 'GIF8') return { error: 'El archivo no es un GIF válido.' }
+
+    const id = crypto.randomUUID()
 
     const optimizable =
       mime.startsWith('image/') &&
@@ -163,8 +174,8 @@ export async function uploadMediaAction(
       contentType = 'video/mp4'
     } else {
       buf         = original
-      ext         = file.name.split('.').pop()?.toLowerCase() ?? 'bin'
-      contentType = mime || 'application/octet-stream'
+      ext         = isDoc ? 'pdf' : 'gif'
+      contentType = isDoc ? 'application/pdf' : 'image/gif'
     }
 
     const path = `${folder}/${id}.${ext}`

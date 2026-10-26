@@ -1,4 +1,5 @@
 'use server'
+import { clientIp } from '@/lib/client-ip'
 import { headers } from 'next/headers'
 import { Resend } from 'resend'
 import { createRateLimiter } from '@/lib/rate-limit'
@@ -27,7 +28,7 @@ const serviciosMap: Record<string, string> = {
 }
 
 export async function sendContact(prevState: unknown, formData: FormData) {
-  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const ip = clientIp(await headers())
   if (isRateLimited(ip)) {
     return { error: 'Demasiadas consultas. Esperá un minuto e intentá de nuevo.' }
   }

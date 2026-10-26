@@ -6,10 +6,9 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getSessionUser } from '@/lib/session'
 import { hashPassword } from '@/lib/password'
-import { emailExistsInAuth } from '@/lib/auth-email'
 import { friendlyError } from '@/lib/friendly-error'
 
-export type AuthState = { error?: string; clearEmail?: boolean } | undefined
+export type AuthState = { error?: string } | undefined
 
 /**
  * Único mensaje de login fallido. Es deliberadamente el mismo tanto si el email
@@ -40,13 +39,9 @@ export async function signIn(prevState: unknown, formData: FormData): Promise<Au
     await auth.api.signInEmail({ body: { email, password }, headers: await headers() })
   } catch (e) {
     console.error('signIn error:', e instanceof Error ? e.message : e)
-    // El texto del error NO cambia; lo único que cambia es si el form conserva
-    // el email tipeado (contraseña equivocada → se conserva para reintentar) o
-    // lo limpia (ese email no tiene cuenta → no sirve reintentar con él).
-    // Si no se pudo verificar (`null`), se conserva: nunca hacerle perder el
-    // dato al usuario por un error nuestro.
-    const exists = await emailExistsInAuth(email)
-    return { error: LOGIN_ERROR, clearEmail: exists === false }
+    // Mismo mensaje y mismo comportamiento exista o no la cuenta: el form siempre conserva el email.
+    // (Limpiarlo solo cuando la cuenta no existe permitía averiguar qué emails tienen cuenta.)
+    return { error: LOGIN_ERROR }
   }
 
   redirect(next)

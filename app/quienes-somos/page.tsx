@@ -12,6 +12,7 @@ const defaultStats = [
 
 export const metadata: Metadata = {
   title: 'Quiénes Somos',
+  alternates: { canonical: '/quienes-somos' },
   description: 'Somos Inglobal, empresa líder en movimientos especiales pesados y montajes industriales con más de 40 años de trayectoria en Argentina.',
 }
 

@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useActionState } from 'react'
 import Link from 'next/link'
-import { useFormState } from 'react-dom'
 import { TextField, SelectField, ImageUpload } from '@/components/dashboard/Field'
 import SaveButton from '@/components/dashboard/SaveButton'
 import ConfirmDialog from '@/components/dashboard/ConfirmDialog'
@@ -115,7 +114,7 @@ function CatalogRow({
   onRequestDelete: () => void
 }) {
   const [editing, setEditing] = useState(false)
-  const [updateState, updateFormAction] = useFormState(updateAction ?? (async () => undefined), undefined)
+  const [updateState, updateFormAction] = useActionState(updateAction ?? (async () => undefined), undefined)
   const [toggling, setToggling] = useState(false)
   const [toggleError, setToggleError] = useState<string | null>(null)
 
@@ -219,7 +218,7 @@ function CatalogRow({
 }
 
 export default function CatalogSection({ title, items, searchable, fields, createAction, updateAction, toggleAction, deleteAction }: Props) {
-  const [createState, createFormAction] = useFormState(createAction, undefined)
+  const [createState, createFormAction] = useActionState(createAction, undefined)
   const [query, setQuery] = useState('')
   const norm = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   const filtrados = searchable && query.trim() ? items.filter((i) => norm(i.nombre).includes(norm(query.trim()))) : items

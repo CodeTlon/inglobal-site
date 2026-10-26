@@ -5,6 +5,7 @@ import MontajesGrid from './MontajesGrid'
 
 export const metadata: Metadata = {
   title: 'Montajes Industriales',
+  alternates: { canonical: '/montajes' },
   description: 'Casos de estudio y proyectos de montajes industriales realizados por Grúas InGlobal S.R.L.',
 }
 

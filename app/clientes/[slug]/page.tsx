@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!cliente) return { title: 'Cliente no encontrado' }
     return {
       title: `Caso de éxito — ${cliente.name}`,
+      alternates: { canonical: `/clientes/${slug}` },
       description:
         cliente.bio ||
         `Trabajos y proyectos realizados junto a ${cliente.name}: montajes, izajes y movimientos pesados a cargo de Grúas InGlobal S.R.L.`,

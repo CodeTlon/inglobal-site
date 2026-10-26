@@ -1,3 +1,4 @@
+import { filtrosEventosSchema } from '@/lib/validations/agenda'
 import { requireApiUser, apiData, apiError } from '@/lib/api-auth'
 import { friendlyError } from '@/lib/friendly-error'
 import { crearEventoSchema } from '@/lib/validations/agenda'
@@ -10,13 +11,17 @@ export async function GET(request: Request) {
     if (auth instanceof Response) return auth
 
     const { searchParams } = new URL(request.url)
-    const desde = searchParams.get('desde') ?? undefined
-    const hasta = searchParams.get('hasta') ?? undefined
-    // Filtros por recurso — historial de una grúa/empresa/operario puntual
-    // (detalle de catálogo). Sin desde/hasta trae todo el historial.
-    const gruaId = searchParams.get('grua_id') ?? undefined
-    const empresaId = searchParams.get('empresa_id') ?? undefined
-    const operarioId = searchParams.get('operario_id') ?? undefined
+    const filtros = filtrosEventosSchema.safeParse({
+      desde: searchParams.get('desde') ?? undefined,
+      hasta: searchParams.get('hasta') ?? undefined,
+      // Filtros por recurso — historial de una grúa/empresa/operario puntual
+      // (detalle de catálogo). Sin desde/hasta trae todo el historial.
+      gruaId: searchParams.get('grua_id') ?? undefined,
+      empresaId: searchParams.get('empresa_id') ?? undefined,
+      operarioId: searchParams.get('operario_id') ?? undefined,
+    })
+    if (!filtros.success) return apiError('Filtros inválidos: fechas YYYY-MM-DD e ids válidos.', 400)
+    const { desde, hasta, gruaId, empresaId, operarioId } = filtros.data
 
     const eventos = await getEventosAgenda({ desde, hasta, gruaId, empresaId, operarioId }, auth.db)
     return apiData(eventos)

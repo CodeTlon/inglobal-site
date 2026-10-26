@@ -17,6 +17,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'Servicios',
+  alternates: { canonical: '/servicios' },
   description:
     'Grúas telescópicas, hidrogrúas, movimientos pesados y traslados con carretones en Córdoba y toda Argentina. Cotización según carga, altura y plazos — respuesta con asesoramiento técnico.',
 }
