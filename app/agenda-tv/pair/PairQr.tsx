@@ -44,6 +44,7 @@ export default function PairQr() {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- arranca el emparejamiento al montar (pide un token a la API); no se puede derivar en el render
     startPairing()
     return () => {
       if (pollRef.current) clearInterval(pollRef.current)
@@ -62,6 +63,7 @@ export default function PairQr() {
         const s = res.ok ? body?.data?.status : undefined
         if (s === 'approved') {
           if (pollRef.current) clearInterval(pollRef.current)
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- navegación completa a un route handler (setea la cookie y redirige), no a una página de Next
           window.location.href = `/api/tv-pair/exchange?token=${token}`
           return
         } else if (s === 'expired') {

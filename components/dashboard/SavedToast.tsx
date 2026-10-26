@@ -23,6 +23,7 @@ export default function SavedToast() {
   useEffect(() => {
     const saved = searchParams.get('saved')
     if (!saved) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- muestra el toast al llegar ?saved= y lo oculta con un temporizador
     setMessage(MESSAGES[saved] ?? 'Guardado correctamente')
     // El router.replace de limpieza va DENTRO del timeout, no antes: si se
     // dispara de entrada, cambia searchParams, re-dispara este mismo efecto

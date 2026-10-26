@@ -48,6 +48,7 @@ export default function HeroVideo({
     if (prefersReduced) return
     const isMobile = window.matchMedia('(max-width: 767px)').matches
     const url = isMobile ? mobileVideoUrl || videoUrl : videoUrl || mobileVideoUrl
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- elige el video según prefers-reduced-motion y el ancho, valores que solo existen en el navegador
     if (url) setActiveVideoUrl(url)
     // ponytail: chequeo una sola vez al montar, no reacciona a un resize/rotate en vivo — asumible para un hero que no cambia de breakpoint mientras se está viendo.
   }, [videoUrl, mobileVideoUrl])
