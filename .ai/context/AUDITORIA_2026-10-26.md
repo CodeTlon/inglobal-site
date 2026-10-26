@@ -5,7 +5,16 @@ Capturas: `screenshots/auditoria/` en cada repo.
 
 ## Estado de las correcciones (2026-10-26, `dev` y `test`)
 **Corregido:** 1 (canonical por página), 2 (pestañas), 3 (teclado Android, cambio hecho, **sin verificar en dispositivo**), 4 (IP real: `lib/client-ip.ts`), 5 (`check-email` eliminado y el login conserva siempre el email), 6 (`filtrosEventosSchema`), 7 (subidas: lista blanca + firma de archivo), 8 (lista de agenda del panel por día, rango 7/14/30/60 y filtros), 9 (320 px), 10 (tope de fuente), 11 (`lib/cron-auth.ts`), `npm audit` en 0, `/agenda-tv` fuera del sitemap y en `disallow`, ojito en los 4 formularios, labels del menú, `useFormState` → `useActionState`, paginación de consultas, galería (pública y panel) y empresas del catálogo.
-**Pendiente:** OG por ficha, paginación en servidor de clientes/montajes públicos (hoy en el navegador), rate limits compartidos entre réplicas, rotación de sesiones, 12 warnings de lint (`setState` en efectos), diseño ancho para iPad/tablets, verificación en dispositivos reales (teclado, safe areas, video, pushes).
+**También corregido en la segunda tanda:** Open Graph con imagen de respaldo y `og:type=article` en fichas (montajes, clientes, trabajos); paginación por URL (`?pagina=N`, con canonical por página) en `/clientes`, `/montajes`, trabajos de cada cliente y `/galeria`; rate limits con contadores en Postgres (tabla `rate_limits`, migración 0005, con caída a memoria si la base falla).
+**Pendiente / decisiones:**
+- Rate limit del **login** (Better Auth): sigue en memoria del proceso (`lib/auth.ts`, `rateLimit`); pasarlo a `storage: 'database'` exige su propia tabla.
+- Sesiones de 30 días sin rotación: se deja así (uso interno); si hiciera falta, ofrecer "cerrar sesión en todos los dispositivos".
+- 11 warnings de lint "setState dentro de un efecto" (cookies, reloj, conexión, hidratación): migrarlos a `useSyncExternalStore` tiene riesgo de romper la hidratación y no cambia el comportamiento; se dejan. `PairQr` usa `window.location.href` a propósito (navegación completa tras aprobar).
+- App en tablets: funciona (768 px sin desborde) pero el diseño se estira; no hay layout ancho.
+
+## Verificación de lo que antes quedó "sin verificar" (2026-10-26)
+**Verificado:** migración 0005 aplicada en una base local y rate limit probado contra Postgres (límite, claves separadas, contador compartido entre instancias, vencimiento de ventana y caída a memoria con la base apagada); consulta del cron con `eventos_gruas` anidado contra la base real y textos generados con 9 servicios; envío a la API de Expo con un token falso (la API acepta el formato y devuelve `DeviceNotRegistered`, que `enviarPush` convierte en token a borrar); E2E de 3 viewports en verde en el CI de `test`; despliegue de `test` en Coolify con los cambios (canonical propio, `check-email` en 404); login con contraseña mala (mismo mensaje y email conservado exista o no la cuenta), luego buena y redirección; ojito.
+**No se pudo verificar acá:** teclado en Android (no hay KVM ni SDK de Android en la VPS para un emulador), safe areas reales, video nativo del splash, ícono y color de notificación, entrega real de un push a un teléfono, TestFlight. Producción (`main`) sigue en v2.2.0 hasta que se promueva: todavía tiene el canonical de la portada en todas las páginas.
 (El texto de abajo describe los hallazgos tal como se encontraron.)
 
 ## Gate automático (sitio)
