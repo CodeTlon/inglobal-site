@@ -13,6 +13,8 @@ const MAX_CONSECUTIVE_FAILURES = 20
 
 export default function PairQr() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+  // Código de verificación: la app lo muestra antes de aprobar, para comparar con el de esta pantalla.
+  const [codigo, setCodigo] = useState<string | null>(null)
   const [status, setStatus] = useState<'loading' | 'pending' | 'error'>('loading')
   // ponytail: el fallo real queda en el log del server (route.ts ya loggea la causa);
   // acá solo mostramos que falló para que no parezca que la página "se recargó sola".
@@ -26,6 +28,7 @@ export default function PairQr() {
   const startPairing = useCallback(async () => {
     setStatus('loading')
     setQrDataUrl(null)
+    setCodigo(null)
     failCountRef.current = 0
     try {
       const res = await fetch('/api/tv-pair/start', { method: 'POST' })
@@ -37,6 +40,7 @@ export default function PairQr() {
       const deepLink = `inglobalagendaapp://pair?token=${token}`
       const dataUrl = await QRCode.toDataURL(deepLink, { width: 320, margin: 1, color: { dark: '#191c1d', light: '#ffffff' } })
       setQrDataUrl(dataUrl)
+      setCodigo(typeof body.data.codigo === 'string' ? body.data.codigo : null)
       setStatus('pending')
     } catch {
       setStatus('error')
@@ -103,8 +107,14 @@ export default function PairQr() {
           <span className="text-zinc-500">{status === 'error' ? 'No se pudo generar el código.' : 'Generando código…'}</span>
         )}
       </div>
+      {codigo && (
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-zinc-500 text-sm uppercase tracking-widest">Código de verificación</span>
+          <span className="font-mono text-4xl font-bold tracking-[0.2em] text-zinc-900">{codigo}</span>
+        </div>
+      )}
       <p className="text-zinc-500 text-center max-w-sm">
-        Abrí la app InGlobal Agenda en tu celular, tocá &quot;Vincular TV&quot; y escaneá este código.
+        Abrí la app InGlobal Agenda en tu celular, tocá &quot;Vincular TV&quot; y escaneá el QR. Aprobá solo si la app muestra este mismo código.
       </p>
       {exchangeFailed && (
         <p className="text-red-500 text-center max-w-sm">
