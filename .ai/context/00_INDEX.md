@@ -22,3 +22,4 @@ Qué leer según el tipo de tarea. Leé solo lo que necesites — no cargues tod
 Para QA manual paso a paso: `MANUAL-PRUEBAS.md` (raíz). Para causas raíz de bugs ya resueltos: `.claude/ERRORES.md`. Ninguno de los dos se duplica acá.
 
 | Qué falta de la migración a Coolify (seguridad, test, corte, deuda) | `.ai/context/PENDIENTES.md` |
+| Auditoría de la app móvil del 2026-11-03 (lento, pesado, caché, TV) | `.ai/context/AUDITORIA_2026-11-03.md` |

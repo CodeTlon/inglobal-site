@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { db } from '@/lib/db'
 import { apiData, apiError } from '@/lib/api-auth'
 import { createRateLimiter } from '@/lib/rate-limit'
+import { codigoDeVinculacion } from '@/lib/tv-pair-codigo'
 
 // ponytail: 2 min era insuficiente para el flujo real (abrir la app, dar permiso de
 // cámara la primera vez, navegar y escanear) — el QR expiraba antes de aprobarlo.
@@ -25,5 +26,5 @@ export async function POST(request: Request) {
   const { error } = await admin.from('tv_pairing_codes').insert({ token, expires_at: expiresAt })
   if (error) return apiError('No se pudo generar el código.', 500)
 
-  return apiData({ token, expiresAt })
+  return apiData({ token, expiresAt, codigo: codigoDeVinculacion(token) })
 }
