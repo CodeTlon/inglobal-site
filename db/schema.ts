@@ -1,5 +1,5 @@
 /**
- * Esquema Drizzle de Grúas InGlobal. Es la fuente de verdad del esquema desde que
+ * Esquema Drizzle de Grúas Inglobal. Es la fuente de verdad del esquema desde que
  * el proyecto salió de Supabase (ver .ai/context/MIGRACION_SUPABASE.md).
  *
  * Las tablas de negocio replican EXACTO el esquema real de producción de Supabase

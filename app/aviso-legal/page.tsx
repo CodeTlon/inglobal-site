@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Aviso Legal',
   alternates: { canonical: '/aviso-legal' },
-  description: 'Aviso legal e información institucional de Grúas InGlobal S.R.L.',
+  description: 'Aviso legal e información institucional de Grúas Inglobal S.R.L.',
   robots: { index: false, follow: false },
 }
 
@@ -28,7 +28,7 @@ export default function AvisoLegalPage() {
                 En cumplimiento de la legislación vigente, se informa que el titular del presente sitio web es:
               </p>
               <ul className="mt-4 space-y-2 text-igb-secondary">
-                <li><strong className="text-igb-on-surface">Razón Social:</strong> Grúas InGlobal S.R.L.</li>
+                <li><strong className="text-igb-on-surface">Razón Social:</strong> Grúas Inglobal S.R.L.</li>
                 <li><strong className="text-igb-on-surface">Domicilio:</strong> Ana Riglos de Irigoyen S/N, Córdoba, Argentina</li>
                 <li><strong className="text-igb-on-surface">Correo electrónico:</strong> cotizacionesinglobalsrl@gmail.com</li>
                 <li><strong className="text-igb-on-surface">Teléfono:</strong> 0351 345-4244</li>
@@ -40,7 +40,7 @@ export default function AvisoLegalPage() {
                 2. Objeto del sitio web
               </h2>
               <p className="text-igb-secondary leading-relaxed">
-                El presente sitio web tiene por objeto brindar información sobre los servicios ofrecidos por Grúas InGlobal S.R.L., incluyendo alquiler de grúas, hidrogrúas, movimientos especiales pesados y montajes industriales.
+                El presente sitio web tiene por objeto brindar información sobre los servicios ofrecidos por Grúas Inglobal S.R.L., incluyendo alquiler de grúas, hidrogrúas, movimientos especiales pesados y montajes industriales.
               </p>
             </div>
 
@@ -49,7 +49,7 @@ export default function AvisoLegalPage() {
                 3. Propiedad intelectual
               </h2>
               <p className="text-igb-secondary leading-relaxed">
-                Todos los contenidos del sitio web (textos, imágenes, logotipos, código fuente) son propiedad de Grúas InGlobal S.R.L. o se utilizan con autorización de sus titulares. Queda prohibida su reproducción total o parcial sin autorización expresa.
+                Todos los contenidos del sitio web (textos, imágenes, logotipos, código fuente) son propiedad de Grúas Inglobal S.R.L. o se utilizan con autorización de sus titulares. Queda prohibida su reproducción total o parcial sin autorización expresa.
               </p>
             </div>
 
@@ -58,7 +58,7 @@ export default function AvisoLegalPage() {
                 4. Responsabilidad
               </h2>
               <p className="text-igb-secondary leading-relaxed">
-                Grúas InGlobal S.R.L. no se hace responsable de los daños y perjuicios que pudieran derivarse del uso del sitio web, incluyendo los producidos por virus o programas informáticos. La empresa se reserva el derecho de modificar el contenido del sitio en cualquier momento.
+                Grúas Inglobal S.R.L. no se hace responsable de los daños y perjuicios que pudieran derivarse del uso del sitio web, incluyendo los producidos por virus o programas informáticos. La empresa se reserva el derecho de modificar el contenido del sitio en cualquier momento.
               </p>
             </div>
 

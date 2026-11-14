@@ -29,7 +29,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     const pagina = paginaEfectiva((await getTrabajos(cliente.id)).length, (await searchParams).pagina, TRABAJOS_POR_PAGINA)
     const description =
       cliente.bio ||
-      `Trabajos y proyectos realizados junto a ${cliente.name}: montajes, izajes y movimientos pesados a cargo de Grúas InGlobal S.R.L.`
+      `Trabajos y proyectos realizados junto a ${cliente.name}: montajes, izajes y movimientos pesados a cargo de Grúas Inglobal S.R.L.`
     return {
       title: pagina > 1 ? `Caso de éxito — ${cliente.name} · Página ${pagina}` : `Caso de éxito — ${cliente.name}`,
       alternates: { canonical: canonicalPagina(`/clientes/${slug}`, pagina) },
@@ -117,7 +117,7 @@ export default async function ClienteDetailPage({ params, searchParams }: Props)
                 <ShareButton title={`Caso de éxito — ${cliente.name}`} text={cliente.bio ?? undefined} />
               </div>
               <Link href="/contacto" className="btn-primary transition-all hover:-translate-y-0.5">
-                Trabajar con InGlobal
+                Trabajar con Inglobal
               </Link>
             </div>
           </div>

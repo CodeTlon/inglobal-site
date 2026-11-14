@@ -12,7 +12,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   return {
     title: pagina > 1 ? `Montajes Industriales · Página ${pagina}` : 'Montajes Industriales',
     alternates: { canonical: canonicalPagina('/montajes', pagina) },
-    description: 'Casos de estudio y proyectos de montajes industriales realizados por Grúas InGlobal S.R.L.',
+    description: 'Casos de estudio y proyectos de montajes industriales realizados por Grúas Inglobal S.R.L.',
   }
 }
 

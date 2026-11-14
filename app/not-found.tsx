@@ -7,7 +7,7 @@ export default function NotFound() {
       <div className="text-center max-w-md">
         <Image
           src="/images/logo.png"
-          alt="Grúas InGlobal"
+          alt="Grúas Inglobal"
           width={140}
           height={41}
           className="h-10 w-auto mx-auto mb-8 object-contain"
