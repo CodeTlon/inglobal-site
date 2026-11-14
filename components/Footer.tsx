@@ -31,7 +31,7 @@ export default async function Footer() {
   const legalLinks = BASE_LEGAL_LINKS.map((link) => ({ ...link, label: (extra[link.id] as string) || link.label }))
   const navHeading = (extra.nav_heading as string) || 'Navegación'
   const contactHeading = (extra.contact_heading as string) || 'Atención Comercial'
-  const copyrightName = (extra.copyright_name as string) || 'Grúas InGlobal S.R.L.'
+  const copyrightName = (extra.copyright_name as string) || 'Grúas Inglobal S.R.L.'
   const whatsapp = (contactoHeader.whatsapp as string) || 'https://wa.me/5493513454244'
   const instagram = (contactoHeader.instagram as string) || 'https://www.instagram.com/gruasinglobal'
 
@@ -51,7 +51,7 @@ export default async function Footer() {
             <Link href="/" className="inline-block border-none outline-hidden">
               <Image
                 src="/images/logo.png"
-                alt="Grúas InGlobal S.R.L."
+                alt="Grúas Inglobal S.R.L."
                 className="h-14 w-auto object-contain"
                 sizes="240px"
                 width={240}
@@ -75,7 +75,7 @@ export default async function Footer() {
                 href={instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Ver Instagram de Grúas InGlobal"
+                aria-label="Ver Instagram de Grúas Inglobal"
                 className="text-slate-400 transition-colors hover:text-igb-yellow hover:scale-110 inline-block transform active:scale-95"
               >
                 <svg

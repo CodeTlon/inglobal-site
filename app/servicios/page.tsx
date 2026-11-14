@@ -73,7 +73,7 @@ export default async function ServiciosPage() {
               description: service.desc || service.excerpt,
               provider: {
                 '@type': 'LocalBusiness',
-                name: 'Grúas InGlobal S.R.L.',
+                name: 'Grúas Inglobal S.R.L.',
                 url: SITE_URL,
               },
               areaServed: 'Argentina',

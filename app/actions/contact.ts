@@ -78,7 +78,7 @@ export async function sendContact(prevState: unknown, formData: FormData) {
       // cuota, clave inválida): devuelve `{ error }`. Sin chequearlo, un mail que nunca salió
       // se daba por enviado.
       const { error: sendError } = await resend.emails.send({
-      from: `${process.env.RESEND_FROM_NAME ?? 'InGlobal'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
+      from: `${process.env.RESEND_FROM_NAME ?? 'Inglobal'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
       to: process.env.COMPANY_EMAIL ?? 'cotizacionesinglobalsrl@gmail.com',
       replyTo: email,
       subject: `Nueva consulta de ${name.replace(/[\r\n]+/g, ' ')}${empresa ? ` — ${empresa.replace(/[\r\n]+/g, ' ')}` : ''}`,
@@ -87,7 +87,7 @@ export async function sendContact(prevState: unknown, formData: FormData) {
           <!-- Header -->
           <div style="background: #0f172a; padding: 32px 40px; border-radius: 12px 12px 0 0;">
             <h1 style="color: #f5d100; font-size: 22px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">
-              Grúas InGlobal S.R.L.
+              Grúas Inglobal S.R.L.
             </h1>
             <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0;">Nueva consulta recibida</p>
           </div>
@@ -135,7 +135,7 @@ export async function sendContact(prevState: unknown, formData: FormData) {
           </div>
           <!-- Footer -->
           <p style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px;">
-            © ${new Date().getFullYear()} Grúas InGlobal S.R.L. — Córdoba, Argentina
+            © ${new Date().getFullYear()} Grúas Inglobal S.R.L. — Córdoba, Argentina
           </p>
         </div>
       `,

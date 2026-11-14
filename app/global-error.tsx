@@ -36,7 +36,7 @@ export default function GlobalError({
       >
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>
-            Grúas InGlobal — Error inesperado
+            Grúas Inglobal — Error inesperado
           </h1>
           <p style={{ color: '#575d78', marginBottom: '24px' }}>
             Ocurrió un problema al cargar el sitio. Por favor, recargá la página.

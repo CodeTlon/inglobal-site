@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test'
 
 test('home carga correctamente', async ({ page }) => {
   await page.goto('/')
-  await expect(page).toHaveTitle(/Grúas InGlobal/)
+  await expect(page).toHaveTitle(/Grúas Inglobal/)
 })
 
 test('hero section visible en desktop', async ({ page }) => {
@@ -177,7 +177,7 @@ test('schema.org LocalBusiness presente', async ({ page }) => {
   await expect(schema).toBeAttached()
   const content = await schema.textContent()
   expect(content).toContain('LocalBusiness')
-  expect(content).toContain('InGlobal')
+  expect(content).toContain('Inglobal')
 })
 
 test('footer tiene CodeTlon badge', async ({ page }) => {

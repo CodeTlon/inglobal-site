@@ -27,7 +27,7 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
   },
   quienes_somos: {
     label:        'Quiénes Somos',
-    heading:      'Grúas InGlobal S.R.L.',
+    heading:      'Grúas Inglobal S.R.L.',
     subheading:   'Más de 40 años acompañando a la industria argentina con soluciones de elevación y logística pesada.',
     company_name: 'Inglobal',
     description1: 'Somos Inglobal, una empresa líder en movimientos especiales pesados y montajes industriales. Como continuadores de una empresa familiar con más de 40 años de trayectoria, combinamos experiencia técnica con un compromiso inquebrantable hacia nuestros clientes.',
@@ -139,7 +139,7 @@ export const FALLBACK_SITE_SETTINGS: Record<string, any> = {
   footer_extra: {
     nav_heading:        'Navegación',
     contact_heading:    'Atención Comercial',
-    copyright_name:     'Grúas InGlobal S.R.L.',
+    copyright_name:     'Grúas Inglobal S.R.L.',
     aviso_legal:        'Aviso Legal',
     politica_privacidad: 'Política de Privacidad',
   },

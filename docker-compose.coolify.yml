@@ -37,7 +37,7 @@ services:
       CRON_SECRET: '${SERVICE_PASSWORD_CRON}'
       RESEND_API_KEY: '${RESEND_API_KEY:-}'
       RESEND_FROM_EMAIL: '${RESEND_FROM_EMAIL:-onboarding@resend.dev}'
-      RESEND_FROM_NAME: '${RESEND_FROM_NAME:-Grúas InGlobal}'
+      RESEND_FROM_NAME: '${RESEND_FROM_NAME:-Grúas Inglobal}'
       COMPANY_EMAIL: '${COMPANY_EMAIL:-cotizacionesinglobalsrl@gmail.com}'
       # Servicio global de compresión de video (opcional; sin él se guarda el video original).
       TRANSCODE_SERVICE_URL: '${TRANSCODE_SERVICE_URL:-}'
