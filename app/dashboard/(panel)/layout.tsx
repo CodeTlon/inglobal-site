@@ -135,7 +135,7 @@ export default function DashboardPanelLayout({
           <Link href="/dashboard" className="flex items-center gap-3">
             <Image
               src="/images/logo.png"
-              alt="InGlobal"
+              alt="Inglobal"
               width={100}
               height={32}
               className="h-8 w-auto object-contain"
@@ -212,7 +212,7 @@ export default function DashboardPanelLayout({
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-zinc-900 font-headline truncate">
-              Grúas InGlobal S.R.L.
+              Grúas Inglobal S.R.L.
             </p>
           </div>
           <a

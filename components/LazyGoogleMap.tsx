@@ -23,7 +23,7 @@ export default function LazyGoogleMap() {
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title="Ubicación Grúas InGlobal S.R.L."
+        title="Ubicación Grúas Inglobal S.R.L."
       />
     )
   }
@@ -38,7 +38,7 @@ export default function LazyGoogleMap() {
       <MapPin className="w-10 h-10 text-igb-yellow-dark" aria-hidden="true" />
       <div className="text-center pointer-events-none">
         <p className="font-headline font-bold text-igb-on-surface text-lg">
-          Grúas InGlobal S.R.L.
+          Grúas Inglobal S.R.L.
         </p>
         <p className="text-igb-secondary text-sm mt-1">
           Ana Riglos de Irigoyen S/N, Córdoba

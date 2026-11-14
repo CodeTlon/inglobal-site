@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${montaje.title} | Caso de éxito`,
       alternates: { canonical: `/montajes/${slug}` },
-      description: `${montaje.excerpt ?? ''}${tagsText} Servicio de montaje industrial realizado por Grúas InGlobal S.R.L.`.trim(),
+      description: `${montaje.excerpt ?? ''}${tagsText} Servicio de montaje industrial realizado por Grúas Inglobal S.R.L.`.trim(),
       openGraph: {
         title: montaje.title,
         description: montaje.excerpt ?? undefined,
@@ -162,7 +162,7 @@ export default async function MontajeDetailPage({ params }: Props) {
           <div className="container-igb">
             <div className="mb-10" data-animate="fade-up">
               <span className="label-tag">Seguí explorando</span>
-              <h2 className="heading-display">Otros montajes de InGlobal</h2>
+              <h2 className="heading-display">Otros montajes de Inglobal</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relacionados.map((m) => (

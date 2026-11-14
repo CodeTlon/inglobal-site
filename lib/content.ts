@@ -1,5 +1,5 @@
 /**
- * lib/content.ts — Capa de acceso a datos para el sitio de InGlobal.
+ * lib/content.ts — Capa de acceso a datos para el sitio de Inglobal.
  *
  * Contrato de tipos e interfaces consumido por el frontend y el dashboard.
  * Siempre con fallback a datos estáticos si la base falla o no está configurada.

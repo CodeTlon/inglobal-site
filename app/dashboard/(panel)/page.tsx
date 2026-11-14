@@ -61,7 +61,7 @@ export default async function DashboardHomePage() {
           Bienvenido al panel
         </h1>
         <p className="text-sm text-zinc-500 mt-1">
-          Administrá el contenido del sitio de Grúas InGlobal S.R.L.
+          Administrá el contenido del sitio de Grúas Inglobal S.R.L.
         </p>
       </div>
 

@@ -14,7 +14,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   return {
     title: pagina > 1 ? `Clientes · Página ${pagina}` : 'Clientes',
     alternates: { canonical: canonicalPagina('/clientes', pagina) },
-    description: 'Empresas que confían en Grúas InGlobal S.R.L. para sus trabajos de elevación, montaje y transporte pesado en Argentina.',
+    description: 'Empresas que confían en Grúas Inglobal S.R.L. para sus trabajos de elevación, montaje y transporte pesado en Argentina.',
   }
 }
 
@@ -87,7 +87,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Sea
           </div>
           <ClientesLogoMarquee clientes={sinBlog} />
           <p className="text-center text-zinc-500 text-sm font-medium mt-10" data-animate="fade-up">
-            {clientes.length} empresas que ya eligieron Grúas InGlobal
+            {clientes.length} empresas que ya eligieron Grúas Inglobal
           </p>
         </section>
       )}

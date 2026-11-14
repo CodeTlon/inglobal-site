@@ -16,7 +16,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   return {
     title: pagina > 1 ? `Galería de Trabajos · Página ${pagina}` : 'Galería de Trabajos',
     alternates: { canonical: pagina > 1 ? `/galeria?pagina=${pagina}` : '/galeria' },
-    description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas InGlobal S.R.L.',
+    description: 'Registro visual de izajes, montajes industriales y logística pesada de Grúas Inglobal S.R.L.',
   }
 }
 

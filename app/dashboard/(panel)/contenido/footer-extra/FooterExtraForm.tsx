@@ -24,7 +24,7 @@ export default function FooterExtraForm({ settings }: { settings: Record<string,
 
       <TextField label="Encabezado de la columna de navegación" name="nav_heading" defaultValue={settings.nav_heading as string} placeholder="Navegación" />
       <TextField label="Encabezado de la columna de contacto" name="contact_heading" defaultValue={settings.contact_heading as string} placeholder="Atención Comercial" />
-      <TextField label="Nombre en el copyright" name="copyright_name" defaultValue={settings.copyright_name as string} placeholder="Grúas InGlobal S.R.L." hint={'Se muestra como: © 2026 <este texto> — Todos los derechos reservados.'} />
+      <TextField label="Nombre en el copyright" name="copyright_name" defaultValue={settings.copyright_name as string} placeholder="Grúas Inglobal S.R.L." hint={'Se muestra como: © 2026 <este texto> — Todos los derechos reservados.'} />
       <TextField label="Link legal 1" name="aviso_legal" defaultValue={settings.aviso_legal as string} placeholder="Aviso Legal" />
       <TextField label="Link legal 2" name="politica_privacidad" defaultValue={settings.politica_privacidad as string} placeholder="Política de Privacidad" />
 

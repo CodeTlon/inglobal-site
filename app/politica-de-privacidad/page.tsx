@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'Política de Privacidad',
   alternates: { canonical: '/politica-de-privacidad' },
   description:
-    'Política de privacidad de Grúas InGlobal S.R.L.: qué datos recolectan el sitio web y la app InGlobal Agenda, y para qué se usan.',
+    'Política de privacidad de Grúas Inglobal S.R.L.: qué datos recolectan el sitio web y la app Inglobal Agenda, y para qué se usan.',
   robots: { index: true, follow: true },
 }
 
@@ -23,7 +23,7 @@ export default function PoliticaDePrivacidadPage() {
           <div className="prose prose-slate max-w-none space-y-8">
             <div>
               <p className="text-igb-secondary leading-relaxed">
-                Esta política aplica al sitio web <strong className="text-igb-on-surface">gruasinglobal.com</strong> y a la app móvil interna <strong className="text-igb-on-surface">InGlobal Agenda</strong>, ambos operados por Grúas InGlobal S.R.L. Describe qué datos recolectamos, para qué los usamos y qué derechos tenés sobre ellos.
+                Esta política aplica al sitio web <strong className="text-igb-on-surface">gruasinglobal.com</strong> y a la app móvil interna <strong className="text-igb-on-surface">Inglobal Agenda</strong>, ambos operados por Grúas Inglobal S.R.L. Describe qué datos recolectamos, para qué los usamos y qué derechos tenés sobre ellos.
               </p>
             </div>
 
@@ -33,7 +33,7 @@ export default function PoliticaDePrivacidadPage() {
               </h2>
               <ul className="mt-2 space-y-2 text-igb-secondary leading-relaxed">
                 <li>
-                  <strong className="text-igb-on-surface">Cuenta e inicio de sesión:</strong> email y credenciales de acceso del personal que usa la app InGlobal Agenda, gestionados a través de nuestro proveedor de autenticación (Supabase).
+                  <strong className="text-igb-on-surface">Cuenta e inicio de sesión:</strong> email y credenciales de acceso del personal que usa la app Inglobal Agenda, gestionados a través de nuestro proveedor de autenticación (Supabase).
                 </li>
                 <li>
                   <strong className="text-igb-on-surface">Datos operativos de agenda:</strong> turnos, disponibilidad de grúas y operarios, y demás información de programación que el personal ingresa para coordinar el trabajo.
@@ -55,7 +55,7 @@ export default function PoliticaDePrivacidadPage() {
                 2. Para qué usamos estos datos
               </h2>
               <p className="text-igb-secondary leading-relaxed">
-                Exclusivamente para operar la herramienta interna de agenda de Grúas InGlobal S.R.L. (coordinar grúas, operarios y turnos) y para responder consultas recibidas por el sitio web. No usamos estos datos con fines publicitarios ni los vendemos a terceros.
+                Exclusivamente para operar la herramienta interna de agenda de Grúas Inglobal S.R.L. (coordinar grúas, operarios y turnos) y para responder consultas recibidas por el sitio web. No usamos estos datos con fines publicitarios ni los vendemos a terceros.
               </p>
             </div>
 
