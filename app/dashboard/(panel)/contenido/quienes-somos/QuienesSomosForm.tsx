@@ -23,7 +23,7 @@ export default function QuienesSomosForm({ settings }: { settings: Record<string
       )}
 
       <TextField label="Label (etiqueta)" name="label" defaultValue={settings.label as string} placeholder="Quiénes Somos" />
-      <TextField label="Título (h1)" name="heading" defaultValue={settings.heading as string} placeholder="Grúas InGlobal S.R.L." />
+      <TextField label="Título (h1)" name="heading" defaultValue={settings.heading as string} placeholder="Grúas Inglobal S.R.L." />
       <TextArea
         label="Subtítulo (debajo del título)"
         name="subheading"

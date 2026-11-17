@@ -11,7 +11,7 @@ export default async function CambiarPasswordPage() {
       <div className="flex justify-center mb-8">
         <Image
           src="/images/logo.webp"
-          alt="Grúas InGlobal S.R.L."
+          alt="Grúas Inglobal S.R.L."
           width={160}
           height={50}
           className="h-12 w-auto object-contain"

@@ -9,7 +9,7 @@ import { getSiteSettings, getServicios } from '@/lib/content'
 export const metadata: Metadata = {
   title: 'Contacto',
   alternates: { canonical: '/contacto' },
-  description: 'Contactá a Grúas InGlobal S.R.L. en Córdoba. Ingeniería aplicada a desafíos de elevación.',
+  description: 'Contactá a Grúas Inglobal S.R.L. en Córdoba. Ingeniería aplicada a desafíos de elevación.',
 }
 
 export default async function ContactoPage() {
@@ -35,7 +35,7 @@ export default async function ContactoPage() {
 
   const headingLines = ((s.heading as string) || 'Hablemos de su\npróximo proyecto.').split('\n')
   const headerImage = (s.image as string) || 'igb-1'
-  const headerImageAlt = (s.image_alt as string) || 'Grúa telescópica de Grúas InGlobal en operación'
+  const headerImageAlt = (s.image_alt as string) || 'Grúa telescópica de Grúas Inglobal en operación'
   const headerImageFocal = (s.image_focal as string) || '50% 100%' // centrado abajo: no corta el camion de la foto por defecto
   const headerImageStyle = headerImageFocal ? { objectPosition: headerImageFocal } : undefined
   const whatsapp = (s.whatsapp as string) || 'https://wa.me/5493513454244'
@@ -187,7 +187,7 @@ export default async function ContactoPage() {
                     href={instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="Ver Instagram de Grúas InGlobal"
+                    aria-label="Ver Instagram de Grúas Inglobal"
                     className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
                   >
                     <svg
@@ -207,7 +207,7 @@ export default async function ContactoPage() {
                   </a>
                   <a
                     href={`mailto:${email}`}
-                    aria-label="Enviar email a Grúas InGlobal"
+                    aria-label="Enviar email a Grúas Inglobal"
                     className="text-zinc-400 hover:text-igb-yellow-dark transition-colors duration-200 hover:scale-110 inline-block transform"
                   >
                     <Mail className="w-7 h-7" aria-hidden="true" />

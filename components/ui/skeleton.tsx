@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-// shadcn/ui Skeleton, adaptado a los tokens propios de InGlobal
+// shadcn/ui Skeleton, adaptado a los tokens propios de Inglobal
 // (bg-igb-surface-high en vez de bg-muted — este proyecto no usa el
 // theming de CSS vars de shadcn, solo Tailwind + tokens custom).
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

@@ -33,7 +33,7 @@ export default async function QuienesSomosPage() {
     : defaultStats
 
   const label = (settings.label as string) || 'Quiénes Somos'
-  const heading = (settings.heading as string) || 'Grúas InGlobal S.R.L.'
+  const heading = (settings.heading as string) || 'Grúas Inglobal S.R.L.'
   const companyName = (settings.company_name as string) || 'Inglobal'
   const description1 =
     (settings.description1 as string) ||
@@ -90,7 +90,7 @@ export default async function QuienesSomosPage() {
               {imageUrl && imageUrl.startsWith('http') ? (
                 <Image
                   src={imageUrl}
-                  alt="Equipo de Grúas InGlobal trabajando en altura"
+                  alt="Equipo de Grúas Inglobal trabajando en altura"
                   width={620}
                   height={480}
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -99,7 +99,7 @@ export default async function QuienesSomosPage() {
               ) : (
                 <Picture
                   src={imageUrl || 'igb-2'}
-                  alt="Equipo de Grúas InGlobal trabajando en altura"
+                  alt="Equipo de Grúas Inglobal trabajando en altura"
                   width={620}
                   height={480}
                   sizes="(max-width: 1024px) 100vw, 50vw"

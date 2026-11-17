@@ -60,7 +60,7 @@ export default function Navbar({ labels }: { labels?: Record<string, unknown> })
             como si el logo cambiara de diseño y se achicara al hacer scroll. */}
         <Image
           src="/images/logo.webp"
-          alt="Grúas InGlobal S.R.L."
+          alt="Grúas Inglobal S.R.L."
           className="h-10 w-auto"
           sizes="160px"
           width={160}

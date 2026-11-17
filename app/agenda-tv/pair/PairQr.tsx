@@ -114,7 +114,7 @@ export default function PairQr() {
         </div>
       )}
       <p className="text-zinc-500 text-center max-w-sm">
-        Abrí la app InGlobal Agenda en tu celular, tocá &quot;Vincular TV&quot; y escaneá el QR. Aprobá solo si la app muestra este mismo código.
+        Abrí la app Inglobal Agenda en tu celular, tocá &quot;Vincular TV&quot; y escaneá el QR. Aprobá solo si la app muestra este mismo código.
       </p>
       {exchangeFailed && (
         <p className="text-red-500 text-center max-w-sm">

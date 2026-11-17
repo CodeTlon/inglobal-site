@@ -26,7 +26,7 @@ export default function AgendaKioskHeader({
     >
       <Image
         src={isLight ? '/images/logo.webp' : '/images/logo.png'}
-        alt="InGlobal"
+        alt="Inglobal"
         width={140}
         height={44}
         className="h-8 sm:h-10 w-auto object-contain"

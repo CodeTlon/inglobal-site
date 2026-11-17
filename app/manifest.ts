@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Agenda InGlobal',
+    name: 'Agenda Inglobal',
     short_name: 'Agenda IGB',
-    description: 'Agenda operativa de Grúas InGlobal — para personal en el campo.',
+    description: 'Agenda operativa de Grúas Inglobal — para personal en el campo.',
     start_url: '/dashboard/agenda',
     scope: '/dashboard/',
     display: 'standalone',

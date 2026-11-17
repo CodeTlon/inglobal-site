@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${trabajo.title} — ${cliente.name}`,
       alternates: { canonical: `/clientes/${slug}/${trabajoSlug}` },
       description:
-        `${trabajo.excerpt ?? `${trabajo.title}, proyecto realizado para ${cliente.name}.`}${fecha ? ` Realizado en ${fecha}.` : ''} Grúas InGlobal S.R.L.`.trim(),
+        `${trabajo.excerpt ?? `${trabajo.title}, proyecto realizado para ${cliente.name}.`}${fecha ? ` Realizado en ${fecha}.` : ''} Grúas Inglobal S.R.L.`.trim(),
       openGraph: {
         title: trabajo.title,
         description: trabajo.excerpt ?? undefined,

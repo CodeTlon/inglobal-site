@@ -41,6 +41,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Dominio sin www -> www (canónico, ver lib/site.ts). Solo actúa si Coolify enruta también el apex
+      // a esta app; los anuncios y los enlaces viejos que apunten sin www terminan en la URL buena.
+      { source: '/:path*', has: [{ type: 'host', value: 'gruasinglobal.com' }], destination: 'https://www.gruasinglobal.com/:path*', permanent: true },
       { source: '/index.php', destination: '/', permanent: true },
       { source: '/servicios.php', destination: '/servicios', permanent: true },
       { source: '/montajes.php', destination: '/montajes', permanent: true },
