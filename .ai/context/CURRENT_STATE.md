@@ -1,5 +1,7 @@
 # CURRENT_STATE — Grúas InGlobal
 
+**Actualizacion 2026-11-17 (v2.3.2):** Google Ads rechazo un anuncio por HTTP 503 (AdsBot movil). Causa: `https://gruasinglobal.com/` (apex) y la URL sslip.io dan 503 `no available server` de Traefik; `www` responde 200. Pendiente en Coolify (revisar a mano): dominio apex con redirect a www y revisar la URL final del anuncio. En codigo: `/api/health/live` como healthcheck del contenedor, timeouts y cortacircuito en `lib/db.ts`, migraciones sin bloquear el arranque. Rama `feature/dev1-fix-503-anuncios`. Falta: cache de lecturas publicas.
+
 **Actualizacion 2026-10-21 (v2.2.0):** el calendario semanal del dashboard (`/dashboard/agenda/calendario`) se rediseño para la tele: 7 columnas sin scroll de pagina, scroll interno por dia y navegacion con control remoto. Corregido ademas el corrimiento de un dia de la semana (Date serializado en UTC). Pendiente: probarlo en una tele real.
 
 **Actualizacion 2026-10-18 (v2.1.2):** corregido el calculo de estado de los eventos de agenda (`estadoTransicionado`, `getEstadoVisual`): las horas son de Cordoba y se interpretaban en UTC, asi que un evento se finalizaba 3 horas antes (y las reservas se cancelaban antes). Ahora usan `OFFSET_AR` (`-03:00`). Era la causa real del E2E `disponible/ocupado hoy` que fallaba por la tarde. E2E de agenda 6/6 y unit tests verdes. Los eventos ya finalizados de mas en la base de produccion, si los hubo, no se corrigen solos (el estado se persiste al leer).

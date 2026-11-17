@@ -31,10 +31,26 @@ function getPool(): Pool {
     globalForDb.pgPool = new Pool({
       connectionString: process.env.DATABASE_URL ?? 'postgres://placeholder:placeholder@localhost:5432/placeholder',
       max: Number(process.env.DATABASE_POOL_MAX ?? 5),
+      // Con la base lenta o colgada las páginas públicas deben caer rápido al fallback de
+      // lib/content.ts en vez de esperar hasta que el proxy corte la request con 503/504.
+      connectionTimeoutMillis: Number(process.env.DATABASE_CONNECT_TIMEOUT_MS ?? 2000),
+      query_timeout: Number(process.env.DATABASE_QUERY_TIMEOUT_MS ?? 5000),
+      idleTimeoutMillis: 30_000,
       ssl: process.env.DATABASE_SSL === 'require' ? { rejectUnauthorized: false } : undefined,
     })
   }
   return globalForDb.pgPool
+}
+
+// Cortacircuito: si la base no contesta (timeout de conexión o de consulta) se corta el acceso unos
+// segundos y las consultas fallan al instante. Así las páginas públicas caen a los datos de fallback
+// de lib/content.ts en milisegundos en vez de esperar el timeout en cada consulta (una página hace varias).
+const BREAKER_MS = Number(process.env.DATABASE_BREAKER_MS ?? 15000)
+let breakerUntil = 0
+
+function isTimeoutError(e: unknown): boolean {
+  const msg = (e as { message?: string })?.message ?? ''
+  return /timeout|ECONNREFUSED|ENOTFOUND|terminating connection|Connection terminated/i.test(msg)
 }
 
 // ─── Metadatos del esquema ─────────────────────────────────────────────────
@@ -398,7 +414,14 @@ class Query<T = any[]> implements PromiseLike<DbResult<T>> { // eslint-disable-l
   private async run(): Promise<DbResult<T>> {
     try {
       const { sql, params } = this.build()
-      const res = await getPool().query<QueryResultRow>(sql, params)
+      if (Date.now() < breakerUntil) throw new Error('Base de datos no disponible (cortacircuito abierto)')
+      let res
+      try {
+        res = await getPool().query<QueryResultRow>(sql, params)
+      } catch (e) {
+        if (isTimeoutError(e)) breakerUntil = Date.now() + BREAKER_MS
+        throw e
+      }
 
       if (this.mode !== 'select' && !this.returning) return { data: null, error: null, count: res.rowCount } as DbResult<T>
       if (this.head) return { data: null, error: null, count: res.rows[0]?.n ?? 0 } as DbResult<T>

@@ -87,3 +87,6 @@ El servicio propio `services/video-transcode` se eliminó: ahora es un servicio 
 - **Pruebas de paridad con prod** (`tests/unit/db.test.ts`): se saltean sin `BACKUP_DIR` y `DATABASE_URL`. No son un fallo: son herramienta del ensayo/corte. Cuando se dé de baja Supabase hay que archivarlas.
 - **Sin CI en GitHub:** el gate (`lint`, `tsc`, `build`, `npm audit`, E2E) depende de correrlo a mano. Pendiente sumar los workflows de plantilla de `codetlon-cloud/templates/backend-propio/.github/workflows/`.
 - **Dependencias:** `next` 15.5.28. Moderadas restantes solo de herramientas (`esbuild` de `drizzle-kit`), sin parche estable.
+
+## [DISPONIBILIDAD] 503 del dominio sin www (2026-11-17)
+`https://gruasinglobal.com/` y `inglobal.51.91.253.54.sslip.io` devuelven 503 `no available server` (Traefik, sin router en Coolify); solo `www.gruasinglobal.com` esta servido. Los anuncios y enlaces deben usar `https://www.gruasinglobal.com`. Arreglo definitivo en Coolify (apex con redirect a www). Las migraciones que fallan al arrancar ahora solo se registran en el log (`[migrate]`): revisar los logs tras cada deploy.
