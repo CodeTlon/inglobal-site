@@ -14,8 +14,14 @@ export async function register() {
   const { drizzle } = await import('drizzle-orm/node-postgres')
   const { db } = await import('@/lib/db')
 
-  await migrate(drizzle({ client: db.pool() }), { migrationsFolder: path.join(process.cwd(), 'drizzle') })
-  console.log('[migrate] migraciones al día')
+  // Si la base no responde al arrancar NO se frena el servidor: el sitio degrada a datos de fallback
+  // y las migraciones se reintentan en el próximo arranque (antes, un fallo dejaba al contenedor sin escuchar).
+  try {
+    await migrate(drizzle({ client: db.pool() }), { migrationsFolder: path.join(process.cwd(), 'drizzle') })
+    console.log('[migrate] migraciones al día')
+  } catch (e) {
+    console.error('[migrate] no se pudieron aplicar las migraciones:', e instanceof Error ? e.message : e)
+  }
 }
 
 async function prepararBucket() {
