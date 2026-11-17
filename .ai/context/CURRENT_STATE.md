@@ -1,6 +1,6 @@
 # CURRENT_STATE — Grúas InGlobal
 
-**Actualizacion 2026-11-17 (v2.3.2):** Google Ads rechazo un anuncio por HTTP 503 (AdsBot movil). Causa: `https://gruasinglobal.com/` (apex) y la URL sslip.io dan 503 `no available server` de Traefik; `www` responde 200. Pendiente en Coolify (revisar a mano): dominio apex con redirect a www y revisar la URL final del anuncio. En codigo: `/api/health/live` como healthcheck del contenedor, timeouts y cortacircuito en `lib/db.ts`, migraciones sin bloquear el arranque. Rama `feature/dev1-fix-503-anuncios`. Falta: cache de lecturas publicas.
+**Actualizacion 2026-11-17 (v2.3.2):** Google Ads rechazo un anuncio por HTTP 503 (AdsBot movil). Causa: `https://gruasinglobal.com/` (apex) y la URL sslip.io dan 503 `no available server` de Traefik; `www` responde 200. Pendiente en Coolify (revisar a mano): dominio apex con redirect a www y revisar la URL final del anuncio. En codigo: `/api/health/live` como healthcheck del contenedor, timeouts y cortacircuito en `lib/db.ts`, migraciones sin bloquear el arranque. Rama `feature/dev1-fix-503-anuncios`. `next.config.mjs` redirige apex -> www (308). Descartado: cache de lecturas publicas (el cortacircuito ya cubre la caida de la base).
 
 **Actualizacion 2026-10-21 (v2.2.0):** el calendario semanal del dashboard (`/dashboard/agenda/calendario`) se rediseño para la tele: 7 columnas sin scroll de pagina, scroll interno por dia y navegacion con control remoto. Corregido ademas el corrimiento de un dia de la semana (Date serializado en UTC). Pendiente: probarlo en una tele real.
 
