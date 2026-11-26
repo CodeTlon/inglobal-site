@@ -3,7 +3,7 @@
 Mapa de mantenimiento, vigente al 2026-10-16. La arquitectura detallada vive en `.ai/context/ARCHITECTURE.md` (empezar por `.ai/context/00_INDEX.md`).
 
 ## Stack
-Next.js 16.4.2 (App Router) · React 19.3.1 · TypeScript 6 · Tailwind 4 (tokens `igb-*` en `@theme`) · Zod 4 · Postgres 17 + Drizzle (migraciones) con capa propia `lib/db.ts` sobre `pg` · Better Auth · archivos en `STORAGE_DIR` servidos por `/media` (o bucket S3-compatible) · Resend · microservicio de video `services/video-transcode/`. Node 22. Coolify con `docker-compose.coolify.yml` (`app`, `db`, `cron`).
+Next.js 16.4.6 (App Router) · React 19.3.1 · TypeScript 6 · Tailwind 4 (tokens `igb-*` en `@theme`) · Zod 4 · Postgres 17 + Drizzle (migraciones) con capa propia `lib/db.ts` sobre `pg` · Better Auth · archivos en `STORAGE_DIR` servidos por `/media` (o bucket S3-compatible) · Resend · microservicio de video `services/video-transcode/`. Node 22. Coolify con `docker-compose.coolify.yml` (`app`, `db`, `cron`).
 
 ## Estructura
 - `app/` — sitio publico (`quienes-somos`, `servicios`, `montajes`, `clientes`, `contacto`, `galeria`, legales), `dashboard/` (CMS y agenda), `agenda-tv/`, `api/` (capa REST para la app mobile, con Bearer token), `media/`, `actions/` (Server Actions).

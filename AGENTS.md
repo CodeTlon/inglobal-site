@@ -6,7 +6,7 @@ Sitio institucional + dashboard CMS de Grúas InGlobal S.R.L. (grúas/hidrogrúa
 
 | Capa | Tecnología |
 |---|---|
-| Framework | Next.js 16.4.2 (App Router, RSC) + React 19.3.1 |
+| Framework | Next.js 16.4.6 (App Router, RSC) + React 19.3.1 |
 | Lenguaje | TypeScript 5 (`strict: true`) |
 | UI | Tailwind CSS 4.3.3 + tokens custom `igb-*` en `@theme` (sin `tailwind.config.ts`) |
 | Validación | Zod **v4** + react-hook-form |
